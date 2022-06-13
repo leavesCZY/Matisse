@@ -1,6 +1,6 @@
 # Matisse
 
-用 Jetpack Compose 实现的 Android 图片选择框架
+一个用 Jetpack Compose 实现的 Android 图片选择框架
 
 特点 & 优势：
 
@@ -11,8 +11,6 @@
 - 支持在图片列表页开启拍照入口，同时支持 FileProvider 和 MediaStore 两种拍照策略
 - 支持详细获取图片信息，一共包含 uri、displayName、mimeType、width、height、orientation、size、path、bucketId、bucketDisplayName 等十个属性值
 - 已适配到 Android 12
-
-
 
 |                           日间主题                           |                           夜间主题                           |                          自定义主题                          |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
@@ -28,13 +26,13 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.leavesCZY:Matisse:0.0.1'
+    implementation "com.github.leavesCZY:Matisse:0.0.1"
 }
 ```
 
 # 二、使用
 
-通过 ActivityResultContract 来启动 Matisse，在回调函数里获取用户选择的图片或者是拍摄的图片
+通过 MatisseContract 来启动 Matisse，在回调函数里获取用户选择的图片或拍摄的照片
 
 ```kotlin
 class MainActivity : AppCompatActivity() {
@@ -44,14 +42,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val matisseContractLauncher = registerForActivityResult(MatisseContract()) {
-            if (it.isNotEmpty()) {
-                val mediaResources = it[0]
-                val imageUri = mediaResources.uri
-                val imagePath = mediaResources.path
-                val imageWidth = mediaResources.width
-                val imageHeight = mediaResources.height
-            }
+        if (it.isNotEmpty()) {
+            val mediaResources = it[0]
+            val imageUri = mediaResources.uri
+            val imagePath = mediaResources.path
+            val imageWidth = mediaResources.width
+            val imageHeight = mediaResources.height
         }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,7 +65,7 @@ class MainActivity : AppCompatActivity() {
 
 # 三、自定义
 
-通过实例化特定的 Matisse 对象来自定义各种配置项，一共支持以下六个自定义属性
+通过 Matisse 对象来实现自定义，一共支持以下六个自定义属性
 
 ```kotlin
 /**
@@ -97,7 +95,7 @@ Matisse 提供了两种默认主题：
 - LightMatisseTheme。日间主题
 - DarkMatisseTheme。夜间主题
 
-开发者可以在以上两个主题的基础上，通过 `copy` 方法来快速构建想要的自定义主题
+开发者可以在这两个主题的基础上，通过 `copy` 方法来快速构建想要的效果
 
 ```kotlin
 LightMatisseTheme.copy(
@@ -210,7 +208,7 @@ spanCount 用于设置展示图片时的列数，默认是 4
 
 ## tips
 
-tips 用于设置通过 Toast 向用户弹出的文案，包括：权限被拒绝的提示、图片选择数量超限的提示。默认值如下所示
+tips 用于设置通过 Toast 向用户弹出的文案内容，包括：权限被拒绝时的提示、图片选择数量超限时的提示。默认值如下所示
 
 ```kotlin
 data class MatisseTips(
@@ -241,7 +239,7 @@ Matisse 提供了三种默认实现，默认值是 NothingCaptureStrategy，代�
 | FileProviderCaptureStrategy | 无                                                           | 外部需要配置 FileProvider | 否，图片存储在应用私有目录内，对用户不可见 |
 | MediaStoreCaptureStrategy   | Android 10 之前需要 WRITE_EXTERNAL_STORAGE 权限，Android 10 开始不需要权限 | 无                        | 是，图片存储在系统相册内，对用户可见       |
 
-假如使用的是 FileProviderCaptureStrategy，外部还需要配置 FileProvider。authorities 视自身情况而定，通过 authorities 来实例化 FileProviderCaptureStrategy
+如果使用的是 FileProviderCaptureStrategy，外部还需要配置 FileProvider，authorities 视自身情况而定，通过 authorities 来实例化 FileProviderCaptureStrategy
 
 ```kotlin
 <provider
@@ -277,7 +275,7 @@ Matisse 要求一个必需权限和一个可选权限
 
 ## 必需权限
 
-用于读取系统相册内所有的图片
+用于读取系统相册内的所有图片
 
 ```kotlin
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -285,9 +283,9 @@ Matisse 要求一个必需权限和一个可选权限
 
 ## 可选权限
 
-可选权限是否需要声明取决于采用了哪一种拍照策略：
+可选权限是否需要声明取决于开发者采用的拍照策略：
 
-- MediaStoreCaptureStrategy。由于在 Android 10 之前向系统相册写入图片需要获取到存储写入权限，所以需要申请 WRITE_EXTERNAL_STORAGE 权限。而 Android 10 开始之后的版本则不需要，因此可以将该权限的 maxSdkVersion 设为 28
+- MediaStoreCaptureStrategy。由于在 Android 10 之前向系统相册写入图片需要存储写入权限，所以需要申请 WRITE_EXTERNAL_STORAGE 权限。而 Android 10 开始之后的版本则不需要，因此可以将该权限的 maxSdkVersion 设为 28
 - FileProviderCaptureStrategy。无需申请此权限
 
 ```kotlin
@@ -296,3 +294,6 @@ Matisse 要求一个必需权限和一个可选权限
     android:maxSdkVersion="28" />
 ```
 
+# 五、更多介绍
+
+- [Jetpack Compose 实现一个图片选择框架](https://juejin.cn/post/7108420791502372895)
