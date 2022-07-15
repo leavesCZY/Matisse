@@ -14,6 +14,7 @@ import androidx.activity.viewModels
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
@@ -26,6 +27,8 @@ import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import github.leavesczy.matisse.MatisseContract
 import github.leavesczy.matisse.MediaResources
+import github.leavesczy.matisse.internal.model.MatissePageAction
+import github.leavesczy.matisse.internal.model.MatissePreviewViewState
 import github.leavesczy.matisse.internal.theme.MatisseTheme
 import github.leavesczy.matisse.internal.utils.PermissionUtils
 import github.leavesczy.matisse.internal.vm.MatisseViewModel
@@ -152,6 +155,46 @@ class MatisseActivity : ComponentActivity() {
 
     @Composable
     private fun NavigationView(navController: NavHostController) {
+        val matisseViewState by matisseViewModel.matisseViewState.collectAsState()
+        val lazyGridState = remember(key1 = matisseViewState.selectedBucket.bucketId) {
+            LazyGridState(
+                firstVisibleItemIndex = 0,
+                firstVisibleItemScrollOffset = 0
+            )
+        }
+        val matissePageAction = remember {
+            MatissePageAction(onClickBackMenu = {
+                finish()
+            }, onCapture = {
+                dispatchTakePicture()
+            }, isCaptureMediaResources = {
+                matisseViewModel.isCaptureMediaResources(it)
+            }, onSelectBucket = {
+                matisseViewModel.onSelectBucket(it)
+            }, onMediaCheckChanged = {
+                matisseViewModel.onMediaCheckChanged(it)
+            }, onClickMedia = { mediaResource ->
+                val previewOnlySelected = 0
+                val previewPageStartIndex =
+                    matisseViewModel.matisseViewState.value.selectedBucket.resources.indexOf(
+                        mediaResource
+                    )
+                navController.navigate(
+                    route = "$routePreviewSuffix/$previewOnlySelected/$previewPageStartIndex"
+                )
+            }, onPreviewSelectedResources = {
+                val selectedMediaResources = matisseViewModel.selectedMediaResources
+                if (selectedMediaResources.isNotEmpty()) {
+                    val previewOnlySelected = 1
+                    val previewPageStartIndex = 0
+                    navController.navigate(
+                        route = "$routePreviewSuffix/$previewOnlySelected/$previewPageStartIndex"
+                    )
+                }
+            }, onSure = {
+                onSure(selectedMediaResources = matisseViewModel.selectedMediaResources)
+            })
+        }
         AnimatedNavHost(
             modifier = Modifier,
             navController = navController,
@@ -177,41 +220,14 @@ class MatisseActivity : ComponentActivity() {
                 route = routeMatisse
             ) {
                 MatissePage(
-                    matisse = matisse,
-                    matisseViewModel = matisseViewModel,
-                    onClickBackMenu = {
-                        finish()
-                    },
-                    onCapture = {
-                        dispatchTakePicture()
-                    },
-                    onPreviewSelectedResources = {
-                        val selectedMediaResources = matisseViewModel.selectedMediaResources
-                        if (selectedMediaResources.isNotEmpty()) {
-                            val previewOnlySelected = 1
-                            val previewPageStartIndex = 0
-                            navController.navigate(
-                                route = "$routePreviewSuffix/$previewOnlySelected/$previewPageStartIndex"
-                            )
-                        }
-                    },
-                    onClickMedia = { mediaResource ->
-                        val previewOnlySelected = 0
-                        val previewPageStartIndex =
-                            matisseViewModel.matisseViewState.value.selectedBucket.resources.indexOf(
-                                mediaResource
-                            )
-                        navController.navigate(
-                            route = "$routePreviewSuffix/$previewOnlySelected/$previewPageStartIndex"
-                        )
-                    }, onSure = {
-                        onSure(selectedMediaResources = matisseViewModel.selectedMediaResources)
-                    })
+                    matisseViewState = matisseViewState,
+                    pageAction = matissePageAction,
+                    lazyGridState = lazyGridState
+                )
             }
             composable(
                 route = routePreview
             ) { backStackEntry ->
-                val matisseViewState by matisseViewModel.matisseViewState.collectAsState()
                 val previewOnlySelected by remember {
                     mutableStateOf(
                         backStackEntry.arguments?.getString(
@@ -236,11 +252,13 @@ class MatisseActivity : ComponentActivity() {
                     )
                 }
                 MatissePreviewPage(
-                    matisse = matisse,
-                    matisseViewModel = matisseViewModel,
-                    previewResource = previewResource,
-                    selectedMediaResources = matisseViewState.selectedMediaResources,
-                    initialPage = initialPage
+                    viewState = MatissePreviewViewState(matisse = matisse,
+                        initialPage = initialPage,
+                        previewResource = previewResource,
+                        selectedMediaResources = matisseViewState.selectedMediaResources,
+                        onMediaCheckChanged = {
+                            matisseViewModel.onMediaCheckChanged(mediaResources = it)
+                        })
                 )
             }
         }

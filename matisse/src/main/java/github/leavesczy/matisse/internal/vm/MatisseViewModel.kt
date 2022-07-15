@@ -60,6 +60,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             },
         )
         MatisseViewState(
+            matisse = matisse,
             state = MatisseState.PermissionRequesting,
             allBucket = listOf(defaultBucket),
             selectedBucket = defaultBucket,
@@ -175,6 +176,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 allBucket.add(0, defaultBucket)
                 _matisseViewState.emit(
                     MatisseViewState(
+                        matisse = matisse,
                         state = MatisseState.ImagesLoaded,
                         allBucket = allBucket,
                         selectedBucket = defaultBucket,

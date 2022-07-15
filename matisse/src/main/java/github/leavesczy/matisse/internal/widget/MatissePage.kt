@@ -11,8 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,10 +23,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResources
+import github.leavesczy.matisse.internal.model.MatissePageAction
+import github.leavesczy.matisse.internal.model.MatisseViewState
 import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
-import github.leavesczy.matisse.internal.vm.MatisseViewModel
 
 /**
  * @Author: CZY
@@ -37,13 +35,9 @@ import github.leavesczy.matisse.internal.vm.MatisseViewModel
  */
 @Composable
 internal fun MatissePage(
-    matisse: Matisse,
-    matisseViewModel: MatisseViewModel,
-    onPreviewSelectedResources: () -> Unit,
-    onCapture: () -> Unit,
-    onClickBackMenu: () -> Unit,
-    onClickMedia: (MediaResources) -> Unit,
-    onSure: () -> Unit
+    matisseViewState: MatisseViewState,
+    pageAction: MatissePageAction,
+    lazyGridState: LazyGridState
 ) {
     val systemBarsTheme = LocalMatisseTheme.current.systemBarsTheme
     val systemUiController = rememberSystemUiController()
@@ -55,20 +49,32 @@ internal fun MatissePage(
         color = systemBarsTheme.navigationBarColor,
         darkIcons = systemBarsTheme.navigationBarDarkIcons,
     )
-    val matisseViewState by matisseViewModel.matisseViewState.collectAsState()
     val displayResources = matisseViewState.selectedBucket.displayResources
     val selectedMediaResources = matisseViewState.selectedMediaResources
-    val lazyGridState = remember(key1 = displayResources.size) {
-        LazyGridState(
-            firstVisibleItemIndex = 0,
-            firstVisibleItemScrollOffset = 0
-        )
-    }
-    val onMediaCheckChanged: (MediaResources) -> Unit = remember {
-        {
-            matisseViewModel.onMediaCheckChanged(it)
+    val matisse = matisseViewState.matisse
+    val keyBuilder: (index: Int) -> Any =
+        remember(
+            key1 = matisseViewState.selectedBucket.bucketId +
+                    matisseViewState.selectedBucket.displayResources.size
+        ) {
+            {
+                displayResources[it].key
+            }
         }
-    }
+    val contentTypeBuilder: (index: Int) -> Any? =
+        remember(
+            key1 = matisseViewState.selectedBucket.bucketId +
+                    matisseViewState.selectedBucket.displayResources.size
+        ) {
+            {
+                val resources = displayResources[it]
+                if (pageAction.isCaptureMediaResources(resources)) {
+                    "capture"
+                } else {
+                    "album"
+                }
+            }
+        }
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -78,20 +84,18 @@ internal fun MatissePage(
             MatisseTopAppBar(
                 allBucket = matisseViewState.allBucket,
                 selectedBucket = matisseViewState.selectedBucket,
-                onClickBackMenu = onClickBackMenu,
-                onSelectBucket = {
-                    matisseViewModel.onSelectBucket(it)
-                },
+                onClickBackMenu = pageAction.onClickBackMenu,
+                onSelectBucket = pageAction.onSelectBucket,
             )
         },
         bottomBar = {
             MatisseBottomNavigation(
                 previewText = matisseViewState.previewText,
                 previewBtnClickable = matisseViewState.sureBtnClickable,
-                onPreview = onPreviewSelectedResources,
+                onPreview = pageAction.onPreviewSelectedResources,
                 sureText = matisseViewState.sureText,
                 sureBtnClickable = matisseViewState.sureBtnClickable,
-                onSure = onSure,
+                onSure = pageAction.onSure,
             )
         }
     ) { contentPadding ->
@@ -106,28 +110,24 @@ internal fun MatissePage(
             )
         ) {
             items(
-                key = { itemIndex ->
-                    displayResources[itemIndex].key
-                },
-                contentType = { itemIndex ->
-                    displayResources[itemIndex].key
-                },
+                key = keyBuilder,
+                contentType = contentTypeBuilder,
                 count = displayResources.size,
                 itemContent = { itemIndex ->
                     val resources = displayResources[itemIndex]
-                    if (matisseViewModel.isCaptureMediaResources(resources)) {
-                        CaptureItem(onClick = onCapture)
+                    if (pageAction.isCaptureMediaResources(resources)) {
+                        CaptureItem(onClick = pageAction.onCapture)
                     } else {
                         val isSelected = selectedMediaResources.contains(resources)
                         val enabled =
-                            isSelected || matisseViewState.selectedMediaResources.size < matisse.maxSelectable
+                            isSelected || selectedMediaResources.size < matisse.maxSelectable
                         AlbumItem(
                             mediaResources = resources,
                             isSelected = isSelected,
                             enabled = enabled,
                             position = selectedMediaResources.indexOf(resources) + 1,
-                            onClickMedia = onClickMedia,
-                            onMediaCheckChanged = onMediaCheckChanged
+                            onClickMedia = pageAction.onClickMedia,
+                            onMediaCheckChanged = pageAction.onMediaCheckChanged
                         )
                     }
                 }

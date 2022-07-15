@@ -18,10 +18,8 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import github.leavesczy.matisse.Matisse
-import github.leavesczy.matisse.MediaResources
+import github.leavesczy.matisse.internal.model.MatissePreviewViewState
 import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
-import github.leavesczy.matisse.internal.vm.MatisseViewModel
 import kotlin.math.absoluteValue
 
 /**
@@ -30,13 +28,7 @@ import kotlin.math.absoluteValue
  * @Desc:
  */
 @Composable
-internal fun MatissePreviewPage(
-    matisse: Matisse,
-    matisseViewModel: MatisseViewModel,
-    previewResource: List<MediaResources>,
-    selectedMediaResources: List<MediaResources>,
-    initialPage: Int
-) {
+internal fun MatissePreviewPage(viewState: MatissePreviewViewState) {
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(
         color = Color.Transparent,
@@ -46,6 +38,11 @@ internal fun MatissePreviewPage(
         color = Color.Transparent,
         darkIcons = false,
     )
+    val matisse = viewState.matisse
+    val initialPage = viewState.initialPage
+    val previewResource = viewState.previewResource
+    val selectedMediaResources = viewState.selectedMediaResources
+    val onMediaCheckChanged = viewState.onMediaCheckChanged
     val pagerState = rememberPagerState(initialPage = initialPage)
     var currentPageIndex by remember {
         mutableStateOf(initialPage)
@@ -100,7 +97,8 @@ internal fun MatissePreviewPage(
                 )
             }
             val isSelected = selectedMediaResources.contains(previewResource[currentPageIndex])
-            val enabled = isSelected || selectedMediaResources.size < matisse.maxSelectable
+            val enabled =
+                isSelected || selectedMediaResources.size < matisse.maxSelectable
             MatisseCheckbox(
                 modifier = Modifier
                     .align(alignment = Alignment.TopEnd)
@@ -115,7 +113,7 @@ internal fun MatissePreviewPage(
                 checked = isSelected,
                 enabled = enabled,
                 onCheckedChange = {
-                    matisseViewModel.onMediaCheckChanged(mediaResources = previewResource[currentPageIndex])
+                    onMediaCheckChanged(previewResource[currentPageIndex])
                 }
             )
         }

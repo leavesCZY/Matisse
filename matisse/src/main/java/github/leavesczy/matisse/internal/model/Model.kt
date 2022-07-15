@@ -1,6 +1,7 @@
 package github.leavesczy.matisse.internal.model
 
 import android.net.Uri
+import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResources
 
 /**
@@ -26,6 +27,7 @@ internal data class MediaBucket(
 )
 
 internal data class MatisseViewState(
+    val matisse: Matisse,
     val state: MatisseState,
     val allBucket: List<MediaBucket>,
     val selectedBucket: MediaBucket,
@@ -34,4 +36,23 @@ internal data class MatisseViewState(
     val previewBtnClickable: Boolean,
     val sureText: String,
     val sureBtnClickable: Boolean,
+)
+
+internal data class MatissePageAction(
+    val onClickBackMenu: () -> Unit,
+    val onCapture: () -> Unit,
+    val isCaptureMediaResources: (MediaResources) -> Boolean,
+    val onSelectBucket: (MediaBucket) -> Unit,
+    val onMediaCheckChanged: (MediaResources) -> Unit,
+    val onClickMedia: (MediaResources) -> Unit,
+    val onPreviewSelectedResources: () -> Unit,
+    val onSure: () -> Unit,
+)
+
+internal data class MatissePreviewViewState(
+    val matisse: Matisse,
+    val initialPage: Int,
+    val previewResource: List<MediaResources>,
+    val selectedMediaResources: List<MediaResources>,
+    val onMediaCheckChanged: (MediaResources) -> Unit,
 )
