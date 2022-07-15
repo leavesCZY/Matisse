@@ -1,4 +1,4 @@
-# Matisse
+# Matisse [![](https://jitpack.io/v/leavesCZY/Matisse.svg)](https://jitpack.io/#leavesCZY/Matisse)
 
 一个用 Jetpack Compose 实现的 Android 图片选择框架
 
@@ -7,10 +7,10 @@
 - 完全用 Kotlin 实现，拒绝 Java
 - UI 层完全用 Jetpack Compose 实现，拒绝原生 View 体系
 - 支持精细自定义主题，默认提供了 日间 和 夜间 两种主题
-- 支持精准筛选图片类型，只会显示想要的图片类型
+- 支持精准筛选图片类型，只显示想要的图片类型
 - 支持在图片列表页开启拍照入口，同时支持 FileProvider 和 MediaStore 两种拍照策略
 - 支持详细获取图片信息，一共包含 uri、displayName、mimeType、width、height、orientation、size、path、bucketId、bucketDisplayName 等十个属性值
-- 已适配到 Android 12
+- 适配到 Android 12
 
 |                           日间主题                           |                           夜间主题                           |                          自定义主题                          |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
@@ -26,7 +26,7 @@ allprojects {
 }
 
 dependencies {
-    implementation "com.github.leavesCZY:Matisse:0.0.1"
+    implementation "com.github.leavesCZY:Matisse:latestVersion"
 }
 ```
 
@@ -69,12 +69,12 @@ class MainActivity : AppCompatActivity() {
 
 ```kotlin
 /**
- * @param theme 主题，默认是日间主题
- * @param supportedMimeTypes 需要显示的图片类型，默认是包含 Gif 在内的所有图片
- * @param maxSelectable 可以选择的最大图片数量，默认是 1
- * @param spanCount 显示图片列表时的列表，默认是 4
+ * @param theme 主题。默认是日间主题
+ * @param supportedMimeTypes 需要显示的图片类型。默认是包含 Gif 在内的所有图片
+ * @param maxSelectable 可以选择的最大图片数量。默认是 1
+ * @param spanCount 显示图片列表时的列表。默认是 4
  * @param tips 权限被拒绝、图片数量超限时的 Toast 提示
- * @param captureStrategy 拍照策略，默认不开启拍照功能
+ * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 data class Matisse(
     val theme: MatisseTheme = LightMatisseTheme,

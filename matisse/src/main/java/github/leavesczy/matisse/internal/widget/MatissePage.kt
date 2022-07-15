@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
@@ -55,6 +56,14 @@ internal fun MatissePage(
         darkIcons = systemBarsTheme.navigationBarDarkIcons,
     )
     val matisseViewState by matisseViewModel.matisseViewState.collectAsState()
+    val displayResources = matisseViewState.selectedBucket.displayResources
+    val selectedMediaResources = matisseViewState.selectedMediaResources
+    val lazyGridState = remember(key1 = displayResources.size) {
+        LazyGridState(
+            firstVisibleItemIndex = 0,
+            firstVisibleItemScrollOffset = 0
+        )
+    }
     val onMediaCheckChanged: (MediaResources) -> Unit = remember {
         {
             matisseViewModel.onMediaCheckChanged(it)
@@ -86,22 +95,24 @@ internal fun MatissePage(
             )
         }
     ) { contentPadding ->
-        val displayResources = matisseViewState.selectedBucket.displayResources
-        val selectedMediaResources = matisseViewState.selectedMediaResources
         LazyVerticalGrid(
             columns = GridCells.Fixed(count = matisse.spanCount),
+            state = lazyGridState,
             contentPadding = PaddingValues(
                 start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
-                top = contentPadding.calculateTopPadding() + 4.dp,
+                top = contentPadding.calculateTopPadding(),
                 end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
-                bottom = contentPadding.calculateBottomPadding() + 8.dp
+                bottom = contentPadding.calculateBottomPadding() + 32.dp
             )
         ) {
             items(
-                count = displayResources.size,
                 key = { itemIndex ->
                     displayResources[itemIndex].key
                 },
+                contentType = { itemIndex ->
+                    displayResources[itemIndex].key
+                },
+                count = displayResources.size,
                 itemContent = { itemIndex ->
                     val resources = displayResources[itemIndex]
                     if (matisseViewModel.isCaptureMediaResources(resources)) {

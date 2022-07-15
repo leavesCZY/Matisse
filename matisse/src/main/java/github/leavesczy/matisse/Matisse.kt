@@ -11,12 +11,12 @@ import kotlinx.parcelize.Parcelize
  * @Desc:
  */
 /**
- * @param theme 主题，默认是日间主题
- * @param supportedMimeTypes 需要显示的图片类型，默认是包含 Gif 在内的所有图片
- * @param maxSelectable 可以选择的最大图片数量，默认是 1
- * @param spanCount 显示图片列表时的列表，默认是 4
+ * @param theme 主题。默认是日间主题
+ * @param supportedMimeTypes 需要显示的图片类型。默认是包含 Gif 在内的所有图片
+ * @param maxSelectable 可以选择的最大图片数量。默认是 1
+ * @param spanCount 显示图片列表时的列表。默认是 4
  * @param tips 权限被拒绝、图片数量超限时的 Toast 提示
- * @param captureStrategy 拍照策略，默认不开启拍照功能
+ * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 data class Matisse(
     val theme: MatisseTheme = LightMatisseTheme,
