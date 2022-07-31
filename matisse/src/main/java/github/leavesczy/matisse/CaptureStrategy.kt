@@ -55,7 +55,9 @@ interface CaptureStrategy {
      * 生成图片文件名
      */
     fun createImageName(): String {
-        return UUID.randomUUID().toString() + ".jpg"
+        val uuid = UUID.randomUUID().toString()
+        val randomName = uuid.substring(0, 8)
+        return "$randomName.jpg"
     }
 
 }
@@ -107,25 +109,27 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
 
     override suspend fun createImageUri(context: Context): Uri? {
         return withContext(context = Dispatchers.IO) {
-            return@withContext try {
-                val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-                val tempFile = File.createTempFile(
-                    createImageName(),
-                    "",
-                    storageDir
-                )
-                val uri = FileProvider.getUriForFile(
-                    context,
-                    authority,
-                    tempFile
-                )
-                uriFileMap[uri] = tempFile
-                return@withContext uri
+            try {
+                val tempFile = createTempFile(context = context)
+                if (tempFile != null) {
+                    val uri = FileProvider.getUriForFile(context, authority, tempFile)
+                    uriFileMap[uri] = tempFile
+                    return@withContext uri
+                }
             } catch (e: Throwable) {
                 e.printStackTrace()
-                null
             }
+            return@withContext null
         }
+    }
+
+    private fun createTempFile(context: Context): File? {
+        val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val file = File(storageDir, createImageName())
+        if (file.createNewFile()) {
+            return file
+        }
+        return null
     }
 
     override suspend fun loadResources(context: Context, imageUri: Uri): MediaResources {
