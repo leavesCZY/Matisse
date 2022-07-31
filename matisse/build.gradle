@@ -4,8 +4,8 @@ plugins {
     id 'kotlin-parcelize'
 }
 
-def compose_version = '1.2.0-rc02'
-def accompanist_version = '0.24.13-rc'
+def compose_version = '1.2.0'
+def accompanist_version = '0.25.0'
 
 android {
     compileSdk 32
@@ -29,7 +29,6 @@ android {
                 "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi",
                 "-Xopt-in=com.google.accompanist.pager.ExperimentalPagerApi",
         ]
-        useIR = true
     }
 }
 
