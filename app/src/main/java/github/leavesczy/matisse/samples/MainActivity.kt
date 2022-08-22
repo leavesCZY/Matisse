@@ -52,11 +52,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<RadioGroup>(R.id.radioGroupEnableCapture)
     }
 
-    private val imageList = mutableListOf<MediaResources>()
+    private val imageList = mutableListOf<MediaResource>()
 
     private val imageAdapter = ImageAdapter(imageList)
 
-    private val activityResultCallback = ActivityResultCallback<List<MediaResources>> {
+    private val activityResultCallback = ActivityResultCallback<List<MediaResource>> {
         if (it.isNotEmpty()) {
             imageList.clear()
             imageList.addAll(it)

@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.internal.widget
+package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,14 +12,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import github.leavesczy.matisse.internal.model.MediaBucket
+import github.leavesczy.matisse.internal.logic.MediaBucket
 import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 
 /**
@@ -29,7 +28,7 @@ import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
  * @Github：https://github.com/leavesCZY
  */
 @Composable
-internal fun MatisseTopAppBar(
+internal fun MatisseTopBar(
     allBucket: List<MediaBucket>,
     selectedBucket: MediaBucket,
     onClickBackMenu: () -> Unit,
@@ -87,7 +86,6 @@ internal fun MatisseTopAppBar(
                     textAlign = TextAlign.Start
                 )
                 Icon(
-                    modifier = Modifier,
                     imageVector = Icons.Filled.ArrowDropDown,
                     tint = topAppBarTheme.contentColor,
                     contentDescription = null,
@@ -123,17 +121,14 @@ private fun BucketDropdownMenu(
                 modifier = Modifier
                     .padding(bottom = 6.dp)
                     .fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
                 content = {
                     AsyncImage(
                         modifier = Modifier
-                            .padding(start = 6.dp)
                             .size(size = 50.dp)
-                            .clip(shape = RoundedCornerShape(size = 4f))
+                            .clip(shape = RoundedCornerShape(size = 2.dp))
                             .background(color = LocalMatisseTheme.current.imageBackgroundColor),
                         model = bucket.bucketDisplayIcon,
                         contentScale = ContentScale.Crop,
-                        filterQuality = FilterQuality.None,
                         contentDescription = null,
                     )
                     Text(

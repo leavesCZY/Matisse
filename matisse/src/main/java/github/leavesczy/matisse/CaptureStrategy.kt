@@ -9,7 +9,7 @@ import android.os.Build
 import android.os.Environment
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
-import github.leavesczy.matisse.internal.provider.MediaProvider
+import github.leavesczy.matisse.internal.logic.MediaProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -44,7 +44,7 @@ interface CaptureStrategy {
     /**
      * 获取拍照结果
      */
-    suspend fun loadResources(context: Context, imageUri: Uri): MediaResources?
+    suspend fun loadResource(context: Context, imageUri: Uri): MediaResource?
 
     /**
      * 当用户取消拍照时调用
@@ -79,7 +79,7 @@ object NothingCaptureStrategy : CaptureStrategy {
         return null
     }
 
-    override suspend fun loadResources(context: Context, imageUri: Uri): MediaResources? {
+    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
         return null
     }
 
@@ -91,8 +91,7 @@ object NothingCaptureStrategy : CaptureStrategy {
 
 /**
  *  通过 FileProvider 来生成拍照所需要的 ImageUri
- *  无需申请权限
- *  所拍的照片不会保存在系统相册里
+ *  无需申请权限，所拍的照片不会保存在系统相册里
  *  外部必须配置 FileProvider，并在此处传入 authority
  */
 class FileProviderCaptureStrategy(private val authority: String) : CaptureStrategy {
@@ -132,7 +131,7 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
         return null
     }
 
-    override suspend fun loadResources(context: Context, imageUri: Uri): MediaResources {
+    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
         return withContext(context = Dispatchers.IO) {
             val imageFile = uriFileMap[imageUri]!!
             uriFileMap.remove(imageUri)
@@ -140,7 +139,8 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
             val option = BitmapFactory.Options()
             option.inJustDecodeBounds = true
             BitmapFactory.decodeFile(imageFilePath, option)
-            return@withContext MediaResources(
+            return@withContext MediaResource(
+                id = 0,
                 uri = imageUri,
                 displayName = imageFile.name,
                 mimeType = option.outMimeType ?: "",
@@ -192,7 +192,7 @@ class MediaStoreCaptureStrategy : CaptureStrategy {
         return MediaProvider.createImage(context = context, fileName = createImageName())
     }
 
-    override suspend fun loadResources(context: Context, imageUri: Uri): MediaResources? {
+    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
         return MediaProvider.loadResources(
             context = context,
             uri = imageUri

@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.internal
+package github.leavesczy.matisse.internal.logic
 
 import github.leavesczy.matisse.Matisse
 

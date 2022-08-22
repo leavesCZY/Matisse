@@ -1,11 +1,10 @@
-package github.leavesczy.matisse.internal.widget
+package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.Text
@@ -15,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 
 /**
@@ -24,22 +24,18 @@ import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
  * @Github：https://github.com/leavesCZY
  */
 @Composable
-internal fun MatisseBottomNavigation(
-    previewText: String,
-    previewBtnClickable: Boolean,
-    sureText: String,
-    sureBtnClickable: Boolean,
-    onPreview: () -> Unit,
-    onSure: () -> Unit
-) {
+internal fun MatisseBottomBar(viewState: MatisseBottomBarViewState, onSureButtonClick: () -> Unit) {
     val bottomNavigationTheme = LocalMatisseTheme.current.bottomNavigationTheme
     val previewButtonTheme = LocalMatisseTheme.current.previewButtonTheme
     val sureButtonTheme = LocalMatisseTheme.current.sureButtonTheme
     val alphaIfDisable = LocalMatisseTheme.current.alphaIfDisable
-    BottomNavigation(backgroundColor = bottomNavigationTheme.backgroundColor) {
-        if (previewText.isNotBlank()) {
+    BottomNavigation(
+        backgroundColor = bottomNavigationTheme.backgroundColor,
+        elevation = 16.dp
+    ) {
+        if (viewState.previewText.isNotBlank()) {
             val previewTextStyle = previewButtonTheme.textStyle.let {
-                if (previewBtnClickable) {
+                if (viewState.previewButtonClickable) {
                     it
                 } else {
                     it.copy(color = it.color.copy(alpha = alphaIfDisable))
@@ -47,56 +43,52 @@ internal fun MatisseBottomNavigation(
             }
             Text(
                 modifier = Modifier
-                    .clickable {
-                        onPreview()
-                    }
+                    .align(alignment = Alignment.CenterVertically)
+                    .then(other = if (viewState.previewButtonClickable) {
+                        Modifier.clickable {
+                            viewState.onPreviewButtonClick()
+                        }
+                    } else {
+                        Modifier
+                    })
                     .fillMaxHeight()
-                    .wrapContentHeight(align = Alignment.CenterVertically)
-                    .padding(start = 20.dp, end = 20.dp),
+                    .padding(horizontal = 22.dp)
+                    .wrapContentHeight(align = Alignment.CenterVertically),
                 textAlign = TextAlign.Center,
                 style = previewTextStyle,
-                text = previewText,
+                text = viewState.previewText,
             )
         }
-        val sureButtonColor = sureButtonTheme.backgroundColor.let {
-            if (sureBtnClickable) {
-                it
-            } else {
-                it.copy(alpha = alphaIfDisable)
-            }
+        val sureButtonColor = if (viewState.sureButtonClickable) {
+            sureButtonTheme.backgroundColor
+        } else {
+            sureButtonTheme.backgroundColor.copy(alpha = alphaIfDisable)
         }
         val sureButtonTextStyle = sureButtonTheme.textStyle.let {
-            if (sureBtnClickable) {
+            if (viewState.sureButtonClickable) {
                 it
             } else {
-                it.copy(
-                    it.color.copy(alpha = alphaIfDisable)
-                )
+                it.copy(it.color.copy(alpha = alphaIfDisable))
             }
         }
         Text(
             modifier = Modifier
-                .weight(weight = 1f, fill = true)
                 .align(alignment = Alignment.CenterVertically)
-                .wrapContentWidth(align = Alignment.End)
-                .padding(end = 20.dp)
-                .clip(shape = RoundedCornerShape(percent = 64))
-                .then(other = Modifier
-                    .background(color = sureButtonColor)
-                    .let {
-                        if (sureBtnClickable) {
-                            it.clickable {
-                                onSure()
-                            }
-                        } else {
-                            it
-                        }
+                .weight(weight = 1f, fill = false)
+                .padding(end = 22.dp)
+                .clip(shape = RoundedCornerShape(size = 22.dp))
+                .background(color = sureButtonColor)
+                .then(other = if (viewState.sureButtonClickable) {
+                    Modifier.clickable {
+                        onSureButtonClick()
                     }
-                )
-                .padding(horizontal = 20.dp, vertical = 8.dp),
+                } else {
+                    Modifier
+                })
+                .padding(horizontal = 22.dp, vertical = 8.dp),
+            text = viewState.sureText,
             textAlign = TextAlign.Center,
-            style = sureButtonTextStyle,
-            text = sureText,
+            style = sureButtonTextStyle
         )
     }
 }

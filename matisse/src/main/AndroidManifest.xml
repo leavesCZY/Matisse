@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="github.leavesczy.matisse">
 
     <queries>
@@ -10,8 +11,10 @@
 
     <application>
         <activity
-            android:name=".internal.MatisseActivity"
-            android:configChanges="orientation|uiMode|keyboard|keyboardHidden"
-            android:exported="false" />
+            android:name=".internal.ui.MatisseActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation|uiMode"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
     </application>
 </manifest>

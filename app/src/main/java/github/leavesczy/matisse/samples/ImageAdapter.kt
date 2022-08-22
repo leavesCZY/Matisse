@@ -7,14 +7,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import github.leavesczy.matisse.MediaResources
+import github.leavesczy.matisse.MediaResource
 
 /**
  * @Author: CZY
  * @Date: 2022/6/2 15:12
  * @Desc:
  */
-class ImageAdapter(private val mediaResources: List<MediaResources>) :
+class ImageAdapter(private val mediaResources: List<MediaResource>) :
     RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

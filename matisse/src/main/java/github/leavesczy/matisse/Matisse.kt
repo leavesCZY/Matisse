@@ -44,7 +44,8 @@ data class Matisse(
 }
 
 @Parcelize
-data class MediaResources(
+data class MediaResource(
+    private val id: Long,
     val uri: Uri,
     val displayName: String,
     val mimeType: String,
@@ -58,7 +59,7 @@ data class MediaResources(
 ) : Parcelable {
 
     @IgnoredOnParcel
-    internal val key = bucketId + uri.toString()
+    internal val key = id
 
 }
 

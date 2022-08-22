@@ -1,20 +1,24 @@
-package github.leavesczy.matisse.internal.widget
+package github.leavesczy.matisse.internal.ui
 
 import android.graphics.Typeface
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.selection.triStateToggleable
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.CheckBoxTheme
 import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
@@ -36,26 +40,39 @@ internal fun MatisseCheckbox(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    val textPaint by remember {
-        mutableStateOf(Paint().asFrameworkPaint().apply {
+    val localDensity = LocalDensity.current
+    val textPaint = remember {
+        Paint().asFrameworkPaint().apply {
             isAntiAlias = true
             isDither = true
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
             textAlign = android.graphics.Paint.Align.CENTER
-        })
+            with(localDensity) {
+                textSize = theme.fontSize.toPx()
+                color = theme.textColor.toArgb()
+            }
+        }
     }
     val alphaIfDisable = LocalMatisseTheme.current.alphaIfDisable
     Canvas(
         modifier = modifier
-            .clickable {
-                onCheckedChange(!checked)
-            }
-            .padding(all = 4.dp)
-            .size(size = defaultSize)
+            .wrapContentSize(align = Alignment.Center)
+            .requiredSize(size = defaultSize)
+            .triStateToggleable(
+                state = ToggleableState(value = checked),
+                onClick = {
+                    onCheckedChange(!checked)
+                },
+                enabled = true,
+                role = Role.Checkbox,
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(
+                    bounded = false,
+                    radius = defaultSize
+                )
+            )
     ) {
-        val canvasWidth = size.width
-        val canvasHeight = size.height
-        val checkBoxSide = minOf(canvasWidth, canvasHeight)
+        val checkBoxSide = minOf(size.width, size.height)
         val stokeWidth = defaultStokeWidth.toPx()
         val outRadius = (checkBoxSide - stokeWidth) / 2f
         drawCircle(
@@ -77,21 +94,12 @@ internal fun MatisseCheckbox(
             drawTextToCenter(
                 text = text,
                 textPaint = textPaint,
-                textSize = theme.fontSize.toPx(),
-                textColor = theme.textColor.toArgb()
             )
         }
     }
 }
 
-private fun DrawScope.drawTextToCenter(
-    text: String,
-    textPaint: android.graphics.Paint,
-    textSize: Float,
-    textColor: Int
-) {
-    textPaint.textSize = textSize
-    textPaint.color = textColor
+private fun DrawScope.drawTextToCenter(text: String, textPaint: android.graphics.Paint) {
     val fontMetrics = textPaint.fontMetrics
     val x = size.width / 2f
     val y = size.height / 2f - (fontMetrics.top + fontMetrics.bottom) / 2f

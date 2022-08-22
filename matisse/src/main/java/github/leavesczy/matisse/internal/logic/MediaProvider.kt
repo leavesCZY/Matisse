@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.internal.provider
+package github.leavesczy.matisse.internal.logic
 
 import android.content.ContentUris
 import android.content.ContentValues
@@ -7,9 +7,8 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import github.leavesczy.matisse.MediaResources
+import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MimeType
-import github.leavesczy.matisse.internal.model.MediaBucket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -54,7 +53,7 @@ internal object MediaProvider {
         context: Context,
         selection: String?,
         selectionArgs: Array<String>?
-    ): List<MediaResources>? {
+    ): List<MediaResource>? {
         return withContext(context = Dispatchers.IO) {
             val projection = arrayOf(
                 MediaStore.Images.Media._ID,
@@ -69,7 +68,7 @@ internal object MediaProvider {
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
             )
             val sortOrder = "${MediaStore.Images.Media.DATE_MODIFIED} DESC"
-            val mediaResourcesList = mutableListOf<MediaResources>()
+            val mediaResourceList = mutableListOf<MediaResource>()
             try {
                 val mediaCursor = context.contentResolver.query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -100,7 +99,8 @@ internal object MediaProvider {
                                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                 id
                             )
-                        val mediaResources = MediaResources(
+                        val mediaResource = MediaResource(
+                            id = id,
                             uri = contentUri,
                             displayName = displayName,
                             mimeType = mimeType,
@@ -112,20 +112,20 @@ internal object MediaProvider {
                             bucketId = bucketId,
                             bucketDisplayName = bucketDisplayName,
                         )
-                        mediaResourcesList.add(mediaResources)
+                        mediaResourceList.add(mediaResource)
                     }
                 }
             } catch (e: Throwable) {
                 e.printStackTrace()
             }
-            return@withContext mediaResourcesList
+            return@withContext mediaResourceList
         }
     }
 
     suspend fun loadResources(
         context: Context,
         filterMimeTypes: List<MimeType>
-    ): List<MediaResources> {
+    ): List<MediaResource> {
         return withContext(context = Dispatchers.IO) {
             val selection = if (filterMimeTypes.isEmpty()) {
                 null
@@ -152,7 +152,7 @@ internal object MediaProvider {
         }
     }
 
-    suspend fun loadResources(context: Context, uri: Uri): MediaResources? {
+    suspend fun loadResources(context: Context, uri: Uri): MediaResource? {
         return withContext(context = Dispatchers.IO) {
             val id = ContentUris.parseId(uri)
             if (id == -1L) {
@@ -168,9 +168,9 @@ internal object MediaProvider {
         }
     }
 
-    suspend fun groupByBucket(resources: List<MediaResources>): List<MediaBucket> {
+    suspend fun groupByBucket(resources: List<MediaResource>): List<MediaBucket> {
         return withContext(context = Dispatchers.IO) {
-            val resourcesMap = linkedMapOf<String, MutableList<MediaResources>>()
+            val resourcesMap = linkedMapOf<String, MutableList<MediaResource>>()
             resources.forEach { res ->
                 val bucketId = res.bucketId
                 val list = resourcesMap[bucketId]
@@ -192,7 +192,7 @@ internal object MediaProvider {
                             bucketDisplayName = bucketDisplayName,
                             bucketDisplayIcon = resourcesList[0].uri,
                             resources = resourcesList,
-                            displayResources = resourcesList
+                            supportCapture = false
                         )
                     )
                 }
