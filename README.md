@@ -43,11 +43,11 @@ class MainActivity : AppCompatActivity() {
 
     private val matisseContractLauncher = registerForActivityResult(MatisseContract()) {
         if (it.isNotEmpty()) {
-            val mediaResources = it[0]
-            val imageUri = mediaResources.uri
-            val imagePath = mediaResources.path
-            val imageWidth = mediaResources.width
-            val imageHeight = mediaResources.height
+            val mediaResource = it[0]
+            val imageUri = mediaResource.uri
+            val imagePath = mediaResource.path
+            val imageWidth = mediaResource.width
+            val imageHeight = mediaResource.height
         }
     }
 
