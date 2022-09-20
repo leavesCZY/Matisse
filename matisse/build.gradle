@@ -5,7 +5,7 @@ plugins {
 }
 
 def compose_version = '1.2.1'
-def compose_compiler_version = '1.3.0'
+def compose_compiler_version = '1.3.1'
 def accompanist_version = '0.25.1'
 
 android {
@@ -43,7 +43,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-util:$compose_version"
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
     implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
-    implementation "androidx.activity:activity-compose:1.6.0-beta01"
-    implementation "io.coil-kt:coil-compose:2.2.0"
-    implementation "io.coil-kt:coil-gif:2.2.0"
+    implementation "androidx.activity:activity-compose:1.6.0-rc02"
+    implementation "io.coil-kt:coil-compose:2.2.1"
+    implementation "io.coil-kt:coil-gif:2.2.1"
 }
