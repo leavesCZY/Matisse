@@ -12,6 +12,8 @@
 - 支持详细获取图片信息，一共包含 uri、displayName、mimeType、width、height、orientation、size、path、bucketId、bucketDisplayName 等十个属性值
 - 适配到 Android 12
 
+Apk 下载体验：[releases](https://github.com/leavesCZY/Matisse/releases)
+
 |                           日间主题                           |                           夜间主题                           |                          自定义主题                          |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![](https://user-images.githubusercontent.com/30774063/173228764-1a44b35d-3bdd-4bcd-a456-b4ddd4f7a7e2.png) | ![](https://user-images.githubusercontent.com/30774063/173228768-1d8759d6-6a93-475c-89c5-e2ea9ddcf7ad.png) | ![](https://user-images.githubusercontent.com/30774063/173228769-58269c2e-9f54-4011-957d-6e5da14ad0d6.png) |
