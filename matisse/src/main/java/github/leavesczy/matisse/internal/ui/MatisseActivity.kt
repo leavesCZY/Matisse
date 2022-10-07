@@ -26,6 +26,7 @@ import github.leavesczy.matisse.internal.logic.SelectionSpec
 import github.leavesczy.matisse.internal.theme.MatisseTheme
 import github.leavesczy.matisse.internal.utils.PermissionUtils
 import kotlinx.coroutines.launch
+import com.smarx.notchlib.NotchScreenManager
 
 /**
  * @Author: leavesCZY
@@ -119,6 +120,7 @@ class MatisseActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        NotchScreenManager.getInstance().setDisplayInNotch(this)
         setContent {
             MatisseTheme(matisseTheme = matisse.theme) {
                 val matisseViewState by matisseViewModel.matisseViewState.collectAsState()

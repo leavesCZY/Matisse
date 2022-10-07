@@ -15,6 +15,7 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation|uiMode"
             android:exported="false"
             android:screenOrientation="portrait"
+            android:theme="@style/MatisseTheme"
             tools:ignore="LockedOrientationActivity" />
     </application>
 </manifest>
