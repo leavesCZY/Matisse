@@ -299,3 +299,9 @@ Matisse 要求一个必需权限和一个可选权限
 # 五、更多介绍
 
 - [Jetpack Compose 实现一个图片选择框架](https://juejin.cn/post/7108420791502372895)
+
+# 贡献者 ❤
+
+<a href="https://github.com/leavesCZY/Matisse/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=leavesCZY/Matisse" />
+</a>

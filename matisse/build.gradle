@@ -43,7 +43,11 @@ dependencies {
     implementation "androidx.compose.ui:ui-util:$compose_version"
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
     implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
-    implementation "androidx.activity:activity-compose:1.6.0-rc02"
+
+    // 刘海屏适配
+    implementation 'com.github.smarxpan:NotchScreenTool:0.0.1'
+
+    implementation "androidx.activity:activity-compose:1.6.0"
     implementation "io.coil-kt:coil-compose:2.2.1"
     implementation "io.coil-kt:coil-gif:2.2.1"
 }

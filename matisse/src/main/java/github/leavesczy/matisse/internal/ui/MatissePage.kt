@@ -5,8 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
+import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
@@ -19,11 +21,15 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatissePageAction
+import github.leavesczy.matisse.internal.logic.MatisseState
 import github.leavesczy.matisse.internal.logic.MatisseViewState
 import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 
@@ -35,8 +41,6 @@ import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 @Composable
 internal fun MatissePage(viewState: MatisseViewState, action: MatissePageAction) {
     val matisse = viewState.matisse
-    val selectedMediaResources = viewState.selectedResources
-    val resources = viewState.selectedBucket.resources
     val supportCapture = viewState.selectedBucket.supportCapture
     Scaffold(
         modifier = Modifier
@@ -59,11 +63,13 @@ internal fun MatissePage(viewState: MatisseViewState, action: MatissePageAction)
         }
     ) { innerPadding ->
         LazyVerticalGrid(
+            modifier = Modifier
+                .fillMaxSize(),
             columns = GridCells.Fixed(count = matisse.spanCount),
             state = viewState.lazyGridState,
             contentPadding = PaddingValues(
                 start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
-                top = innerPadding.calculateTopPadding(),
+                top = 0.dp,
                 end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
                 bottom = innerPadding.calculateBottomPadding() + 60.dp
             )
@@ -73,35 +79,53 @@ internal fun MatissePage(viewState: MatisseViewState, action: MatissePageAction)
                     CaptureItem(onClick = action.onRequestCapture)
                 })
             }
-            items(
-                count = resources.size,
-                key = {
-                    resources[it].key
-                },
-                contentType = {
-                    "Album"
-                },
-                itemContent = { itemIndex ->
-                    val resource = resources[itemIndex]
-                    val index = selectedMediaResources.indexOf(resource)
-                    val isSelected = index > -1
-                    val enabled = isSelected || selectedMediaResources.size < matisse.maxSelectable
-                    AlbumItem(
-                        mediaResource = resource,
-                        isSelected = isSelected,
-                        enabled = enabled,
-                        position = if (isSelected) {
-                            (index + 1).toString()
-                        } else {
-                            ""
-                        },
-                        onClickMedia = viewState.onClickMedia,
-                        onMediaCheckChanged = viewState.onMediaCheckChanged
-                    )
-                }
+            realAlbums(
+                maxSelectable = matisse.maxSelectable,
+                viewState = viewState
             )
         }
+        if (viewState.state == MatisseState.ImagesLoading) {
+            CircularProgressIndicator(
+                Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(Alignment.Center))
+        }
     }
+}
+
+private fun LazyGridScope.realAlbums(
+    maxSelectable: Int,
+    viewState: MatisseViewState,
+){
+    val selectedMediaResources = viewState.selectedResources
+    val resources = viewState.selectedBucket.resources
+    items(
+        count = resources.size,
+        key = {
+            resources[it].key
+        },
+        contentType = {
+            "Album"
+        },
+        itemContent = { itemIndex ->
+            val resource = resources[itemIndex]
+            val index = selectedMediaResources.indexOf(resource)
+            val isSelected = index > -1
+            val enabled = isSelected || selectedMediaResources.size < maxSelectable
+            AlbumItem(
+                mediaResource = resource,
+                isSelected = isSelected,
+                enabled = enabled,
+                position = if (isSelected) {
+                    (index + 1).toString()
+                } else {
+                    ""
+                },
+                onClickMedia = viewState.onClickMedia,
+                onMediaCheckChanged = viewState.onMediaCheckChanged
+            )
+        }
+    )
 }
 
 @Composable
@@ -135,7 +159,8 @@ private fun LazyGridItemScope.AlbumItem(
             modifier = Modifier.fillMaxSize(),
             model = mediaResource.uri,
             contentScale = ContentScale.Crop,
-            contentDescription = null
+            contentDescription = stringResource(R.string.album),
+            placeholder = painterResource(R.drawable.ic_loading)
         )
         MatisseCheckbox(
             modifier = Modifier
@@ -172,7 +197,7 @@ private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
                 .align(alignment = Alignment.Center),
             imageVector = captureIconTheme.icon,
             tint = captureIconTheme.tint,
-            contentDescription = null,
+            contentDescription = stringResource(id = R.string.take_photo),
         )
     }
 }

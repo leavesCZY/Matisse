@@ -52,9 +52,7 @@ internal fun MatisseTopBar(
                             contentDescription = null,
                         )
                     },
-                    onClick = {
-                        onClickBackMenu()
-                    },
+                    onClick = onClickBackMenu,
                 )
                 BucketDropdownMenu(
                     allBucket = allBucket,
@@ -69,11 +67,10 @@ internal fun MatisseTopBar(
         title = {
             Row(
                 modifier = Modifier
-                    .padding(end = 30.dp)
                     .clickable {
                         menuExpanded = true
                     }
-                    .padding(all = 4.dp),
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -119,8 +116,8 @@ private fun BucketDropdownMenu(
         allBucket.forEach { bucket ->
             DropdownMenuItem(
                 modifier = Modifier
-                    .padding(bottom = 6.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
                 content = {
                     AsyncImage(
                         modifier = Modifier

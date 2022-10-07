@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="take_photo">点击拍照</string>
+    <string name="album">图片</string>
+</resources>
