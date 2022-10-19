@@ -83,13 +83,13 @@ internal class MatisseViewModel(application: Application, private val matisse: M
 
     val matissePreviewViewState: StateFlow<MatissePreviewViewState> = _matissePreviewViewState
 
-    fun onRequestReadExternalStoragePermission() {
+    fun onRequestReadImagesPermission() {
         viewModelScope.launch {
             _matisseViewState.emit(permissionRequestingViewState)
         }
     }
 
-    fun onRequestReadExternalStoragePermissionResult(granted: Boolean) {
+    fun onRequestReadImagesPermissionResult(granted: Boolean) {
         viewModelScope.launch {
             if (granted) {
                 _matisseViewState.emit(imageLoadingViewState)

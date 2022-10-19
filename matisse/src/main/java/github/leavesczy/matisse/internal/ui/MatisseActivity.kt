@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
@@ -52,9 +53,9 @@ class MatisseActivity : ComponentActivity() {
         }
     })
 
-    private val requestReadExternalStoragePermission =
+    private val requestReadImagesPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            matisseViewModel.onRequestReadExternalStoragePermissionResult(granted = granted)
+            matisseViewModel.onRequestReadImagesPermissionResult(granted = granted)
         }
 
     private val requestWriteExternalStoragePermission =
@@ -128,15 +129,18 @@ class MatisseActivity : ComponentActivity() {
                 MatissePreviewPage(viewState = matissePreviewViewState)
             }
         }
-        if (PermissionUtils.checkSelfPermission(
-                context = this,
-                permission = Manifest.permission.READ_EXTERNAL_STORAGE
-            )
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
         ) {
-            matisseViewModel.onRequestReadExternalStoragePermissionResult(granted = true)
+            Manifest.permission.READ_MEDIA_IMAGES
         } else {
-            matisseViewModel.onRequestReadExternalStoragePermission()
-            requestReadExternalStoragePermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+        if (PermissionUtils.checkSelfPermission(context = this, permission = permission)) {
+            matisseViewModel.onRequestReadImagesPermissionResult(granted = true)
+        } else {
+            matisseViewModel.onRequestReadImagesPermission()
+            requestReadImagesPermission.launch(permission)
         }
     }
 

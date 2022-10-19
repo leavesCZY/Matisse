@@ -14,6 +14,8 @@
 
 Apk 下载体验：[releases](https://github.com/leavesCZY/Matisse/releases)
 
+实现思路请看：[Jetpack Compose 实现一个图片选择框架](https://juejin.cn/post/7108420791502372895)
+
 |                           日间主题                           |                           夜间主题                           |                          自定义主题                          |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![](https://user-images.githubusercontent.com/30774063/173228764-1a44b35d-3bdd-4bcd-a456-b4ddd4f7a7e2.png) | ![](https://user-images.githubusercontent.com/30774063/173228768-1d8759d6-6a93-475c-89c5-e2ea9ddcf7ad.png) | ![](https://user-images.githubusercontent.com/30774063/173228769-58269c2e-9f54-4011-957d-6e5da14ad0d6.png) |
@@ -295,7 +297,3 @@ Matisse 要求一个必需权限和一个可选权限
     android:name="android.permission.WRITE_EXTERNAL_STORAGE"
     android:maxSdkVersion="28" />
 ```
-
-# 五、更多介绍
-
-- [Jetpack Compose 实现一个图片选择框架](https://juejin.cn/post/7108420791502372895)

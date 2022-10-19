@@ -52,9 +52,7 @@ internal fun MatisseTopBar(
                             contentDescription = null,
                         )
                     },
-                    onClick = {
-                        onClickBackMenu()
-                    },
+                    onClick = onClickBackMenu,
                 )
                 BucketDropdownMenu(
                     allBucket = allBucket,
@@ -118,14 +116,16 @@ private fun BucketDropdownMenu(
     ) {
         allBucket.forEach { bucket ->
             DropdownMenuItem(
-                modifier = Modifier
-                    .padding(bottom = 6.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(
+                    horizontal = 10.dp,
+                    vertical = 4.dp
+                ),
                 content = {
                     AsyncImage(
                         modifier = Modifier
-                            .size(size = 50.dp)
-                            .clip(shape = RoundedCornerShape(size = 2.dp))
+                            .size(size = 54.dp)
+                            .clip(shape = RoundedCornerShape(size = 4.dp))
                             .background(color = LocalMatisseTheme.current.imageBackgroundColor),
                         model = bucket.bucketDisplayIcon,
                         contentScale = ContentScale.Crop,

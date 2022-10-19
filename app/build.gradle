@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId "github.leavesczy.matisse.samples"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -25,8 +25,8 @@ android {
         releaseConfig {
             storeFile file(rootDir.absolutePath + File.separator + "key.jks")
             keyAlias keyAliasExt.toString()
-            storePassword keyPasswordExt.toString()
-            keyPassword storePasswordExt.toString()
+            storePassword storePasswordExt.toString()
+            keyPassword keyPasswordExt.toString()
             v1SigningEnabled true
             v2SigningEnabled true
         }
@@ -67,6 +67,7 @@ android {
             excludes += "kotlin-tooling-metadata.json"
         }
     }
+    namespace 'github.leavesczy.matisse.samples'
 }
 
 dependencies {
@@ -77,7 +78,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.0-alpha02'
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation 'com.google.android.material:material:1.8.0-alpha01'
-    implementation "io.coil-kt:coil-compose:2.2.1"
-    implementation "io.coil-kt:coil-gif:2.2.1"
+    implementation "io.coil-kt:coil-compose:2.2.2"
+    implementation "io.coil-kt:coil-gif:2.2.2"
     implementation project(path: ':matisse')
 }
