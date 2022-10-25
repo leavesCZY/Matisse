@@ -4,10 +4,6 @@ plugins {
     id 'kotlin-parcelize'
 }
 
-def compose_version = '1.3.0-rc01'
-def compose_compiler_version = '1.3.2'
-def accompanist_version = '0.26.5-rc'
-
 android {
     compileSdk 33
     defaultConfig {
