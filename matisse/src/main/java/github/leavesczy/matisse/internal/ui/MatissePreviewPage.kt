@@ -101,7 +101,7 @@ internal fun MatissePreviewPage(viewState: MatissePreviewViewState) {
                                 },
                             model = mediaResource.uri,
                             contentScale = ContentScale.FillWidth,
-                            contentDescription = null
+                            contentDescription = mediaResource.displayName
                         )
                     }
                     val index = selectedMediaResources.indexOf(previewResources[currentPageIndex])

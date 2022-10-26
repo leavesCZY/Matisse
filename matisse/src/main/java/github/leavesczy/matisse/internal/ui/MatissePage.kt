@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
@@ -19,7 +18,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import github.leavesczy.matisse.MediaResource
@@ -59,19 +57,23 @@ internal fun MatissePage(viewState: MatisseViewState, action: MatissePageAction)
         }
     ) { innerPadding ->
         LazyVerticalGrid(
-            columns = GridCells.Fixed(count = matisse.spanCount),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues = innerPadding),
             state = viewState.lazyGridState,
+            columns = GridCells.Fixed(count = matisse.spanCount),
             contentPadding = PaddingValues(
-                start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
-                top = innerPadding.calculateTopPadding(),
-                end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
-                bottom = innerPadding.calculateBottomPadding() + 60.dp
+                bottom = 60.dp
             )
         ) {
             if (supportCapture) {
-                item(key = "Capture", contentType = "Capture", content = {
-                    CaptureItem(onClick = action.onRequestCapture)
-                })
+                item(
+                    key = "Capture",
+                    contentType = "Capture",
+                    content = {
+                        CaptureItem(onClick = action.onRequestCapture)
+                    }
+                )
             }
             items(
                 count = resources.size,
@@ -105,7 +107,7 @@ internal fun MatissePage(viewState: MatisseViewState, action: MatissePageAction)
 }
 
 @Composable
-private fun LazyGridItemScope.AlbumItem(
+private fun AlbumItem(
     mediaResource: MediaResource,
     isSelected: Boolean,
     enabled: Boolean,
@@ -115,7 +117,6 @@ private fun LazyGridItemScope.AlbumItem(
 ) {
     Box(
         modifier = Modifier
-            .animateItemPlacement()
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 2.dp))
@@ -135,7 +136,7 @@ private fun LazyGridItemScope.AlbumItem(
             modifier = Modifier.fillMaxSize(),
             model = mediaResource.uri,
             contentScale = ContentScale.Crop,
-            contentDescription = null
+            contentDescription = mediaResource.displayName
         )
         MatisseCheckbox(
             modifier = Modifier
@@ -153,18 +154,15 @@ private fun LazyGridItemScope.AlbumItem(
 }
 
 @Composable
-private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
+private fun CaptureItem(onClick: () -> Unit) {
     val captureIconTheme = LocalMatisseTheme.current.captureIconTheme
     Box(
         modifier = Modifier
-            .animateItemPlacement()
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 2.dp))
             .background(color = captureIconTheme.backgroundColor)
-            .clickable {
-                onClick()
-            }
+            .clickable(onClick = onClick)
     ) {
         Icon(
             modifier = Modifier
@@ -172,7 +170,7 @@ private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
                 .align(alignment = Alignment.Center),
             imageVector = captureIconTheme.icon,
             tint = captureIconTheme.tint,
-            contentDescription = null,
+            contentDescription = "Capture",
         )
     }
 }

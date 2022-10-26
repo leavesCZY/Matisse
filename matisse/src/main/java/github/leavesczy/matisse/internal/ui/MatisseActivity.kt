@@ -44,6 +44,7 @@ class MatisseActivity : ComponentActivity() {
 
     private val matisseViewModel by viewModels<MatisseViewModel>(factoryProducer = {
         object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return MatisseViewModel(
                     application = application,
@@ -53,12 +54,12 @@ class MatisseActivity : ComponentActivity() {
         }
     })
 
-    private val requestReadImagesPermission =
+    private val requestReadImagesPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             matisseViewModel.onRequestReadImagesPermissionResult(granted = granted)
         }
 
-    private val requestWriteExternalStoragePermission =
+    private val requestWriteExternalStoragePermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
                 requestCameraPermissionIfNeed()
@@ -70,7 +71,7 @@ class MatisseActivity : ComponentActivity() {
             }
         }
 
-    private val requestCameraPermission =
+    private val requestCameraPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
                 takePicture()
@@ -115,7 +116,8 @@ class MatisseActivity : ComponentActivity() {
             onRequestCapture()
         }, onSureButtonClick = {
             onSure(selectedMediaResources = matisseViewModel.selectedMediaResources)
-        })
+        }
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -129,6 +131,10 @@ class MatisseActivity : ComponentActivity() {
                 MatissePreviewPage(viewState = matissePreviewViewState)
             }
         }
+        requestReadImagesPermission()
+    }
+
+    private fun requestReadImagesPermission() {
         val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
         ) {
@@ -140,13 +146,13 @@ class MatisseActivity : ComponentActivity() {
             matisseViewModel.onRequestReadImagesPermissionResult(granted = true)
         } else {
             matisseViewModel.onRequestReadImagesPermission()
-            requestReadImagesPermission.launch(permission)
+            requestReadImagesPermissionLauncher.launch(permission)
         }
     }
 
     private fun onRequestCapture() {
         if (captureStrategy.shouldRequestWriteExternalStoragePermission(context = this)) {
-            requestWriteExternalStoragePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            requestWriteExternalStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         } else {
             requestCameraPermissionIfNeed()
         }
@@ -161,7 +167,7 @@ class MatisseActivity : ComponentActivity() {
                 permission = Manifest.permission.CAMERA
             )
         ) {
-            requestCameraPermission.launch(Manifest.permission.CAMERA)
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         } else {
             takePicture()
         }
