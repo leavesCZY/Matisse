@@ -4,11 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.internal.logic.MatissePageAction
-import github.leavesczy.matisse.internal.logic.MatisseViewState
+import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 
 /**
@@ -31,11 +35,22 @@ import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
  * @Desc:
  */
 @Composable
-internal fun MatissePage(viewState: MatisseViewState, action: MatissePageAction) {
-    val matisse = viewState.matisse
-    val selectedMediaResources = viewState.selectedResources
-    val resources = viewState.selectedBucket.resources
-    val supportCapture = viewState.selectedBucket.supportCapture
+internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAction) {
+    val matisseViewState = viewModel.matisseViewState
+    val matisse = matisseViewState.matisse
+    val selectedMediaResources = matisseViewState.selectedResources
+    val allBucket = matisseViewState.allBucket
+    val selectedBucket = matisseViewState.selectedBucket
+    val selectedBucketResources = selectedBucket.resources
+    val supportCapture = selectedBucket.supportCapture
+    val lazyGridState by remember(key1 = selectedBucket.bucketId) {
+        mutableStateOf(
+            value = LazyGridState(
+                firstVisibleItemIndex = 0,
+                firstVisibleItemScrollOffset = 0
+            )
+        )
+    }
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -43,16 +58,18 @@ internal fun MatissePage(viewState: MatisseViewState, action: MatissePageAction)
         backgroundColor = LocalMatisseTheme.current.surfaceColor,
         topBar = {
             MatisseTopBar(
-                allBucket = viewState.allBucket,
-                selectedBucket = viewState.selectedBucket,
-                onSelectBucket = viewState.onSelectBucket,
-                onClickBackMenu = action.onClickBackMenu,
+                allBucket = allBucket,
+                selectedBucket = selectedBucket,
+                onSelectBucket = {
+                    viewModel.onSelectBucket(bucket = it)
+                },
+                onClickBackMenu = pageAction.onClickBackMenu,
             )
         },
         bottomBar = {
             MatisseBottomBar(
-                viewState = viewState.bottomBarViewState,
-                onSureButtonClick = action.onSureButtonClick,
+                viewModel = viewModel,
+                onSureButtonClick = pageAction.onSureButtonClick,
             )
         }
     ) { innerPadding ->
@@ -60,7 +77,7 @@ internal fun MatissePage(viewState: MatisseViewState, action: MatissePageAction)
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
-            state = viewState.lazyGridState,
+            state = lazyGridState,
             columns = GridCells.Fixed(count = matisse.spanCount),
             contentPadding = PaddingValues(
                 bottom = 60.dp
@@ -71,20 +88,20 @@ internal fun MatissePage(viewState: MatisseViewState, action: MatissePageAction)
                     key = "Capture",
                     contentType = "Capture",
                     content = {
-                        CaptureItem(onClick = action.onRequestCapture)
+                        CaptureItem(onClick = pageAction.onRequestCapture)
                     }
                 )
             }
             items(
-                count = resources.size,
+                count = selectedBucketResources.size,
                 key = {
-                    resources[it].key
+                    selectedBucketResources[it].key
                 },
                 contentType = {
                     "Album"
                 },
                 itemContent = { itemIndex ->
-                    val resource = resources[itemIndex]
+                    val resource = selectedBucketResources[itemIndex]
                     val index = selectedMediaResources.indexOf(resource)
                     val isSelected = index > -1
                     val enabled = isSelected || selectedMediaResources.size < matisse.maxSelectable
@@ -97,8 +114,12 @@ internal fun MatissePage(viewState: MatisseViewState, action: MatissePageAction)
                         } else {
                             ""
                         },
-                        onClickMedia = viewState.onClickMedia,
-                        onMediaCheckChanged = viewState.onMediaCheckChanged
+                        onClickMedia = {
+                            viewModel.onClickMedia(mediaResource = it)
+                        },
+                        onMediaCheckChanged = {
+                            viewModel.onMediaCheckChanged(mediaResource = it)
+                        }
                     )
                 }
             )

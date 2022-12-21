@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
+import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 
 /**
@@ -24,7 +24,8 @@ import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
  * @Github：https://github.com/leavesCZY
  */
 @Composable
-internal fun MatisseBottomBar(viewState: MatisseBottomBarViewState, onSureButtonClick: () -> Unit) {
+internal fun MatisseBottomBar(viewModel: MatisseViewModel, onSureButtonClick: () -> Unit) {
+    val viewState = viewModel.bottomBarViewState
     val bottomNavigationTheme = LocalMatisseTheme.current.bottomNavigationTheme
     val previewButtonTheme = LocalMatisseTheme.current.previewButtonTheme
     val sureButtonTheme = LocalMatisseTheme.current.sureButtonTheme
@@ -46,7 +47,7 @@ internal fun MatisseBottomBar(viewState: MatisseBottomBarViewState, onSureButton
                     .align(alignment = Alignment.CenterVertically)
                     .then(other = if (viewState.previewButtonClickable) {
                         Modifier.clickable {
-                            viewState.onPreviewButtonClick()
+                            viewModel.onClickPreviewButton()
                         }
                     } else {
                         Modifier

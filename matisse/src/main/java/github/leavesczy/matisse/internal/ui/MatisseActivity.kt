@@ -12,8 +12,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -35,9 +33,7 @@ import kotlinx.coroutines.launch
  */
 class MatisseActivity : ComponentActivity() {
 
-    private val matisse by lazy {
-        SelectionSpec.getMatisse()
-    }
+    private val matisse = SelectionSpec.getMatisse()
 
     private val captureStrategy: CaptureStrategy
         get() = matisse.captureStrategy
@@ -115,7 +111,7 @@ class MatisseActivity : ComponentActivity() {
         }, onRequestCapture = {
             onRequestCapture()
         }, onSureButtonClick = {
-            onSure(selectedMediaResources = matisseViewModel.selectedMediaResources)
+            onSure(selectedMediaResources = matisseViewModel.matisseViewState.selectedResources)
         }
     )
 
@@ -124,11 +120,9 @@ class MatisseActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             MatisseTheme(matisseTheme = matisse.theme) {
-                val matisseViewState by matisseViewModel.matisseViewState.collectAsState()
-                val matissePreviewViewState by matisseViewModel.matissePreviewViewState.collectAsState()
-                SetSystemUi(previewVisible = matissePreviewViewState.visible)
-                MatissePage(viewState = matisseViewState, action = matissePageAction)
-                MatissePreviewPage(viewState = matissePreviewViewState)
+                SetSystemUi(previewVisible = matisseViewModel.matissePreviewViewState.visible)
+                MatissePage(viewModel = matisseViewModel, pageAction = matissePageAction)
+                MatissePreviewPage(viewModel = matisseViewModel)
             }
         }
         requestReadImagesPermission()

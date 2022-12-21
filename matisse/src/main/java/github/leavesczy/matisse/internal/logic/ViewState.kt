@@ -1,7 +1,6 @@
 package github.leavesczy.matisse.internal.logic
 
 import android.net.Uri
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 
@@ -29,23 +28,17 @@ internal data class MediaBucket(
 
 internal data class MatisseViewState(
     val matisse: Matisse,
-    val bottomBarViewState: MatisseBottomBarViewState,
-    val lazyGridState: LazyGridState,
     val state: MatisseState,
     val allBucket: List<MediaBucket>,
     val selectedBucket: MediaBucket,
-    val selectedResources: List<MediaResource>,
-    val onClickMedia: (MediaResource) -> Unit,
-    val onSelectBucket: (MediaBucket) -> Unit,
-    val onMediaCheckChanged: (MediaResource) -> Unit,
+    val selectedResources: List<MediaResource>
 )
 
 internal data class MatisseBottomBarViewState(
     val previewText: String,
     val sureText: String,
     val previewButtonClickable: Boolean,
-    val sureButtonClickable: Boolean,
-    val onPreviewButtonClick: () -> Unit,
+    val sureButtonClickable: Boolean
 )
 
 internal data class MatissePageAction(
@@ -59,7 +52,5 @@ internal data class MatissePreviewViewState(
     val visible: Boolean,
     val initialPage: Int,
     val previewResources: List<MediaResource>,
-    val selectedResources: List<MediaResource>,
-    val onMediaCheckChanged: (MediaResource) -> Unit,
-    val onDismissRequest: () -> Unit,
+    val selectedResources: List<MediaResource>
 )

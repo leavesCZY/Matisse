@@ -69,7 +69,6 @@
                 android:id="@+id/rbMaxSelectable1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
                 android:text="1" />
 
             <com.google.android.material.radiobutton.MaterialRadioButton
@@ -82,6 +81,7 @@
                 android:id="@+id/rbMaxSelectable3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checked="true"
                 android:text="3" />
 
         </RadioGroup>

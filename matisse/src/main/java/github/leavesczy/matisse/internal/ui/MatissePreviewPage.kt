@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -21,7 +24,7 @@ import coil.compose.AsyncImage
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
-import github.leavesczy.matisse.internal.logic.MatissePreviewViewState
+import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 import kotlin.math.absoluteValue
 
@@ -31,11 +34,16 @@ import kotlin.math.absoluteValue
  * @Desc:
  */
 @Composable
-internal fun MatissePreviewPage(viewState: MatissePreviewViewState) {
-    BackHandler(enabled = viewState.visible, onBack = viewState.onDismissRequest)
+internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
+    val matissePreviewViewState = viewModel.matissePreviewViewState
+    val visible = matissePreviewViewState.visible
+    val previewResources = matissePreviewViewState.previewResources
+    val initialPage = matissePreviewViewState.initialPage
+    BackHandler(enabled = visible, onBack = {
+        viewModel.onDismissPreviewPageRequest()
+    })
     AnimatedVisibility(
-        modifier = Modifier,
-        visible = viewState.visible,
+        visible = visible,
         enter = slideInHorizontally(animationSpec = tween(
             durationMillis = 300,
             easing = LinearEasing
@@ -45,20 +53,17 @@ internal fun MatissePreviewPage(viewState: MatissePreviewViewState) {
             easing = LinearEasing
         ), targetOffsetX = { it }),
     ) {
-        val matisse = viewState.matisse
-        val initialPage = viewState.initialPage
-        val previewResources = viewState.previewResources
-        val selectedMediaResources = viewState.selectedResources
-        val onMediaCheckChanged = viewState.onMediaCheckChanged
         val pagerState = rememberPagerState(initialPage = initialPage)
-        var currentPageIndex by remember {
-            mutableStateOf(initialPage)
+        val currentImageIndex by remember {
+            derivedStateOf {
+                val viewState = viewModel.matissePreviewViewState
+                viewState.selectedResources.indexOf(element = viewState.previewResources[pagerState.currentPage])
+            }
         }
-        LaunchedEffect(key1 = Unit) {
-            snapshotFlow {
-                pagerState.currentPage
-            }.collect {
-                currentPageIndex = it
+        val checkboxEnabled by remember {
+            derivedStateOf {
+                val viewState = viewModel.matissePreviewViewState
+                currentImageIndex > -1 || viewState.selectedResources.size < viewState.matisse.maxSelectable
             }
         }
         Scaffold(
@@ -66,10 +71,13 @@ internal fun MatissePreviewPage(viewState: MatissePreviewViewState) {
             backgroundColor = LocalMatisseTheme.current.onPreviewSurfaceColor
         ) { paddingValues ->
             if (previewResources.isNotEmpty()) {
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues = paddingValues)
+                ) {
                     HorizontalPager(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = paddingValues,
                         count = previewResources.size,
                         state = pagerState,
                         key = { index ->
@@ -104,24 +112,22 @@ internal fun MatissePreviewPage(viewState: MatissePreviewViewState) {
                             contentDescription = mediaResource.displayName
                         )
                     }
-                    val index = selectedMediaResources.indexOf(previewResources[currentPageIndex])
-                    val isSelected = index > -1
-                    val enabled = isSelected || selectedMediaResources.size < matisse.maxSelectable
                     MatisseCheckbox(
                         modifier = Modifier
                             .align(alignment = Alignment.TopEnd)
                             .statusBarsPadding()
                             .padding(top = 20.dp, end = 30.dp),
+                        size = 28.dp,
                         theme = LocalMatisseTheme.current.checkBoxTheme,
-                        text = if (isSelected) {
-                            (index + 1).toString()
+                        text = if (currentImageIndex > -1) {
+                            (currentImageIndex + 1).toString()
                         } else {
                             ""
                         },
-                        checked = isSelected,
-                        enabled = enabled,
+                        checked = currentImageIndex > -1,
+                        enabled = checkboxEnabled,
                         onCheckedChange = {
-                            onMediaCheckChanged(previewResources[currentPageIndex])
+                            viewModel.onMediaCheckChanged(mediaResource = previewResources[pagerState.currentPage])
                         }
                     )
                 }

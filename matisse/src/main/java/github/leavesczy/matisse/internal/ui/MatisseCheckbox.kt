@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.CheckBoxTheme
 import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
@@ -34,6 +35,7 @@ private val defaultStokeWidth = 2.dp
 @Composable
 internal fun MatisseCheckbox(
     modifier: Modifier,
+    size: Dp = defaultSize,
     theme: CheckBoxTheme,
     text: String,
     enabled: Boolean,
@@ -57,7 +59,7 @@ internal fun MatisseCheckbox(
     Canvas(
         modifier = modifier
             .wrapContentSize(align = Alignment.Center)
-            .requiredSize(size = defaultSize)
+            .requiredSize(size = size)
             .triStateToggleable(
                 state = ToggleableState(value = checked),
                 onClick = {
@@ -68,11 +70,11 @@ internal fun MatisseCheckbox(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(
                     bounded = false,
-                    radius = defaultSize
+                    radius = size
                 )
             )
     ) {
-        val checkBoxSide = minOf(size.width, size.height)
+        val checkBoxSide = minOf(this.size.width, this.size.height)
         val stokeWidth = defaultStokeWidth.toPx()
         val outRadius = (checkBoxSide - stokeWidth) / 2f
         drawCircle(

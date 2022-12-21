@@ -3,13 +3,13 @@ package github.leavesczy.matisse.internal.logic
 import android.app.Application
 import android.net.Uri
 import android.widget.Toast
-import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -27,10 +27,6 @@ internal class MatisseViewModel(application: Application, private val matisse: M
 
     }
 
-    private val _selectedMediaResources = mutableListOf<MediaResource>()
-
-    val selectedMediaResources: List<MediaResource> = _selectedMediaResources
-
     private val permissionRequestingViewState = kotlin.run {
         val defaultBucket = MediaBucket(
             bucketId = DEFAULT_BUCKET_ID,
@@ -41,18 +37,10 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         )
         MatisseViewState(
             matisse = matisse,
-            bottomBarViewState = buildBottomBarViewState(),
-            lazyGridState = LazyGridState(
-                firstVisibleItemIndex = 0,
-                firstVisibleItemScrollOffset = 0
-            ),
             state = MatisseState.PermissionRequesting,
-            selectedResources = selectedMediaResources,
+            selectedResources = emptyList(),
             allBucket = listOf(defaultBucket),
-            selectedBucket = defaultBucket,
-            onClickMedia = ::onClickMedia,
-            onSelectBucket = ::onSelectBucket,
-            onMediaCheckChanged = ::onMediaCheckChanged,
+            selectedBucket = defaultBucket
         )
     }
 
@@ -65,41 +53,38 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     private val imageEmptyViewState =
         permissionRequestingViewState.copy(state = MatisseState.ImagesEmpty)
 
-    private val _matisseViewState = MutableStateFlow(permissionRequestingViewState)
+    var matisseViewState by mutableStateOf(value = permissionRequestingViewState)
+        private set
 
-    val matisseViewState: StateFlow<MatisseViewState> = _matisseViewState
+    var bottomBarViewState by mutableStateOf(value = buildBottomBarViewState())
+        private set
 
-    private val _matissePreviewViewState = MutableStateFlow(
-        MatissePreviewViewState(
+    var matissePreviewViewState by mutableStateOf(
+        value = MatissePreviewViewState(
             matisse = matisse,
             visible = false,
             initialPage = 0,
             selectedResources = emptyList(),
-            previewResources = emptyList(),
-            onMediaCheckChanged = ::onMediaCheckChanged,
-            onDismissRequest = ::onDismissPreviewPageRequest
+            previewResources = emptyList()
         )
     )
-
-    val matissePreviewViewState: StateFlow<MatissePreviewViewState> = _matissePreviewViewState
+        private set
 
     fun onRequestReadImagesPermission() {
-        viewModelScope.launch {
-            _matisseViewState.emit(permissionRequestingViewState)
-        }
+        matisseViewState = permissionRequestingViewState
     }
 
     fun onRequestReadImagesPermissionResult(granted: Boolean) {
-        viewModelScope.launch {
-            if (granted) {
-                _matisseViewState.emit(imageLoadingViewState)
+        if (granted) {
+            viewModelScope.launch {
+                matisseViewState = imageLoadingViewState
                 loadResources()
-            } else {
-                _matisseViewState.emit(permissionDeniedViewState)
-                val tips = matisse.tips.onReadExternalStorageDenied
-                if (tips.isNotBlank()) {
-                    Toast.makeText(getApplication(), tips, Toast.LENGTH_SHORT).show()
-                }
+            }
+        } else {
+            matisseViewState = permissionDeniedViewState
+            val tips = matisse.tips.onReadExternalStorageDenied
+            if (tips.isNotBlank()) {
+                Toast.makeText(getApplication(), tips, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -107,14 +92,14 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     private suspend fun loadResources() {
         val supportedMimeTypes = matisse.supportedMimeTypes
         if (supportedMimeTypes.isEmpty()) {
-            _matisseViewState.emit(imageEmptyViewState)
+            matisseViewState = imageEmptyViewState
         } else {
             val allResources = MediaProvider.loadResources(
                 context = getApplication(),
                 filterMimeTypes = matisse.supportedMimeTypes
             )
             if (allResources.isEmpty()) {
-                _matisseViewState.emit(imageEmptyViewState)
+                matisseViewState = imageEmptyViewState
             } else {
                 val allBucket =
                     MediaProvider.groupByBucket(resources = allResources).toMutableList()
@@ -126,116 +111,79 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                     supportCapture = matisse.captureStrategy.isEnabled()
                 )
                 allBucket.add(0, defaultBucket)
-                _matisseViewState.emit(
-                    matisseViewState.value.copy(
-                        state = MatisseState.ImagesLoaded,
-                        allBucket = allBucket,
-                        selectedBucket = defaultBucket,
-                        selectedResources = selectedMediaResources,
-                        bottomBarViewState = buildBottomBarViewState()
-                    )
+                matisseViewState = matisseViewState.copy(
+                    state = MatisseState.ImagesLoaded,
+                    allBucket = allBucket,
+                    selectedBucket = defaultBucket
                 )
             }
         }
     }
 
-    private fun onSelectBucket(bucket: MediaBucket) {
-        viewModelScope.launch {
-            _matisseViewState.emit(
-                matisseViewState.value.copy(
-                    selectedBucket = bucket,
-                    lazyGridState = LazyGridState(
-                        firstVisibleItemIndex = 0,
-                        firstVisibleItemScrollOffset = 0
-                    ),
-                )
-            )
-        }
+    fun onSelectBucket(bucket: MediaBucket) {
+        matisseViewState = matisseViewState.copy(
+            selectedBucket = bucket
+        )
     }
 
-    private fun onMediaCheckChanged(mediaResource: MediaResource) {
-        if (_selectedMediaResources.size >= matisse.maxSelectable && !_selectedMediaResources.contains(
+    fun onMediaCheckChanged(mediaResource: MediaResource) {
+        val selectedResources = matisseViewState.selectedResources
+        if (selectedResources.size >= matisse.maxSelectable && !selectedResources.contains(
                 mediaResource
             )
         ) {
             val tips =
-                matisse.tips.onSelectLimit(_selectedMediaResources.size, matisse.maxSelectable)
+                matisse.tips.onSelectLimit(selectedResources.size, matisse.maxSelectable)
             if (tips.isNotBlank()) {
                 Toast.makeText(getApplication(), tips, Toast.LENGTH_SHORT).show()
             }
             return
         }
-        viewModelScope.launch {
-            val contains = _selectedMediaResources.contains(mediaResource)
-            if (contains) {
-                _selectedMediaResources.remove(mediaResource)
-            } else {
-                _selectedMediaResources.add(mediaResource)
-            }
-            val viewState = matisseViewState.value
-            _matisseViewState.emit(
-                viewState.copy(
-                    selectedResources = _selectedMediaResources,
-                    bottomBarViewState = buildBottomBarViewState()
-                )
-            )
-            val previewViewState = matissePreviewViewState.value
-            if (previewViewState.visible) {
-                _matissePreviewViewState.emit(
-                    value = previewViewState.copy(
-                        selectedResources = _selectedMediaResources,
-                    )
-                )
-            }
+        val selectedResourcesMutable = selectedResources.toMutableList()
+        val contains = selectedResourcesMutable.contains(element = mediaResource)
+        if (contains) {
+            selectedResourcesMutable.remove(element = mediaResource)
+        } else {
+            selectedResourcesMutable.add(element = mediaResource)
+        }
+        matisseViewState = matisseViewState.copy(selectedResources = selectedResourcesMutable)
+        bottomBarViewState = buildBottomBarViewState()
+        if (matissePreviewViewState.visible) {
+            matissePreviewViewState =
+                matissePreviewViewState.copy(selectedResources = selectedResourcesMutable)
         }
     }
 
-    private fun onClickMedia(mediaResource: MediaResource) {
-        viewModelScope.launch {
-            val viewState = matisseViewState.value
-            val previewResources = viewState.selectedBucket.resources
-            val selectedResources = viewState.selectedResources
-            val initialPage = previewResources.indexOf(mediaResource)
-            _matissePreviewViewState.emit(
-                value = matissePreviewViewState.value.copy(
-                    visible = true,
-                    initialPage = initialPage,
-                    selectedResources = selectedResources,
-                    previewResources = previewResources,
-                )
+    fun onClickMedia(mediaResource: MediaResource) {
+        val previewResources = matisseViewState.selectedBucket.resources
+        val selectedResources = matisseViewState.selectedResources
+        val initialPage = previewResources.indexOf(element = mediaResource)
+        matissePreviewViewState = matissePreviewViewState.copy(
+            visible = true,
+            initialPage = initialPage,
+            selectedResources = selectedResources,
+            previewResources = previewResources,
+        )
+    }
+
+    fun onClickPreviewButton() {
+        val selectedResources = matisseViewState.selectedResources.toList()
+        if (selectedResources.isNotEmpty()) {
+            matissePreviewViewState = matissePreviewViewState.copy(
+                visible = true,
+                initialPage = 0,
+                selectedResources = selectedResources,
+                previewResources = selectedResources,
             )
         }
     }
 
-    private fun previewSelectedMedia() {
-        viewModelScope.launch {
-            val selectedResources = matisseViewState.value.selectedResources.toList()
-            if (selectedResources.isEmpty()) {
-                return@launch
-            }
-            _matissePreviewViewState.emit(
-                value = matissePreviewViewState.value.copy(
-                    visible = true,
-                    initialPage = 0,
-                    selectedResources = selectedResources,
-                    previewResources = selectedResources,
-                )
-            )
-        }
-    }
-
-    private fun onDismissPreviewPageRequest() {
-        viewModelScope.launch {
-            _matissePreviewViewState.emit(
-                value = matissePreviewViewState.value.copy(
-                    visible = false
-                )
-            )
-        }
+    fun onDismissPreviewPageRequest() {
+        matissePreviewViewState = matissePreviewViewState.copy(visible = false)
     }
 
     private fun buildBottomBarViewState(): MatisseBottomBarViewState {
-        val selectedMedia = _selectedMediaResources
+        val selectedMedia = matisseViewState.selectedResources
         val selectedMediaSize = selectedMedia.size
         val theme = matisse.theme
         return MatisseBottomBarViewState(
@@ -245,8 +193,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             ),
             sureText = theme.sureButtonTheme.textBuilder(selectedMediaSize, matisse.maxSelectable),
             previewButtonClickable = selectedMedia.isNotEmpty(),
-            sureButtonClickable = selectedMedia.isNotEmpty(),
-            onPreviewButtonClick = ::previewSelectedMedia,
+            sureButtonClickable = selectedMedia.isNotEmpty()
         )
     }
 

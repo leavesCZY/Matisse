@@ -93,7 +93,8 @@ data class SystemBarsTheme(
 
 private val whiteColo = Color.White
 private val blackColor = Color.Black
-private val darkColor = Color(color = 0xFF22202A)
+private val darkColor = Color(color = 0xFF1A0F0F)
+private val secondaryDarkColor = Color(color = 0xFF23202B)
 private val blueColor = Color(color = 0xFF2196F3)
 private val greenColor = Color(color = 0xFF009688)
 private val cameraIcon = Icons.Filled.PhotoCamera
@@ -164,7 +165,7 @@ val LightMatisseTheme = MatisseTheme(
 )
 
 val DarkMatisseTheme = MatisseTheme(
-    surfaceColor = darkColor,
+    surfaceColor = secondaryDarkColor,
     onPreviewSurfaceColor = darkColor,
     imageBackgroundColor = Color.LightGray.copy(alpha = 0.4f),
     alphaIfDisable = alphaIfDisable,
@@ -183,7 +184,7 @@ val DarkMatisseTheme = MatisseTheme(
         backgroundColor = darkColor,
     ),
     dropdownMenuTheme = DropdownMenuTheme(
-        backgroundColor = darkColor,
+        backgroundColor = secondaryDarkColor,
         textStyle = TextStyle(
             fontSize = 14.sp,
             color = whiteColo,
@@ -217,5 +218,5 @@ val DarkMatisseTheme = MatisseTheme(
         statusBarDarkIcons = false,
         navigationBarColor = darkColor,
         navigationBarDarkIcons = false
-    ),
+    )
 )
