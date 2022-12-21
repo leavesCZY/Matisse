@@ -111,13 +111,13 @@
                 android:id="@+id/rbSpanCount3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checked="true"
                 android:text="3" />
 
             <com.google.android.material.radiobutton.MaterialRadioButton
                 android:id="@+id/rbSpanCount4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
                 android:text="4" />
 
             <com.google.android.material.radiobutton.MaterialRadioButton
@@ -183,13 +183,27 @@
             android:id="@+id/radioGroupEnableCapture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbNothing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nothing"
+                android:textAllCaps="false" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbSmart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Smart"
+                android:textAllCaps="false" />
 
             <com.google.android.material.radiobutton.MaterialRadioButton
                 android:id="@+id/rbFileProvider"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
                 android:text="FileProvider"
                 android:textAllCaps="false" />
 
@@ -198,13 +212,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="MediaStore"
-                android:textAllCaps="false" />
-
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/rbNothing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nothing"
                 android:textAllCaps="false" />
 
         </RadioGroup>

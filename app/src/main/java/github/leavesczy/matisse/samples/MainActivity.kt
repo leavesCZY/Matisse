@@ -67,6 +67,8 @@ class MainActivity : AppCompatActivity() {
     private val matisseContractLauncher =
         registerForActivityResult(MatisseContract(), activityResultCallback)
 
+    private val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -135,14 +137,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun getCaptureStrategy(): CaptureStrategy {
         when (radioGroupEnableCapture.checkedRadioButtonId) {
+            R.id.rbNothing -> {
+                return NothingCaptureStrategy
+            }
             R.id.rbFileProvider -> {
-                return FileProviderCaptureStrategy(authority = "github.leavesczy.matisse.samples.FileProvider")
+                return FileProviderCaptureStrategy(authority = fileProviderAuthority)
             }
             R.id.rbMediaStore -> {
                 return MediaStoreCaptureStrategy()
             }
-            R.id.rbNothing -> {
-                return NothingCaptureStrategy
+            R.id.rbSmart -> {
+                return SmartCaptureStrategy(authority = fileProviderAuthority)
             }
         }
         return NothingCaptureStrategy

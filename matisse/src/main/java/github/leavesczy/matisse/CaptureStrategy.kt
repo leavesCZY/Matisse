@@ -204,3 +204,40 @@ class MediaStoreCaptureStrategy : CaptureStrategy {
     }
 
 }
+
+/**
+ * 根据系统版本智能选择拍照策略，既避免需要申请权限
+ * 又可以在系统允许的情况下将拍照所得照片存入到系统相册中
+ *
+ * 系统版本小于 Android Q，则执行 FileProviderCaptureStrategy 策略
+ * 系统版本大于等于 Android Q，则执行 MediaStoreCaptureStrategy 策略
+ */
+class SmartCaptureStrategy(authority: String) : CaptureStrategy {
+
+    private val proxy = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        MediaStoreCaptureStrategy()
+    } else {
+        FileProviderCaptureStrategy(authority = authority)
+    }
+
+    override fun isEnabled(): Boolean {
+        return proxy.isEnabled()
+    }
+
+    override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
+        return proxy.shouldRequestWriteExternalStoragePermission(context = context)
+    }
+
+    override suspend fun createImageUri(context: Context): Uri? {
+        return proxy.createImageUri(context = context)
+    }
+
+    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
+        return proxy.loadResource(context = context, imageUri = imageUri)
+    }
+
+    override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
+        proxy.onTakePictureCanceled(context = context, imageUri = imageUri)
+    }
+
+}
