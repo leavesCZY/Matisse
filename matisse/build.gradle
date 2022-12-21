@@ -33,15 +33,15 @@ android {
 
 dependencies {
     testImplementation "junit:junit:4.13.2"
-    androidTestImplementation "androidx.test.ext:junit:1.1.3"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
+    androidTestImplementation "androidx.test.ext:junit:1.1.4"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.0"
     implementation "androidx.activity:activity-compose:1.6.0"
-    implementation "io.coil-kt:coil-gif:2.2.2"
-    implementation "io.coil-kt:coil-compose:2.2.2"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.ui:ui-util:$compose_version"
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
     implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
+    implementation "io.coil-kt:coil-gif:2.2.2"
+    implementation "io.coil-kt:coil-compose:2.2.2"
 }
