@@ -63,7 +63,7 @@ interface CaptureStrategy {
 }
 
 /**
- *  什么也不做，即不开启拍照功能
+ *  不开启拍照功能
  */
 object NothingCaptureStrategy : CaptureStrategy {
 
@@ -206,11 +206,10 @@ class MediaStoreCaptureStrategy : CaptureStrategy {
 }
 
 /**
- * 根据系统版本智能选择拍照策略，既避免需要申请权限
- * 又可以在系统允许的情况下将拍照所得照片存入到系统相册中
- *
- * 系统版本小于 Android Q，则执行 FileProviderCaptureStrategy 策略
- * 系统版本大于等于 Android Q，则执行 MediaStoreCaptureStrategy 策略
+ * 根据系统版本智能选择拍照策略
+ * 既避免需要申请权限，又可以在系统允许的情况下将拍照所得照片存入到系统相册中
+ * 系统版本小于 Android 10，则执行 FileProviderCaptureStrategy 策略
+ * 系统版本大于等于 Android 10，则执行 MediaStoreCaptureStrategy 策略
  */
 class SmartCaptureStrategy(authority: String) : CaptureStrategy {
 

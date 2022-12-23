@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getCustomMatisseTheme(): MatisseTheme {
         val darkColor = Color(color = 0xFF1F1F20)
-        val blueColor = Color(color = 0xFF03A9F4)
+        val greenColor = Color(color = 0xFF009688)
         return MatisseTheme(
             surfaceColor = Color.White,
             onPreviewSurfaceColor = darkColor,
@@ -167,10 +167,10 @@ class MainActivity : AppCompatActivity() {
                 tint = Color.White,
             ),
             topAppBarTheme = TopAppBarTheme(
-                defaultBucketName = "全部",
-                backgroundColor = blueColor,
+                defaultBucketName = "全部图片",
+                backgroundColor = greenColor,
                 contentColor = Color.White,
-                fontSize = 18.sp,
+                fontSize = 20.sp,
             ),
             bottomNavigationTheme = BottomNavigationTheme(
                 backgroundColor = Color.White,
@@ -186,7 +186,7 @@ class MainActivity : AppCompatActivity() {
                 countable = true,
                 frameColor = Color.Transparent,
                 circleColor = Color.White,
-                circleFillColor = blueColor,
+                circleFillColor = greenColor,
                 fontSize = 14.sp,
                 textColor = Color.White,
             ),
@@ -196,7 +196,7 @@ class MainActivity : AppCompatActivity() {
                 },
                 textStyle = TextStyle(
                     fontSize = 14.sp,
-                    color = blueColor,
+                    color = greenColor,
                 ),
             ),
             sureButtonTheme = SureButtonTheme(
@@ -207,14 +207,14 @@ class MainActivity : AppCompatActivity() {
                     fontSize = 14.sp,
                     color = Color.White,
                 ),
-                backgroundColor = blueColor,
+                backgroundColor = greenColor,
             ),
             systemBarsTheme = SystemBarsTheme(
-                statusBarColor = blueColor,
+                statusBarColor = greenColor,
                 statusBarDarkIcons = false,
                 navigationBarColor = Color.White,
                 navigationBarDarkIcons = true
-            ),
+            )
         )
     }
 

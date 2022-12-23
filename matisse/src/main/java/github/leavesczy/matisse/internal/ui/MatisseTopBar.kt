@@ -42,10 +42,11 @@ internal fun MatisseTopBar(
     val topAppBarTheme = LocalMatisseTheme.current.topAppBarTheme
     Row(
         modifier = Modifier
+            .shadow(elevation = 4.dp)
+            .background(color = LocalMatisseTheme.current.systemBarsTheme.statusBarColor)
             .statusBarsPadding()
             .fillMaxWidth()
             .height(height = 56.dp)
-            .shadow(elevation = 1.dp)
             .background(color = topAppBarTheme.backgroundColor),
         verticalAlignment = Alignment.CenterVertically
     ) {

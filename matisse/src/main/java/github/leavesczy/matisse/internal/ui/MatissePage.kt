@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
@@ -52,9 +53,7 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
         )
     }
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .navigationBarsPadding(),
+        modifier = Modifier.fillMaxSize(),
         backgroundColor = LocalMatisseTheme.current.surfaceColor,
         topBar = {
             MatisseTopBar(
@@ -93,20 +92,19 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
                 )
             }
             items(
-                count = selectedBucketResources.size,
+                items = selectedBucketResources,
                 key = {
-                    selectedBucketResources[it].key
+                    it.key
                 },
                 contentType = {
                     "Album"
                 },
-                itemContent = { itemIndex ->
-                    val resource = selectedBucketResources[itemIndex]
-                    val index = selectedMediaResources.indexOf(resource)
+                itemContent = { media ->
+                    val index = selectedMediaResources.indexOf(element = media)
                     val isSelected = index > -1
                     val enabled = isSelected || selectedMediaResources.size < matisse.maxSelectable
                     AlbumItem(
-                        mediaResource = resource,
+                        media = media,
                         isSelected = isSelected,
                         enabled = enabled,
                         position = if (isSelected) {
@@ -115,26 +113,25 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
                             ""
                         },
                         onClickMedia = {
-                            viewModel.onClickMedia(mediaResource = it)
+                            viewModel.onClickMedia(mediaResource = media)
                         },
                         onMediaCheckChanged = {
-                            viewModel.onMediaCheckChanged(mediaResource = it)
+                            viewModel.onMediaCheckChanged(mediaResource = media)
                         }
                     )
-                }
-            )
+                })
         }
     }
 }
 
 @Composable
 private fun AlbumItem(
-    mediaResource: MediaResource,
+    media: MediaResource,
     isSelected: Boolean,
     enabled: Boolean,
     position: String,
-    onClickMedia: (MediaResource) -> Unit,
-    onMediaCheckChanged: (MediaResource) -> Unit
+    onClickMedia: () -> Unit,
+    onMediaCheckChanged: (Boolean) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -149,15 +146,13 @@ private fun AlbumItem(
                     Modifier
                 }
             )
-            .clickable {
-                onClickMedia(mediaResource)
-            }
+            .clickable(onClick = onClickMedia)
     ) {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
-            model = mediaResource.uri,
+            model = media.uri,
             contentScale = ContentScale.Crop,
-            contentDescription = mediaResource.displayName
+            contentDescription = media.displayName
         )
         MatisseCheckbox(
             modifier = Modifier
@@ -167,9 +162,7 @@ private fun AlbumItem(
             text = position,
             checked = isSelected,
             enabled = enabled,
-            onCheckedChange = {
-                onMediaCheckChanged(mediaResource)
-            }
+            onCheckedChange = onMediaCheckChanged
         )
     }
 }

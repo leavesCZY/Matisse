@@ -121,7 +121,7 @@ val LightMatisseTheme = MatisseTheme(
         defaultBucketName = defaultBucketName,
         backgroundColor = whiteColo,
         contentColor = blackColor,
-        fontSize = 18.sp,
+        fontSize = 20.sp,
     ),
     bottomNavigationTheme = BottomNavigationTheme(
         backgroundColor = whiteColo,
@@ -178,7 +178,7 @@ val DarkMatisseTheme = MatisseTheme(
         defaultBucketName = defaultBucketName,
         backgroundColor = darkColor,
         contentColor = whiteColo,
-        fontSize = 18.sp,
+        fontSize = 20.sp,
     ),
     bottomNavigationTheme = BottomNavigationTheme(
         backgroundColor = darkColor,

@@ -11,39 +11,23 @@ import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
  * @Desc:
  */
 @Composable
-internal fun SetSystemUi(previewVisible: Boolean) {
-    if (previewVisible) {
-        SetSystemUi(
-            statusBarColor = Color.Transparent,
-            navigationBarColor = Color.Transparent,
-            statusBarColorDarkIcons = false,
-            navigationBarColorDarkIcons = false
-        )
-    } else {
-        val systemBarsTheme = LocalMatisseTheme.current.systemBarsTheme
-        SetSystemUi(
-            statusBarColor = systemBarsTheme.statusBarColor,
-            navigationBarColor = systemBarsTheme.navigationBarColor,
-            statusBarColorDarkIcons = systemBarsTheme.statusBarDarkIcons,
-            navigationBarColorDarkIcons = systemBarsTheme.navigationBarDarkIcons
-        )
-    }
-}
-
-@Composable
-internal fun SetSystemUi(
-    statusBarColor: Color = Color.Transparent,
-    navigationBarColor: Color = Color.Transparent,
-    statusBarColorDarkIcons: Boolean = true,
-    navigationBarColorDarkIcons: Boolean = true
-) {
+internal fun SetSystemUi(previewPageVisible: Boolean) {
+    val systemBarsTheme = LocalMatisseTheme.current.systemBarsTheme
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(
-        color = statusBarColor,
-        darkIcons = statusBarColorDarkIcons
+        color = Color.Transparent,
+        darkIcons = if (previewPageVisible) {
+            false
+        } else {
+            systemBarsTheme.statusBarDarkIcons
+        }
     )
     systemUiController.setNavigationBarColor(
-        color = navigationBarColor,
-        darkIcons = navigationBarColorDarkIcons
+        color = Color.Transparent,
+        darkIcons = if (previewPageVisible) {
+            false
+        } else {
+            systemBarsTheme.navigationBarDarkIcons
+        }
     )
 }

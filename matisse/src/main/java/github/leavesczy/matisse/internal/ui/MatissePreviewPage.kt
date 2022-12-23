@@ -6,6 +6,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -37,22 +38,22 @@ import kotlin.math.absoluteValue
 internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
     val matissePreviewViewState = viewModel.matissePreviewViewState
     val visible = matissePreviewViewState.visible
-    val previewResources = matissePreviewViewState.previewResources
-    val initialPage = matissePreviewViewState.initialPage
-    BackHandler(enabled = visible, onBack = {
-        viewModel.onDismissPreviewPageRequest()
-    })
     AnimatedVisibility(
         visible = visible,
         enter = slideInHorizontally(animationSpec = tween(
-            durationMillis = 300,
+            durationMillis = 200,
             easing = LinearEasing
         ), initialOffsetX = { it }),
         exit = slideOutHorizontally(animationSpec = tween(
-            durationMillis = 300,
+            durationMillis = 200,
             easing = LinearEasing
         ), targetOffsetX = { it }),
     ) {
+        BackHandler(enabled = visible, onBack = {
+            viewModel.onDismissPreviewPageRequest()
+        })
+        val previewResources = matissePreviewViewState.previewResources
+        val initialPage = matissePreviewViewState.initialPage
         val pagerState = rememberPagerState(initialPage = initialPage)
         val currentImageIndex by remember {
             derivedStateOf {
@@ -67,7 +68,9 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
             }
         }
         Scaffold(
-            modifier = Modifier,
+            modifier = Modifier
+                .background(color = LocalMatisseTheme.current.onPreviewSurfaceColor)
+                .navigationBarsPadding(),
             backgroundColor = LocalMatisseTheme.current.onPreviewSurfaceColor
         ) { paddingValues ->
             if (previewResources.isNotEmpty()) {
@@ -87,8 +90,8 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                         val mediaResource = previewResources[pageIndex]
                         AsyncImage(
                             modifier = Modifier
-                                .fillMaxWidth()
                                 .align(alignment = Alignment.Center)
+                                .fillMaxWidth()
                                 .verticalScroll(state = rememberScrollState())
                                 .graphicsLayer {
                                     val pageOffset =

@@ -93,7 +93,7 @@ class MatisseActivity : ComponentActivity() {
                             imageUri = mTempImageUri
                         )
                         if (resource != null) {
-                            onSure(listOf(resource))
+                            onSure(selectedMediaResources = listOf(resource))
                         }
                     } else {
                         captureStrategy.onTakePictureCanceled(
@@ -120,7 +120,7 @@ class MatisseActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             MatisseTheme(matisseTheme = matisse.theme) {
-                SetSystemUi(previewVisible = matisseViewModel.matissePreviewViewState.visible)
+                SetSystemUi(previewPageVisible = matisseViewModel.matissePreviewViewState.visible)
                 MatissePage(viewModel = matisseViewModel, pageAction = matissePageAction)
                 MatissePreviewPage(viewModel = matisseViewModel)
             }
