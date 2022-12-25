@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,11 +44,11 @@ internal fun MatisseTopBar(
     Row(
         modifier = Modifier
             .shadow(elevation = 4.dp)
-            .background(color = LocalMatisseTheme.current.systemBarsTheme.statusBarColor)
+            .background(color = Color(color = LocalMatisseTheme.current.systemBarsTheme.statusBarColor))
             .statusBarsPadding()
             .fillMaxWidth()
             .height(height = 56.dp)
-            .background(color = topAppBarTheme.backgroundColor),
+            .background(color = Color(color = topAppBarTheme.backgroundColor)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(modifier = Modifier) {
@@ -55,7 +56,7 @@ internal fun MatisseTopBar(
                 content = {
                     Icon(
                         imageVector = Icons.Default.ArrowBackIos,
-                        tint = topAppBarTheme.contentColor,
+                        tint = Color(color = topAppBarTheme.iconColor),
                         contentDescription = "Back",
                     )
                 },
@@ -84,15 +85,14 @@ internal fun MatisseTopBar(
             Text(
                 modifier = Modifier.weight(weight = 1f, fill = false),
                 text = selectedBucket.bucketDisplayName,
-                color = topAppBarTheme.contentColor,
-                fontSize = topAppBarTheme.fontSize,
+                style = topAppBarTheme.textTheme.textStyle,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start
             )
             Icon(
                 imageVector = Icons.Filled.ArrowDropDown,
-                tint = topAppBarTheme.contentColor,
+                tint = Color(color = topAppBarTheme.iconColor),
                 contentDescription = selectedBucket.bucketDisplayName,
             )
         }
@@ -110,7 +110,7 @@ private fun BucketDropdownMenu(
     DropdownMenu(
         modifier = Modifier
             .wrapContentSize(align = Alignment.TopStart)
-            .background(color = dropdownMenuTheme.backgroundColor)
+            .background(color = Color(color = dropdownMenuTheme.backgroundColor))
             .widthIn(min = 200.dp)
             .heightIn(max = 400.dp),
         offset = DpOffset(x = 10.dp, y = 0.dp),
@@ -129,7 +129,7 @@ private fun BucketDropdownMenu(
                         modifier = Modifier
                             .size(size = 54.dp)
                             .clip(shape = RoundedCornerShape(size = 4.dp))
-                            .background(color = LocalMatisseTheme.current.imageBackgroundColor),
+                            .background(color = Color(color = LocalMatisseTheme.current.imageBackgroundColor)),
                         model = bucket.bucketDisplayIcon,
                         contentScale = ContentScale.Crop,
                         contentDescription = bucket.bucketDisplayName,
@@ -139,14 +139,14 @@ private fun BucketDropdownMenu(
                             .weight(weight = 1f, fill = false)
                             .padding(start = 6.dp),
                         text = bucket.bucketDisplayName,
-                        style = dropdownMenuTheme.textStyle,
+                        style = dropdownMenuTheme.textTheme.textStyle,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 2,
                     )
                     Text(
                         modifier = Modifier.padding(start = 4.dp, end = 4.dp),
                         text = "(${bucket.resources.size})",
-                        style = dropdownMenuTheme.textStyle,
+                        style = dropdownMenuTheme.textTheme.textStyle,
                         maxLines = 1,
                     )
                 }, onClick = {

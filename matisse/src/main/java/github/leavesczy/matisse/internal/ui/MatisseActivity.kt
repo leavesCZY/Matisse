@@ -21,7 +21,6 @@ import github.leavesczy.matisse.MatisseContract
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.internal.logic.MatissePageAction
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
-import github.leavesczy.matisse.internal.logic.SelectionSpec
 import github.leavesczy.matisse.internal.theme.MatisseTheme
 import github.leavesczy.matisse.internal.utils.PermissionUtils
 import kotlinx.coroutines.launch
@@ -33,7 +32,9 @@ import kotlinx.coroutines.launch
  */
 class MatisseActivity : ComponentActivity() {
 
-    private val matisse = SelectionSpec.getMatisse()
+    private val matisse by lazy {
+        MatisseContract.getRequest(intent = intent)
+    }
 
     private val captureStrategy: CaptureStrategy
         get() = matisse.captureStrategy

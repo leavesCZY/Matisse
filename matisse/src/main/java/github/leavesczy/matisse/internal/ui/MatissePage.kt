@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +56,9 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        backgroundColor = LocalMatisseTheme.current.surfaceColor,
+        backgroundColor = Color(
+            color = LocalMatisseTheme.current.backgroundColor
+        ),
         topBar = {
             MatisseTopBar(
                 allBucket = allBucket,
@@ -62,13 +66,13 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
                 onSelectBucket = {
                     viewModel.onSelectBucket(bucket = it)
                 },
-                onClickBackMenu = pageAction.onClickBackMenu,
+                onClickBackMenu = pageAction.onClickBackMenu
             )
         },
         bottomBar = {
             MatisseBottomBar(
                 viewModel = viewModel,
-                onSureButtonClick = pageAction.onSureButtonClick,
+                onSureButtonClick = pageAction.onSureButtonClick
             )
         }
     ) { innerPadding ->
@@ -138,10 +142,12 @@ private fun AlbumItem(
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 2.dp))
-            .background(color = LocalMatisseTheme.current.imageBackgroundColor)
+            .background(
+                color = Color(color = LocalMatisseTheme.current.imageBackgroundColor)
+            )
             .then(
                 other = if (isSelected) {
-                    Modifier.drawFrame(color = LocalMatisseTheme.current.checkBoxTheme.frameColor)
+                    Modifier.drawFrame(color = Color(color = LocalMatisseTheme.current.checkBoxTheme.frameColor))
                 } else {
                     Modifier
                 }
@@ -175,16 +181,16 @@ private fun CaptureItem(onClick: () -> Unit) {
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 2.dp))
-            .background(color = captureIconTheme.backgroundColor)
+            .background(color = Color(color = captureIconTheme.backgroundColor))
             .clickable(onClick = onClick)
     ) {
         Icon(
             modifier = Modifier
                 .fillMaxSize(fraction = 0.5f)
                 .align(alignment = Alignment.Center),
-            imageVector = captureIconTheme.icon,
-            tint = captureIconTheme.tint,
-            contentDescription = "Capture",
+            imageVector = Icons.Filled.PhotoCamera,
+            tint = Color(color = captureIconTheme.iconTint),
+            contentDescription = "Capture"
         )
     }
 }

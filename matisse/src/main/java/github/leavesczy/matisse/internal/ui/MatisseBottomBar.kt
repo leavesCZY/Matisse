@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
@@ -33,19 +34,19 @@ internal fun MatisseBottomBar(viewModel: MatisseViewModel, onSureButtonClick: ()
     Surface(
         modifier = Modifier
             .shadow(elevation = 6.dp)
-            .background(color = systemBarsTheme.navigationBarColor)
+            .background(color = Color(color = systemBarsTheme.navigationBarColor))
             .navigationBarsPadding()
     ) {
         Row(
             Modifier
                 .fillMaxWidth()
                 .height(height = 56.dp)
-                .background(color = bottomNavigationTheme.backgroundColor),
+                .background(color = Color(color = bottomNavigationTheme.backgroundColor)),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             val previewText = viewState.previewText
             if (previewText.isNotBlank()) {
-                val previewTextStyle = previewButtonTheme.textStyle.let {
+                val previewTextStyle = previewButtonTheme.textTheme.textStyle.let {
                     if (viewState.previewButtonClickable) {
                         it
                     } else {
@@ -70,16 +71,18 @@ internal fun MatisseBottomBar(viewModel: MatisseViewModel, onSureButtonClick: ()
                     text = previewText
                 )
             }
-            val sureButtonColor = if (viewState.sureButtonClickable) {
-                sureButtonTheme.backgroundColor
-            } else {
-                sureButtonTheme.backgroundColor.copy(alpha = alphaIfDisable)
-            }
-            val sureButtonTextStyle = sureButtonTheme.textStyle.let {
+            val sureButtonColor = Color(color = sureButtonTheme.backgroundColor).let {
                 if (viewState.sureButtonClickable) {
                     it
                 } else {
-                    it.copy(it.color.copy(alpha = alphaIfDisable))
+                    it.copy(alpha = alphaIfDisable)
+                }
+            }
+            val sureButtonTextStyle = sureButtonTheme.textTheme.textStyle.let {
+                if (viewState.sureButtonClickable) {
+                    it
+                } else {
+                    it.copy(color = it.color.copy(alpha = alphaIfDisable))
                 }
             }
             Text(

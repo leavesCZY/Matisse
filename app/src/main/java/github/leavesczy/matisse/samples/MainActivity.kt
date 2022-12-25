@@ -6,11 +6,6 @@ import android.view.View
 import android.widget.RadioGroup
 import androidx.activity.result.ActivityResultCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import github.leavesczy.matisse.*
@@ -154,48 +149,52 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getCustomMatisseTheme(): MatisseTheme {
-        val darkColor = Color(color = 0xFF1F1F20)
-        val greenColor = Color(color = 0xFF009688)
+        val darkColor = 0xFF1F1F20
+        val greenColor = 0xFF009688
         return MatisseTheme(
-            surfaceColor = Color.White,
-            onPreviewSurfaceColor = darkColor,
-            imageBackgroundColor = Color.LightGray.copy(alpha = 0.4f),
+            backgroundColor = 0xFFFFFFFF,
+            previewBackgroundColor = darkColor,
+            imageBackgroundColor = 0x66CCCCCC,
             alphaIfDisable = 0.5f,
             captureIconTheme = CaptureIconTheme(
-                backgroundColor = Color.LightGray.copy(alpha = 0.4f),
-                icon = Icons.Filled.PhotoCamera,
-                tint = Color.White,
+                backgroundColor = 0x66CCCCCC,
+                iconTint = 0xFFFFFFFF
             ),
             topAppBarTheme = TopAppBarTheme(
-                defaultBucketName = "全部图片",
+                defaultBucketName = "所有图片",
                 backgroundColor = greenColor,
-                contentColor = Color.White,
-                fontSize = 20.sp,
+                iconColor = 0xFFFFFFFF,
+                textTheme = TextTheme(
+                    fontSize = 19,
+                    color = 0xFFFFFFFF
+                )
             ),
             bottomNavigationTheme = BottomNavigationTheme(
-                backgroundColor = Color.White,
+                backgroundColor = 0xFFFFFFFF,
             ),
             dropdownMenuTheme = DropdownMenuTheme(
-                backgroundColor = Color.White,
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    color = Color.Black,
+                backgroundColor = 0xFFFFFFFF,
+                textTheme = TextTheme(
+                    fontSize = 14,
+                    color = 0xFF000000
                 ),
             ),
             checkBoxTheme = CheckBoxTheme(
                 countable = true,
-                frameColor = Color.Transparent,
-                circleColor = Color.White,
+                frameColor = 0x00000000,
+                circleColor = 0xFFFFFFFF,
                 circleFillColor = greenColor,
-                fontSize = 14.sp,
-                textColor = Color.White,
+                textTheme = TextTheme(
+                    fontSize = 14,
+                    color = 0xFFFFFFFF
+                )
             ),
             previewButtonTheme = PreviewButtonTheme(
                 textBuilder = { selectedSize: Int, maxSelectable: Int ->
                     "点击预览($selectedSize/$maxSelectable)"
                 },
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
+                textTheme = TextTheme(
+                    fontSize = 14,
                     color = greenColor,
                 ),
             ),
@@ -203,16 +202,16 @@ class MainActivity : AppCompatActivity() {
                 textBuilder = { selectedSize: Int, _: Int ->
                     "使用($selectedSize)"
                 },
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    color = Color.White,
+                textTheme = TextTheme(
+                    fontSize = 14,
+                    color = 0xFFFFFFFF,
                 ),
                 backgroundColor = greenColor,
             ),
             systemBarsTheme = SystemBarsTheme(
                 statusBarColor = greenColor,
                 statusBarDarkIcons = false,
-                navigationBarColor = Color.White,
+                navigationBarColor = 0xFFFFFFFF,
                 navigationBarDarkIcons = true
             )
         )

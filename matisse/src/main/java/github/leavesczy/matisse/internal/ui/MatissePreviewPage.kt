@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -41,11 +42,11 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
     AnimatedVisibility(
         visible = visible,
         enter = slideInHorizontally(animationSpec = tween(
-            durationMillis = 200,
+            durationMillis = 220,
             easing = LinearEasing
         ), initialOffsetX = { it }),
         exit = slideOutHorizontally(animationSpec = tween(
-            durationMillis = 200,
+            durationMillis = 220,
             easing = LinearEasing
         ), targetOffsetX = { it }),
     ) {
@@ -69,9 +70,9 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
         }
         Scaffold(
             modifier = Modifier
-                .background(color = LocalMatisseTheme.current.onPreviewSurfaceColor)
+                .background(color = Color(color = LocalMatisseTheme.current.previewBackgroundColor))
                 .navigationBarsPadding(),
-            backgroundColor = LocalMatisseTheme.current.onPreviewSurfaceColor
+            backgroundColor = Color(color = LocalMatisseTheme.current.previewBackgroundColor)
         ) { paddingValues ->
             if (previewResources.isNotEmpty()) {
                 Box(
@@ -119,7 +120,7 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                         modifier = Modifier
                             .align(alignment = Alignment.TopEnd)
                             .statusBarsPadding()
-                            .padding(top = 20.dp, end = 30.dp),
+                            .padding(top = 25.dp, end = 25.dp),
                         size = 28.dp,
                         theme = LocalMatisseTheme.current.checkBoxTheme,
                         text = if (currentImageIndex > -1) {

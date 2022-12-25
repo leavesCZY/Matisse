@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Parcelable
 import androidx.activity.result.contract.ActivityResultContract
-import github.leavesczy.matisse.internal.logic.SelectionSpec
 import github.leavesczy.matisse.internal.ui.MatisseActivity
 
 /**
@@ -18,7 +17,17 @@ class MatisseContract : ActivityResultContract<Matisse, List<MediaResource>>() {
 
     companion object {
 
+        private const val keyRequest = "keyRequest"
+
         private const val keyResult = "keyResult"
+
+        internal fun getRequest(intent: Intent): Matisse {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(keyRequest, Matisse::class.java)
+            } else {
+                intent.getParcelableExtra(keyRequest)
+            }!!
+        }
 
         internal fun buildResult(selectedMediaResources: List<MediaResource>): Intent {
             val data = Intent()
@@ -32,8 +41,9 @@ class MatisseContract : ActivityResultContract<Matisse, List<MediaResource>>() {
     }
 
     override fun createIntent(context: Context, input: Matisse): Intent {
-        SelectionSpec.inject(matisse = input)
-        return Intent(context, MatisseActivity::class.java)
+        val intent = Intent(context, MatisseActivity::class.java)
+        intent.putExtra(keyRequest, input)
+        return intent
     }
 
     override fun parseResult(resultCode: Int, intent: Intent?): List<MediaResource> {

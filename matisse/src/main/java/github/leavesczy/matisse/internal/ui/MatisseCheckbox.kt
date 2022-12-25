@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -21,6 +22,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.CheckBoxTheme
 import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 
@@ -50,8 +52,8 @@ internal fun MatisseCheckbox(
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
             textAlign = android.graphics.Paint.Align.CENTER
             with(localDensity) {
-                textSize = theme.fontSize.toPx()
-                color = theme.textColor.toArgb()
+                textSize = theme.textTheme.fontSize.sp.toPx()
+                color = Color(color = theme.textTheme.color).toArgb()
             }
         }
     }
@@ -78,17 +80,19 @@ internal fun MatisseCheckbox(
         val stokeWidth = defaultStokeWidth.toPx()
         val outRadius = (checkBoxSide - stokeWidth) / 2f
         drawCircle(
-            color = if (enabled) {
-                theme.circleColor
-            } else {
-                theme.circleColor.copy(alpha = alphaIfDisable)
+            color = Color(color = theme.circleColor).let {
+                if (enabled) {
+                    it
+                } else {
+                    it.copy(alpha = alphaIfDisable)
+                }
             },
             radius = outRadius,
             style = Stroke(width = stokeWidth)
         )
         if (checked) {
             drawCircle(
-                color = theme.circleFillColor,
+                color = Color(color = theme.circleFillColor),
                 radius = outRadius
             )
         }

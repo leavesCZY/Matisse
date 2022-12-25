@@ -4,7 +4,8 @@
 
 特点 & 优势：
 
-- 完全用 Kotlin 实现，UI 层完全用 Jetpack Compose 实现
+- 完全用 Kotlin 实现
+- UI 层完全用 Jetpack Compose 实现
 - 支持精细自定义主题，默认提供了 日间 和 夜间 两种主题
 - 支持精准筛选图片类型，只显示想要的图片类型
 - 支持在图片列表页开启拍照入口，一共包含 NothingCaptureStrategy、FileProviderCaptureStrategy、MediaStoreCaptureStrategy、SmartCaptureStrategy 四种拍照策略

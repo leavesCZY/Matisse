@@ -7,11 +7,14 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.Parcelable
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import github.leavesczy.matisse.internal.logic.MediaProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import java.io.File
 import java.util.*
 import kotlin.math.max
@@ -24,7 +27,7 @@ import kotlin.math.max
 /**
  * 拍照策略
  */
-interface CaptureStrategy {
+interface CaptureStrategy : Parcelable {
 
     /**
      * 是否启用拍照功能
@@ -65,6 +68,7 @@ interface CaptureStrategy {
 /**
  *  不开启拍照功能
  */
+@Parcelize
 object NothingCaptureStrategy : CaptureStrategy {
 
     override fun isEnabled(): Boolean {
@@ -94,8 +98,10 @@ object NothingCaptureStrategy : CaptureStrategy {
  *  无需申请权限，所拍的照片不会保存在系统相册里
  *  外部必须配置 FileProvider，并在此处传入 authority
  */
+@Parcelize
 class FileProviderCaptureStrategy(private val authority: String) : CaptureStrategy {
 
+    @IgnoredOnParcel
     private val uriFileMap = mutableMapOf<Uri, File>()
 
     override fun isEnabled(): Boolean {
@@ -172,6 +178,7 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
  *  根据系统版本决定是否需要申请 WRITE_EXTERNAL_STORAGE 权限
  *  所拍的照片会保存在系统相册里
  */
+@Parcelize
 class MediaStoreCaptureStrategy : CaptureStrategy {
 
     override fun isEnabled(): Boolean {
@@ -211,8 +218,11 @@ class MediaStoreCaptureStrategy : CaptureStrategy {
  * 系统版本小于 Android 10，则执行 FileProviderCaptureStrategy 策略
  * 系统版本大于等于 Android 10，则执行 MediaStoreCaptureStrategy 策略
  */
-class SmartCaptureStrategy(authority: String) : CaptureStrategy {
+@Parcelize
+@Suppress("CanBeParameter")
+class SmartCaptureStrategy(private val authority: String) : CaptureStrategy {
 
+    @IgnoredOnParcel
     private val proxy = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         MediaStoreCaptureStrategy()
     } else {
