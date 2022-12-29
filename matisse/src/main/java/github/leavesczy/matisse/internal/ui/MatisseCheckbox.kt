@@ -42,7 +42,7 @@ internal fun MatisseCheckbox(
     text: String,
     enabled: Boolean,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+    onCheckedChange: (Boolean) -> Unit
 ) {
     val localDensity = LocalDensity.current
     val textPaint = remember {
@@ -99,7 +99,7 @@ internal fun MatisseCheckbox(
         if (theme.countable && text.isNotBlank()) {
             drawTextToCenter(
                 text = text,
-                textPaint = textPaint,
+                textPaint = textPaint
             )
         }
     }

@@ -140,7 +140,7 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
         return withContext(context = Dispatchers.IO) {
             val imageFile = uriFileMap[imageUri]!!
-            uriFileMap.remove(imageUri)
+            uriFileMap.remove(key = imageUri)
             val imageFilePath = imageFile.absolutePath
             val option = BitmapFactory.Options()
             option.inJustDecodeBounds = true
@@ -163,11 +163,11 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
 
     override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
         withContext(context = Dispatchers.IO) {
-            val imageFile = uriFileMap[imageUri]!!
-            uriFileMap.remove(imageUri)
-            if (imageFile.exists()) {
+            val imageFile = uriFileMap[imageUri]
+            if (imageFile != null && imageFile.exists()) {
                 imageFile.delete()
             }
+            uriFileMap.remove(key = imageUri)
         }
     }
 
@@ -200,10 +200,7 @@ class MediaStoreCaptureStrategy : CaptureStrategy {
     }
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
-        return MediaProvider.loadResources(
-            context = context,
-            uri = imageUri
-        )
+        return MediaProvider.loadResources(context = context, uri = imageUri)
     }
 
     override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
@@ -215,8 +212,8 @@ class MediaStoreCaptureStrategy : CaptureStrategy {
 /**
  * 根据系统版本智能选择拍照策略
  * 既避免需要申请权限，又可以在系统允许的情况下将拍照所得照片存入到系统相册中
- * 系统版本小于 Android 10，则执行 FileProviderCaptureStrategy 策略
- * 系统版本大于等于 Android 10，则执行 MediaStoreCaptureStrategy 策略
+ * 当系统版本小于 Android 10 时，执行 FileProviderCaptureStrategy 策略
+ * 当系统版本大于等于 Android 10 时，执行 MediaStoreCaptureStrategy 策略
  */
 @Parcelize
 @Suppress("CanBeParameter")

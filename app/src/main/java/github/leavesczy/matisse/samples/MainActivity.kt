@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity() {
             backgroundColor = 0xFFFFFFFF,
             previewBackgroundColor = darkColor,
             imageBackgroundColor = 0x66CCCCCC,
-            alphaIfDisable = 0.5f,
+            alphaIfDisable = 0.6f,
             captureIconTheme = CaptureIconTheme(
                 backgroundColor = 0x66CCCCCC,
                 iconTint = 0xFFFFFFFF
@@ -169,20 +169,18 @@ class MainActivity : AppCompatActivity() {
                     color = 0xFFFFFFFF
                 )
             ),
-            bottomNavigationTheme = BottomNavigationTheme(
-                backgroundColor = 0xFFFFFFFF,
-            ),
+            bottomNavigationTheme = BottomNavigationTheme(backgroundColor = 0xFFFFFFFF),
             dropdownMenuTheme = DropdownMenuTheme(
                 backgroundColor = 0xFFFFFFFF,
                 textTheme = TextTheme(
                     fontSize = 14,
                     color = 0xFF000000
-                ),
+                )
             ),
             checkBoxTheme = CheckBoxTheme(
                 countable = true,
-                frameColor = 0x00000000,
-                circleColor = 0xFFFFFFFF,
+                frameColor = greenColor,
+                circleColor = greenColor,
                 circleFillColor = greenColor,
                 textTheme = TextTheme(
                     fontSize = 14,
@@ -195,18 +193,18 @@ class MainActivity : AppCompatActivity() {
                 },
                 textTheme = TextTheme(
                     fontSize = 14,
-                    color = greenColor,
-                ),
+                    color = greenColor
+                )
             ),
             sureButtonTheme = SureButtonTheme(
-                textBuilder = { selectedSize: Int, _: Int ->
-                    "使用($selectedSize)"
+                textBuilder = { selectedSize: Int, maxSelectable: Int ->
+                    "使用($selectedSize/$maxSelectable)"
                 },
                 textTheme = TextTheme(
                     fontSize = 14,
-                    color = 0xFFFFFFFF,
+                    color = 0xFFFFFFFF
                 ),
-                backgroundColor = greenColor,
+                backgroundColor = greenColor
             ),
             systemBarsTheme = SystemBarsTheme(
                 statusBarColor = greenColor,

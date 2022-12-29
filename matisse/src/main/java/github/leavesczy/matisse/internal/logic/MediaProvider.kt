@@ -84,8 +84,7 @@ internal object MediaProvider {
                             continue
                         }
                         val id = cursor.getLong(MediaStore.Images.Media._ID)
-                        val displayName =
-                            cursor.getString(MediaStore.Images.Media.DISPLAY_NAME)
+                        val displayName = cursor.getString(MediaStore.Images.Media.DISPLAY_NAME)
                         val mimeType = cursor.getString(MediaStore.Images.Media.MIME_TYPE)
                         val width = cursor.getInt(MediaStore.Images.Media.WIDTH)
                         val height = cursor.getInt(MediaStore.Images.Media.HEIGHT)
@@ -94,11 +93,10 @@ internal object MediaProvider {
                         val bucketId = cursor.getString(MediaStore.Images.Media.BUCKET_ID)
                         val bucketDisplayName =
                             cursor.getString(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
-                        val contentUri =
-                            ContentUris.withAppendedId(
-                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                id
-                            )
+                        val contentUri = ContentUris.withAppendedId(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                            id
+                        )
                         val mediaResource = MediaResource(
                             id = id,
                             uri = contentUri,

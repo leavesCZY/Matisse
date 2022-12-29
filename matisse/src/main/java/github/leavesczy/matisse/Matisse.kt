@@ -34,7 +34,7 @@ data class Matisse(
             return if (hasGif) {
                 listOf(elements = MimeType.values())
             } else {
-                mutableListOf(*MimeType.values()).apply {
+                mutableListOf(elements = MimeType.values()).apply {
                     remove(element = MimeType.GIF)
                 }
             }
@@ -79,7 +79,7 @@ data class MatisseTips(
     val onReadExternalStorageDenied: String,
     val onWriteExternalStorageDenied: String,
     val onCameraDenied: String,
-    val onSelectLimit: (selectedSize: Int, maxSelectable: Int) -> String,
+    val onSelectLimit: (selectedSize: Int, maxSelectable: Int) -> String
 ) : Parcelable
 
 private val defaultMatisseTips = MatisseTips(onReadExternalStorageDenied = "请授予存储访问权限后重试",

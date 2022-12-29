@@ -23,7 +23,7 @@ internal data class MediaBucket(
     val bucketDisplayName: String,
     val bucketDisplayIcon: Uri,
     val resources: List<MediaResource>,
-    val supportCapture: Boolean,
+    val supportCapture: Boolean
 )
 
 internal data class MatisseViewState(
@@ -44,7 +44,7 @@ internal data class MatisseBottomBarViewState(
 internal data class MatissePageAction(
     val onClickBackMenu: () -> Unit,
     val onRequestCapture: () -> Unit,
-    val onSureButtonClick: () -> Unit,
+    val onSureButtonClick: () -> Unit
 )
 
 internal data class MatissePreviewViewState(

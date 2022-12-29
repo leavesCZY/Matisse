@@ -60,7 +60,7 @@ internal fun MatisseTopBar(
                         contentDescription = "Back",
                     )
                 },
-                onClick = onClickBackMenu,
+                onClick = onClickBackMenu
             )
             BucketDropdownMenu(
                 allBucket = allBucket,
@@ -68,7 +68,7 @@ internal fun MatisseTopBar(
                 onDismissRequest = {
                     menuExpanded = false
                 },
-                onSelectBucket = onSelectBucket,
+                onSelectBucket = onSelectBucket
             )
         }
         Row(
@@ -80,7 +80,7 @@ internal fun MatisseTopBar(
                 ) {
                     menuExpanded = true
                 },
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 modifier = Modifier.weight(weight = 1f, fill = false),
@@ -93,7 +93,7 @@ internal fun MatisseTopBar(
             Icon(
                 imageVector = Icons.Filled.ArrowDropDown,
                 tint = Color(color = topAppBarTheme.iconColor),
-                contentDescription = selectedBucket.bucketDisplayName,
+                contentDescription = selectedBucket.bucketDisplayName
             )
         }
     }
@@ -104,7 +104,7 @@ private fun BucketDropdownMenu(
     allBucket: List<MediaBucket>,
     menuExpanded: Boolean,
     onDismissRequest: () -> Unit,
-    onSelectBucket: (MediaBucket) -> Unit,
+    onSelectBucket: (MediaBucket) -> Unit
 ) {
     val dropdownMenuTheme = LocalMatisseTheme.current.dropdownMenuTheme
     DropdownMenu(
@@ -132,7 +132,7 @@ private fun BucketDropdownMenu(
                             .background(color = Color(color = LocalMatisseTheme.current.imageBackgroundColor)),
                         model = bucket.bucketDisplayIcon,
                         contentScale = ContentScale.Crop,
-                        contentDescription = bucket.bucketDisplayName,
+                        contentDescription = bucket.bucketDisplayName
                     )
                     Text(
                         modifier = Modifier
@@ -141,13 +141,13 @@ private fun BucketDropdownMenu(
                         text = bucket.bucketDisplayName,
                         style = dropdownMenuTheme.textTheme.textStyle,
                         overflow = TextOverflow.Ellipsis,
-                        maxLines = 2,
+                        maxLines = 2
                     )
                     Text(
                         modifier = Modifier.padding(start = 4.dp, end = 4.dp),
                         text = "(${bucket.resources.size})",
                         style = dropdownMenuTheme.textTheme.textStyle,
-                        maxLines = 1,
+                        maxLines = 1
                     )
                 }, onClick = {
                     onDismissRequest()

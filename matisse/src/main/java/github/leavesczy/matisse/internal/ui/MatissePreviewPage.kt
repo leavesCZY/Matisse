@@ -86,7 +86,7 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                         state = pagerState,
                         key = { index ->
                             previewResources[index].key
-                        },
+                        }
                     ) { pageIndex ->
                         val mediaResource = previewResources[pageIndex]
                         AsyncImage(
