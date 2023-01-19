@@ -157,24 +157,20 @@ class MainActivity : AppCompatActivity() {
             imageBackgroundColor = 0x66CCCCCC,
             alphaIfDisable = 0.6f,
             captureIconTheme = CaptureIconTheme(
-                backgroundColor = 0x66CCCCCC,
-                iconTint = 0xFFFFFFFF
+                backgroundColor = 0x66CCCCCC, iconTint = 0xFFFFFFFF
             ),
             topAppBarTheme = TopAppBarTheme(
                 defaultBucketName = "所有图片",
                 backgroundColor = greenColor,
                 iconColor = 0xFFFFFFFF,
                 textTheme = TextTheme(
-                    fontSize = 19,
-                    color = 0xFFFFFFFF
+                    fontSize = 19, color = 0xFFFFFFFF
                 )
             ),
             bottomNavigationTheme = BottomNavigationTheme(backgroundColor = 0xFFFFFFFF),
             dropdownMenuTheme = DropdownMenuTheme(
-                backgroundColor = 0xFFFFFFFF,
-                textTheme = TextTheme(
-                    fontSize = 14,
-                    color = 0xFF000000
+                backgroundColor = 0xFFFFFFFF, textTheme = TextTheme(
+                    fontSize = 14, color = 0xFF000000
                 )
             ),
             checkBoxTheme = CheckBoxTheme(
@@ -183,28 +179,22 @@ class MainActivity : AppCompatActivity() {
                 circleColor = greenColor,
                 circleFillColor = greenColor,
                 textTheme = TextTheme(
-                    fontSize = 14,
-                    color = 0xFFFFFFFF
+                    fontSize = 14, color = 0xFFFFFFFF
                 )
             ),
             previewButtonTheme = PreviewButtonTheme(
                 textBuilder = { selectedSize: Int, maxSelectable: Int ->
                     "点击预览($selectedSize/$maxSelectable)"
-                },
-                textTheme = TextTheme(
-                    fontSize = 14,
-                    color = greenColor
+                }, textTheme = TextTheme(
+                    fontSize = 14, color = greenColor
                 )
             ),
             sureButtonTheme = SureButtonTheme(
                 textBuilder = { selectedSize: Int, maxSelectable: Int ->
                     "使用($selectedSize/$maxSelectable)"
-                },
-                textTheme = TextTheme(
-                    fontSize = 14,
-                    color = 0xFFFFFFFF
-                ),
-                backgroundColor = greenColor
+                }, textTheme = TextTheme(
+                    fontSize = 14, color = 0xFFFFFFFF
+                ), backgroundColor = greenColor
             ),
             systemBarsTheme = SystemBarsTheme(
                 statusBarColor = greenColor,

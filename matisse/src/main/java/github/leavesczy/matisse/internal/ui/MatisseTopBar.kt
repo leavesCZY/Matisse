@@ -40,47 +40,42 @@ internal fun MatisseTopBar(
     var menuExpanded by remember {
         mutableStateOf(value = false)
     }
-    val topAppBarTheme = LocalMatisseTheme.current.topAppBarTheme
+    val matisseTheme = LocalMatisseTheme.current
+    val topAppBarTheme = matisseTheme.topAppBarTheme
+    val systemBarsTheme = matisseTheme.systemBarsTheme
     Row(
         modifier = Modifier
             .shadow(elevation = 4.dp)
-            .background(color = Color(color = LocalMatisseTheme.current.systemBarsTheme.statusBarColor))
+            .background(color = Color(color = systemBarsTheme.statusBarColor))
             .statusBarsPadding()
             .fillMaxWidth()
             .height(height = 56.dp)
             .background(color = Color(color = topAppBarTheme.backgroundColor)),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(modifier = Modifier) {
+        Box {
             IconButton(
-                content = {
+                modifier = Modifier.padding(start = 6.dp, end = 2.dp), content = {
                     Icon(
                         imageVector = Icons.Default.ArrowBackIos,
                         tint = Color(color = topAppBarTheme.iconColor),
                         contentDescription = "Back",
                     )
-                },
-                onClick = onClickBackMenu
+                }, onClick = onClickBackMenu
             )
             BucketDropdownMenu(
-                allBucket = allBucket,
-                menuExpanded = menuExpanded,
-                onDismissRequest = {
+                allBucket = allBucket, menuExpanded = menuExpanded, onDismissRequest = {
                     menuExpanded = false
-                },
-                onSelectBucket = onSelectBucket
+                }, onSelectBucket = onSelectBucket
             )
         }
-        Row(
-            modifier = Modifier
-                .padding(end = 30.dp)
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
-                ) {
-                    menuExpanded = true
-                },
-            verticalAlignment = Alignment.CenterVertically
+        Row(modifier = Modifier
+            .padding(end = 30.dp)
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }) {
+                menuExpanded = true
+            }, verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 modifier = Modifier.weight(weight = 1f, fill = false),
@@ -106,7 +101,8 @@ private fun BucketDropdownMenu(
     onDismissRequest: () -> Unit,
     onSelectBucket: (MediaBucket) -> Unit
 ) {
-    val dropdownMenuTheme = LocalMatisseTheme.current.dropdownMenuTheme
+    val matisseTheme = LocalMatisseTheme.current
+    val dropdownMenuTheme = matisseTheme.dropdownMenuTheme
     DropdownMenu(
         modifier = Modifier
             .wrapContentSize(align = Alignment.TopStart)
@@ -118,18 +114,15 @@ private fun BucketDropdownMenu(
         onDismissRequest = onDismissRequest
     ) {
         allBucket.forEach { bucket ->
-            DropdownMenuItem(
-                modifier = Modifier.fillMaxWidth(),
+            DropdownMenuItem(modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 4.dp
-                ),
-                content = {
+                    horizontal = 10.dp, vertical = 4.dp
+                ), content = {
                     AsyncImage(
                         modifier = Modifier
                             .size(size = 54.dp)
                             .clip(shape = RoundedCornerShape(size = 4.dp))
-                            .background(color = Color(color = LocalMatisseTheme.current.imageBackgroundColor)),
+                            .background(color = Color(color = matisseTheme.imageBackgroundColor)),
                         model = bucket.bucketDisplayIcon,
                         contentScale = ContentScale.Crop,
                         contentDescription = bucket.bucketDisplayName

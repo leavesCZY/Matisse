@@ -49,33 +49,23 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
     val lazyGridState by remember(key1 = selectedBucket.bucketId) {
         mutableStateOf(
             value = LazyGridState(
-                firstVisibleItemIndex = 0,
-                firstVisibleItemScrollOffset = 0
+                firstVisibleItemIndex = 0, firstVisibleItemScrollOffset = 0
             )
         )
     }
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        backgroundColor = Color(
-            color = LocalMatisseTheme.current.backgroundColor
-        ),
-        topBar = {
-            MatisseTopBar(
-                allBucket = allBucket,
-                selectedBucket = selectedBucket,
-                onSelectBucket = {
-                    viewModel.onSelectBucket(bucket = it)
-                },
-                onClickBackMenu = pageAction.onClickBackMenu
-            )
-        },
-        bottomBar = {
-            MatisseBottomBar(
-                viewModel = viewModel,
-                onSureButtonClick = pageAction.onSureButtonClick
-            )
-        }
-    ) { innerPadding ->
+    Scaffold(modifier = Modifier.fillMaxSize(), backgroundColor = Color(
+        color = LocalMatisseTheme.current.backgroundColor
+    ), topBar = {
+        MatisseTopBar(
+            allBucket = allBucket, selectedBucket = selectedBucket, onSelectBucket = {
+                viewModel.onSelectBucket(bucket = it)
+            }, onClickBackMenu = pageAction.onClickBackMenu
+        )
+    }, bottomBar = {
+        MatisseBottomBar(
+            viewModel = viewModel, onSureButtonClick = pageAction.onSureButtonClick
+        )
+    }) { innerPadding ->
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxSize()
@@ -87,43 +77,33 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
             )
         ) {
             if (supportCapture) {
-                item(
-                    key = "Capture",
-                    contentType = "Capture",
-                    content = {
-                        CaptureItem(onClick = pageAction.onRequestCapture)
-                    }
-                )
-            }
-            items(
-                items = selectedBucketResources,
-                key = {
-                    it.key
-                },
-                contentType = {
-                    "Album"
-                },
-                itemContent = { media ->
-                    val index = selectedMediaResources.indexOf(element = media)
-                    val isSelected = index > -1
-                    val enabled = isSelected || selectedMediaResources.size < matisse.maxSelectable
-                    AlbumItem(
-                        media = media,
-                        isSelected = isSelected,
-                        enabled = enabled,
-                        position = if (isSelected) {
-                            (index + 1).toString()
-                        } else {
-                            ""
-                        },
-                        onClickMedia = {
-                            viewModel.onClickMedia(mediaResource = media)
-                        },
-                        onMediaCheckChanged = {
-                            viewModel.onMediaCheckChanged(mediaResource = media)
-                        }
-                    )
+                item(key = "Capture", contentType = "Capture", content = {
+                    CaptureItem(onClick = pageAction.onRequestCapture)
                 })
+            }
+            items(items = selectedBucketResources, key = {
+                it.key
+            }, contentType = {
+                "Album"
+            }, itemContent = { media ->
+                val index = selectedMediaResources.indexOf(element = media)
+                val isSelected = index > -1
+                val enabled = isSelected || selectedMediaResources.size < matisse.maxSelectable
+                AlbumItem(media = media,
+                    isSelected = isSelected,
+                    enabled = enabled,
+                    position = if (isSelected) {
+                        (index + 1).toString()
+                    } else {
+                        ""
+                    },
+                    onClickMedia = {
+                        viewModel.onClickMedia(mediaResource = media)
+                    },
+                    onMediaCheckChanged = {
+                        viewModel.onMediaCheckChanged(mediaResource = media)
+                    })
+            })
         }
     }
 }
@@ -137,17 +117,18 @@ private fun AlbumItem(
     onClickMedia: () -> Unit,
     onMediaCheckChanged: (Boolean) -> Unit
 ) {
+    val matisseTheme = LocalMatisseTheme.current
     Box(
         modifier = Modifier
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 2.dp))
             .background(
-                color = Color(color = LocalMatisseTheme.current.imageBackgroundColor)
+                color = Color(color = matisseTheme.imageBackgroundColor)
             )
             .then(
                 other = if (isSelected) {
-                    Modifier.drawFrame(color = Color(color = LocalMatisseTheme.current.checkBoxTheme.frameColor))
+                    Modifier.drawFrame(color = Color(color = matisseTheme.checkBoxTheme.frameColor))
                 } else {
                     Modifier
                 }
@@ -164,7 +145,7 @@ private fun AlbumItem(
             modifier = Modifier
                 .align(alignment = Alignment.TopEnd)
                 .padding(all = 3.dp),
-            theme = LocalMatisseTheme.current.checkBoxTheme,
+            theme = matisseTheme.checkBoxTheme,
             text = position,
             checked = isSelected,
             enabled = enabled,

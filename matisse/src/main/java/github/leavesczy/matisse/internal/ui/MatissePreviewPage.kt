@@ -39,15 +39,14 @@ import kotlin.math.absoluteValue
 internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
     val matissePreviewViewState = viewModel.matissePreviewViewState
     val visible = matissePreviewViewState.visible
+    val matisseTheme = LocalMatisseTheme.current
     AnimatedVisibility(
         visible = visible,
         enter = slideInHorizontally(animationSpec = tween(
-            durationMillis = 220,
-            easing = LinearEasing
+            durationMillis = 220, easing = LinearEasing
         ), initialOffsetX = { it }),
         exit = slideOutHorizontally(animationSpec = tween(
-            durationMillis = 220,
-            easing = LinearEasing
+            durationMillis = 220, easing = LinearEasing
         ), targetOffsetX = { it }),
     ) {
         BackHandler(enabled = visible, onBack = {
@@ -70,9 +69,9 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
         }
         Scaffold(
             modifier = Modifier
-                .background(color = Color(color = LocalMatisseTheme.current.previewBackgroundColor))
+                .background(color = Color(color = matisseTheme.previewBackgroundColor))
                 .navigationBarsPadding(),
-            backgroundColor = Color(color = LocalMatisseTheme.current.previewBackgroundColor)
+            backgroundColor = Color(color = matisseTheme.previewBackgroundColor)
         ) { paddingValues ->
             if (previewResources.isNotEmpty()) {
                 Box(
@@ -80,14 +79,12 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                         .fillMaxSize()
                         .padding(paddingValues = paddingValues)
                 ) {
-                    HorizontalPager(
-                        modifier = Modifier.fillMaxSize(),
+                    HorizontalPager(modifier = Modifier.fillMaxSize(),
                         count = previewResources.size,
                         state = pagerState,
                         key = { index ->
                             previewResources[index].key
-                        }
-                    ) { pageIndex ->
+                        }) { pageIndex ->
                         val mediaResource = previewResources[pageIndex]
                         AsyncImage(
                             modifier = Modifier
@@ -116,13 +113,12 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                             contentDescription = mediaResource.displayName
                         )
                     }
-                    MatisseCheckbox(
-                        modifier = Modifier
-                            .align(alignment = Alignment.TopEnd)
-                            .statusBarsPadding()
-                            .padding(top = 25.dp, end = 25.dp),
+                    MatisseCheckbox(modifier = Modifier
+                        .align(alignment = Alignment.TopEnd)
+                        .statusBarsPadding()
+                        .padding(top = 25.dp, end = 25.dp),
                         size = 28.dp,
-                        theme = LocalMatisseTheme.current.checkBoxTheme,
+                        theme = matisseTheme.checkBoxTheme,
                         text = if (currentImageIndex > -1) {
                             (currentImageIndex + 1).toString()
                         } else {
@@ -132,8 +128,7 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                         enabled = checkboxEnabled,
                         onCheckedChange = {
                             viewModel.onMediaCheckChanged(mediaResource = previewResources[pagerState.currentPage])
-                        }
-                    )
+                        })
                 }
             }
         }

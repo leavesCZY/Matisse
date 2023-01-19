@@ -71,14 +71,12 @@ data class BottomNavigationTheme(
 
 @Parcelize
 data class DropdownMenuTheme(
-    val backgroundColor: Long,
-    val textTheme: TextTheme
+    val backgroundColor: Long, val textTheme: TextTheme
 ) : Parcelable
 
 @Parcelize
 data class PreviewButtonTheme(
-    val textTheme: TextTheme,
-    val textBuilder: (selectedSize: Int, maxSelectable: Int) -> String
+    val textTheme: TextTheme, val textBuilder: (selectedSize: Int, maxSelectable: Int) -> String
 ) : Parcelable
 
 @Parcelize
@@ -138,16 +136,14 @@ val LightMatisseTheme = MatisseTheme(
     imageBackgroundColor = lightImageBackgroundColor,
     alphaIfDisable = alphaIfDisable,
     captureIconTheme = CaptureIconTheme(
-        backgroundColor = lightCaptureIconBackgroundColor,
-        iconTint = lightCaptureIconTintColor
+        backgroundColor = lightCaptureIconBackgroundColor, iconTint = lightCaptureIconTintColor
     ),
     topAppBarTheme = TopAppBarTheme(
         defaultBucketName = defaultBucketName,
         backgroundColor = lightSystemBarColor,
         iconColor = blackColor,
         textTheme = TextTheme(
-            fontSize = 19,
-            color = blackColor
+            fontSize = 19, color = blackColor
         )
     ),
     bottomNavigationTheme = BottomNavigationTheme(
@@ -156,8 +152,7 @@ val LightMatisseTheme = MatisseTheme(
     dropdownMenuTheme = DropdownMenuTheme(
         backgroundColor = lightBackgroundColor,
         textTheme = TextTheme(
-            fontSize = 14,
-            color = blackColor
+            fontSize = 14, color = blackColor
         ),
     ),
     checkBoxTheme = CheckBoxTheme(
@@ -166,24 +161,18 @@ val LightMatisseTheme = MatisseTheme(
         circleFillColor = blueColor,
         countable = true,
         textTheme = TextTheme(
-            fontSize = 14,
-            color = whiteColor
+            fontSize = 14, color = whiteColor
         )
     ),
     previewButtonTheme = PreviewButtonTheme(
-        textBuilder = previewTextBuilder,
-        textTheme = TextTheme(
-            fontSize = 14,
-            color = blackColor
+        textBuilder = previewTextBuilder, textTheme = TextTheme(
+            fontSize = 14, color = blackColor
         )
     ),
     sureButtonTheme = SureButtonTheme(
-        textBuilder = sureTextBuilder,
-        textTheme = TextTheme(
-            fontSize = 14,
-            color = whiteColor
-        ),
-        backgroundColor = blueColor
+        textBuilder = sureTextBuilder, textTheme = TextTheme(
+            fontSize = 14, color = whiteColor
+        ), backgroundColor = blueColor
     ),
     systemBarsTheme = SystemBarsTheme(
         statusBarColor = lightSystemBarColor,
@@ -199,26 +188,22 @@ val DarkMatisseTheme = MatisseTheme(
     imageBackgroundColor = darkImageBackgroundColor,
     alphaIfDisable = alphaIfDisable,
     captureIconTheme = CaptureIconTheme(
-        backgroundColor = darkCaptureIconBackgroundColor,
-        iconTint = darkCaptureIconTintColor
+        backgroundColor = darkCaptureIconBackgroundColor, iconTint = darkCaptureIconTintColor
     ),
     topAppBarTheme = TopAppBarTheme(
         defaultBucketName = defaultBucketName,
         backgroundColor = darkSystemBarColor,
         iconColor = whiteColor,
         textTheme = TextTheme(
-            fontSize = 19,
-            color = whiteColor
+            fontSize = 19, color = whiteColor
         )
     ),
     bottomNavigationTheme = BottomNavigationTheme(
         backgroundColor = darkSystemBarColor
     ),
     dropdownMenuTheme = DropdownMenuTheme(
-        backgroundColor = darkSystemBarColor,
-        textTheme = TextTheme(
-            fontSize = 14,
-            color = whiteColor
+        backgroundColor = darkSystemBarColor, textTheme = TextTheme(
+            fontSize = 14, color = whiteColor
         )
     ),
     checkBoxTheme = CheckBoxTheme(
@@ -227,24 +212,20 @@ val DarkMatisseTheme = MatisseTheme(
         circleColor = whiteColor,
         circleFillColor = greenColor,
         textTheme = TextTheme(
-            fontSize = 14,
-            color = whiteColor
+            fontSize = 14, color = whiteColor
         )
     ),
     previewButtonTheme = PreviewButtonTheme(
         textBuilder = previewTextBuilder,
         textTheme = TextTheme(
-            fontSize = 14,
-            color = whiteColor
+            fontSize = 14, color = whiteColor
         ),
     ),
     sureButtonTheme = SureButtonTheme(
         textBuilder = sureTextBuilder,
         textTheme = TextTheme(
-            fontSize = 14,
-            color = whiteColor
-        ),
-        backgroundColor = greenColor
+            fontSize = 14, color = whiteColor
+        ), backgroundColor = greenColor
     ),
     systemBarsTheme = SystemBarsTheme(
         statusBarColor = darkSystemBarColor,

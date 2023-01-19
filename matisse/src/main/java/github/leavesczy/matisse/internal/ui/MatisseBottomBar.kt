@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,84 +25,77 @@ import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 @Composable
 internal fun MatisseBottomBar(viewModel: MatisseViewModel, onSureButtonClick: () -> Unit) {
     val viewState = viewModel.bottomBarViewState
-    val systemBarsTheme = LocalMatisseTheme.current.systemBarsTheme
-    val bottomNavigationTheme = LocalMatisseTheme.current.bottomNavigationTheme
-    val previewButtonTheme = LocalMatisseTheme.current.previewButtonTheme
-    val sureButtonTheme = LocalMatisseTheme.current.sureButtonTheme
-    val alphaIfDisable = LocalMatisseTheme.current.alphaIfDisable
-    Surface(
+    val matisseTheme = LocalMatisseTheme.current
+    val systemBarsTheme = matisseTheme.systemBarsTheme
+    val bottomNavigationTheme = matisseTheme.bottomNavigationTheme
+    val previewButtonTheme = matisseTheme.previewButtonTheme
+    val sureButtonTheme = matisseTheme.sureButtonTheme
+    val alphaIfDisable = matisseTheme.alphaIfDisable
+    Row(
         modifier = Modifier
-            .shadow(elevation = 6.dp)
+            .shadow(elevation = 4.dp)
             .background(color = Color(color = systemBarsTheme.navigationBarColor))
             .navigationBarsPadding()
+            .fillMaxWidth()
+            .height(height = 56.dp)
+            .background(color = Color(color = bottomNavigationTheme.backgroundColor)),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .height(height = 56.dp)
-                .background(color = Color(color = bottomNavigationTheme.backgroundColor)),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            val previewText = viewState.previewText
-            if (previewText.isNotBlank()) {
-                val previewTextStyle = previewButtonTheme.textTheme.textStyle.let {
-                    if (viewState.previewButtonClickable) {
-                        it
-                    } else {
-                        it.copy(color = it.color.copy(alpha = alphaIfDisable))
-                    }
-                }
-                Text(
-                    modifier = Modifier
-                        .align(alignment = Alignment.CenterVertically)
-                        .then(other = if (viewState.previewButtonClickable) {
-                            Modifier.clickable {
-                                viewModel.onClickPreviewButton()
-                            }
-                        } else {
-                            Modifier
-                        })
-                        .fillMaxHeight()
-                        .padding(horizontal = 22.dp)
-                        .wrapContentHeight(align = Alignment.CenterVertically),
-                    textAlign = TextAlign.Center,
-                    style = previewTextStyle,
-                    text = previewText
-                )
-            }
-            val sureButtonColor = Color(color = sureButtonTheme.backgroundColor).let {
-                if (viewState.sureButtonClickable) {
-                    it
-                } else {
-                    it.copy(alpha = alphaIfDisable)
-                }
-            }
-            val sureButtonTextStyle = sureButtonTheme.textTheme.textStyle.let {
-                if (viewState.sureButtonClickable) {
+        val previewText = viewState.previewText
+        if (previewText.isNotBlank()) {
+            val previewTextStyle = previewButtonTheme.textTheme.textStyle.let {
+                if (viewState.previewButtonClickable) {
                     it
                 } else {
                     it.copy(color = it.color.copy(alpha = alphaIfDisable))
                 }
             }
-            Text(
-                modifier = Modifier
-                    .align(alignment = Alignment.CenterVertically)
-                    .weight(weight = 1f, fill = false)
-                    .padding(end = 22.dp)
-                    .clip(shape = RoundedCornerShape(size = 22.dp))
-                    .background(color = sureButtonColor)
-                    .then(other = if (viewState.sureButtonClickable) {
-                        Modifier.clickable {
-                            onSureButtonClick()
-                        }
-                    } else {
-                        Modifier
-                    })
-                    .padding(horizontal = 22.dp, vertical = 8.dp),
-                text = viewState.sureText,
+            Text(modifier = Modifier
+                .align(alignment = Alignment.CenterVertically)
+                .then(other = if (viewState.previewButtonClickable) {
+                    Modifier.clickable {
+                        viewModel.onClickPreviewButton()
+                    }
+                } else {
+                    Modifier
+                })
+                .fillMaxHeight()
+                .padding(horizontal = 22.dp)
+                .wrapContentHeight(align = Alignment.CenterVertically),
                 textAlign = TextAlign.Center,
-                style = sureButtonTextStyle
-            )
+                style = previewTextStyle,
+                text = previewText)
         }
+        val sureButtonColor = Color(color = sureButtonTheme.backgroundColor).let {
+            if (viewState.sureButtonClickable) {
+                it
+            } else {
+                it.copy(alpha = alphaIfDisable)
+            }
+        }
+        val sureButtonTextStyle = sureButtonTheme.textTheme.textStyle.let {
+            if (viewState.sureButtonClickable) {
+                it
+            } else {
+                it.copy(color = it.color.copy(alpha = alphaIfDisable))
+            }
+        }
+        Text(modifier = Modifier
+            .align(alignment = Alignment.CenterVertically)
+            .weight(weight = 1f, fill = false)
+            .padding(end = 22.dp)
+            .clip(shape = RoundedCornerShape(size = 22.dp))
+            .background(color = sureButtonColor)
+            .then(other = if (viewState.sureButtonClickable) {
+                Modifier.clickable {
+                    onSureButtonClick()
+                }
+            } else {
+                Modifier
+            })
+            .padding(horizontal = 22.dp, vertical = 8.dp),
+            text = viewState.sureText,
+            textAlign = TextAlign.Center,
+            style = sureButtonTextStyle)
     }
 }
