@@ -8,10 +8,10 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
  * @Date: 2022/5/28 22:28
  * @Desc:
  */
-class MatisseActivity : ComponentActivity() {
+class MatisseActivity : AppCompatActivity() {
 
     private val matisse by lazy {
         MatisseContract.getRequest(intent = intent)
@@ -81,7 +81,9 @@ class MatisseActivity : ComponentActivity() {
                 takePicture()
             } else {
                 Toast.makeText(
-                    this, getString(R.string.matisse_on_camera_permission_denied), Toast.LENGTH_SHORT
+                    this,
+                    getString(R.string.matisse_on_camera_permission_denied),
+                    Toast.LENGTH_SHORT
                 ).show()
             }
         }
