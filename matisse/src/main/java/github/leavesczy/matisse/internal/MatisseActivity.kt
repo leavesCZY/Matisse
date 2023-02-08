@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.internal.ui
+package github.leavesczy.matisse.internal
 
 import android.Manifest
 import android.app.Activity
@@ -12,16 +12,23 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MatisseContract
 import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatissePageAction
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.theme.MatisseTheme
+import github.leavesczy.matisse.internal.ui.MatissePage
+import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.utils.PermissionUtils
 import kotlinx.coroutines.launch
 
@@ -44,8 +51,7 @@ class MatisseActivity : ComponentActivity() {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return MatisseViewModel(
-                    application = application,
-                    matisse = matisse
+                    application = application, matisse = matisse
                 ) as T
             }
         }
@@ -61,10 +67,11 @@ class MatisseActivity : ComponentActivity() {
             if (granted) {
                 requestCameraPermissionIfNeed()
             } else {
-                val tips = matisse.tips.onWriteExternalStorageDenied
-                if (tips.isNotBlank()) {
-                    Toast.makeText(this, tips, Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(
+                    this,
+                    getString(R.string.matisse_on_write_external_storage_permission_denied),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -73,10 +80,9 @@ class MatisseActivity : ComponentActivity() {
             if (granted) {
                 takePicture()
             } else {
-                val tips = matisse.tips.onCameraDenied
-                if (tips.isNotBlank()) {
-                    Toast.makeText(this, tips, Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(
+                    this, getString(R.string.matisse_on_camera_permission_denied), Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -90,16 +96,14 @@ class MatisseActivity : ComponentActivity() {
                 lifecycleScope.launch {
                     if (result) {
                         val resource = captureStrategy.loadResource(
-                            context = this@MatisseActivity,
-                            imageUri = mTempImageUri
+                            context = this@MatisseActivity, imageUri = mTempImageUri
                         )
                         if (resource != null) {
                             onSure(selectedMediaResources = listOf(resource))
                         }
                     } else {
                         captureStrategy.onTakePictureCanceled(
-                            context = this@MatisseActivity,
-                            imageUri = mTempImageUri
+                            context = this@MatisseActivity, imageUri = mTempImageUri
                         )
                     }
                 }
@@ -113,14 +117,13 @@ class MatisseActivity : ComponentActivity() {
             onRequestCapture()
         }, onSureButtonClick = {
             onSure(selectedMediaResources = matisseViewModel.matisseViewState.selectedResources)
-        }
-    )
+        })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            MatisseTheme(matisseTheme = matisse.theme) {
+            MatisseTheme {
                 SetSystemUi(previewPageVisible = matisseViewModel.matissePreviewViewState.visible)
                 MatissePage(viewModel = matisseViewModel, pageAction = matissePageAction)
                 MatissePreviewPage(viewModel = matisseViewModel)
@@ -129,14 +132,42 @@ class MatisseActivity : ComponentActivity() {
         requestReadImagesPermission()
     }
 
-    private fun requestReadImagesPermission() {
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
-        ) {
-            Manifest.permission.READ_MEDIA_IMAGES
+    @Composable
+    private fun SetSystemUi(previewPageVisible: Boolean) {
+        val statusBarColor = Color.Transparent
+        val navigationBarColor = if (previewPageVisible) {
+            colorResource(id = R.color.matisse_preview_page_background_color)
         } else {
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            colorResource(id = R.color.matisse_navigation_bar_color)
         }
+        val statusBarDarkIcons = if (previewPageVisible) {
+            false
+        } else {
+            resources.getBoolean(R.bool.matisse_status_bar_dark_icons)
+        }
+        val navigationBarDarkIcons = if (previewPageVisible) {
+            false
+        } else {
+            resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
+        }
+        val systemUiController = rememberSystemUiController()
+        systemUiController.setStatusBarColor(
+            color = statusBarColor,
+            darkIcons = statusBarDarkIcons,
+        )
+        systemUiController.setNavigationBarColor(
+            color = navigationBarColor,
+            darkIcons = navigationBarDarkIcons,
+        )
+    }
+
+    private fun requestReadImagesPermission() {
+        val permission =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU) {
+                Manifest.permission.READ_MEDIA_IMAGES
+            } else {
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            }
         if (PermissionUtils.checkSelfPermission(context = this, permission = permission)) {
             matisseViewModel.onRequestReadImagesPermissionResult(granted = true)
         } else {
@@ -155,11 +186,9 @@ class MatisseActivity : ComponentActivity() {
 
     private fun requestCameraPermissionIfNeed() {
         if (PermissionUtils.containsPermission(
-                context = this,
-                permission = Manifest.permission.CAMERA
+                context = this, permission = Manifest.permission.CAMERA
             ) && !PermissionUtils.checkSelfPermission(
-                context = this,
-                permission = Manifest.permission.CAMERA
+                context = this, permission = Manifest.permission.CAMERA
             )
         ) {
             requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)

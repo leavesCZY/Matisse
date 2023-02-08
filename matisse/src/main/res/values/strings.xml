@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="matisse_default_bucket_name">全部图片</string>
+    <string name="matisse_on_read_external_storage_permission_denied">请授予存储访问权限后重试</string>
+    <string name="matisse_on_write_external_storage_permission_denied">请授予存储写入权限后重试</string>
+    <string name="matisse_on_camera_permission_denied">请授予拍照权限后重试</string>
+    <string name="matisse_sure">确定</string>
+    <string name="matisse_limit_the_number_of_pictures">最多只能选择%d张图片</string>
+    <string name="matisse_preview">预览(%d/%d)</string>
+</resources>

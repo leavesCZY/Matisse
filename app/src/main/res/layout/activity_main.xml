@@ -14,48 +14,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="主题"
-            android:textAllCaps="false" />
-
-        <RadioGroup
-            android:id="@+id/radioGroupTheme"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/rbThemeLight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="日间" />
-
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/rbThemeDark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="夜间" />
-
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/rbThemeCustom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="自定义" />
-
-        </RadioGroup>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="选取数量"
             android:textAllCaps="false" />
 
@@ -83,48 +41,6 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:text="3" />
-
-        </RadioGroup>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="图片列数"
-            android:textAllCaps="false" />
-
-        <RadioGroup
-            android:id="@+id/radioGroupSpanCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/rbSpanCount3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="3" />
-
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/rbSpanCount4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="4" />
-
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/rbSpanCount5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="5" />
 
         </RadioGroup>
 

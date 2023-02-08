@@ -6,7 +6,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Parcelable
 import androidx.activity.result.contract.ActivityResultContract
-import github.leavesczy.matisse.internal.ui.MatisseActivity
+import github.leavesczy.matisse.internal.MatisseActivity
 
 /**
  * @Author: CZY

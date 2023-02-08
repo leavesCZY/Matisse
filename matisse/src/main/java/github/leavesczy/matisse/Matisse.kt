@@ -11,20 +11,14 @@ import kotlinx.parcelize.Parcelize
  * @Desc:
  */
 /**
- * @param theme 主题。默认是日间主题
+ * @param maxSelectable 可以选择的图片最大数量。默认是 1
  * @param supportedMimeTypes 需要显示的图片类型。默认是包含 Gif 在内的所有图片
- * @param maxSelectable 可以选择的最大图片数量。默认是 1
- * @param spanCount 显示图片列表时的列表。默认是 4
- * @param tips 权限被拒绝、图片数量超限时的 Toast 提示
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 @Parcelize
 data class Matisse(
-    val theme: MatisseTheme = LightMatisseTheme,
-    val supportedMimeTypes: List<MimeType> = ofImage(hasGif = true),
     val maxSelectable: Int = 1,
-    val spanCount: Int = 4,
-    val tips: MatisseTips = defaultMatisseTips,
+    val supportedMimeTypes: List<MimeType> = ofImage(hasGif = true),
     val captureStrategy: CaptureStrategy = NothingCaptureStrategy
 ) : Parcelable {
 
@@ -73,19 +67,3 @@ enum class MimeType(val type: String) {
     WEBP("image/webp"),
     GIF("image/gif");
 }
-
-@Parcelize
-data class MatisseTips(
-    val onReadExternalStorageDenied: String,
-    val onWriteExternalStorageDenied: String,
-    val onCameraDenied: String,
-    val onSelectLimit: (selectedSize: Int, maxSelectable: Int) -> String
-) : Parcelable
-
-private val defaultMatisseTips = MatisseTips(onReadExternalStorageDenied = "请授予存储访问权限后重试",
-    onWriteExternalStorageDenied = "请授予存储写入权限后重试",
-    onCameraDenied = "请授予拍照权限后重试",
-    onSelectLimit = { _: Int, maxSelectable: Int ->
-        "最多只能选择${maxSelectable}张图片"
-    }
-)

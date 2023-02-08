@@ -10,8 +10,8 @@
 
     <application>
         <activity
-            android:name=".internal.ui.MatisseActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation|uiMode"
+            android:name=".internal.MatisseActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Matisse"

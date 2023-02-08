@@ -10,11 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
-import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 
 /**
  * @Author: leavesCZY
@@ -25,32 +27,17 @@ import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 @Composable
 internal fun MatisseBottomBar(viewModel: MatisseViewModel, onSureButtonClick: () -> Unit) {
     val viewState = viewModel.bottomBarViewState
-    val matisseTheme = LocalMatisseTheme.current
-    val systemBarsTheme = matisseTheme.systemBarsTheme
-    val bottomNavigationTheme = matisseTheme.bottomNavigationTheme
-    val previewButtonTheme = matisseTheme.previewButtonTheme
-    val sureButtonTheme = matisseTheme.sureButtonTheme
-    val alphaIfDisable = matisseTheme.alphaIfDisable
     Row(
         modifier = Modifier
             .shadow(elevation = 4.dp)
-            .background(color = Color(color = systemBarsTheme.navigationBarColor))
             .navigationBarsPadding()
             .fillMaxWidth()
             .height(height = 56.dp)
-            .background(color = Color(color = bottomNavigationTheme.backgroundColor)),
+            .background(color = colorResource(id = R.color.matisse_bottom_navigation_bar_background_color)),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        val previewText = viewState.previewText
-        if (previewText.isNotBlank()) {
-            val previewTextStyle = previewButtonTheme.textTheme.textStyle.let {
-                if (viewState.previewButtonClickable) {
-                    it
-                } else {
-                    it.copy(color = it.color.copy(alpha = alphaIfDisable))
-                }
-            }
-            Text(modifier = Modifier
+        Text(
+            modifier = Modifier
                 .align(alignment = Alignment.CenterVertically)
                 .then(other = if (viewState.previewButtonClickable) {
                     Modifier.clickable {
@@ -62,40 +49,46 @@ internal fun MatisseBottomBar(viewModel: MatisseViewModel, onSureButtonClick: ()
                 .fillMaxHeight()
                 .padding(horizontal = 22.dp)
                 .wrapContentHeight(align = Alignment.CenterVertically),
-                textAlign = TextAlign.Center,
-                style = previewTextStyle,
-                text = previewText)
-        }
-        val sureButtonColor = Color(color = sureButtonTheme.backgroundColor).let {
-            if (viewState.sureButtonClickable) {
-                it
-            } else {
-                it.copy(alpha = alphaIfDisable)
-            }
-        }
-        val sureButtonTextStyle = sureButtonTheme.textTheme.textStyle.let {
-            if (viewState.sureButtonClickable) {
-                it
-            } else {
-                it.copy(color = it.color.copy(alpha = alphaIfDisable))
-            }
-        }
-        Text(modifier = Modifier
-            .align(alignment = Alignment.CenterVertically)
-            .weight(weight = 1f, fill = false)
-            .padding(end = 22.dp)
-            .clip(shape = RoundedCornerShape(size = 22.dp))
-            .background(color = sureButtonColor)
-            .then(other = if (viewState.sureButtonClickable) {
-                Modifier.clickable {
-                    onSureButtonClick()
-                }
-            } else {
-                Modifier
-            })
-            .padding(horizontal = 22.dp, vertical = 8.dp),
-            text = viewState.sureText,
             textAlign = TextAlign.Center,
-            style = sureButtonTextStyle)
+            style = TextStyle(
+                color = if (viewState.previewButtonClickable) {
+                    colorResource(id = R.color.matisse_preview_button_text_color)
+                } else {
+                    colorResource(id = R.color.matisse_preview_button_text_color_if_disable)
+                }, fontSize = 14.sp
+            ),
+            text = viewState.previewText
+        )
+        Text(
+            modifier = Modifier
+                .align(alignment = Alignment.CenterVertically)
+                .weight(weight = 1f, fill = false)
+                .padding(end = 22.dp)
+                .clip(shape = RoundedCornerShape(size = 22.dp))
+                .background(
+                    color = if (viewState.sureButtonClickable) {
+                        colorResource(id = R.color.matisse_sure_button_background_color)
+                    } else {
+                        colorResource(id = R.color.matisse_sure_button_background_color_if_disable)
+                    }
+                )
+                .then(other = if (viewState.sureButtonClickable) {
+                    Modifier.clickable {
+                        onSureButtonClick()
+                    }
+                } else {
+                    Modifier
+                })
+                .padding(horizontal = 22.dp, vertical = 8.dp),
+            textAlign = TextAlign.Center,
+            style = TextStyle(
+                color = if (viewState.sureButtonClickable) {
+                    colorResource(id = R.color.matisse_sure_button_text_color)
+                } else {
+                    colorResource(id = R.color.matisse_sure_button_text_color_if_disable)
+                }, fontSize = 14.sp
+            ),
+            text = viewState.sureText
+        )
     }
 }

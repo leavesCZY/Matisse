@@ -3,6 +3,7 @@ package github.leavesczy.matisse.internal.logic
 import android.app.Application
 import android.net.Uri
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +11,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.R
 import kotlinx.coroutines.launch
 
 /**
@@ -30,7 +32,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     private val permissionRequestingViewState = kotlin.run {
         val defaultBucket = MediaBucket(
             bucketId = DEFAULT_BUCKET_ID,
-            bucketDisplayName = matisse.theme.topAppBarTheme.defaultBucketName,
+            bucketDisplayName = getString(R.string.matisse_default_bucket_name),
             bucketDisplayIcon = Uri.EMPTY,
             resources = emptyList(),
             supportCapture = matisse.captureStrategy.isEnabled()
@@ -82,10 +84,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             }
         } else {
             matisseViewState = permissionDeniedViewState
-            val tips = matisse.tips.onReadExternalStorageDenied
-            if (tips.isNotBlank()) {
-                Toast.makeText(getApplication(), tips, Toast.LENGTH_SHORT).show()
-            }
+            showToast(message = getString(R.string.matisse_on_read_external_storage_permission_denied))
         }
     }
 
@@ -95,8 +94,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             matisseViewState = imageEmptyViewState
         } else {
             val allResources = MediaProvider.loadResources(
-                context = getApplication(),
-                filterMimeTypes = matisse.supportedMimeTypes
+                context = getApplication(), filterMimeTypes = matisse.supportedMimeTypes
             )
             if (allResources.isEmpty()) {
                 matisseViewState = imageEmptyViewState
@@ -105,7 +103,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                     MediaProvider.groupByBucket(resources = allResources).toMutableList()
                 val defaultBucket = MediaBucket(
                     bucketId = DEFAULT_BUCKET_ID,
-                    bucketDisplayName = matisse.theme.topAppBarTheme.defaultBucketName,
+                    bucketDisplayName = getString(R.string.matisse_default_bucket_name),
                     bucketDisplayIcon = allResources[0].uri,
                     resources = allResources,
                     supportCapture = matisse.captureStrategy.isEnabled()
@@ -132,11 +130,11 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 mediaResource
             )
         ) {
-            val tips =
-                matisse.tips.onSelectLimit(selectedResources.size, matisse.maxSelectable)
-            if (tips.isNotBlank()) {
-                Toast.makeText(getApplication(), tips, Toast.LENGTH_SHORT).show()
-            }
+            showToast(
+                message = String.format(
+                    getString(R.string.matisse_limit_the_number_of_pictures), matisse.maxSelectable
+                )
+            )
             return
         }
         val selectedResourcesMutable = selectedResources.toMutableList()
@@ -184,17 +182,24 @@ internal class MatisseViewModel(application: Application, private val matisse: M
 
     private fun buildBottomBarViewState(): MatisseBottomBarViewState {
         val selectedMedia = matisseViewState.selectedResources
-        val selectedMediaSize = selectedMedia.size
-        val theme = matisse.theme
         return MatisseBottomBarViewState(
-            previewText = theme.previewButtonTheme.textBuilder(
-                selectedMediaSize,
-                matisse.maxSelectable
+            previewText = String.format(
+                getString(R.string.matisse_preview), selectedMedia.size, matisse.maxSelectable
             ),
-            sureText = theme.sureButtonTheme.textBuilder(selectedMediaSize, matisse.maxSelectable),
+            sureText = getString(R.string.matisse_sure),
             previewButtonClickable = selectedMedia.isNotEmpty(),
             sureButtonClickable = selectedMedia.isNotEmpty()
         )
+    }
+
+    private fun getString(@StringRes strId: Int): String {
+        return getApplication<Application>().getString(strId)
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(
+            getApplication(), message, Toast.LENGTH_SHORT
+        ).show()
     }
 
 }

@@ -14,15 +14,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MediaBucket
-import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
 
 /**
  * @Author: leavesCZY
@@ -40,17 +42,14 @@ internal fun MatisseTopBar(
     var menuExpanded by remember {
         mutableStateOf(value = false)
     }
-    val matisseTheme = LocalMatisseTheme.current
-    val topAppBarTheme = matisseTheme.topAppBarTheme
-    val systemBarsTheme = matisseTheme.systemBarsTheme
     Row(
         modifier = Modifier
             .shadow(elevation = 4.dp)
-            .background(color = Color(color = systemBarsTheme.statusBarColor))
+            .background(color = colorResource(id = R.color.matisse_status_bar_color))
             .statusBarsPadding()
             .fillMaxWidth()
             .height(height = 56.dp)
-            .background(color = Color(color = topAppBarTheme.backgroundColor)),
+            .background(color = colorResource(id = R.color.matisse_top_bar_background_color)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box {
@@ -58,7 +57,7 @@ internal fun MatisseTopBar(
                 modifier = Modifier.padding(start = 6.dp, end = 2.dp), content = {
                     Icon(
                         imageVector = Icons.Default.ArrowBackIos,
-                        tint = Color(color = topAppBarTheme.iconColor),
+                        tint = colorResource(id = R.color.matisse_top_bar_icon_color),
                         contentDescription = "Back",
                     )
                 }, onClick = onClickBackMenu
@@ -80,14 +79,17 @@ internal fun MatisseTopBar(
             Text(
                 modifier = Modifier.weight(weight = 1f, fill = false),
                 text = selectedBucket.bucketDisplayName,
-                style = topAppBarTheme.textTheme.textStyle,
+                style = TextStyle(
+                    color = colorResource(id = R.color.matisse_top_bar_text_color),
+                    fontSize = 19.sp
+                ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start
             )
             Icon(
                 imageVector = Icons.Filled.ArrowDropDown,
-                tint = Color(color = topAppBarTheme.iconColor),
+                tint = colorResource(id = R.color.matisse_top_bar_icon_color),
                 contentDescription = selectedBucket.bucketDisplayName
             )
         }
@@ -101,12 +103,10 @@ private fun BucketDropdownMenu(
     onDismissRequest: () -> Unit,
     onSelectBucket: (MediaBucket) -> Unit
 ) {
-    val matisseTheme = LocalMatisseTheme.current
-    val dropdownMenuTheme = matisseTheme.dropdownMenuTheme
     DropdownMenu(
         modifier = Modifier
             .wrapContentSize(align = Alignment.TopStart)
-            .background(color = Color(color = dropdownMenuTheme.backgroundColor))
+            .background(color = colorResource(id = R.color.matisse_dropdown_menu_background_color))
             .widthIn(min = 200.dp)
             .heightIn(max = 400.dp),
         offset = DpOffset(x = 10.dp, y = 0.dp),
@@ -114,38 +114,41 @@ private fun BucketDropdownMenu(
         onDismissRequest = onDismissRequest
     ) {
         allBucket.forEach { bucket ->
-            DropdownMenuItem(modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp, vertical = 4.dp
-                ), content = {
-                    AsyncImage(
-                        modifier = Modifier
-                            .size(size = 54.dp)
-                            .clip(shape = RoundedCornerShape(size = 4.dp))
-                            .background(color = Color(color = matisseTheme.imageBackgroundColor)),
-                        model = bucket.bucketDisplayIcon,
-                        contentScale = ContentScale.Crop,
-                        contentDescription = bucket.bucketDisplayName
-                    )
-                    Text(
-                        modifier = Modifier
-                            .weight(weight = 1f, fill = false)
-                            .padding(start = 6.dp),
-                        text = bucket.bucketDisplayName,
-                        style = dropdownMenuTheme.textTheme.textStyle,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 4.dp, end = 4.dp),
-                        text = "(${bucket.resources.size})",
-                        style = dropdownMenuTheme.textTheme.textStyle,
-                        maxLines = 1
-                    )
-                }, onClick = {
-                    onDismissRequest()
-                    onSelectBucket(bucket)
-                })
+            DropdownMenuItem(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(
+                horizontal = 10.dp, vertical = 4.dp
+            ), content = {
+                AsyncImage(
+                    modifier = Modifier
+                        .size(size = 54.dp)
+                        .clip(shape = RoundedCornerShape(size = 4.dp))
+                        .background(color = colorResource(id = R.color.matisse_image_item_background_color)),
+                    model = bucket.bucketDisplayIcon,
+                    contentScale = ContentScale.Crop,
+                    contentDescription = bucket.bucketDisplayName
+                )
+                val textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
+                )
+                Text(
+                    modifier = Modifier
+                        .weight(weight = 1f, fill = false)
+                        .padding(start = 6.dp),
+                    text = bucket.bucketDisplayName,
+                    style = textStyle,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 2
+                )
+                Text(
+                    modifier = Modifier.padding(start = 4.dp, end = 4.dp),
+                    text = "(${bucket.resources.size})",
+                    style = textStyle,
+                    maxLines = 1
+                )
+            }, onClick = {
+                onDismissRequest()
+                onSelectBucket(bucket)
+            })
         }
     }
 }

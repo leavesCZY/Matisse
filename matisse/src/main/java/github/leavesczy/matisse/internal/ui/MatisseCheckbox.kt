@@ -11,20 +11,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import github.leavesczy.matisse.CheckBoxTheme
-import github.leavesczy.matisse.internal.theme.LocalMatisseTheme
+import androidx.core.content.ContextCompat
+import github.leavesczy.matisse.R
 
 /**
  * @Author: CZY
@@ -38,13 +38,13 @@ private val defaultStokeWidth = 2.dp
 internal fun MatisseCheckbox(
     modifier: Modifier,
     size: Dp = defaultSize,
-    theme: CheckBoxTheme,
     text: String,
     enabled: Boolean,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
     val localDensity = LocalDensity.current
+    val context = LocalContext.current
     val textPaint = remember {
         Paint().asFrameworkPaint().apply {
             isAntiAlias = true
@@ -52,12 +52,17 @@ internal fun MatisseCheckbox(
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
             textAlign = android.graphics.Paint.Align.CENTER
             with(localDensity) {
-                textSize = theme.textTheme.fontSize.sp.toPx()
-                color = Color(color = theme.textTheme.color).toArgb()
+                textSize = 14.sp.toPx()
+                color = ContextCompat.getColor(context, R.color.matisse_check_box_text_color)
             }
         }
     }
-    val alphaIfDisable = LocalMatisseTheme.current.alphaIfDisable
+    val circleColor = if (enabled) {
+        colorResource(id = R.color.matisse_check_box_circle_color)
+    } else {
+        colorResource(id = R.color.matisse_check_box_circle_color_if_disable)
+    }
+    val fillColor = colorResource(id = R.color.matisse_check_box_fill_color)
     Canvas(
         modifier = modifier
             .wrapContentSize(align = Alignment.Center)
@@ -80,23 +85,17 @@ internal fun MatisseCheckbox(
         val stokeWidth = defaultStokeWidth.toPx()
         val outRadius = (checkBoxSide - stokeWidth) / 2f
         drawCircle(
-            color = Color(color = theme.circleColor).let {
-                if (enabled) {
-                    it
-                } else {
-                    it.copy(alpha = alphaIfDisable)
-                }
-            },
+            color = circleColor,
             radius = outRadius,
             style = Stroke(width = stokeWidth)
         )
         if (checked) {
             drawCircle(
-                color = Color(color = theme.circleFillColor),
+                color = fillColor,
                 radius = outRadius
             )
         }
-        if (theme.countable && text.isNotBlank()) {
+        if (text.isNotBlank()) {
             drawTextToCenter(
                 text = text,
                 textPaint = textPaint
