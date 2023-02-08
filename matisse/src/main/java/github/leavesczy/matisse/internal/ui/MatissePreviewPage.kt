@@ -9,7 +9,8 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -34,6 +35,7 @@ import kotlin.math.absoluteValue
  * @Date: 2022/6/1 19:14
  * @Desc:
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
     val matissePreviewViewState = viewModel.matissePreviewViewState
@@ -66,9 +68,8 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
             }
         }
         Scaffold(
-            modifier = Modifier
-                .navigationBarsPadding(),
-            backgroundColor = colorResource(id = R.color.matisse_preview_page_background_color)
+            modifier = Modifier.navigationBarsPadding(),
+            containerColor = colorResource(id = R.color.matisse_preview_page_background_color)
         ) { paddingValues ->
             if (previewResources.isNotEmpty()) {
                 Box(
@@ -76,8 +77,7 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                         .fillMaxSize()
                         .padding(paddingValues = paddingValues)
                 ) {
-                    HorizontalPager(
-                        modifier = Modifier.fillMaxSize(),
+                    HorizontalPager(modifier = Modifier.fillMaxSize(),
                         count = previewResources.size,
                         state = pagerState,
                         key = { index ->
@@ -111,11 +111,10 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                             contentDescription = mediaResource.displayName
                         )
                     }
-                    MatisseCheckbox(
-                        modifier = Modifier
-                            .statusBarsPadding()
-                            .align(alignment = Alignment.TopEnd)
-                            .padding(top = 25.dp, end = 25.dp),
+                    MatisseCheckbox(modifier = Modifier
+                        .statusBarsPadding()
+                        .align(alignment = Alignment.TopEnd)
+                        .padding(top = 25.dp, end = 25.dp),
                         size = 28.dp,
                         text = if (currentImageIndex > -1) {
                             (currentImageIndex + 1).toString()

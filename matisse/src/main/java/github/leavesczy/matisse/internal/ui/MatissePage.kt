@@ -8,10 +8,11 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,7 @@ import github.leavesczy.matisse.internal.logic.MatisseViewModel
  * @Date: 2022/5/31 16:36
  * @Desc:
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAction) {
     val matisseViewState = viewModel.matisseViewState
@@ -61,16 +63,16 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
     val context = LocalContext.current
     val localConfiguration = LocalConfiguration.current
     val localDensity = LocalDensity.current
-    val spanCount by remember {
-        mutableStateOf(value = context.resources.getInteger(R.integer.matisse_image_span_count))
+    val spanCount = remember {
+        context.resources.getInteger(R.integer.matisse_image_span_count)
     }
-    val imageItemWidthPx by remember {
-        mutableStateOf(value = with(localDensity) {
+    val imageItemWidthPx = remember {
+        with(localDensity) {
             (localConfiguration.screenWidthDp.dp.toPx() / spanCount).toInt()
-        })
+        }
     }
     Scaffold(modifier = Modifier.fillMaxSize(),
-        backgroundColor = colorResource(id = R.color.matisse_main_page_background_color),
+        containerColor = colorResource(id = R.color.matisse_main_page_background_color),
         topBar = {
             MatisseTopBar(
                 allBucket = allBucket, selectedBucket = selectedBucket, onSelectBucket = {
@@ -106,8 +108,7 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
                 val index = selectedMediaResources.indexOf(element = media)
                 val isSelected = index > -1
                 val enabled = isSelected || selectedMediaResources.size < maxSelectable
-                AlbumItem(
-                    media = media,
+                AlbumItem(media = media,
                     isSelected = isSelected,
                     enabled = enabled,
                     position = if (isSelected) {
@@ -155,11 +156,8 @@ private fun AlbumItem(
     ) {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
-            model = ImageRequest.Builder(context = context)
-                .data(data = media.uri)
-                .size(size = itemWidthPx)
-                .crossfade(enable = false)
-                .build(),
+            model = ImageRequest.Builder(context = context).data(data = media.uri)
+                .size(size = itemWidthPx).crossfade(enable = false).build(),
             contentScale = ContentScale.Crop,
             contentDescription = media.displayName
         )

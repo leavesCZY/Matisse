@@ -5,10 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -116,35 +116,40 @@ private fun BucketDropdownMenu(
         allBucket.forEach { bucket ->
             DropdownMenuItem(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(
                 horizontal = 10.dp, vertical = 4.dp
-            ), content = {
-                AsyncImage(
-                    modifier = Modifier
-                        .size(size = 54.dp)
-                        .clip(shape = RoundedCornerShape(size = 4.dp))
-                        .background(color = colorResource(id = R.color.matisse_image_item_background_color)),
-                    model = bucket.bucketDisplayIcon,
-                    contentScale = ContentScale.Crop,
-                    contentDescription = bucket.bucketDisplayName
-                )
-                val textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
-                )
-                Text(
-                    modifier = Modifier
-                        .weight(weight = 1f, fill = false)
-                        .padding(start = 6.dp),
-                    text = bucket.bucketDisplayName,
-                    style = textStyle,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 2
-                )
-                Text(
-                    modifier = Modifier.padding(start = 4.dp, end = 4.dp),
-                    text = "(${bucket.resources.size})",
-                    style = textStyle,
-                    maxLines = 1
-                )
+            ), text = {
+                Row(
+                    modifier = Modifier,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AsyncImage(
+                        modifier = Modifier
+                            .size(size = 54.dp)
+                            .clip(shape = RoundedCornerShape(size = 4.dp))
+                            .background(color = colorResource(id = R.color.matisse_image_item_background_color)),
+                        model = bucket.bucketDisplayIcon,
+                        contentScale = ContentScale.Crop,
+                        contentDescription = bucket.bucketDisplayName
+                    )
+                    val textStyle = TextStyle(
+                        fontSize = 14.sp,
+                        color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
+                    )
+                    Text(
+                        modifier = Modifier
+                            .weight(weight = 1f, fill = false)
+                            .padding(start = 6.dp),
+                        text = bucket.bucketDisplayName,
+                        style = textStyle,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2
+                    )
+                    Text(
+                        modifier = Modifier.padding(start = 4.dp, end = 4.dp),
+                        text = "(${bucket.resources.size})",
+                        style = textStyle,
+                        maxLines = 1
+                    )
+                }
             }, onClick = {
                 onDismissRequest()
                 onSelectBucket(bucket)
