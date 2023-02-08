@@ -111,10 +111,11 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                             contentDescription = mediaResource.displayName
                         )
                     }
-                    MatisseCheckbox(modifier = Modifier
-                        .statusBarsPadding()
-                        .align(alignment = Alignment.TopEnd)
-                        .padding(top = 25.dp, end = 25.dp),
+                    MatisseCheckbox(
+                        modifier = Modifier
+                            .statusBarsPadding()
+                            .align(alignment = Alignment.TopEnd)
+                            .padding(top = 25.dp, end = 25.dp),
                         size = 28.dp,
                         text = if (currentImageIndex > -1) {
                             (currentImageIndex + 1).toString()
