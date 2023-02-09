@@ -4,13 +4,12 @@
 
 特点 & 优势：
 
-- 完全用 Kotlin 实现
-- UI 层完全用 Jetpack Compose 实现
-- 支持精细自定义主题，默认提供了 日间 和 夜间 两种主题
-- 支持精准筛选图片类型，只显示想要的图片类型
-- 支持开启拍照功能，一共包含 NothingCaptureStrategy、FileProviderCaptureStrategy、MediaStoreCaptureStrategy、SmartCaptureStrategy 四种拍照策略
-- 支持详细获取图片信息，一共包含 uri、displayName、mimeType、width、height、orientation、size、path、bucketId、bucketDisplayName 十个属性值
 - 适配到 Android 13
+- 完全用 Kotlin & Jetpack Compose 实现
+- 支持精细自定义主题，默认提供了 日间 和 夜间 两套主题
+- 支持精准筛选图片类型，只显示想要的图片类型
+- 支持详细获取图片信息，一共包含 uri、displayName、mimeType、width、height、orientation、size、path、bucketId、bucketDisplayName 十个属性值
+- 支持开启拍照功能，一共包含 NothingCaptureStrategy、FileProviderCaptureStrategy、MediaStoreCaptureStrategy、SmartCaptureStrategy 四种拍照策略，可以自由选择是否要申请权限 
 
 |                           日间主题                           |                           夜间主题                           |                          自定义主题                          |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
