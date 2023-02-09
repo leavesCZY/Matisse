@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -77,14 +78,15 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     }
 
     fun onRequestReadImagesPermissionResult(granted: Boolean) {
-        if (granted) {
-            viewModelScope.launch {
-                matisseViewState = imageLoadingViewState
+        viewModelScope.launch(context = Dispatchers.Main.immediate) {
+            if (granted) {
                 loadResources()
+            } else {
+                matisseViewState = permissionDeniedViewState
+                showToast(message = getString(R.string.matisse_on_read_external_storage_permission_denied))
             }
-        } else {
-            matisseViewState = permissionDeniedViewState
-            showToast(message = getString(R.string.matisse_on_read_external_storage_permission_denied))
+            bottomBarViewState = buildBottomBarViewState()
+            dismissPreviewPage()
         }
     }
 
@@ -93,6 +95,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         if (supportedMimeTypes.isEmpty()) {
             matisseViewState = imageEmptyViewState
         } else {
+            matisseViewState = imageLoadingViewState
             val allResources = MediaProvider.loadResources(
                 context = getApplication(), filterMimeTypes = matisse.supportedMimeTypes
             )
@@ -112,7 +115,8 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 matisseViewState = matisseViewState.copy(
                     state = MatisseState.ImagesLoaded,
                     allBucket = allBucket,
-                    selectedBucket = defaultBucket
+                    selectedBucket = defaultBucket,
+                    selectedResources = emptyList()
                 )
             }
         }
@@ -176,8 +180,14 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         }
     }
 
-    fun onDismissPreviewPageRequest() {
-        matissePreviewViewState = matissePreviewViewState.copy(visible = false)
+    fun dismissPreviewPage() {
+        if (matissePreviewViewState.visible) {
+            matissePreviewViewState = matissePreviewViewState.copy(
+                visible = false,
+                selectedResources = emptyList(),
+                previewResources = emptyList()
+            )
+        }
     }
 
     private fun buildBottomBarViewState(): MatisseBottomBarViewState {

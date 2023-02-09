@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Matisse.Base" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.Matisse.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/color_page_background</item>
         <item name="android:statusBarColor">@color/color_status_bar</item>
         <item name="android:navigationBarColor">@color/color_navigation_bar</item>

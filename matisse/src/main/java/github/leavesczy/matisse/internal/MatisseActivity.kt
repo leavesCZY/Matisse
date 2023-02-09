@@ -112,14 +112,13 @@ class MatisseActivity : AppCompatActivity() {
             }
         }
 
-    private val matissePageAction = MatissePageAction(
-        onClickBackMenu = {
-            finish()
-        }, onRequestCapture = {
-            onRequestCapture()
-        }, onSureButtonClick = {
-            onSure(selectedMediaResources = matisseViewModel.matisseViewState.selectedResources)
-        })
+    private val matissePageAction = MatissePageAction(onClickBackMenu = {
+        finish()
+    }, onRequestCapture = {
+        onRequestCapture()
+    }, onSureButtonClick = {
+        onSure(selectedMediaResources = matisseViewModel.matisseViewState.selectedResources)
+    })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -138,7 +137,7 @@ class MatisseActivity : AppCompatActivity() {
     private fun SetSystemUi(previewPageVisible: Boolean) {
         val statusBarColor = Color.Transparent
         val navigationBarColor = if (previewPageVisible) {
-            colorResource(id = R.color.matisse_preview_page_background_color)
+            Color.Transparent
         } else {
             colorResource(id = R.color.matisse_navigation_bar_color)
         }

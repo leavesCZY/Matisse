@@ -50,7 +50,7 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
         ), targetOffsetX = { it }),
     ) {
         BackHandler(enabled = visible, onBack = {
-            viewModel.onDismissPreviewPageRequest()
+            viewModel.dismissPreviewPage()
         })
         val previewResources = matissePreviewViewState.previewResources
         val initialPage = matissePreviewViewState.initialPage
@@ -68,8 +68,9 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
             }
         }
         Scaffold(
-            modifier = Modifier.navigationBarsPadding(),
-            containerColor = colorResource(id = R.color.matisse_preview_page_background_color)
+            modifier = Modifier.fillMaxSize(), contentWindowInsets = WindowInsets(
+                left = 0.dp, right = 0.dp, top = 0.dp, bottom = 0.dp
+            ), containerColor = colorResource(id = R.color.matisse_preview_page_background_color)
         ) { paddingValues ->
             if (previewResources.isNotEmpty()) {
                 Box(
@@ -87,7 +88,6 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                         AsyncImage(
                             modifier = Modifier
                                 .align(alignment = Alignment.Center)
-                                .fillMaxWidth()
                                 .verticalScroll(state = rememberScrollState())
                                 .graphicsLayer {
                                     val pageOffset =
@@ -105,17 +105,19 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                                         stop = 1f,
                                         fraction = 1f - pageOffset.coerceIn(0f, 1f)
                                     )
-                                },
+                                }
+                                .fillMaxWidth()
+                                .statusBarsPadding()
+                                .navigationBarsPadding(),
                             model = mediaResource.uri,
                             contentScale = ContentScale.FillWidth,
                             contentDescription = mediaResource.displayName
                         )
                     }
-                    MatisseCheckbox(
-                        modifier = Modifier
-                            .statusBarsPadding()
-                            .align(alignment = Alignment.TopEnd)
-                            .padding(top = 25.dp, end = 25.dp),
+                    MatisseCheckbox(modifier = Modifier
+                        .align(alignment = Alignment.TopEnd)
+                        .statusBarsPadding()
+                        .padding(top = 20.dp, end = 25.dp),
                         size = 28.dp,
                         text = if (currentImageIndex > -1) {
                             (currentImageIndex + 1).toString()

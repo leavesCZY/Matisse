@@ -53,25 +53,25 @@ internal fun MatisseCheckbox(
     }
     Canvas(modifier = modifier
         .requiredSize(size = size)
-        .triStateToggleable(
-            state = ToggleableState(value = checked),
-            onClick = {
-                onCheckedChange(!checked)
-            },
-            enabled = enabled,
+        .triStateToggleable(state = ToggleableState(value = checked),
+            enabled = true,
             role = Role.Checkbox,
             interactionSource = remember { MutableInteractionSource() },
             indication = rememberRipple(
                 bounded = false, radius = size
-            )
-        )
+            ),
+            onClick = {
+                onCheckedChange(!checked)
+            })
         .layout { measurable, constraints ->
             val placeable = measurable.measure(constraints = constraints)
-            textLayoutResult = textMeasurer.measure(
-                text = AnnotatedString(text = text), style = TextStyle(
-                    color = textColor, fontSize = 14.sp, textAlign = TextAlign.Center
+            if (text.isNotBlank()) {
+                textLayoutResult = textMeasurer.measure(
+                    text = AnnotatedString(text = text), style = TextStyle(
+                        color = textColor, fontSize = 14.sp, textAlign = TextAlign.Center
+                    )
                 )
-            )
+            }
             layout(width = placeable.width, height = placeable.height) {
                 placeable.placeRelative(x = 0, y = 0)
             }
@@ -81,24 +81,19 @@ internal fun MatisseCheckbox(
         val checkBoxSide = minOf(a = width, b = height)
         val stokeWidth = defaultStokeWidth.toPx()
         val outRadius = (checkBoxSide - stokeWidth) / 2f
-        drawCircle(
-            color = circleColor, radius = outRadius, style = Stroke(width = stokeWidth)
-        )
+        drawCircle(color = circleColor, radius = outRadius, style = Stroke(width = stokeWidth))
         if (checked) {
-            drawCircle(
-                color = fillColor, radius = outRadius
-            )
+            drawCircle(color = fillColor, radius = outRadius)
         }
-        if (text.isNotBlank()) {
-            textLayoutResult?.let {
-                val textLayoutResultSize = it.size
-                drawText(
-                    textLayoutResult = it, topLeft = Offset(
-                        x = (width - textLayoutResultSize.width) / 2,
-                        y = (height - textLayoutResultSize.height) / 2
-                    )
+        val mTextLayoutResult = textLayoutResult
+        if (mTextLayoutResult != null && text.isNotBlank()) {
+            val textLayoutResultSize = mTextLayoutResult.size
+            drawText(
+                textLayoutResult = mTextLayoutResult, topLeft = Offset(
+                    x = (width - textLayoutResultSize.width) / 2,
+                    y = (height - textLayoutResultSize.height) / 2
                 )
-            }
+            )
         }
     }
 }

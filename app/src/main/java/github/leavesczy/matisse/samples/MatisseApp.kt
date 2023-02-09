@@ -3,6 +3,7 @@ package github.leavesczy.matisse.samples
 import android.app.Application
 import android.content.Context
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import coil.Coil
 import coil.ImageLoader
 import coil.decode.GifDecoder
@@ -18,6 +19,7 @@ class MatisseApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+//        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         init(context = this)
     }
 

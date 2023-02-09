@@ -47,10 +47,10 @@ import github.leavesczy.matisse.internal.logic.MatisseViewModel
 @Composable
 internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAction) {
     val matisseViewState = viewModel.matisseViewState
-    val maxSelectable = matisseViewState.matisse.maxSelectable
-    val selectedMediaResources = matisseViewState.selectedResources
-    val allBucket = matisseViewState.allBucket
-    val selectedBucket = matisseViewState.selectedBucket
+    val maxSelectable = viewModel.matisseViewState.matisse.maxSelectable
+    val selectedMediaResources = viewModel.matisseViewState.selectedResources
+    val allBucket = viewModel.matisseViewState.allBucket
+    val selectedBucket = viewModel.matisseViewState.selectedBucket
     val selectedBucketResources = selectedBucket.resources
     val supportCapture = selectedBucket.supportCapture
     val lazyGridState by remember(key1 = selectedBucket.bucketId) {
