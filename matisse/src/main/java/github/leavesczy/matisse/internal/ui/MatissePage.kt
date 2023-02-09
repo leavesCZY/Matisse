@@ -3,10 +3,7 @@ package github.leavesczy.matisse.internal.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
@@ -47,10 +44,10 @@ import github.leavesczy.matisse.internal.logic.MatisseViewModel
 @Composable
 internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAction) {
     val matisseViewState = viewModel.matisseViewState
-    val maxSelectable = viewModel.matisseViewState.matisse.maxSelectable
-    val selectedMediaResources = viewModel.matisseViewState.selectedResources
-    val allBucket = viewModel.matisseViewState.allBucket
-    val selectedBucket = viewModel.matisseViewState.selectedBucket
+    val maxSelectable = matisseViewState.matisse.maxSelectable
+    val selectedMediaResources = matisseViewState.selectedResources
+    val allBucket = matisseViewState.allBucket
+    val selectedBucket = matisseViewState.selectedBucket
     val selectedBucketResources = selectedBucket.resources
     val supportCapture = selectedBucket.supportCapture
     val lazyGridState by remember(key1 = selectedBucket.bucketId) {

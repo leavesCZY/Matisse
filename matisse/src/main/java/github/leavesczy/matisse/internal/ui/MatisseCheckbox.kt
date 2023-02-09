@@ -65,13 +65,11 @@ internal fun MatisseCheckbox(
             })
         .layout { measurable, constraints ->
             val placeable = measurable.measure(constraints = constraints)
-            if (text.isNotBlank()) {
-                textLayoutResult = textMeasurer.measure(
-                    text = AnnotatedString(text = text), style = TextStyle(
-                        color = textColor, fontSize = 14.sp, textAlign = TextAlign.Center
-                    )
+            textLayoutResult = textMeasurer.measure(
+                text = AnnotatedString(text = text), style = TextStyle(
+                    color = textColor, fontSize = 14.sp, textAlign = TextAlign.Center
                 )
-            }
+            )
             layout(width = placeable.width, height = placeable.height) {
                 placeable.placeRelative(x = 0, y = 0)
             }

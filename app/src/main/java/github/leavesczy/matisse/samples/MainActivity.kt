@@ -69,10 +69,10 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<Button>(R.id.btnSwitchTheme).setOnClickListener {
             val defaultNightMode = AppCompatDelegate.getDefaultNightMode()
-            if (defaultNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            } else {
+            if (defaultNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
         }
         rvImageList.layoutManager = LinearLayoutManager(this)
