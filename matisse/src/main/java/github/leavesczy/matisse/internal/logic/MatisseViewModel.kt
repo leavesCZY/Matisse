@@ -207,9 +207,9 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     }
 
     private fun showToast(message: String) {
-        Toast.makeText(
-            getApplication(), message, Toast.LENGTH_SHORT
-        ).show()
+        if (message.isNotBlank()) {
+            Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show()
+        }
     }
 
 }

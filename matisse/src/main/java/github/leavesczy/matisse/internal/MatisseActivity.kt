@@ -67,11 +67,7 @@ class MatisseActivity : AppCompatActivity() {
             if (granted) {
                 requestCameraPermissionIfNeed()
             } else {
-                Toast.makeText(
-                    this,
-                    getString(R.string.matisse_on_write_external_storage_permission_denied),
-                    Toast.LENGTH_SHORT
-                ).show()
+                showToast(getString(R.string.matisse_on_write_external_storage_permission_denied))
             }
         }
 
@@ -80,11 +76,7 @@ class MatisseActivity : AppCompatActivity() {
             if (granted) {
                 takePicture()
             } else {
-                Toast.makeText(
-                    this,
-                    getString(R.string.matisse_on_camera_permission_denied),
-                    Toast.LENGTH_SHORT
-                ).show()
+                showToast(getString(R.string.matisse_on_camera_permission_denied))
             }
         }
 
@@ -220,6 +212,12 @@ class MatisseActivity : AppCompatActivity() {
             setResult(Activity.RESULT_OK, data)
         }
         finish()
+    }
+
+    private fun showToast(message: String) {
+        if (message.isNotBlank()) {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
 }
