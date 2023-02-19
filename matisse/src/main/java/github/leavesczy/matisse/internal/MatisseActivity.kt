@@ -3,7 +3,6 @@ package github.leavesczy.matisse.internal
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -20,16 +19,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MatisseContract
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatissePageAction
+import github.leavesczy.matisse.internal.logic.MatisseAction
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.theme.MatisseTheme
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.utils.PermissionUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -42,9 +41,6 @@ class MatisseActivity : AppCompatActivity() {
     private val matisse by lazy {
         MatisseContract.getRequest(intent = intent)
     }
-
-    private val captureStrategy: CaptureStrategy
-        get() = matisse.captureStrategy
 
     private val matisseViewModel by viewModels<MatisseViewModel>(factoryProducer = {
         object : ViewModelProvider.Factory {
@@ -80,37 +76,10 @@ class MatisseActivity : AppCompatActivity() {
             }
         }
 
-    private var tempImageUri: Uri? = null
-
     private val takePictureLauncher =
-        registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
-            val mTempImageUri = tempImageUri
-            tempImageUri = null
-            if (mTempImageUri != null) {
-                lifecycleScope.launch {
-                    if (result) {
-                        val resource = captureStrategy.loadResource(
-                            context = this@MatisseActivity, imageUri = mTempImageUri
-                        )
-                        if (resource != null) {
-                            onSure(selectedMediaResources = listOf(resource))
-                        }
-                    } else {
-                        captureStrategy.onTakePictureCanceled(
-                            context = this@MatisseActivity, imageUri = mTempImageUri
-                        )
-                    }
-                }
-            }
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { successful ->
+            matisseViewModel.takePictureResult(successful = successful)
         }
-
-    private val matissePageAction = MatissePageAction(onClickBackMenu = {
-        finish()
-    }, onRequestCapture = {
-        onRequestCapture()
-    }, onSureButtonClick = {
-        onSure(selectedMediaResources = matisseViewModel.matisseViewState.selectedResources)
-    })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,11 +87,27 @@ class MatisseActivity : AppCompatActivity() {
         setContent {
             MatisseTheme {
                 SetSystemUi(previewPageVisible = matisseViewModel.matissePreviewViewState.visible)
-                MatissePage(viewModel = matisseViewModel, pageAction = matissePageAction)
+                MatissePage(
+                    viewModel = matisseViewModel,
+                    onRequestTakePicture = ::onRequestTakePicture
+                )
                 MatissePreviewPage(viewModel = matisseViewModel)
             }
         }
+        initEvent()
         requestReadImagesPermission()
+    }
+
+    private fun initEvent() {
+        lifecycleScope.launch(context = Dispatchers.Main.immediate) {
+            matisseViewModel.matisseAction.collect {
+                when (it) {
+                    is MatisseAction.OnSure -> {
+                        onSure(selectedMediaResources = it.resources)
+                    }
+                }
+            }
+        }
     }
 
     @Composable
@@ -169,8 +154,8 @@ class MatisseActivity : AppCompatActivity() {
         }
     }
 
-    private fun onRequestCapture() {
-        if (captureStrategy.shouldRequestWriteExternalStoragePermission(context = this)) {
+    private fun onRequestTakePicture() {
+        if (matisse.captureStrategy.shouldRequestWriteExternalStoragePermission(context = this)) {
             requestWriteExternalStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         } else {
             requestCameraPermissionIfNeed()
@@ -178,27 +163,25 @@ class MatisseActivity : AppCompatActivity() {
     }
 
     private fun requestCameraPermissionIfNeed() {
+        val cameraPermission = Manifest.permission.CAMERA
         if (PermissionUtils.containsPermission(
-                context = this, permission = Manifest.permission.CAMERA
-            ) && !PermissionUtils.checkSelfPermission(
-                context = this, permission = Manifest.permission.CAMERA
-            )
+                context = this,
+                permission = cameraPermission
+            ) && !PermissionUtils.checkSelfPermission(context = this, permission = cameraPermission)
         ) {
-            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            requestCameraPermissionLauncher.launch(cameraPermission)
         } else {
             takePicture()
         }
     }
 
     private fun takePicture() {
-        lifecycleScope.launch {
-            tempImageUri = null
-            val imageUri = captureStrategy.createImageUri(context = this@MatisseActivity)
-            if (imageUri != null) {
-                val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                if (captureIntent.resolveActivity(packageManager) != null) {
+        lifecycleScope.launch(context = Dispatchers.Main.immediate) {
+            val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            if (captureIntent.resolveActivity(packageManager) != null) {
+                val imageUri = matisseViewModel.createImageUriForTakePicture()
+                if (imageUri != null) {
                     takePictureLauncher.launch(imageUri)
-                    tempImageUri = imageUri
                 }
             }
         }

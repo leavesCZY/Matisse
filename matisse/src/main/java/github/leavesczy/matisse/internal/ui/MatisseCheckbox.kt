@@ -3,16 +3,17 @@ package github.leavesczy.matisse.internal.ui
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.selection.triStateToggleable
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -25,18 +26,18 @@ import github.leavesczy.matisse.R
  * @Date: 2022/5/31 14:27
  * @Desc:
  */
-private val defaultSize = 22.dp
-private val defaultStokeWidth = 2.dp
+private val CheckboxSize = 22.dp
+private val StrokeWidth = 2.dp
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
 internal fun MatisseCheckbox(
     modifier: Modifier,
-    size: Dp = defaultSize,
+    size: Dp = CheckboxSize,
     text: String,
     enabled: Boolean,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onClick: () -> Unit
 ) {
     val circleColor = colorResource(
         id = if (enabled) {
@@ -51,37 +52,48 @@ internal fun MatisseCheckbox(
     var textLayoutResult by remember {
         mutableStateOf<TextLayoutResult?>(value = null)
     }
-    Canvas(modifier = modifier
-        .requiredSize(size = size)
-        .triStateToggleable(state = ToggleableState(value = checked),
-            enabled = true,
-            role = Role.Checkbox,
-            interactionSource = remember { MutableInteractionSource() },
-            indication = rememberRipple(
-                bounded = false, radius = size
-            ),
-            onClick = {
-                onCheckedChange(!checked)
-            })
-        .layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints = constraints)
-            textLayoutResult = textMeasurer.measure(
-                text = AnnotatedString(text = text), style = TextStyle(
-                    color = textColor, fontSize = 14.sp, textAlign = TextAlign.Center
+    Canvas(
+        modifier = modifier
+            .selectable(
+                selected = checked,
+                onClick = onClick,
+                enabled = true,
+                role = Role.Checkbox,
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(
+                    bounded = false,
+                    radius = 20.dp
                 )
             )
-            layout(width = placeable.width, height = placeable.height) {
-                placeable.placeRelative(x = 0, y = 0)
+            .wrapContentSize(Alignment.Center)
+            .requiredSize(size = size)
+            .layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints = constraints)
+                textLayoutResult = textMeasurer.measure(
+                    text = AnnotatedString(text = text),
+                    style = TextStyle(
+                        color = textColor,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
+                )
+                layout(width = placeable.width, height = placeable.height) {
+                    placeable.placeRelative(x = 0, y = 0)
+                }
             }
-        }) {
+    ) {
         val width = this.size.width
         val height = this.size.height
         val checkBoxSide = minOf(a = width, b = height)
-        val stokeWidth = defaultStokeWidth.toPx()
-        val outRadius = (checkBoxSide - stokeWidth) / 2f
-        drawCircle(color = circleColor, radius = outRadius, style = Stroke(width = stokeWidth))
+        val checkBoxRadius = checkBoxSide / 2f
+        val strokeWidth = StrokeWidth.toPx()
+        drawCircle(
+            color = circleColor,
+            radius = checkBoxRadius - strokeWidth / 2f,
+            style = Stroke(width = strokeWidth)
+        )
         if (checked) {
-            drawCircle(color = fillColor, radius = outRadius)
+            drawCircle(color = fillColor, radius = checkBoxRadius - strokeWidth)
         }
         val mTextLayoutResult = textLayoutResult
         if (mTextLayoutResult != null && text.isNotBlank()) {

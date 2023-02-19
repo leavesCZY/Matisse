@@ -16,7 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatisseViewModel
+import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 
 /**
  * @Author: leavesCZY
@@ -25,8 +25,7 @@ import github.leavesczy.matisse.internal.logic.MatisseViewModel
  * @Github：https://github.com/leavesCZY
  */
 @Composable
-internal fun MatisseBottomBar(viewModel: MatisseViewModel, onSureButtonClick: () -> Unit) {
-    val viewState = viewModel.bottomBarViewState
+internal fun MatisseBottomBar(viewState: MatisseBottomBarViewState) {
     Row(
         modifier = Modifier
             .shadow(elevation = 4.dp)
@@ -39,13 +38,13 @@ internal fun MatisseBottomBar(viewModel: MatisseViewModel, onSureButtonClick: ()
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterVertically)
-                .then(other = if (viewState.previewButtonClickable) {
-                    Modifier.clickable {
-                        viewModel.onClickPreviewButton()
+                .then(
+                    other = if (viewState.previewButtonClickable) {
+                        Modifier.clickable(onClick = viewState.onClickPreviewButton)
+                    } else {
+                        Modifier
                     }
-                } else {
-                    Modifier
-                })
+                )
                 .fillMaxHeight()
                 .padding(horizontal = 22.dp)
                 .wrapContentHeight(align = Alignment.CenterVertically),
@@ -55,7 +54,8 @@ internal fun MatisseBottomBar(viewModel: MatisseViewModel, onSureButtonClick: ()
                     colorResource(id = R.color.matisse_preview_button_text_color)
                 } else {
                     colorResource(id = R.color.matisse_preview_button_text_color_if_disable)
-                }, fontSize = 14.sp
+                },
+                fontSize = 14.sp
             ),
             text = viewState.previewText
         )
@@ -72,13 +72,13 @@ internal fun MatisseBottomBar(viewModel: MatisseViewModel, onSureButtonClick: ()
                         colorResource(id = R.color.matisse_sure_button_background_color_if_disable)
                     }
                 )
-                .then(other = if (viewState.sureButtonClickable) {
-                    Modifier.clickable {
-                        onSureButtonClick()
+                .then(
+                    other = if (viewState.sureButtonClickable) {
+                        Modifier.clickable(onClick = viewState.onClickSureButton)
+                    } else {
+                        Modifier
                     }
-                } else {
-                    Modifier
-                })
+                )
                 .padding(horizontal = 22.dp, vertical = 8.dp),
             textAlign = TextAlign.Center,
             style = TextStyle(

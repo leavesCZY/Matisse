@@ -1,5 +1,6 @@
 package github.leavesczy.matisse.internal.ui
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -36,12 +38,12 @@ import github.leavesczy.matisse.internal.logic.MediaBucket
 internal fun MatisseTopBar(
     allBucket: List<MediaBucket>,
     selectedBucket: MediaBucket,
-    onClickBackMenu: () -> Unit,
     onSelectBucket: (MediaBucket) -> Unit
 ) {
     var menuExpanded by remember {
         mutableStateOf(value = false)
     }
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .shadow(elevation = 4.dp)
@@ -60,12 +62,18 @@ internal fun MatisseTopBar(
                         tint = colorResource(id = R.color.matisse_top_bar_icon_color),
                         contentDescription = "Back",
                     )
-                }, onClick = onClickBackMenu
+                },
+                onClick = {
+                    (context as Activity).finish()
+                }
             )
             BucketDropdownMenu(
-                allBucket = allBucket, menuExpanded = menuExpanded, onDismissRequest = {
+                allBucket = allBucket,
+                menuExpanded = menuExpanded,
+                onDismissRequest = {
                     menuExpanded = false
-                }, onSelectBucket = onSelectBucket
+                },
+                onSelectBucket = onSelectBucket
             )
         }
         Row(modifier = Modifier

@@ -32,7 +32,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatissePageAction
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 
 /**
@@ -42,7 +41,7 @@ import github.leavesczy.matisse.internal.logic.MatisseViewModel
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAction) {
+internal fun MatissePage(viewModel: MatisseViewModel, onRequestTakePicture: () -> Unit) {
     val matisseViewState = viewModel.matisseViewState
     val maxSelectable = matisseViewState.matisse.maxSelectable
     val selectedMediaResources = matisseViewState.selectedResources
@@ -68,20 +67,22 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
             (localConfiguration.screenWidthDp.dp.toPx() / spanCount).toInt()
         }
     }
-    Scaffold(modifier = Modifier.fillMaxSize(),
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
         containerColor = colorResource(id = R.color.matisse_main_page_background_color),
         topBar = {
             MatisseTopBar(
-                allBucket = allBucket, selectedBucket = selectedBucket, onSelectBucket = {
+                allBucket = allBucket,
+                selectedBucket = selectedBucket,
+                onSelectBucket = {
                     viewModel.onSelectBucket(bucket = it)
-                }, onClickBackMenu = pageAction.onClickBackMenu
+                }
             )
         },
         bottomBar = {
-            MatisseBottomBar(
-                viewModel = viewModel, onSureButtonClick = pageAction.onSureButtonClick
-            )
-        }) { innerPadding ->
+            MatisseBottomBar(viewState = viewModel.bottomBarViewState)
+        }
+    ) { innerPadding ->
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxSize()
@@ -94,7 +95,7 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
         ) {
             if (supportCapture) {
                 item(key = "MatisseCapture", contentType = "MatisseCapture", content = {
-                    CaptureItem(onClick = pageAction.onRequestCapture)
+                    CaptureItem(onClick = onRequestTakePicture)
                 })
             }
             items(items = selectedBucketResources, key = {
@@ -117,7 +118,7 @@ internal fun MatissePage(viewModel: MatisseViewModel, pageAction: MatissePageAct
                     onClickMedia = {
                         viewModel.onClickMedia(mediaResource = media)
                     },
-                    onMediaCheckChanged = {
+                    onClickCheckBox = {
                         viewModel.onMediaCheckChanged(mediaResource = media)
                     })
             })
@@ -133,7 +134,7 @@ private fun AlbumItem(
     position: String,
     itemWidthPx: Int,
     onClickMedia: () -> Unit,
-    onMediaCheckChanged: (Boolean) -> Unit
+    onClickCheckBox: () -> Unit
 ) {
     val context = LocalContext.current
     Box(
@@ -165,7 +166,7 @@ private fun AlbumItem(
             text = position,
             checked = isSelected,
             enabled = enabled,
-            onCheckedChange = onMediaCheckChanged
+            onClick = onClickCheckBox
         )
     }
 }

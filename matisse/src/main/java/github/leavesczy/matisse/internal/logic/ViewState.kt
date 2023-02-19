@@ -38,13 +38,9 @@ internal data class MatisseBottomBarViewState(
     val previewText: String,
     val sureText: String,
     val previewButtonClickable: Boolean,
-    val sureButtonClickable: Boolean
-)
-
-internal data class MatissePageAction(
-    val onClickBackMenu: () -> Unit,
-    val onRequestCapture: () -> Unit,
-    val onSureButtonClick: () -> Unit
+    val sureButtonClickable: Boolean,
+    val onClickPreviewButton: () -> Unit,
+    val onClickSureButton: () -> Unit
 )
 
 internal data class MatissePreviewViewState(
@@ -54,3 +50,9 @@ internal data class MatissePreviewViewState(
     val previewResources: List<MediaResource>,
     val selectedResources: List<MediaResource>
 )
+
+internal sealed class MatisseAction {
+
+    class OnSure(val resources: List<MediaResource>) : MatisseAction()
+
+}

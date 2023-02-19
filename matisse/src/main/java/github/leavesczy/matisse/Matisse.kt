@@ -22,6 +22,11 @@ data class Matisse(
     val captureStrategy: CaptureStrategy = NothingCaptureStrategy
 ) : Parcelable {
 
+    init {
+        assert(value = maxSelectable >= 1)
+        assert(value = supportedMimeTypes.isNotEmpty())
+    }
+
     companion object {
 
         fun ofImage(hasGif: Boolean = true): List<MimeType> {

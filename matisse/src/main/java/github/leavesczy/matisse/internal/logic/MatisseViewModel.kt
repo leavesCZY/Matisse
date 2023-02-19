@@ -1,6 +1,7 @@
 package github.leavesczy.matisse.internal.logic
 
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.annotation.StringRes
@@ -13,6 +14,8 @@ import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -29,6 +32,9 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         private const val DEFAULT_BUCKET_ID = "&__defaultBucketId__&"
 
     }
+
+    private val context: Context
+        get() = getApplication()
 
     private val permissionRequestingViewState = kotlin.run {
         val defaultBucket = MediaBucket(
@@ -73,6 +79,12 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     )
         private set
 
+    private val _matisseAction = MutableSharedFlow<MatisseAction>()
+
+    val matisseAction: SharedFlow<MatisseAction> = _matisseAction
+
+    private var tempImageUriForTakePicture: Uri? = null
+
     fun onRequestReadImagesPermission() {
         matisseViewState = permissionRequestingViewState
     }
@@ -91,34 +103,30 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     }
 
     private suspend fun loadResources() {
-        val supportedMimeTypes = matisse.supportedMimeTypes
-        if (supportedMimeTypes.isEmpty()) {
+        matisseViewState = imageLoadingViewState
+        val allResources = MediaProvider.loadResources(
+            context = context,
+            filterMimeTypes = matisse.supportedMimeTypes
+        )
+        if (allResources.isEmpty()) {
             matisseViewState = imageEmptyViewState
         } else {
-            matisseViewState = imageLoadingViewState
-            val allResources = MediaProvider.loadResources(
-                context = getApplication(), filterMimeTypes = matisse.supportedMimeTypes
+            val allBucket =
+                MediaProvider.groupByBucket(resources = allResources).toMutableList()
+            val defaultBucket = MediaBucket(
+                bucketId = DEFAULT_BUCKET_ID,
+                bucketDisplayName = getString(R.string.matisse_default_bucket_name),
+                bucketDisplayIcon = allResources[0].uri,
+                resources = allResources,
+                supportCapture = matisse.captureStrategy.isEnabled()
             )
-            if (allResources.isEmpty()) {
-                matisseViewState = imageEmptyViewState
-            } else {
-                val allBucket =
-                    MediaProvider.groupByBucket(resources = allResources).toMutableList()
-                val defaultBucket = MediaBucket(
-                    bucketId = DEFAULT_BUCKET_ID,
-                    bucketDisplayName = getString(R.string.matisse_default_bucket_name),
-                    bucketDisplayIcon = allResources[0].uri,
-                    resources = allResources,
-                    supportCapture = matisse.captureStrategy.isEnabled()
-                )
-                allBucket.add(0, defaultBucket)
-                matisseViewState = matisseViewState.copy(
-                    state = MatisseState.ImagesLoaded,
-                    allBucket = allBucket,
-                    selectedBucket = defaultBucket,
-                    selectedResources = emptyList()
-                )
-            }
+            allBucket.add(0, defaultBucket)
+            matisseViewState = matisseViewState.copy(
+                state = MatisseState.ImagesLoaded,
+                allBucket = allBucket,
+                selectedBucket = defaultBucket,
+                selectedResources = emptyList()
+            )
         }
     }
 
@@ -129,30 +137,32 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     }
 
     fun onMediaCheckChanged(mediaResource: MediaResource) {
-        val selectedResources = matisseViewState.selectedResources
-        if (selectedResources.size >= matisse.maxSelectable && !selectedResources.contains(
-                mediaResource
-            )
-        ) {
-            showToast(
-                message = String.format(
-                    getString(R.string.matisse_limit_the_number_of_pictures), matisse.maxSelectable
-                )
-            )
-            return
-        }
-        val selectedResourcesMutable = selectedResources.toMutableList()
-        val contains = selectedResourcesMutable.contains(element = mediaResource)
-        if (contains) {
-            selectedResourcesMutable.remove(element = mediaResource)
+        val selectedResources = matisseViewState.selectedResources.toMutableList()
+        val alreadySelected = selectedResources.contains(element = mediaResource)
+        if (alreadySelected) {
+            selectedResources.remove(element = mediaResource)
         } else {
-            selectedResourcesMutable.add(element = mediaResource)
+            val maxSelectable = matisse.maxSelectable
+            if (maxSelectable == 1) {
+                selectedResources.clear()
+                selectedResources.add(element = mediaResource)
+            } else if (selectedResources.size >= maxSelectable) {
+                showToast(
+                    message = String.format(
+                        getString(R.string.matisse_limit_the_number_of_pictures),
+                        matisse.maxSelectable
+                    )
+                )
+                return
+            } else {
+                selectedResources.add(element = mediaResource)
+            }
         }
-        matisseViewState = matisseViewState.copy(selectedResources = selectedResourcesMutable)
+        matisseViewState = matisseViewState.copy(selectedResources = selectedResources)
         bottomBarViewState = buildBottomBarViewState()
         if (matissePreviewViewState.visible) {
             matissePreviewViewState =
-                matissePreviewViewState.copy(selectedResources = selectedResourcesMutable)
+                matissePreviewViewState.copy(selectedResources = selectedResources)
         }
     }
 
@@ -168,7 +178,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         )
     }
 
-    fun onClickPreviewButton() {
+    private fun onClickPreviewButton() {
         val selectedResources = matisseViewState.selectedResources.toList()
         if (selectedResources.isNotEmpty()) {
             matissePreviewViewState = matissePreviewViewState.copy(
@@ -178,6 +188,43 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 previewResources = selectedResources,
             )
         }
+    }
+
+    private fun onClickSureButton() {
+        viewModelScope.launch(context = Dispatchers.Main.immediate) {
+            onSure(resources = matisseViewState.selectedResources)
+        }
+    }
+
+    suspend fun createImageUriForTakePicture(): Uri? {
+        tempImageUriForTakePicture =
+            matisse.captureStrategy.createImageUri(context = context)
+        return tempImageUriForTakePicture
+    }
+
+    fun takePictureResult(successful: Boolean) {
+        viewModelScope.launch(context = Dispatchers.Main.immediate) {
+            val imageUri = tempImageUriForTakePicture
+            if (imageUri != null) {
+                tempImageUriForTakePicture = null
+                if (successful) {
+                    val resource =
+                        matisse.captureStrategy.loadResource(context = context, imageUri = imageUri)
+                    if (resource != null) {
+                        onSure(resources = listOf(resource))
+                    }
+                } else {
+                    matisse.captureStrategy.onTakePictureCanceled(
+                        context = context,
+                        imageUri = imageUri
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun onSure(resources: List<MediaResource>) {
+        _matisseAction.emit(value = MatisseAction.OnSure(resources = resources))
     }
 
     fun dismissPreviewPage() {
@@ -198,17 +245,19 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             ),
             sureText = getString(R.string.matisse_sure),
             previewButtonClickable = selectedMedia.isNotEmpty(),
-            sureButtonClickable = selectedMedia.isNotEmpty()
+            sureButtonClickable = selectedMedia.isNotEmpty(),
+            onClickPreviewButton = ::onClickPreviewButton,
+            onClickSureButton = ::onClickSureButton
         )
     }
 
     private fun getString(@StringRes strId: Int): String {
-        return getApplication<Application>().getString(strId)
+        return context.getString(strId)
     }
 
     private fun showToast(message: String) {
         if (message.isNotBlank()) {
-            Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 

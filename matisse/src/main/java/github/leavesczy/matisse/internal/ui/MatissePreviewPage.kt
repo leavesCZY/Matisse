@@ -17,18 +17,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
-import kotlin.math.absoluteValue
 
 /**
  * @Author: CZY
@@ -78,34 +74,19 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                         .fillMaxSize()
                         .padding(paddingValues = paddingValues)
                 ) {
-                    HorizontalPager(modifier = Modifier.fillMaxSize(),
+                    HorizontalPager(
+                        modifier = Modifier.fillMaxSize(),
                         count = previewResources.size,
                         state = pagerState,
                         key = { index ->
                             previewResources[index].key
-                        }) { pageIndex ->
+                        }
+                    ) { pageIndex ->
                         val mediaResource = previewResources[pageIndex]
                         AsyncImage(
                             modifier = Modifier
                                 .align(alignment = Alignment.Center)
                                 .verticalScroll(state = rememberScrollState())
-                                .graphicsLayer {
-                                    val pageOffset =
-                                        calculateCurrentOffsetForPage(pageIndex).absoluteValue
-                                    lerp(
-                                        start = 0.85f,
-                                        stop = 1f,
-                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                    ).also { scale ->
-                                        scaleX = scale
-                                        scaleY = scale
-                                    }
-                                    alpha = lerp(
-                                        start = 0.5f,
-                                        stop = 1f,
-                                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                    )
-                                }
                                 .fillMaxWidth()
                                 .statusBarsPadding()
                                 .navigationBarsPadding(),
@@ -114,10 +95,11 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                             contentDescription = mediaResource.displayName
                         )
                     }
-                    MatisseCheckbox(modifier = Modifier
-                        .align(alignment = Alignment.TopEnd)
-                        .statusBarsPadding()
-                        .padding(top = 20.dp, end = 25.dp),
+                    MatisseCheckbox(
+                        modifier = Modifier
+                            .align(alignment = Alignment.TopEnd)
+                            .statusBarsPadding()
+                            .padding(top = 20.dp, end = 25.dp),
                         size = 28.dp,
                         text = if (currentImageIndex > -1) {
                             (currentImageIndex + 1).toString()
@@ -126,7 +108,7 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                         },
                         checked = currentImageIndex > -1,
                         enabled = checkboxEnabled,
-                        onCheckedChange = {
+                        onClick = {
                             viewModel.onMediaCheckChanged(mediaResource = previewResources[pagerState.currentPage])
                         })
                 }

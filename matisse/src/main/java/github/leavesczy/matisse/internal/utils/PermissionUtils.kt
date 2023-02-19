@@ -12,7 +12,7 @@ import androidx.core.app.ActivityCompat
 internal object PermissionUtils {
 
     /**
-     * 检查是否已授权指定权限
+     * 判断是否拥有指定权限
      */
     fun checkSelfPermission(context: Context, permission: String): Boolean {
         return ActivityCompat.checkSelfPermission(
@@ -22,11 +22,11 @@ internal object PermissionUtils {
     }
 
     /**
-     * 检查应用的 Manifest 文件是否声明了指定权限
+     * 检查应用是否声明了指定权限
      */
     fun containsPermission(context: Context, permission: String): Boolean {
-        val packageManager: PackageManager = context.packageManager
         try {
+            val packageManager: PackageManager = context.packageManager
             val packageInfo = packageManager.getPackageInfo(
                 context.packageName,
                 PackageManager.GET_PERMISSIONS
