@@ -14,7 +14,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
+import github.leavesczy.matisse.internal.logic.MatissePreviewButtonViewState
+import github.leavesczy.matisse.internal.logic.MatisseSureButtonViewState
 
 /**
  * @Author: leavesCZY
@@ -23,7 +24,10 @@ import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
  * @Github：https://github.com/leavesCZY
  */
 @Composable
-internal fun MatisseBottomBar(viewState: MatisseBottomBarViewState) {
+internal fun MatisseBottomBar(
+    previewButtonViewState: MatissePreviewButtonViewState,
+    sureButtonViewState: MatisseSureButtonViewState
+) {
     Box(
         modifier = Modifier
             .shadow(elevation = 4.dp)
@@ -36,51 +40,51 @@ internal fun MatisseBottomBar(viewState: MatisseBottomBarViewState) {
             modifier = Modifier
                 .align(alignment = Alignment.CenterStart)
                 .then(
-                    other = if (viewState.previewButtonClickable) {
-                        Modifier.clickable(onClick = viewState.onClickPreviewButton)
+                    other = if (previewButtonViewState.clickable) {
+                        Modifier.clickable(onClick = previewButtonViewState.onClick)
                     } else {
                         Modifier
                     }
                 )
                 .fillMaxHeight()
-                .padding(horizontal = 22.dp)
+                .padding(horizontal = 24.dp)
                 .wrapContentSize(align = Alignment.Center),
             textAlign = TextAlign.Center,
             style = TextStyle(
-                color = if (viewState.previewButtonClickable) {
+                color = if (previewButtonViewState.clickable) {
                     colorResource(id = R.color.matisse_preview_text_color)
                 } else {
                     colorResource(id = R.color.matisse_preview_text_color_if_disable)
                 },
-                fontSize = 14.sp
+                fontSize = 16.sp
             ),
-            text = viewState.previewText
+            text = previewButtonViewState.text
         )
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterEnd)
                 .then(
-                    other = if (viewState.sureButtonClickable) {
-                        Modifier.clickable(onClick = viewState.onClickSureButton)
+                    other = if (sureButtonViewState.clickable) {
+                        Modifier.clickable(onClick = sureButtonViewState.onClick)
                     } else {
                         Modifier
                     }
                 )
                 .fillMaxHeight()
-                .padding(horizontal = 22.dp)
+                .padding(horizontal = 24.dp)
                 .wrapContentSize(align = Alignment.Center),
             textAlign = TextAlign.Center,
             style = TextStyle(
                 color = colorResource(
-                    id = if (viewState.sureButtonClickable) {
+                    id = if (sureButtonViewState.clickable) {
                         R.color.matisse_sure_text_color
                     } else {
                         R.color.matisse_sure_text_color_if_disable
                     }
                 ),
-                fontSize = 14.sp
+                fontSize = 16.sp
             ),
-            text = viewState.sureText
+            text = sureButtonViewState.text
         )
     }
 }

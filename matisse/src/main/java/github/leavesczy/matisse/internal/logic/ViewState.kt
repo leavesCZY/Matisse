@@ -34,13 +34,16 @@ internal data class MatisseViewState(
     val selectedResources: List<MediaResource>
 )
 
-internal data class MatisseBottomBarViewState(
-    val previewText: String,
-    val sureText: String,
-    val previewButtonClickable: Boolean,
-    val sureButtonClickable: Boolean,
-    val onClickPreviewButton: () -> Unit,
-    val onClickSureButton: () -> Unit
+internal data class MatissePreviewButtonViewState(
+    val text: String,
+    val clickable: Boolean,
+    val onClick: () -> Unit
+)
+
+internal data class MatisseSureButtonViewState(
+    val text: String,
+    val clickable: Boolean,
+    val onClick: () -> Unit
 )
 
 internal data class MatissePreviewViewState(

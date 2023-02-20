@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -27,7 +26,6 @@ import coil.compose.AsyncImage
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
-import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.utils.clickableNoRipple
@@ -70,12 +68,12 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
             ),
             containerColor = colorResource(id = R.color.matisse_preview_page_background_color)
         ) { paddingValues ->
-            if (previewResources.isNotEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues = paddingValues)
-                ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues = paddingValues)
+            ) {
+                if (previewResources.isNotEmpty()) {
                     HorizontalPager(
                         modifier = Modifier
                             .fillMaxSize()
@@ -102,8 +100,7 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                     BottomController(
                         visible = controllerVisible,
                         viewModel = viewModel,
-                        pagerState = pagerState,
-                        mediaResource = previewResources[pagerState.currentPage],
+                        pagerState = pagerState
                     )
                 }
             }
@@ -115,8 +112,7 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
 private fun BoxScope.BottomController(
     visible: Boolean,
     viewModel: MatisseViewModel,
-    pagerState: PagerState,
-    mediaResource: MediaResource
+    pagerState: PagerState
 ) {
     AnimatedVisibility(
         modifier = Modifier
@@ -150,10 +146,9 @@ private fun BoxScope.BottomController(
                 currentImageIndex > -1 || viewState.selectedResources.size < viewState.matisse.maxSelectable
             }
         }
-        val bottomBarViewState = viewModel.bottomBarViewState
+        val sureButtonViewState = viewModel.sureButtonViewState
         Box(
             modifier = Modifier
-                .shadow(elevation = 4.dp)
                 .background(color = colorResource(id = R.color.matisse_preview_page_controller_background_color))
                 .navigationBarsPadding()
                 .fillMaxWidth()
@@ -164,12 +159,12 @@ private fun BoxScope.BottomController(
                     .align(alignment = Alignment.CenterStart)
                     .clickable(onClick = viewModel::dismissPreviewPage)
                     .fillMaxHeight()
-                    .padding(horizontal = 22.dp)
+                    .padding(horizontal = 24.dp)
                     .wrapContentSize(align = Alignment.Center),
                 textAlign = TextAlign.Center,
                 style = TextStyle(
                     color = colorResource(id = R.color.matisse_back_text_color),
-                    fontSize = 14.sp
+                    fontSize = 16.sp
                 ),
                 text = stringResource(id = R.string.matisse_back)
             )
@@ -184,34 +179,34 @@ private fun BoxScope.BottomController(
                 checked = currentImageIndex > -1,
                 enabled = checkboxEnabled,
                 onClick = {
-                    viewModel.onMediaCheckChanged(mediaResource = mediaResource)
+                    viewModel.onMediaCheckChanged(mediaResource = viewModel.matissePreviewViewState.previewResources[pagerState.currentPage])
                 }
             )
             Text(
                 modifier = Modifier
                     .align(alignment = Alignment.CenterEnd)
                     .then(
-                        other = if (bottomBarViewState.sureButtonClickable) {
-                            Modifier.clickable(onClick = bottomBarViewState.onClickSureButton)
+                        other = if (sureButtonViewState.clickable) {
+                            Modifier.clickable(onClick = sureButtonViewState.onClick)
                         } else {
                             Modifier
                         }
                     )
                     .fillMaxHeight()
-                    .padding(horizontal = 22.dp)
+                    .padding(horizontal = 24.dp)
                     .wrapContentSize(align = Alignment.Center),
                 textAlign = TextAlign.Center,
                 style = TextStyle(
                     color = colorResource(
-                        id = if (bottomBarViewState.sureButtonClickable) {
+                        id = if (sureButtonViewState.clickable) {
                             R.color.matisse_sure_text_color
                         } else {
                             R.color.matisse_sure_text_color_if_disable
                         }
                     ),
-                    fontSize = 14.sp
+                    fontSize = 16.sp
                 ),
-                text = bottomBarViewState.sureText
+                text = sureButtonViewState.text
             )
         }
     }

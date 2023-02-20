@@ -65,7 +65,10 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     var matisseViewState by mutableStateOf(value = permissionRequestingViewState)
         private set
 
-    var bottomBarViewState by mutableStateOf(value = buildBottomBarViewState())
+    var previewButtonViewState by mutableStateOf(value = buildPreviewButtonViewState())
+        private set
+
+    var sureButtonViewState by mutableStateOf(value = buildSureButtonViewState())
         private set
 
     var matissePreviewViewState by mutableStateOf(
@@ -97,7 +100,8 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 matisseViewState = permissionDeniedViewState
                 showToast(message = getString(R.string.matisse_on_read_external_storage_permission_denied))
             }
-            bottomBarViewState = buildBottomBarViewState()
+            previewButtonViewState = buildPreviewButtonViewState()
+            sureButtonViewState = buildSureButtonViewState()
             dismissPreviewPage()
         }
     }
@@ -131,9 +135,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     }
 
     fun onSelectBucket(bucket: MediaBucket) {
-        matisseViewState = matisseViewState.copy(
-            selectedBucket = bucket
-        )
+        matisseViewState = matisseViewState.copy(selectedBucket = bucket)
     }
 
     fun onMediaCheckChanged(mediaResource: MediaResource) {
@@ -159,7 +161,8 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             }
         }
         matisseViewState = matisseViewState.copy(selectedResources = selectedResources)
-        bottomBarViewState = buildBottomBarViewState()
+        previewButtonViewState = buildPreviewButtonViewState()
+        sureButtonViewState = buildSureButtonViewState()
         if (matissePreviewViewState.visible) {
             matissePreviewViewState =
                 matissePreviewViewState.copy(selectedResources = selectedResources)
@@ -237,19 +240,25 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         }
     }
 
-    private fun buildBottomBarViewState(): MatisseBottomBarViewState {
+    private fun buildPreviewButtonViewState(): MatissePreviewButtonViewState {
         val selectedMedia = matisseViewState.selectedResources
-        return MatisseBottomBarViewState(
-            previewText = getString(R.string.matisse_preview),
-            sureText = String.format(
+        return MatissePreviewButtonViewState(
+            text = getString(R.string.matisse_preview),
+            clickable = selectedMedia.isNotEmpty(),
+            onClick = ::onClickPreviewButton
+        )
+    }
+
+    private fun buildSureButtonViewState(): MatisseSureButtonViewState {
+        val selectedMedia = matisseViewState.selectedResources
+        return MatisseSureButtonViewState(
+            text = String.format(
                 getString(R.string.matisse_sure),
                 selectedMedia.size,
                 matisse.maxSelectable
             ),
-            previewButtonClickable = selectedMedia.isNotEmpty(),
-            sureButtonClickable = selectedMedia.isNotEmpty(),
-            onClickPreviewButton = ::onClickPreviewButton,
-            onClickSureButton = ::onClickSureButton
+            clickable = selectedMedia.isNotEmpty(),
+            onClick = ::onClickSureButton
         )
     }
 

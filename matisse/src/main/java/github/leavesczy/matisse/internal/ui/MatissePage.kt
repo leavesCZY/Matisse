@@ -81,7 +81,10 @@ internal fun MatissePage(viewModel: MatisseViewModel, onRequestTakePicture: () -
             )
         },
         bottomBar = {
-            MatisseBottomBar(viewState = viewModel.bottomBarViewState)
+            MatisseBottomBar(
+                previewButtonViewState = viewModel.previewButtonViewState,
+                sureButtonViewState = viewModel.sureButtonViewState
+            )
         }
     ) { innerPadding ->
         LazyVerticalGrid(
