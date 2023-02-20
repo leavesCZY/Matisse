@@ -19,9 +19,9 @@ internal enum class MatisseState {
 }
 
 internal data class MediaBucket(
-    val bucketId: String,
-    val bucketDisplayName: String,
-    val bucketDisplayIcon: Uri,
+    val id: String,
+    val displayName: String,
+    val displayIcon: Uri,
     val resources: List<MediaResource>,
     val supportCapture: Boolean
 )

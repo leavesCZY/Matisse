@@ -49,10 +49,11 @@ internal fun MatissePage(viewModel: MatisseViewModel, onRequestTakePicture: () -
     val selectedBucket = matisseViewState.selectedBucket
     val selectedBucketResources = selectedBucket.resources
     val supportCapture = selectedBucket.supportCapture
-    val lazyGridState by remember(key1 = selectedBucket.bucketId) {
+    val lazyGridState by remember(key1 = selectedBucket.id) {
         mutableStateOf(
             value = LazyGridState(
-                firstVisibleItemIndex = 0, firstVisibleItemScrollOffset = 0
+                firstVisibleItemIndex = 0,
+                firstVisibleItemScrollOffset = 0
             )
         )
     }
@@ -106,7 +107,8 @@ internal fun MatissePage(viewModel: MatisseViewModel, onRequestTakePicture: () -
                 val index = selectedMediaResources.indexOf(element = media)
                 val isSelected = index > -1
                 val enabled = isSelected || selectedMediaResources.size < maxSelectable
-                AlbumItem(media = media,
+                AlbumItem(
+                    media = media,
                     isSelected = isSelected,
                     enabled = enabled,
                     position = if (isSelected) {
@@ -154,8 +156,12 @@ private fun AlbumItem(
     ) {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
-            model = ImageRequest.Builder(context = context).data(data = media.uri)
-                .size(size = itemWidthPx).crossfade(enable = false).build(),
+            model = ImageRequest
+                .Builder(context = context)
+                .data(data = media.uri)
+                .size(size = itemWidthPx)
+                .crossfade(enable = false)
+                .build(),
             contentScale = ContentScale.Crop,
             contentDescription = media.displayName
         )

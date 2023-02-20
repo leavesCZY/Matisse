@@ -38,9 +38,9 @@ internal class MatisseViewModel(application: Application, private val matisse: M
 
     private val permissionRequestingViewState = kotlin.run {
         val defaultBucket = MediaBucket(
-            bucketId = DEFAULT_BUCKET_ID,
-            bucketDisplayName = getString(R.string.matisse_default_bucket_name),
-            bucketDisplayIcon = Uri.EMPTY,
+            id = DEFAULT_BUCKET_ID,
+            displayName = getString(R.string.matisse_default_bucket_name),
+            displayIcon = Uri.EMPTY,
             resources = emptyList(),
             supportCapture = matisse.captureStrategy.isEnabled()
         )
@@ -114,9 +114,9 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             val allBucket =
                 MediaProvider.groupByBucket(resources = allResources).toMutableList()
             val defaultBucket = MediaBucket(
-                bucketId = DEFAULT_BUCKET_ID,
-                bucketDisplayName = getString(R.string.matisse_default_bucket_name),
-                bucketDisplayIcon = allResources[0].uri,
+                id = DEFAULT_BUCKET_ID,
+                displayName = getString(R.string.matisse_default_bucket_name),
+                displayIcon = allResources[0].uri,
                 resources = allResources,
                 supportCapture = matisse.captureStrategy.isEnabled()
             )
@@ -240,10 +240,12 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     private fun buildBottomBarViewState(): MatisseBottomBarViewState {
         val selectedMedia = matisseViewState.selectedResources
         return MatisseBottomBarViewState(
-            previewText = String.format(
-                getString(R.string.matisse_preview), selectedMedia.size, matisse.maxSelectable
+            previewText = getString(R.string.matisse_preview),
+            sureText = String.format(
+                getString(R.string.matisse_sure),
+                selectedMedia.size,
+                matisse.maxSelectable
             ),
-            sureText = getString(R.string.matisse_sure),
             previewButtonClickable = selectedMedia.isNotEmpty(),
             sureButtonClickable = selectedMedia.isNotEmpty(),
             onClickPreviewButton = ::onClickPreviewButton,

@@ -2,8 +2,6 @@ package github.leavesczy.matisse.internal.ui
 
 import android.app.Activity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MediaBucket
+import github.leavesczy.matisse.internal.utils.clickableNoRipple
 
 /**
  * @Author: leavesCZY
@@ -76,17 +75,17 @@ internal fun MatisseTopBar(
                 onSelectBucket = onSelectBucket
             )
         }
-        Row(modifier = Modifier
-            .padding(end = 30.dp)
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }) {
-                menuExpanded = true
-            }, verticalAlignment = Alignment.CenterVertically
+        Row(
+            modifier = Modifier
+                .padding(end = 30.dp)
+                .clickableNoRipple {
+                    menuExpanded = true
+                },
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 modifier = Modifier.weight(weight = 1f, fill = false),
-                text = selectedBucket.bucketDisplayName,
+                text = selectedBucket.displayName,
                 style = TextStyle(
                     color = colorResource(id = R.color.matisse_top_bar_text_color),
                     fontSize = 19.sp
@@ -98,7 +97,7 @@ internal fun MatisseTopBar(
             Icon(
                 imageVector = Icons.Filled.ArrowDropDown,
                 tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-                contentDescription = selectedBucket.bucketDisplayName
+                contentDescription = selectedBucket.displayName
             )
         }
     }
@@ -134,9 +133,9 @@ private fun BucketDropdownMenu(
                             .size(size = 54.dp)
                             .clip(shape = RoundedCornerShape(size = 4.dp))
                             .background(color = colorResource(id = R.color.matisse_image_item_background_color)),
-                        model = bucket.bucketDisplayIcon,
+                        model = bucket.displayIcon,
                         contentScale = ContentScale.Crop,
-                        contentDescription = bucket.bucketDisplayName
+                        contentDescription = bucket.displayName
                     )
                     val textStyle = TextStyle(
                         fontSize = 14.sp,
@@ -146,7 +145,7 @@ private fun BucketDropdownMenu(
                         modifier = Modifier
                             .weight(weight = 1f, fill = false)
                             .padding(start = 6.dp),
-                        text = bucket.bucketDisplayName,
+                        text = bucket.displayName,
                         style = textStyle,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 2

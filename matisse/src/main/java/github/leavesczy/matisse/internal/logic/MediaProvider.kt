@@ -186,9 +186,9 @@ internal object MediaProvider {
                     val bucketDisplayName = resourcesList[0].bucketDisplayName
                     allMediaBucketResource.add(
                         MediaBucket(
-                            bucketId = bucketId,
-                            bucketDisplayName = bucketDisplayName,
-                            bucketDisplayIcon = resourcesList[0].uri,
+                            id = bucketId,
+                            displayName = bucketDisplayName,
+                            displayIcon = resourcesList[0].uri,
                             resources = resourcesList,
                             supportCapture = false
                         )

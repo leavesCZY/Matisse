@@ -3,12 +3,10 @@ package github.leavesczy.matisse.internal.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
@@ -26,18 +24,17 @@ import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
  */
 @Composable
 internal fun MatisseBottomBar(viewState: MatisseBottomBarViewState) {
-    Row(
+    Box(
         modifier = Modifier
             .shadow(elevation = 4.dp)
             .navigationBarsPadding()
             .fillMaxWidth()
             .height(height = 56.dp)
-            .background(color = colorResource(id = R.color.matisse_bottom_navigation_bar_background_color)),
-        horizontalArrangement = Arrangement.SpaceBetween
+            .background(color = colorResource(id = R.color.matisse_bottom_navigation_bar_background_color))
     ) {
         Text(
             modifier = Modifier
-                .align(alignment = Alignment.CenterVertically)
+                .align(alignment = Alignment.CenterStart)
                 .then(
                     other = if (viewState.previewButtonClickable) {
                         Modifier.clickable(onClick = viewState.onClickPreviewButton)
@@ -47,13 +44,13 @@ internal fun MatisseBottomBar(viewState: MatisseBottomBarViewState) {
                 )
                 .fillMaxHeight()
                 .padding(horizontal = 22.dp)
-                .wrapContentHeight(align = Alignment.CenterVertically),
+                .wrapContentSize(align = Alignment.Center),
             textAlign = TextAlign.Center,
             style = TextStyle(
                 color = if (viewState.previewButtonClickable) {
-                    colorResource(id = R.color.matisse_preview_button_text_color)
+                    colorResource(id = R.color.matisse_preview_text_color)
                 } else {
-                    colorResource(id = R.color.matisse_preview_button_text_color_if_disable)
+                    colorResource(id = R.color.matisse_preview_text_color_if_disable)
                 },
                 fontSize = 14.sp
             ),
@@ -61,17 +58,7 @@ internal fun MatisseBottomBar(viewState: MatisseBottomBarViewState) {
         )
         Text(
             modifier = Modifier
-                .align(alignment = Alignment.CenterVertically)
-                .weight(weight = 1f, fill = false)
-                .padding(end = 22.dp)
-                .clip(shape = RoundedCornerShape(size = 22.dp))
-                .background(
-                    color = if (viewState.sureButtonClickable) {
-                        colorResource(id = R.color.matisse_sure_button_background_color)
-                    } else {
-                        colorResource(id = R.color.matisse_sure_button_background_color_if_disable)
-                    }
-                )
+                .align(alignment = Alignment.CenterEnd)
                 .then(
                     other = if (viewState.sureButtonClickable) {
                         Modifier.clickable(onClick = viewState.onClickSureButton)
@@ -79,14 +66,19 @@ internal fun MatisseBottomBar(viewState: MatisseBottomBarViewState) {
                         Modifier
                     }
                 )
-                .padding(horizontal = 22.dp, vertical = 8.dp),
+                .fillMaxHeight()
+                .padding(horizontal = 22.dp)
+                .wrapContentSize(align = Alignment.Center),
             textAlign = TextAlign.Center,
             style = TextStyle(
-                color = if (viewState.sureButtonClickable) {
-                    colorResource(id = R.color.matisse_sure_button_text_color)
-                } else {
-                    colorResource(id = R.color.matisse_sure_button_text_color_if_disable)
-                }, fontSize = 14.sp
+                color = colorResource(
+                    id = if (viewState.sureButtonClickable) {
+                        R.color.matisse_sure_text_color
+                    } else {
+                        R.color.matisse_sure_text_color_if_disable
+                    }
+                ),
+                fontSize = 14.sp
             ),
             text = viewState.sureText
         )

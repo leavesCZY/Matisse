@@ -62,7 +62,7 @@ internal fun MatisseCheckbox(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(
                     bounded = false,
-                    radius = 20.dp
+                    radius = size / 2
                 )
             )
             .wrapContentSize(Alignment.Center)
@@ -99,7 +99,8 @@ internal fun MatisseCheckbox(
         if (mTextLayoutResult != null && text.isNotBlank()) {
             val textLayoutResultSize = mTextLayoutResult.size
             drawText(
-                textLayoutResult = mTextLayoutResult, topLeft = Offset(
+                textLayoutResult = mTextLayoutResult,
+                topLeft = Offset(
                     x = (width - textLayoutResultSize.width) / 2,
                     y = (height - textLayoutResultSize.height) / 2
                 )
