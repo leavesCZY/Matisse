@@ -3,11 +3,13 @@ package github.leavesczy.matisse.internal.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -39,7 +41,6 @@ import github.leavesczy.matisse.internal.logic.MatisseViewModel
  * @Date: 2022/5/31 16:36
  * @Desc:
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun MatissePage(viewModel: MatisseViewModel, onRequestTakePicture: () -> Unit) {
     val matisseViewState = viewModel.matisseViewState

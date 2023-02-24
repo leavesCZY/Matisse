@@ -1,24 +1,28 @@
 package github.leavesczy.matisse.internal.ui
 
+import android.graphics.Typeface
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.layout.layout
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.*
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import github.leavesczy.matisse.R
 
 /**
@@ -29,7 +33,6 @@ import github.leavesczy.matisse.R
 private val CheckboxSize = 22.dp
 private val StrokeWidth = 2.dp
 
-@OptIn(ExperimentalTextApi::class)
 @Composable
 internal fun MatisseCheckbox(
     modifier: Modifier,
@@ -39,6 +42,20 @@ internal fun MatisseCheckbox(
     checked: Boolean,
     onClick: () -> Unit
 ) {
+    val localDensity = LocalDensity.current
+    val context = LocalContext.current
+    val textPaint = remember {
+        Paint().asFrameworkPaint().apply {
+            isAntiAlias = true
+            isDither = true
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            textAlign = android.graphics.Paint.Align.CENTER
+            with(localDensity) {
+                textSize = 14.sp.toPx()
+                color = ContextCompat.getColor(context, R.color.matisse_check_box_text_color)
+            }
+        }
+    }
     val circleColor = colorResource(
         id = if (enabled) {
             R.color.matisse_check_box_circle_color
@@ -47,11 +64,6 @@ internal fun MatisseCheckbox(
         }
     )
     val fillColor = colorResource(id = R.color.matisse_check_box_fill_color)
-    val textColor = colorResource(id = R.color.matisse_check_box_text_color)
-    val textMeasurer = rememberTextMeasurer()
-    var textLayoutResult by remember {
-        mutableStateOf<TextLayoutResult?>(value = null)
-    }
     Canvas(
         modifier = modifier
             .selectable(
@@ -67,20 +79,6 @@ internal fun MatisseCheckbox(
             )
             .wrapContentSize(Alignment.Center)
             .requiredSize(size = size)
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints = constraints)
-                textLayoutResult = textMeasurer.measure(
-                    text = AnnotatedString(text = text),
-                    style = TextStyle(
-                        color = textColor,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center
-                    )
-                )
-                layout(width = placeable.width, height = placeable.height) {
-                    placeable.placeRelative(x = 0, y = 0)
-                }
-            }
     ) {
         val width = this.size.width
         val height = this.size.height
@@ -95,16 +93,18 @@ internal fun MatisseCheckbox(
         if (checked) {
             drawCircle(color = fillColor, radius = checkBoxRadius - strokeWidth)
         }
-        val mTextLayoutResult = textLayoutResult
-        if (mTextLayoutResult != null && text.isNotBlank()) {
-            val textLayoutResultSize = mTextLayoutResult.size
-            drawText(
-                textLayoutResult = mTextLayoutResult,
-                topLeft = Offset(
-                    x = (width - textLayoutResultSize.width) / 2,
-                    y = (height - textLayoutResultSize.height) / 2
-                )
+        if (text.isNotBlank()) {
+            drawTextToCenter(
+                text = text,
+                textPaint = textPaint
             )
         }
     }
+}
+
+private fun DrawScope.drawTextToCenter(text: String, textPaint: android.graphics.Paint) {
+    val fontMetrics = textPaint.fontMetrics
+    val x = size.width / 2f
+    val y = size.height / 2f - (fontMetrics.top + fontMetrics.bottom) / 2f
+    drawContext.canvas.nativeCanvas.drawText(text, x, y, textPaint)
 }

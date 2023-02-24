@@ -24,8 +24,6 @@ android {
         jvmTarget = "1.8"
         freeCompilerArgs += [
                 "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-                "-Xopt-in=androidx.compose.animation.ExperimentalAnimationApi",
-                "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi",
                 "-Xopt-in=com.google.accompanist.pager.ExperimentalPagerApi",
         ]
     }

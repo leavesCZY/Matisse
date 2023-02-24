@@ -57,11 +57,11 @@ android {
     }
     packagingOptions {
         resources {
-            excludes += "META-INF/{AL2.0,LGPL2.1}"
-            excludes += "META-INF/CHANGES"
-            excludes += "META-INF/*.properties"
-            excludes += "META-INF/*.version"
             excludes += "META-INF/*.md"
+            excludes += "META-INF/*.version"
+            excludes += "META-INF/*.properties"
+            excludes += "META-INF/CHANGES"
+            excludes += "META-INF/{AL2.0,LGPL2.1}"
             excludes += "DebugProbesKt.bin"
             excludes += "kotlin-tooling-metadata.json"
         }
