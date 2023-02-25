@@ -13,7 +13,7 @@
 
 |                           日间主题                           |                           夜间主题                           |                          自定义主题                          |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| ![](https://user-images.githubusercontent.com/30774063/173228764-1a44b35d-3bdd-4bcd-a456-b4ddd4f7a7e2.png) | ![](https://user-images.githubusercontent.com/30774063/173228768-1d8759d6-6a93-475c-89c5-e2ea9ddcf7ad.png) | ![](https://user-images.githubusercontent.com/30774063/173228769-58269c2e-9f54-4011-957d-6e5da14ad0d6.png) |
+| ![](https://user-images.githubusercontent.com/30774063/221350097-6ef7343a-379a-4715-a86f-ea9e67674560.jpg) | ![](https://user-images.githubusercontent.com/30774063/221350113-251f2e7a-27dc-434b-b578-95e79267aae3.jpg) | ![](https://user-images.githubusercontent.com/30774063/221350303-07c065da-de5b-4550-ad89-92a1bfffba4d.jpg) |
 
 
 实现思路请看：[Jetpack Compose 实现一个图片选择框架](https://juejin.cn/post/7108420791502372895)
