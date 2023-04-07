@@ -8,6 +8,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
@@ -23,9 +26,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.utils.clickableNoRipple
@@ -79,8 +79,10 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                             .clickableNoRipple {
                                 controllerVisible = !controllerVisible
                             },
-                        count = previewResources.size,
                         state = pagerState,
+                        pageCount = previewResources.size,
+                        pageSpacing = 20.dp,
+                        verticalAlignment = Alignment.CenterVertically,
                         key = { index ->
                             previewResources[index].key
                         }
@@ -88,11 +90,11 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                         val mediaResource = previewResources[pageIndex]
                         AsyncImage(
                             modifier = Modifier
-                                .align(alignment = Alignment.Center)
-                                .verticalScroll(state = rememberScrollState())
-                                .fillMaxWidth(),
+                                .fillMaxSize()
+                                .verticalScroll(state = rememberScrollState()),
                             model = mediaResource.uri,
                             contentScale = ContentScale.FillWidth,
+                            alignment = Alignment.Center,
                             contentDescription = mediaResource.displayName
                         )
                     }

@@ -18,13 +18,13 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion "1.3.2"
+        kotlinCompilerExtensionVersion "1.4.4"
     }
     kotlinOptions {
         jvmTarget = "1.8"
         freeCompilerArgs += [
                 "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-                "-Xopt-in=com.google.accompanist.pager.ExperimentalPagerApi",
+                "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi",
         ]
     }
     namespace "github.leavesczy.matisse"
@@ -32,19 +32,18 @@ android {
 
 dependencies {
     testImplementation "junit:junit:4.13.2"
-    androidTestImplementation "androidx.test.ext:junit:1.1.4"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.0"
+    androidTestImplementation "androidx.test.ext:junit:1.1.5"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
     implementation "androidx.appcompat:appcompat:1.6.1"
-    implementation "androidx.activity:activity-compose:1.6.1"
-    def composeBom = platform("androidx.compose:compose-bom:2023.01.00")
+    implementation "androidx.activity:activity-compose:1.7.0"
+    def composeBom = platform("androidx.compose:compose-bom:2023.04.00")
     implementation composeBom
     androidTestImplementation composeBom
     implementation "androidx.compose.material3:material3"
     implementation "androidx.compose.material:material-icons-extended"
-    def accompanistVersion = "0.28.0"
+    def accompanistVersion = "0.30.0"
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion"
-    implementation "com.google.accompanist:accompanist-pager:$accompanistVersion"
-    def coilVersion = "2.2.2"
+    def coilVersion = "2.3.0"
     implementation "io.coil-kt:coil-gif:$coilVersion"
     implementation "io.coil-kt:coil-compose:$coilVersion"
 }

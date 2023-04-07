@@ -188,7 +188,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 visible = true,
                 initialPage = 0,
                 selectedResources = selectedResources,
-                previewResources = selectedResources,
+                previewResources = selectedResources
             )
         }
     }
@@ -232,11 +232,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
 
     fun dismissPreviewPage() {
         if (matissePreviewViewState.visible) {
-            matissePreviewViewState = matissePreviewViewState.copy(
-                visible = false,
-                selectedResources = emptyList(),
-                previewResources = emptyList()
-            )
+            matissePreviewViewState = matissePreviewViewState.copy(visible = false)
         }
     }
 
