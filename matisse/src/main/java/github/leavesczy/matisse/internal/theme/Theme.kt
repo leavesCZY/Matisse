@@ -13,14 +13,17 @@ private val colors = lightColorScheme()
 private val Typography = Typography()
 
 private val Shapes = Shapes(
-    small = RoundedCornerShape(4.dp),
-    medium = RoundedCornerShape(8.dp),
-    large = RoundedCornerShape(12.dp)
+    small = RoundedCornerShape(size = 4.dp),
+    medium = RoundedCornerShape(size = 8.dp),
+    large = RoundedCornerShape(size = 12.dp)
 )
 
 @Composable
 internal fun MatisseTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = colors, typography = Typography, shapes = Shapes, content = content
+        colorScheme = colors,
+        typography = Typography,
+        shapes = Shapes,
+        content = content
     )
 }

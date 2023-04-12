@@ -3,9 +3,7 @@ package github.leavesczy.matisse.samples
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.RadioGroup
-import androidx.activity.result.ActivityResultCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,6 +19,12 @@ import github.leavesczy.matisse.*
  */
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+
+        private const val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
+
+    }
+
     private val radioGroupMaxSelectable by lazy {
         findViewById<RadioGroup>(R.id.radioGroupMaxSelectable)
     }
@@ -29,12 +33,24 @@ class MainActivity : AppCompatActivity() {
         findViewById<RadioGroup>(R.id.radioGroupSupportGif)
     }
 
-    private val radioGroupEnableCapture by lazy {
-        findViewById<RadioGroup>(R.id.radioGroupEnableCapture)
+    private val radioGroupCaptureStrategy by lazy {
+        findViewById<RadioGroup>(R.id.radioGroupCaptureStrategy)
     }
 
     private val rvImageList by lazy {
         findViewById<RecyclerView>(R.id.rvImageList)
+    }
+
+    private val btnTakePhotosOnly by lazy {
+        findViewById<View>(R.id.btnTakePhotosOnly)
+    }
+
+    private val btnSwitchTheme by lazy {
+        findViewById<View>(R.id.btnSwitchTheme)
+    }
+
+    private val btnImagePicker by lazy {
+        findViewById<View>(R.id.btnImagePicker)
     }
 
     private val imageList = mutableListOf<MediaResource>()
@@ -42,7 +58,16 @@ class MainActivity : AppCompatActivity() {
     private val imageAdapter = ImageAdapter(imageList)
 
     @SuppressLint("NotifyDataSetChanged")
-    private val activityResultCallback = ActivityResultCallback<List<MediaResource>> {
+    private val takePictureLauncher = registerForActivityResult(MatisseCaptureContract()) {
+        if (it != null) {
+            imageList.clear()
+            imageList.add(it)
+            imageAdapter.notifyDataSetChanged()
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private val imagePickerLauncher = registerForActivityResult(MatisseContract()) {
         if (it.isNotEmpty()) {
             imageList.clear()
             imageList.addAll(it)
@@ -50,30 +75,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val matisseContractLauncher =
-        registerForActivityResult(MatisseContract(), activityResultCallback)
-
-    private val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById<MaterialToolbar>(R.id.toolbar))
-        findViewById<View>(R.id.btnImagePicker).setOnClickListener {
-            val matisse = Matisse(
-                supportedMimeTypes = getSupportedMimeTypes(),
-                maxSelectable = getMaxSelectable(),
-                captureStrategy = getCaptureStrategy(),
-            )
-            matisseContractLauncher.launch(matisse)
-        }
-        findViewById<Button>(R.id.btnSwitchTheme).setOnClickListener {
+        btnSwitchTheme.setOnClickListener {
             val defaultNightMode = AppCompatDelegate.getDefaultNightMode()
             if (defaultNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
+        }
+        btnTakePhotosOnly.setOnClickListener {
+            takePictureLauncher.launch(getCaptureStrategy())
+        }
+        btnImagePicker.setOnClickListener {
+            val matisse = Matisse(
+                supportedMimeTypes = getSupportedMimeTypes(),
+                maxSelectable = getMaxSelectable(),
+                captureStrategy = getCaptureStrategy(),
+            )
+            imagePickerLauncher.launch(matisse)
+        }
+        radioGroupCaptureStrategy.setOnCheckedChangeListener { _, checkedId ->
+            btnTakePhotosOnly.isEnabled = checkedId != R.id.rbNothing
         }
         rvImageList.layoutManager = LinearLayoutManager(this)
         rvImageList.adapter = imageAdapter
@@ -99,7 +125,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getCaptureStrategy(): CaptureStrategy {
-        when (radioGroupEnableCapture.checkedRadioButtonId) {
+        when (radioGroupCaptureStrategy.checkedRadioButtonId) {
             R.id.rbNothing -> {
                 return NothingCaptureStrategy
             }

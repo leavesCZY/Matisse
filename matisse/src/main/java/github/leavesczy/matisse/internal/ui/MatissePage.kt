@@ -42,7 +42,11 @@ import github.leavesczy.matisse.internal.logic.MatisseViewModel
  * @Desc:
  */
 @Composable
-internal fun MatissePage(viewModel: MatisseViewModel, onRequestTakePicture: () -> Unit) {
+internal fun MatissePage(
+    viewModel: MatisseViewModel,
+    onRequestTakePicture: () -> Unit,
+    onSure: () -> Unit
+) {
     val matisseViewState = viewModel.matisseViewState
     val maxSelectable = matisseViewState.matisse.maxSelectable
     val selectedMediaResources = matisseViewState.selectedResources
@@ -84,7 +88,8 @@ internal fun MatissePage(viewModel: MatisseViewModel, onRequestTakePicture: () -
         bottomBar = {
             MatisseBottomBar(
                 previewButtonViewState = viewModel.previewButtonViewState,
-                sureButtonViewState = viewModel.sureButtonViewState
+                sureButtonViewState = viewModel.sureButtonViewState,
+                onSure = onSure
             )
         }
     ) { innerPadding ->

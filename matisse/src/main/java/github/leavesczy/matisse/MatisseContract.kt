@@ -30,12 +30,12 @@ class MatisseContract : ActivityResultContract<Matisse, List<MediaResource>>() {
         }
 
         internal fun buildResult(selectedMediaResources: List<MediaResource>): Intent {
-            val data = Intent()
+            val intent = Intent()
             val resources = arrayListOf<Parcelable>().apply {
                 addAll(selectedMediaResources)
             }
-            data.putParcelableArrayListExtra(keyResult, resources)
-            return data
+            intent.putParcelableArrayListExtra(keyResult, resources)
+            return intent
         }
 
     }

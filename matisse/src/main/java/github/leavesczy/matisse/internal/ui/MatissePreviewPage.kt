@@ -36,7 +36,10 @@ import github.leavesczy.matisse.internal.utils.clickableNoRipple
  * @Desc:
  */
 @Composable
-internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
+internal fun MatissePreviewPage(
+    viewModel: MatisseViewModel,
+    onSure: () -> Unit
+) {
     val matissePreviewViewState = viewModel.matissePreviewViewState
     val visible = matissePreviewViewState.visible
     var controllerVisible by remember(key1 = visible) {
@@ -101,7 +104,8 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
                     BottomController(
                         visible = controllerVisible,
                         viewModel = viewModel,
-                        pagerState = pagerState
+                        pagerState = pagerState,
+                        onSure = onSure
                     )
                 }
             }
@@ -113,7 +117,8 @@ internal fun MatissePreviewPage(viewModel: MatisseViewModel) {
 private fun BoxScope.BottomController(
     visible: Boolean,
     viewModel: MatisseViewModel,
-    pagerState: PagerState
+    pagerState: PagerState,
+    onSure: () -> Unit
 ) {
     AnimatedVisibility(
         modifier = Modifier
@@ -188,7 +193,7 @@ private fun BoxScope.BottomController(
                     .align(alignment = Alignment.CenterEnd)
                     .then(
                         other = if (sureButtonViewState.clickable) {
-                            Modifier.clickable(onClick = sureButtonViewState.onClick)
+                            Modifier.clickable(onClick = onSure)
                         } else {
                             Modifier
                         }

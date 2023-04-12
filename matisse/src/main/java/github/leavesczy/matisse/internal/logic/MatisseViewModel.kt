@@ -14,8 +14,6 @@ import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -81,12 +79,6 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         )
     )
         private set
-
-    private val _matisseAction = MutableSharedFlow<MatisseAction>()
-
-    val matisseAction: SharedFlow<MatisseAction> = _matisseAction
-
-    private var tempImageUriForTakePicture: Uri? = null
 
     fun onRequestReadImagesPermission() {
         matisseViewState = permissionRequestingViewState
@@ -193,43 +185,6 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         }
     }
 
-    private fun onClickSureButton() {
-        viewModelScope.launch(context = Dispatchers.Main.immediate) {
-            onSure(resources = matisseViewState.selectedResources)
-        }
-    }
-
-    suspend fun createImageUriForTakePicture(): Uri? {
-        tempImageUriForTakePicture =
-            matisse.captureStrategy.createImageUri(context = context)
-        return tempImageUriForTakePicture
-    }
-
-    fun takePictureResult(successful: Boolean) {
-        viewModelScope.launch(context = Dispatchers.Main.immediate) {
-            val imageUri = tempImageUriForTakePicture
-            if (imageUri != null) {
-                tempImageUriForTakePicture = null
-                if (successful) {
-                    val resource =
-                        matisse.captureStrategy.loadResource(context = context, imageUri = imageUri)
-                    if (resource != null) {
-                        onSure(resources = listOf(resource))
-                    }
-                } else {
-                    matisse.captureStrategy.onTakePictureCanceled(
-                        context = context,
-                        imageUri = imageUri
-                    )
-                }
-            }
-        }
-    }
-
-    private suspend fun onSure(resources: List<MediaResource>) {
-        _matisseAction.emit(value = MatisseAction.OnSure(resources = resources))
-    }
-
     fun dismissPreviewPage() {
         if (matissePreviewViewState.visible) {
             matissePreviewViewState = matissePreviewViewState.copy(visible = false)
@@ -253,8 +208,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 selectedMedia.size,
                 matisse.maxSelectable
             ),
-            clickable = selectedMedia.isNotEmpty(),
-            onClick = ::onClickSureButton
+            clickable = selectedMedia.isNotEmpty()
         )
     }
 

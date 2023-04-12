@@ -17,7 +17,7 @@ internal fun Modifier.clickableNoRipple(
     composed {
         clickable(
             indication = null,
-            interactionSource = remember { MutableInteractionSource() }) {
-            onClick()
-        }
+            interactionSource = remember { MutableInteractionSource() },
+            onClick = onClick
+        )
     }

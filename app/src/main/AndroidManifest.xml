@@ -24,7 +24,9 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboard|keyboardHidden"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

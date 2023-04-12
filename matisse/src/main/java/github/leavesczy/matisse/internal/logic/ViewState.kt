@@ -42,8 +42,7 @@ internal data class MatissePreviewButtonViewState(
 
 internal data class MatisseSureButtonViewState(
     val text: String,
-    val clickable: Boolean,
-    val onClick: () -> Unit
+    val clickable: Boolean
 )
 
 internal data class MatissePreviewViewState(
@@ -53,9 +52,3 @@ internal data class MatissePreviewViewState(
     val previewResources: List<MediaResource>,
     val selectedResources: List<MediaResource>
 )
-
-internal sealed class MatisseAction {
-
-    class OnSure(val resources: List<MediaResource>) : MatisseAction()
-
-}

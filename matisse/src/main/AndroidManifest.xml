@@ -13,5 +13,10 @@
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Matisse" />
+        <activity
+            android:name=".internal.MatisseCaptureActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Matisse.Transparent" />
     </application>
 </manifest>

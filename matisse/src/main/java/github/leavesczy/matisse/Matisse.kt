@@ -11,13 +11,13 @@ import kotlinx.parcelize.Parcelize
  * @Desc:
  */
 /**
- * @param maxSelectable 可以选择的图片最大数量。默认是 1
+ * @param maxSelectable 允许选择的图片最大数量
  * @param supportedMimeTypes 需要显示的图片类型。默认是包含 Gif 在内的所有图片
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 @Parcelize
 data class Matisse(
-    val maxSelectable: Int = 1,
+    val maxSelectable: Int,
     val supportedMimeTypes: List<MimeType> = ofImage(hasGif = true),
     val captureStrategy: CaptureStrategy = NothingCaptureStrategy
 ) : Parcelable {

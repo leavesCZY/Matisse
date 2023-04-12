@@ -26,7 +26,8 @@ import github.leavesczy.matisse.internal.logic.MatisseSureButtonViewState
 @Composable
 internal fun MatisseBottomBar(
     previewButtonViewState: MatissePreviewButtonViewState,
-    sureButtonViewState: MatisseSureButtonViewState
+    sureButtonViewState: MatisseSureButtonViewState,
+    onSure: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -65,7 +66,7 @@ internal fun MatisseBottomBar(
                 .align(alignment = Alignment.CenterEnd)
                 .then(
                     other = if (sureButtonViewState.clickable) {
-                        Modifier.clickable(onClick = sureButtonViewState.onClick)
+                        Modifier.clickable(onClick = onSure)
                     } else {
                         Modifier
                     }
