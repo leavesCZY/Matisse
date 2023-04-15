@@ -16,10 +16,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import github.leavesczy.matisse.MatisseCaptureContract
-import github.leavesczy.matisse.MatisseContract
-import github.leavesczy.matisse.MediaResource
-import github.leavesczy.matisse.R
+import github.leavesczy.matisse.*
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.theme.MatisseTheme
 import github.leavesczy.matisse.internal.ui.MatissePage
@@ -96,7 +93,7 @@ class MatisseActivity : AppCompatActivity() {
     }
 
     private fun onRequestTakePicture() {
-        takePictureLauncher.launch(matisse.captureStrategy)
+        takePictureLauncher.launch(MatisseCapture(captureStrategy = matisse.captureStrategy))
     }
 
     private fun onSure() {

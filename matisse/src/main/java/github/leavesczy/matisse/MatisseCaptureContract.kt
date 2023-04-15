@@ -12,7 +12,7 @@ import github.leavesczy.matisse.internal.MatisseCaptureActivity
  * @Date: 2023/4/11 16:38
  * @Desc:
  */
-class MatisseCaptureContract : ActivityResultContract<CaptureStrategy, MediaResource?>() {
+class MatisseCaptureContract : ActivityResultContract<MatisseCapture, MediaResource?>() {
 
     companion object {
 
@@ -20,9 +20,9 @@ class MatisseCaptureContract : ActivityResultContract<CaptureStrategy, MediaReso
 
         private const val keyResult = "keyResult"
 
-        internal fun getRequest(intent: Intent): CaptureStrategy {
+        internal fun getRequest(intent: Intent): MatisseCapture {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra(keyRequest, CaptureStrategy::class.java)
+                intent.getParcelableExtra(keyRequest, MatisseCapture::class.java)
             } else {
                 intent.getParcelableExtra(keyRequest)
             }!!
@@ -38,15 +38,15 @@ class MatisseCaptureContract : ActivityResultContract<CaptureStrategy, MediaReso
 
     override fun getSynchronousResult(
         context: Context,
-        input: CaptureStrategy
+        input: MatisseCapture
     ): SynchronousResult<MediaResource?>? {
-        if (input.isEnabled()) {
+        if (input.captureStrategy.isEnabled()) {
             return super.getSynchronousResult(context, input)
         }
         return SynchronousResult(value = null)
     }
 
-    override fun createIntent(context: Context, input: CaptureStrategy): Intent {
+    override fun createIntent(context: Context, input: MatisseCapture): Intent {
         val intent = Intent(context, MatisseCaptureActivity::class.java)
         intent.putExtra(keyRequest, input)
         return intent

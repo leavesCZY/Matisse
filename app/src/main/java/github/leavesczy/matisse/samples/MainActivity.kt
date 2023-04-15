@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         btnTakePhotosOnly.setOnClickListener {
-            takePictureLauncher.launch(getCaptureStrategy())
+            takePictureLauncher.launch(MatisseCapture(captureStrategy = getCaptureStrategy()))
         }
         btnImagePicker.setOnClickListener {
             val matisse = Matisse(

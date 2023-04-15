@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MatisseCaptureContract
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
@@ -24,9 +25,12 @@ import kotlinx.coroutines.launch
  */
 class MatisseCaptureActivity : AppCompatActivity() {
 
-    private val captureStrategy by lazy {
+    private val matisseCapture by lazy {
         MatisseCaptureContract.getRequest(intent = intent)
     }
+
+    private val captureStrategy: CaptureStrategy
+        get() = matisseCapture.captureStrategy
 
     private val requestWriteExternalStoragePermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->

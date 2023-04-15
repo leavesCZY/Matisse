@@ -44,6 +44,9 @@ data class Matisse(
 }
 
 @Parcelize
+data class MatisseCapture(val captureStrategy: CaptureStrategy) : Parcelable
+
+@Parcelize
 data class MediaResource(
     private val id: Long,
     val uri: Uri,
