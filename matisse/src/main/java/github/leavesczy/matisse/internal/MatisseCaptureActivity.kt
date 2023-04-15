@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
  */
 class MatisseCaptureActivity : AppCompatActivity() {
 
-    private val captureStrategy by lazy(mode = LazyThreadSafetyMode.NONE) {
+    private val captureStrategy by lazy {
         MatisseCaptureContract.getRequest(intent = intent)
     }
 

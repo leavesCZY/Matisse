@@ -33,7 +33,7 @@ import github.leavesczy.matisse.internal.utils.PermissionUtils
  */
 class MatisseActivity : AppCompatActivity() {
 
-    private val matisse by lazy(mode = LazyThreadSafetyMode.NONE) {
+    private val matisse by lazy {
         MatisseContract.getRequest(intent = intent)
     }
 

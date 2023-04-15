@@ -41,7 +41,7 @@ dependencies {
     androidTestImplementation composeBom
     implementation "androidx.compose.material3:material3"
     implementation "androidx.compose.material:material-icons-extended"
-    def accompanistVersion = "0.30.0"
+    def accompanistVersion = "0.30.1"
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion"
     def coilVersion = "2.3.0"
     implementation "io.coil-kt:coil-gif:$coilVersion"

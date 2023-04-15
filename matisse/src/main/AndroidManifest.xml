@@ -15,8 +15,8 @@
             android:theme="@style/Theme.Matisse" />
         <activity
             android:name=".internal.MatisseCaptureActivity"
+            android:configChanges="orientation"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.Matisse.Transparent" />
     </application>
 </manifest>
