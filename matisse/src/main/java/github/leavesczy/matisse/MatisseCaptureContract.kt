@@ -3,7 +3,6 @@ package github.leavesczy.matisse
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.activity.result.contract.ActivityResultContract
 import github.leavesczy.matisse.internal.MatisseCaptureActivity
 
@@ -21,11 +20,7 @@ class MatisseCaptureContract : ActivityResultContract<MatisseCapture, MediaResou
         private const val keyResult = "keyResult"
 
         internal fun getRequest(intent: Intent): MatisseCapture {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra(keyRequest, MatisseCapture::class.java)
-            } else {
-                intent.getParcelableExtra(keyRequest)
-            }!!
+            return intent.getParcelableExtra(keyRequest)!!
         }
 
         internal fun buildResult(mediaResource: MediaResource): Intent {
@@ -54,11 +49,7 @@ class MatisseCaptureContract : ActivityResultContract<MatisseCapture, MediaResou
 
     override fun parseResult(resultCode: Int, intent: Intent?): MediaResource? {
         return if (resultCode == Activity.RESULT_OK && intent != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra(keyResult, MediaResource::class.java)
-            } else {
-                intent.getParcelableExtra(keyResult)
-            }
+            intent.getParcelableExtra(keyResult)
         } else {
             null
         }
