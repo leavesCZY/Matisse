@@ -15,12 +15,12 @@ import androidx.compose.ui.res.colorResource
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import github.leavesczy.matisse.*
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.theme.MatisseTheme
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
+import github.leavesczy.matisse.internal.ui.rememberSystemUiController
 import github.leavesczy.matisse.internal.utils.PermissionUtils
 
 /**

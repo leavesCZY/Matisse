@@ -162,7 +162,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
-        android:text="仅拍照" />
+        android:text="直接拍照" />
 
     <Button
         android:id="@+id/btnImagePicker"

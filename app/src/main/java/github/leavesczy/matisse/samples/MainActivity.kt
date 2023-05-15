@@ -110,9 +110,11 @@ class MainActivity : AppCompatActivity() {
             R.id.rbMaxSelectable1 -> {
                 return 1
             }
+
             R.id.rbMaxSelectable2 -> {
                 return 2
             }
+
             R.id.rbMaxSelectable3 -> {
                 return 3
             }
@@ -129,12 +131,15 @@ class MainActivity : AppCompatActivity() {
             R.id.rbNothing -> {
                 return NothingCaptureStrategy
             }
+
             R.id.rbFileProvider -> {
                 return FileProviderCaptureStrategy(authority = fileProviderAuthority)
             }
+
             R.id.rbMediaStore -> {
                 return MediaStoreCaptureStrategy()
             }
+
             R.id.rbSmart -> {
                 return SmartCaptureStrategy(authority = fileProviderAuthority)
             }
