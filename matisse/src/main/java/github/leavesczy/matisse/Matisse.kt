@@ -2,7 +2,6 @@ package github.leavesczy.matisse
 
 import android.net.Uri
 import android.os.Parcelable
-import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -61,8 +60,8 @@ data class MediaResource(
     val bucketDisplayName: String
 ) : Parcelable {
 
-    @IgnoredOnParcel
-    internal val key = id
+    internal val key: Long
+        get() = id
 
 }
 

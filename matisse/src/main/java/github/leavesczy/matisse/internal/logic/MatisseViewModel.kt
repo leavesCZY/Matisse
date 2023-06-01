@@ -15,6 +15,7 @@ import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * @Author: leavesCZY
@@ -102,13 +103,11 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         matisseViewState = imageLoadingViewState
         val allResources = MediaProvider.loadResources(
             context = context,
-            filterMimeTypes = matisse.supportedMimeTypes
+            supportedMimeTypes = matisse.supportedMimeTypes
         )
         if (allResources.isEmpty()) {
             matisseViewState = imageEmptyViewState
         } else {
-            val allBucket =
-                MediaProvider.groupByBucket(resources = allResources).toMutableList()
             val defaultBucket = MediaBucket(
                 id = DEFAULT_BUCKET_ID,
                 displayName = getString(R.string.matisse_default_bucket_name),
@@ -116,13 +115,55 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 resources = allResources,
                 supportCapture = matisse.captureStrategy.isEnabled()
             )
-            allBucket.add(0, defaultBucket)
+            val allBucket = groupByBucket(
+                defaultBucket = defaultBucket,
+                resources = allResources
+            )
             matisseViewState = matisseViewState.copy(
                 state = MatisseState.ImagesLoaded,
                 allBucket = allBucket,
                 selectedBucket = defaultBucket,
                 selectedResources = emptyList()
             )
+        }
+    }
+
+    private suspend fun groupByBucket(
+        defaultBucket: MediaBucket,
+        resources: List<MediaResource>
+    ): List<MediaBucket> {
+        return withContext(context = Dispatchers.IO) {
+            val resourcesMap = linkedMapOf<String, MutableList<MediaResource>>()
+            resources.forEach { res ->
+                val bucketDisplayName = res.bucketDisplayName
+                if (bucketDisplayName.isNotBlank()) {
+                    val bucketId = res.bucketId
+                    val list = resourcesMap[bucketId]
+                    if (list == null) {
+                        resourcesMap[bucketId] = mutableListOf(res)
+                    } else {
+                        list.add(element = res)
+                    }
+                }
+            }
+            val allBucketList = buildList {
+                add(element = defaultBucket)
+                resourcesMap.forEach {
+                    val bucketId = it.key
+                    val resourcesList = it.value
+                    val bucketDisplayName = resourcesList[0].bucketDisplayName
+                    add(
+                        element = MediaBucket(
+                            id = bucketId,
+                            displayName = bucketDisplayName,
+                            displayIcon = resourcesList[0].uri,
+                            resources = resourcesList,
+                            supportCapture = false
+                        )
+                    )
+                }
+            }
+            return@withContext allBucketList
         }
     }
 
