@@ -105,7 +105,7 @@ internal fun MatissePreviewPage(
                         pageSpacing = 20.dp,
                         verticalAlignment = Alignment.CenterVertically,
                         key = { index ->
-                            previewResources[index].key
+                            previewResources[index].id
                         }
                     ) { pageIndex ->
                         val mediaResource = previewResources[pageIndex]

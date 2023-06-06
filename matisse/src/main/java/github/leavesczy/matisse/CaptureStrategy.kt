@@ -17,7 +17,6 @@ import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.io.File
 import java.util.*
-import kotlin.math.max
 
 /**
  * @Author: CZY
@@ -147,16 +146,12 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
             BitmapFactory.decodeFile(imageFilePath, option)
             return@withContext MediaResource(
                 id = 0,
-                uri = imageUri,
-                displayName = imageFile.name,
-                mimeType = option.outMimeType ?: "",
-                width = max(option.outWidth, 0),
-                height = max(option.outHeight, 0),
-                orientation = 0,
-                size = imageFile.length(),
-                path = imageFile.absolutePath,
                 bucketId = "",
-                bucketDisplayName = ""
+                bucketDisplayName = "",
+                uri = imageUri,
+                path = imageFilePath,
+                displayName = imageFile.name,
+                mimeType = option.outMimeType ?: ""
             )
         }
     }
@@ -204,7 +199,7 @@ class MediaStoreCaptureStrategy : CaptureStrategy {
     }
 
     override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
-        MediaProvider.deleteImage(context = context, imageUri = imageUri)
+        MediaProvider.deleteMedia(context = context, uri = imageUri)
     }
 
 }

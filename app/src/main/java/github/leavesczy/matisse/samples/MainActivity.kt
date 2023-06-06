@@ -6,9 +6,9 @@ import android.view.View
 import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.MaterialToolbar
 import github.leavesczy.matisse.*
 
 /**
@@ -29,6 +29,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<RadioGroup>(R.id.radioGroupMaxSelectable)
     }
 
+    private val radioMimeType by lazy {
+        findViewById<RadioGroup>(R.id.radioMimeType)
+    }
+
     private val radioGroupSupportGif by lazy {
         findViewById<RadioGroup>(R.id.radioGroupSupportGif)
     }
@@ -37,48 +41,48 @@ class MainActivity : AppCompatActivity() {
         findViewById<RadioGroup>(R.id.radioGroupCaptureStrategy)
     }
 
-    private val rvImageList by lazy {
-        findViewById<RecyclerView>(R.id.rvImageList)
+    private val rvMediaList by lazy {
+        findViewById<RecyclerView>(R.id.rvMediaList)
     }
 
-    private val btnTakePhotosOnly by lazy {
-        findViewById<View>(R.id.btnTakePhotosOnly)
+    private val btnTakePhotos by lazy {
+        findViewById<View>(R.id.btnTakePhotos)
     }
 
     private val btnSwitchTheme by lazy {
         findViewById<View>(R.id.btnSwitchTheme)
     }
 
-    private val btnImagePicker by lazy {
-        findViewById<View>(R.id.btnImagePicker)
+    private val btnMediaPicker by lazy {
+        findViewById<View>(R.id.btnMediaPicker)
     }
 
-    private val imageList = mutableListOf<MediaResource>()
+    private val mediaList = mutableListOf<MediaResource>()
 
-    private val imageAdapter = ImageAdapter(imageList)
+    private val mediaAdapter = MediaAdapter(mediaList)
 
     @SuppressLint("NotifyDataSetChanged")
     private val takePictureLauncher = registerForActivityResult(MatisseCaptureContract()) {
         if (it != null) {
-            imageList.clear()
-            imageList.add(it)
-            imageAdapter.notifyDataSetChanged()
+            mediaList.clear()
+            mediaList.add(it)
+            mediaAdapter.notifyDataSetChanged()
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private val imagePickerLauncher = registerForActivityResult(MatisseContract()) {
+    private val mediaPickerLauncher = registerForActivityResult(MatisseContract()) {
         if (it.isNotEmpty()) {
-            imageList.clear()
-            imageList.addAll(it)
-            imageAdapter.notifyDataSetChanged()
+            mediaList.clear()
+            mediaList.addAll(it)
+            mediaAdapter.notifyDataSetChanged()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(findViewById<MaterialToolbar>(R.id.toolbar))
+        setSupportActionBar(findViewById(R.id.toolbar))
         btnSwitchTheme.setOnClickListener {
             val defaultNightMode = AppCompatDelegate.getDefaultNightMode()
             if (defaultNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
@@ -87,22 +91,27 @@ class MainActivity : AppCompatActivity() {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
         }
-        btnTakePhotosOnly.setOnClickListener {
+        btnTakePhotos.setOnClickListener {
             takePictureLauncher.launch(MatisseCapture(captureStrategy = getCaptureStrategy()))
         }
-        btnImagePicker.setOnClickListener {
+        btnMediaPicker.setOnClickListener {
             val matisse = Matisse(
-                supportedMimeTypes = getSupportedMimeTypes(),
+                mimeTypes = getSupportedMimeTypes(),
                 maxSelectable = getMaxSelectable(),
                 captureStrategy = getCaptureStrategy(),
             )
-            imagePickerLauncher.launch(matisse)
+            mediaPickerLauncher.launch(matisse)
         }
         radioGroupCaptureStrategy.setOnCheckedChangeListener { _, checkedId ->
-            btnTakePhotosOnly.isEnabled = checkedId != R.id.rbNothing
+            btnTakePhotos.isEnabled = checkedId != R.id.rbNothing
         }
-        rvImageList.layoutManager = LinearLayoutManager(this)
-        rvImageList.adapter = imageAdapter
+        radioMimeType.setOnCheckedChangeListener { _, checkedId ->
+            radioGroupSupportGif.children.forEach {
+                it.isEnabled = checkedId != R.id.rbVideo
+            }
+        }
+        rvMediaList.layoutManager = LinearLayoutManager(this)
+        rvMediaList.adapter = mediaAdapter
     }
 
     private fun getMaxSelectable(): Int {
@@ -123,7 +132,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getSupportedMimeTypes(): List<MimeType> {
-        return Matisse.ofImage(hasGif = radioGroupSupportGif.checkedRadioButtonId == R.id.rbSupportGif)
+        return when (radioMimeType.checkedRadioButtonId) {
+            R.id.rbAllMedia -> {
+                MimeType.ofAll()
+            }
+
+            R.id.rbImage -> {
+                MimeType.ofImage(hasGif = radioGroupSupportGif.checkedRadioButtonId == R.id.rbSupportGif)
+            }
+
+            R.id.rbVideo -> {
+                MimeType.onVideo()
+            }
+
+            else -> {
+                throw RuntimeException()
+            }
+        }
     }
 
     private fun getCaptureStrategy(): CaptureStrategy {

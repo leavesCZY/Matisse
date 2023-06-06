@@ -10,34 +10,20 @@ import kotlinx.parcelize.Parcelize
  * @Desc:
  */
 /**
- * @param maxSelectable 允许选择的图片最大数量
- * @param supportedMimeTypes 需要显示的图片类型。默认是包含 Gif 在内的所有图片
+ * @param maxSelectable 最多允许选择几个媒体资源
+ * @param mimeTypes 要展示的媒体类型
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 @Parcelize
 data class Matisse(
     val maxSelectable: Int,
-    val supportedMimeTypes: List<MimeType> = ofImage(hasGif = true),
+    val mimeTypes: List<MimeType>,
     val captureStrategy: CaptureStrategy = NothingCaptureStrategy
 ) : Parcelable {
 
     init {
         assert(value = maxSelectable >= 1)
-        assert(value = supportedMimeTypes.isNotEmpty())
-    }
-
-    companion object {
-
-        fun ofImage(hasGif: Boolean = true): List<MimeType> {
-            return if (hasGif) {
-                listOf(elements = MimeType.values())
-            } else {
-                mutableListOf(elements = MimeType.values()).apply {
-                    remove(element = MimeType.GIF)
-                }
-            }
-        }
-
+        assert(value = mimeTypes.isNotEmpty())
     }
 
 }
@@ -47,30 +33,55 @@ data class MatisseCapture(val captureStrategy: CaptureStrategy) : Parcelable
 
 @Parcelize
 data class MediaResource(
-    private val id: Long,
+    internal val id: Long,
+    internal val bucketId: String,
+    internal val bucketDisplayName: String,
     val uri: Uri,
+    val path: String,
     val displayName: String,
     val mimeType: String,
-    val width: Int,
-    val height: Int,
-    val orientation: Int,
-    val size: Long,
-    val path: String,
-    val bucketId: String,
-    val bucketDisplayName: String
-) : Parcelable {
-
-    internal val key: Long
-        get() = id
-
-}
+) : Parcelable
 
 enum class MimeType(val type: String) {
-    JPEG("image/jpeg"),
-    PNG("image/png"),
-    HEIC("image/heic"),
-    HEIF("image/heif"),
-    BMP("image/x-ms-bmp"),
-    WEBP("image/webp"),
-    GIF("image/gif");
+    JPEG(type = "image/jpeg"),
+    PNG(type = "image/png"),
+    WEBP(type = "image/webp"),
+    HEIC(type = "image/heic"),
+    HEIF(type = "image/heif"),
+    BMP(type = "image/x-ms-bmp"),
+    GIF(type = "image/gif"),
+    MPEG(type = "video/mpeg"),
+    MP4(type = "video/mp4"),
+    QUICKTIME(type = "video/quicktime"),
+    THREEGPP(type = "video/3gpp"),
+    THREEGPP2(type = "video/3gpp2"),
+    MKV(type = "video/x-matroska"),
+    WEBM(type = "video/webm"),
+    TS(type = "video/mp2ts"),
+    AVI(type = "video/avi");
+
+    internal val isImage = type.startsWith("image/")
+
+    internal val isVideo = type.startsWith("video/")
+
+    companion object {
+
+        fun ofAll(): List<MimeType> {
+            return MimeType.values().toList()
+        }
+
+        fun ofImage(hasGif: Boolean): List<MimeType> {
+            return if (hasGif) {
+                listOf(JPEG, PNG, WEBP, HEIC, HEIF, BMP, GIF)
+            } else {
+                listOf(JPEG, PNG, WEBP, HEIC, HEIF, BMP)
+            }
+        }
+
+        fun onVideo(): List<MimeType> {
+            return listOf(MPEG, MP4, QUICKTIME, THREEGPP, THREEGPP2, MKV, WEBM, TS, AVI)
+        }
+
+    }
+
 }

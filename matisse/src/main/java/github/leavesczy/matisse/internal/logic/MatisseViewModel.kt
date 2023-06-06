@@ -81,11 +81,11 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     )
         private set
 
-    fun onRequestReadImagesPermission() {
+    fun onRequestReadMediaPermission() {
         matisseViewState = permissionRequestingViewState
     }
 
-    fun onRequestReadImagesPermissionResult(granted: Boolean) {
+    fun onRequestReadMediaPermissionResult(granted: Boolean) {
         viewModelScope.launch(context = Dispatchers.Main.immediate) {
             if (granted) {
                 loadResources()
@@ -103,7 +103,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         matisseViewState = imageLoadingViewState
         val allResources = MediaProvider.loadResources(
             context = context,
-            supportedMimeTypes = matisse.supportedMimeTypes
+            supportedMimeTypes = matisse.mimeTypes
         )
         if (allResources.isEmpty()) {
             matisseViewState = imageEmptyViewState

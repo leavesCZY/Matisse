@@ -39,10 +39,10 @@ internal object MediaProvider {
         }
     }
 
-    suspend fun deleteImage(context: Context, imageUri: Uri) {
+    suspend fun deleteMedia(context: Context, uri: Uri) {
         withContext(context = Dispatchers.IO) {
             try {
-                context.contentResolver.delete(imageUri, null, null)
+                context.contentResolver.delete(uri, null, null)
             } catch (e: Throwable) {
                 e.printStackTrace()
             }
@@ -55,34 +55,27 @@ internal object MediaProvider {
         selectionArgs: Array<String>?
     ): List<MediaResource>? {
         return withContext(context = Dispatchers.IO) {
-            val idColumn = MediaStore.Images.Media._ID
-            val dataColumn = MediaStore.Images.Media.DATA
-            val displayNameColumn = MediaStore.Images.Media.DISPLAY_NAME
-            val mineTypeColumn = MediaStore.Images.Media.MIME_TYPE
-            val widthColumn = MediaStore.Images.Media.WIDTH
-            val heightColumn = MediaStore.Images.Media.HEIGHT
-            val orientationColumn = MediaStore.Images.Media.ORIENTATION
-            val sizeColumn = MediaStore.Images.Media.SIZE
-            val bucketIdColumn = MediaStore.Images.Media.BUCKET_ID
-            val bucketDisplayNameColumn = MediaStore.Images.Media.BUCKET_DISPLAY_NAME
-            val externalContentUriColumn = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            val idColumn = MediaStore.MediaColumns._ID
+            val dataColumn = MediaStore.MediaColumns.DATA
+            val displayNameColumn = MediaStore.MediaColumns.DISPLAY_NAME
+            val mineTypeColumn = MediaStore.MediaColumns.MIME_TYPE
+            val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
+            val bucketDisplayNameColumn = MediaStore.MediaColumns.BUCKET_DISPLAY_NAME
+            val dateModifiedColumn = MediaStore.MediaColumns.DATE_MODIFIED
             val projection = arrayOf(
                 idColumn,
                 dataColumn,
                 displayNameColumn,
                 mineTypeColumn,
-                widthColumn,
-                heightColumn,
-                orientationColumn,
-                sizeColumn,
                 bucketIdColumn,
                 bucketDisplayNameColumn
             )
-            val sortOrder = "${MediaStore.Images.Media.DATE_MODIFIED} DESC"
+            val contentUri = MediaStore.Files.getContentUri("external")
+            val sortOrder = "$dateModifiedColumn DESC"
             val mediaResourceList = mutableListOf<MediaResource>()
             try {
                 val mediaCursor = context.contentResolver.query(
-                    externalContentUriColumn,
+                    contentUri,
                     projection,
                     selection,
                     selectionArgs,
@@ -97,23 +90,15 @@ internal object MediaProvider {
                         }
                         val displayName = cursor.getString(displayNameColumn, "")
                         val mimeType = cursor.getString(mineTypeColumn, "")
-                        val width = cursor.getInt(widthColumn, 0)
-                        val height = cursor.getInt(heightColumn, 0)
-                        val orientation = cursor.getInt(orientationColumn, 0)
-                        val size = cursor.getLong(sizeColumn, 0L)
                         val bucketId = cursor.getString(bucketIdColumn, "")
                         val bucketDisplayName = cursor.getString(bucketDisplayNameColumn, "")
-                        val imageUri = ContentUris.withAppendedId(externalContentUriColumn, id)
+                        val uri = ContentUris.withAppendedId(contentUri, id)
                         val mediaResource = MediaResource(
                             id = id,
                             path = data,
-                            uri = imageUri,
+                            uri = uri,
                             displayName = displayName,
                             mimeType = mimeType,
-                            width = width,
-                            height = height,
-                            orientation = orientation,
-                            size = size,
                             bucketId = bucketId,
                             bucketDisplayName = bucketDisplayName
                         )
@@ -132,26 +117,21 @@ internal object MediaProvider {
         supportedMimeTypes: List<MimeType>
     ): List<MediaResource> {
         return withContext(context = Dispatchers.IO) {
-            val selection = if (supportedMimeTypes.isEmpty()) {
-                null
-            } else {
-                val sb = StringBuilder()
-                sb.append(MediaStore.Images.Media.MIME_TYPE)
-                sb.append(" IN (")
-                supportedMimeTypes.forEachIndexed { index, mimeType ->
-                    if (index != 0) {
-                        sb.append(",")
-                    }
-                    sb.append("'")
-                    sb.append(mimeType.type)
-                    sb.append("'")
+            val selection = StringBuilder()
+            selection.append(MediaStore.MediaColumns.MIME_TYPE)
+            selection.append(" IN (")
+            supportedMimeTypes.forEachIndexed { index, mimeType ->
+                if (index != 0) {
+                    selection.append(",")
                 }
-                sb.append(")")
-                sb.toString()
+                selection.append("'")
+                selection.append(mimeType.type)
+                selection.append("'")
             }
+            selection.append(")")
             return@withContext loadResources(
                 context = context,
-                selection = selection,
+                selection = selection.toString(),
                 selectionArgs = null
             ) ?: emptyList()
         }
@@ -163,9 +143,12 @@ internal object MediaProvider {
             if (id == -1L) {
                 return@withContext null
             }
-            val selection = MediaStore.Images.Media._ID + " = " + id
-            val resources =
-                loadResources(context = context, selection = selection, selectionArgs = null)
+            val selection = MediaStore.MediaColumns._ID + " = " + id
+            val resources = loadResources(
+                context = context,
+                selection = selection,
+                selectionArgs = null
+            )
             if (resources.isNullOrEmpty() || resources.size != 1) {
                 return@withContext null
             }
@@ -173,16 +156,6 @@ internal object MediaProvider {
         }
     }
 
-}
-
-private fun Cursor.getInt(columnName: String, default: Int): Int {
-    return try {
-        val columnIndex = getColumnIndexOrThrow(columnName)
-        getInt(columnIndex)
-    } catch (e: Throwable) {
-        e.printStackTrace()
-        default
-    }
 }
 
 private fun Cursor.getLong(columnName: String, default: Long): Long {

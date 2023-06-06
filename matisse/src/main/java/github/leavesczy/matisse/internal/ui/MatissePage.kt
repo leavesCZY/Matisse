@@ -108,35 +108,44 @@ internal fun MatissePage(
             )
         ) {
             if (supportCapture) {
-                item(key = "MatisseCapture", contentType = "MatisseCapture", content = {
-                    CaptureItem(onClick = onRequestTakePicture)
-                })
+                item(
+                    key = "MatisseCapture",
+                    contentType = "MatisseCapture",
+                    content = {
+                        CaptureItem(onClick = onRequestTakePicture)
+                    }
+                )
             }
-            items(items = selectedBucketResources, key = {
-                it.key
-            }, contentType = {
-                "MatisseAlbum"
-            }, itemContent = { media ->
-                val index = selectedMediaResources.indexOf(element = media)
-                val isSelected = index > -1
-                val enabled = isSelected || selectedMediaResources.size < maxSelectable
-                AlbumItem(
-                    media = media,
-                    isSelected = isSelected,
-                    enabled = enabled,
-                    position = if (isSelected) {
-                        (index + 1).toString()
-                    } else {
-                        ""
-                    },
-                    itemWidthPx = imageItemWidthPx,
-                    onClickMedia = {
-                        viewModel.onClickMedia(mediaResource = media)
-                    },
-                    onClickCheckBox = {
-                        viewModel.onMediaCheckChanged(mediaResource = media)
-                    })
-            })
+            items(
+                items = selectedBucketResources,
+                key = {
+                    it.id
+                }, contentType = {
+                    "MatisseAlbum"
+                },
+                itemContent = { media ->
+                    val index = selectedMediaResources.indexOf(element = media)
+                    val isSelected = index > -1
+                    val enabled = isSelected || selectedMediaResources.size < maxSelectable
+                    AlbumItem(
+                        media = media,
+                        isSelected = isSelected,
+                        enabled = enabled,
+                        position = if (isSelected) {
+                            (index + 1).toString()
+                        } else {
+                            ""
+                        },
+                        itemWidthPx = imageItemWidthPx,
+                        onClickMedia = {
+                            viewModel.onClickMedia(mediaResource = media)
+                        },
+                        onClickCheckBox = {
+                            viewModel.onMediaCheckChanged(mediaResource = media)
+                        }
+                    )
+                }
+            )
         }
     }
 }

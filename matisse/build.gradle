@@ -42,5 +42,6 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended"
     def coilVersion = "2.3.0"
     implementation "io.coil-kt:coil-gif:$coilVersion"
+    implementation "io.coil-kt:coil-video:$coilVersion"
     implementation "io.coil-kt:coil-compose:$coilVersion"
 }

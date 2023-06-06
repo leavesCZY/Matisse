@@ -45,9 +45,9 @@ class MatisseActivity : AppCompatActivity() {
         }
     })
 
-    private val requestReadImagesPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            matisseViewModel.onRequestReadImagesPermissionResult(granted = granted)
+    private val requestReadMediaPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+            matisseViewModel.onRequestReadMediaPermissionResult(granted = result.all { it.value })
         }
 
     private val takePictureLauncher = registerForActivityResult(MatisseCaptureContract()) {
@@ -73,22 +73,34 @@ class MatisseActivity : AppCompatActivity() {
                 )
             }
         }
-        requestReadImagesPermission()
+        requestReadMediaPermission()
     }
 
-    private fun requestReadImagesPermission() {
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+    private fun requestReadMediaPermission() {
+        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
         ) {
-            Manifest.permission.READ_MEDIA_IMAGES
+            val mimeTypes = matisse.mimeTypes
+            val onlyImage = mimeTypes.all { it.isImage }
+            val onlyVideo = mimeTypes.all { it.isVideo }
+            if (onlyImage) {
+                arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+            } else if (onlyVideo) {
+                arrayOf(Manifest.permission.READ_MEDIA_VIDEO)
+            } else {
+                arrayOf(
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO
+                )
+            }
         } else {
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
-        if (PermissionUtils.checkSelfPermission(context = this, permission = permission)) {
-            matisseViewModel.onRequestReadImagesPermissionResult(granted = true)
+        if (PermissionUtils.checkSelfPermission(context = this, permissions = permissions)) {
+            matisseViewModel.onRequestReadMediaPermissionResult(granted = true)
         } else {
-            matisseViewModel.onRequestReadImagesPermission()
-            requestReadImagesPermissionLauncher.launch(permission)
+            matisseViewModel.onRequestReadMediaPermission()
+            requestReadMediaPermissionLauncher.launch(permissions)
         }
     }
 

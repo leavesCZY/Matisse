@@ -14,11 +14,11 @@ import github.leavesczy.matisse.MediaResource
  * @Date: 2022/6/2 15:12
  * @Desc:
  */
-class ImageAdapter(private val mediaResources: List<MediaResource>) :
-    RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
+class MediaAdapter(private val mediaResources: List<MediaResource>) :
+    RecyclerView.Adapter<MediaAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_image, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_media, parent, false)
         return ViewHolder(view)
     }
 

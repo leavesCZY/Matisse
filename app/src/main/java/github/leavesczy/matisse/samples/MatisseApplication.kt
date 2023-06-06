@@ -9,6 +9,7 @@ import coil.Coil
 import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
+import coil.decode.VideoFrameDecoder
 
 /**
  * @Author: leavesCZY
@@ -44,6 +45,7 @@ class MatisseApplication : Application() {
                 } else {
                     add(GifDecoder.Factory())
                 }
+                add(VideoFrameDecoder.Factory())
             }
             .build()
         Coil.setImageLoader(imageLoader)
