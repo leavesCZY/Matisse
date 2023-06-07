@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalLayoutApi::class)
-
 package github.leavesczy.matisse.samples
 
 import android.os.Bundle
@@ -8,12 +6,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,9 +19,9 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -56,10 +53,28 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            val darkTheme = mainViewModel.darkTheme
-            MatisseTheme(darkTheme = darkTheme) {
-                SetSystemBarUi(darkTheme = darkTheme)
-                MainPage(mainViewModel = mainViewModel)
+            val takePictureLauncher =
+                rememberLauncherForActivityResult(contract = MatisseCaptureContract()) { result ->
+                    mainViewModel.takePictureResult(result = result)
+                }
+            val imagePickerLauncher =
+                rememberLauncherForActivityResult(contract = MatisseContract()) { result ->
+                    mainViewModel.imagePickerResult(result = result)
+                }
+            MatisseTheme(darkTheme = mainViewModel.darkTheme) {
+                SetSystemBarUi(darkTheme = mainViewModel.darkTheme)
+                MainPage(
+                    mainPageViewState = mainViewModel.mainPageViewState,
+                    takePicture = {
+                        val matisseCapture = MatisseCapture(
+                            captureStrategy = mainViewModel.getMediaCaptureStrategy()
+                        )
+                        takePictureLauncher.launch(matisseCapture)
+                    },
+                    imagePicker = {
+                        imagePickerLauncher.launch(mainViewModel.buildMatisse())
+                    }
+                )
             }
         }
     }
@@ -88,8 +103,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun MainPage(mainViewModel: MainViewModel) {
-    val mainPageViewState = mainViewModel.mainPageViewState
+private fun MainPage(
+    mainPageViewState: MainPageViewState,
+    takePicture: () -> Unit,
+    imagePicker: () -> Unit
+) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -113,173 +131,121 @@ private fun MainPage(mainViewModel: MainViewModel) {
             }
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.padding(all = 20.dp),
-            contentPadding = innerPadding
+        Column(
+            modifier = Modifier
+                .padding(paddingValues = innerPadding)
+                .verticalScroll(state = rememberScrollState())
+                .padding(
+                    start = 20.dp, top = 20.dp,
+                    end = 20.dp, bottom = 60.dp
+                ),
+            horizontalAlignment = Alignment.Start,
         ) {
-            item(
-                key = "Options",
-                contentType = "Options"
-            ) {
-                Options(mainViewModel = mainViewModel)
-            }
-            items(
-                items = mainPageViewState.mediaList,
-                key = {
-                    it.uri
-                },
-                contentType = {
-                    "mediaResource"
-                }
-            ) {
-                MediaResourceItem(mediaResource = it)
-            }
-        }
-    }
-}
-
-@Composable
-private fun Options(mainViewModel: MainViewModel) {
-    val takePictureLauncher =
-        rememberLauncherForActivityResult(contract = MatisseCaptureContract()) { result ->
-            mainViewModel.takePictureResult(result = result)
-        }
-
-    val imagePickerLauncher =
-        rememberLauncherForActivityResult(contract = MatisseContract()) { result ->
-            mainViewModel.imagePickerResult(result = result)
-        }
-    val mainPageViewState = mainViewModel.mainPageViewState
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            modifier = Modifier,
-            text = "媒体类型"
-        )
-        Row(modifier = Modifier) {
-            for (value in MediaType.values()) {
-                MyRadioButton(
-                    tips = value.name,
-                    selected = mainPageViewState.mediaType == value,
-                    onClick = {
-                        mainViewModel.onMediaTypeChanged(mediaType = value)
-                    }
-                )
-            }
-        }
-    }
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            modifier = Modifier,
-            text = "Gif"
-        )
-        Row(modifier = Modifier) {
-            MyRadioButton(
-                tips = "包含",
-                selected = mainPageViewState.supportGif,
-                onClick = {
-                    mainViewModel.onSupportGifChanged(supportGif = true)
-                }
+            Text(
+                modifier = Modifier,
+                text = "媒体类型"
             )
-            MyRadioButton(
-                tips = "不包含",
-                selected = !mainPageViewState.supportGif,
-                onClick = {
-                    mainViewModel.onSupportGifChanged(supportGif = false)
+            Row(modifier = Modifier) {
+                for (value in MediaType.values()) {
+                    MyRadioButton(
+                        tips = value.name,
+                        selected = mainPageViewState.mediaType == value,
+                        onClick = {
+                            mainPageViewState.onMediaTypeChanged(value)
+                        }
+                    )
                 }
+            }
+            Text(
+                modifier = Modifier,
+                text = "Gif"
             )
-        }
-    }
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            modifier = Modifier,
-            text = "选取数量"
-        )
-        Row(modifier = Modifier) {
-            for (i in 1..3) {
+            Row(modifier = Modifier) {
                 MyRadioButton(
-                    tips = i.toString(),
-                    selected = mainPageViewState.maxSelectable == i,
+                    tips = "包含",
+                    selected = mainPageViewState.supportGif,
                     onClick = {
-                        mainViewModel.onMaxSelectableChanged(maxSelectable = i)
+                        mainPageViewState.onSupportGifChanged(true)
+                    }
+                )
+                MyRadioButton(
+                    tips = "不包含",
+                    selected = !mainPageViewState.supportGif,
+                    onClick = {
+                        mainPageViewState.onSupportGifChanged(false)
                     }
                 )
             }
-        }
-    }
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            modifier = Modifier,
-            text = "拍照策略"
-        )
-        FlowRow(modifier = Modifier) {
-            for (value in MediaCaptureStrategy.values()) {
-                MyRadioButton(
-                    tips = value.name,
-                    selected = mainPageViewState.captureStrategy == value,
-                    onClick = {
-                        mainViewModel.onCaptureStrategyChanged(captureStrategy = value)
-                    }
+            Text(
+                modifier = Modifier,
+                text = "选取数量"
+            )
+            Row(modifier = Modifier) {
+                for (i in 1..3) {
+                    MyRadioButton(
+                        tips = i.toString(),
+                        selected = mainPageViewState.maxSelectable == i,
+                        onClick = {
+                            mainPageViewState.onMaxSelectableChanged(i)
+                        }
+                    )
+                }
+            }
+            Text(
+                modifier = Modifier,
+                text = "拍照策略"
+            )
+            FlowRow(modifier = Modifier) {
+                for (strategy in MediaCaptureStrategy.values()) {
+                    MyRadioButton(
+                        tips = strategy.name,
+                        selected = mainPageViewState.captureStrategy == strategy,
+                        onClick = {
+                            mainPageViewState.onCaptureStrategyChanged(strategy)
+                        }
+                    )
+                }
+            }
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                onClick = mainPageViewState.switchTheme
+            ) {
+                Text(
+                    modifier = Modifier,
+                    text = "切换主题"
                 )
             }
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                enabled = mainPageViewState.captureStrategy != MediaCaptureStrategy.Nothing,
+                onClick = takePicture
+            ) {
+                Text(
+                    modifier = Modifier,
+                    text = "直接拍照"
+                )
+            }
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                onClick = imagePicker
+            ) {
+                Text(
+                    modifier = Modifier,
+                    text = "选择图片或视频"
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = 16.dp)
+            )
+            for (mediaResource in mainPageViewState.mediaList) {
+                MediaResourceItem(mediaResource = mediaResource)
+            }
         }
-    }
-    Button(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp),
-        onClick = {
-            mainViewModel.switchTheme()
-        }
-    ) {
-        Text(
-            modifier = Modifier,
-            text = "切换主题"
-        )
-    }
-    Button(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp),
-        enabled = mainPageViewState.captureStrategy != MediaCaptureStrategy.Nothing,
-        onClick = {
-            val matisseCapture =
-                MatisseCapture(captureStrategy = mainViewModel.getMediaCaptureStrategy())
-            takePictureLauncher.launch(matisseCapture)
-        }
-    ) {
-        Text(
-            modifier = Modifier,
-            text = "直接拍照"
-        )
-    }
-    Button(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp),
-        onClick = {
-            imagePickerLauncher.launch(mainViewModel.buildMatisse())
-        }
-    ) {
-        Text(
-            modifier = Modifier,
-            text = "选择图片或视频"
-        )
     }
 }
 
@@ -321,7 +287,7 @@ private fun MyRadioButton(
     onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.padding(top = 6.dp, bottom = 6.dp, end = 6.dp),
+        modifier = Modifier.padding(top = 6.dp, bottom = 6.dp, end = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MediaBucket
 import github.leavesczy.matisse.internal.utils.clickableNoRipple
@@ -52,6 +53,7 @@ import github.leavesczy.matisse.internal.utils.clickableNoRipple
  */
 @Composable
 internal fun MatisseTopBar(
+    imageEngine: ImageEngine,
     allBucket: List<MediaBucket>,
     selectedBucket: MediaBucket,
     onSelectBucket: (MediaBucket) -> Unit
@@ -84,6 +86,7 @@ internal fun MatisseTopBar(
                 }
             )
             BucketDropdownMenu(
+                imageEngine = imageEngine,
                 allBucket = allBucket,
                 menuExpanded = menuExpanded,
                 onDismissRequest = {
@@ -122,6 +125,7 @@ internal fun MatisseTopBar(
 
 @Composable
 private fun BucketDropdownMenu(
+    imageEngine: ImageEngine,
     allBucket: List<MediaBucket>,
     menuExpanded: Boolean,
     onDismissRequest: () -> Unit,
@@ -145,12 +149,13 @@ private fun BucketDropdownMenu(
                     modifier = Modifier,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MatisseImage(
+                    imageEngine.Image(
                         modifier = Modifier
                             .size(size = 54.dp)
                             .clip(shape = RoundedCornerShape(size = 4.dp))
                             .background(color = colorResource(id = R.color.matisse_image_item_background_color)),
                         model = bucket.displayIcon,
+                        alignment = Alignment.Center,
                         contentScale = ContentScale.Crop,
                         contentDescription = bucket.displayName
                     )

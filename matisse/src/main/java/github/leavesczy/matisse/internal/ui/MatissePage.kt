@@ -29,11 +29,10 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
+import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
@@ -50,7 +49,9 @@ internal fun MatissePage(
     onSure: () -> Unit
 ) {
     val matisseViewState = viewModel.matisseViewState
-    val maxSelectable = matisseViewState.matisse.maxSelectable
+    val matisse = matisseViewState.matisse
+    val maxSelectable = matisse.maxSelectable
+    val imageEngine = matisse.imageEngine
     val selectedMediaResources = matisseViewState.selectedResources
     val allBucket = matisseViewState.allBucket
     val selectedBucket = matisseViewState.selectedBucket
@@ -65,21 +66,15 @@ internal fun MatissePage(
         )
     }
     val context = LocalContext.current
-    val localConfiguration = LocalConfiguration.current
-    val localDensity = LocalDensity.current
     val spanCount = remember {
         context.resources.getInteger(R.integer.matisse_image_span_count)
-    }
-    val imageItemWidthPx = remember {
-        with(localDensity) {
-            (localConfiguration.screenWidthDp.dp.toPx() / spanCount).toInt()
-        }
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = colorResource(id = R.color.matisse_main_page_background_color),
         topBar = {
             MatisseTopBar(
+                imageEngine = imageEngine,
                 allBucket = allBucket,
                 selectedBucket = selectedBucket,
                 onSelectBucket = {
@@ -127,6 +122,7 @@ internal fun MatissePage(
                     val enabled = isSelected || selectedMediaResources.size < maxSelectable
                     AlbumItem(
                         media = media,
+                        imageEngine = imageEngine,
                         isSelected = isSelected,
                         enabled = enabled,
                         position = if (isSelected) {
@@ -134,7 +130,6 @@ internal fun MatissePage(
                         } else {
                             ""
                         },
-                        itemWidthPx = imageItemWidthPx,
                         onClickMedia = {
                             viewModel.onClickMedia(mediaResource = media)
                         },
@@ -151,10 +146,10 @@ internal fun MatissePage(
 @Composable
 private fun AlbumItem(
     media: MediaResource,
+    imageEngine: ImageEngine,
     isSelected: Boolean,
     enabled: Boolean,
     position: String,
-    itemWidthPx: Int,
     onClickMedia: () -> Unit,
     onClickCheckBox: () -> Unit
 ) {
@@ -173,10 +168,10 @@ private fun AlbumItem(
             )
             .clickable(onClick = onClickMedia)
     ) {
-        MatisseImage(
+        imageEngine.Image(
             modifier = Modifier.fillMaxSize(),
             model = media.uri,
-            size = itemWidthPx,
+            alignment = Alignment.Center,
             contentScale = ContentScale.Crop,
             contentDescription = media.displayName
         )

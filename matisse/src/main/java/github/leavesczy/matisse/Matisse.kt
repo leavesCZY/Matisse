@@ -18,6 +18,7 @@ import kotlinx.parcelize.Parcelize
 data class Matisse(
     val maxSelectable: Int,
     val mimeTypes: List<MimeType>,
+    val imageEngine: ImageEngine,
     val captureStrategy: CaptureStrategy = NothingCaptureStrategy
 ) : Parcelable {
 

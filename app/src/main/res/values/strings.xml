@@ -1,12 +1,12 @@
 <resources>
     <string name="app_name">Matisse</string>
     <!-- 自定义文本 -->
-    <string name="matisse_default_bucket_name">所有图片</string>
+    <string name="matisse_default_bucket_name">全部</string>
     <string name="matisse_on_read_external_storage_permission_denied">请授予存储访问权限后重试 ~</string>
     <string name="matisse_on_write_external_storage_permission_denied">请授予存储写入权限后重试 ~</string>
     <string name="matisse_on_camera_permission_denied">请授予拍照权限后重试 ~</string>
     <string name="matisse_limit_the_number_of_pictures">最多只能选择%d张图片哦 ~</string>
     <string name="matisse_preview">预览</string>
-    <string name="matisse_sure">使用(%d/%d)</string>
+    <string name="matisse_sure">确定(%d/%d)</string>
     <string name="matisse_back">返回</string>
 </resources>

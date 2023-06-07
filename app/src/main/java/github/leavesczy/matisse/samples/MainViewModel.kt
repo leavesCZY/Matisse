@@ -23,11 +23,16 @@ class MainViewModel : ViewModel() {
 
     var mainPageViewState by mutableStateOf(
         value = MainPageViewState(
-            maxSelectable = 2,
+            maxSelectable = 3,
             mediaType = MediaType.All,
             supportGif = true,
             captureStrategy = MediaCaptureStrategy.Smart,
-            mediaList = emptyList()
+            mediaList = emptyList(),
+            onMaxSelectableChanged = ::onMaxSelectableChanged,
+            onMediaTypeChanged = ::onMediaTypeChanged,
+            onSupportGifChanged = ::onSupportGifChanged,
+            onCaptureStrategyChanged = ::onCaptureStrategyChanged,
+            switchTheme = ::switchTheme,
         )
     )
         private set
@@ -36,31 +41,31 @@ class MainViewModel : ViewModel() {
         setDefaultNightMode(darkTheme = darkTheme)
     }
 
-    fun onMaxSelectableChanged(maxSelectable: Int) {
+    private fun onMaxSelectableChanged(maxSelectable: Int) {
         if (mainPageViewState.maxSelectable != maxSelectable) {
             mainPageViewState = mainPageViewState.copy(maxSelectable = maxSelectable)
         }
     }
 
-    fun onMediaTypeChanged(mediaType: MediaType) {
+    private fun onMediaTypeChanged(mediaType: MediaType) {
         if (mainPageViewState.mediaType != mediaType) {
             mainPageViewState = mainPageViewState.copy(mediaType = mediaType)
         }
     }
 
-    fun onSupportGifChanged(supportGif: Boolean) {
+    private fun onSupportGifChanged(supportGif: Boolean) {
         if (mainPageViewState.supportGif != supportGif) {
             mainPageViewState = mainPageViewState.copy(supportGif = supportGif)
         }
     }
 
-    fun onCaptureStrategyChanged(captureStrategy: MediaCaptureStrategy) {
+    private fun onCaptureStrategyChanged(captureStrategy: MediaCaptureStrategy) {
         if (mainPageViewState.captureStrategy != captureStrategy) {
             mainPageViewState = mainPageViewState.copy(captureStrategy = captureStrategy)
         }
     }
 
-    fun switchTheme() {
+    private fun switchTheme() {
         darkTheme = !darkTheme
         setDefaultNightMode(darkTheme = darkTheme)
     }
@@ -124,7 +129,8 @@ class MainViewModel : ViewModel() {
         return Matisse(
             maxSelectable = mainPageViewState.maxSelectable,
             mimeTypes = mimeTypes,
-            captureStrategy = getMediaCaptureStrategy()
+            captureStrategy = getMediaCaptureStrategy(),
+            imageEngine = CoilImageEngine()
         )
     }
 

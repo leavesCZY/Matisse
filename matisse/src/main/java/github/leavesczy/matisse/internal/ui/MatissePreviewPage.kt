@@ -58,6 +58,7 @@ internal fun MatissePreviewPage(
     onSure: () -> Unit
 ) {
     val matissePreviewViewState = viewModel.matissePreviewViewState
+    val imageEngine = matissePreviewViewState.matisse.imageEngine
     val visible = matissePreviewViewState.visible
     var controllerVisible by remember(key1 = visible) {
         mutableStateOf(value = true)
@@ -108,13 +109,13 @@ internal fun MatissePreviewPage(
                         }
                     ) { pageIndex ->
                         val mediaResource = previewResources[pageIndex]
-                        MatisseImage(
+                        imageEngine.Image(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .verticalScroll(state = rememberScrollState()),
                             model = mediaResource.uri,
-                            contentScale = ContentScale.FillWidth,
                             alignment = Alignment.Center,
+                            contentScale = ContentScale.FillWidth,
                             contentDescription = mediaResource.displayName
                         )
                     }
