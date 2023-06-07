@@ -34,8 +34,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
@@ -160,7 +158,6 @@ private fun AlbumItem(
     onClickMedia: () -> Unit,
     onClickCheckBox: () -> Unit
 ) {
-    val context = LocalContext.current
     Box(
         modifier = Modifier
             .padding(all = 1.dp)
@@ -176,14 +173,10 @@ private fun AlbumItem(
             )
             .clickable(onClick = onClickMedia)
     ) {
-        AsyncImage(
+        MatisseImage(
             modifier = Modifier.fillMaxSize(),
-            model = ImageRequest
-                .Builder(context = context)
-                .data(data = media.uri)
-                .size(size = itemWidthPx)
-                .crossfade(enable = false)
-                .build(),
+            model = media.uri,
+            size = itemWidthPx,
             contentScale = ContentScale.Crop,
             contentDescription = media.displayName
         )

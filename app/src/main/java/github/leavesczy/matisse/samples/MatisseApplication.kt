@@ -2,7 +2,7 @@ package github.leavesczy.matisse.samples
 
 import android.app.Application
 import android.content.Context
-import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import coil.Coil
@@ -19,26 +19,17 @@ import coil.decode.VideoFrameDecoder
  */
 class MatisseApplication : Application() {
 
-    private val Context.isSystemInDarkTheme: Boolean
-        get() = resources.configuration.isSystemInDarkTheme
-
-    private val Configuration.isSystemInDarkTheme: Boolean
-        get() = uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-
     override fun onCreate() {
         super.onCreate()
-        AppCompatDelegate.setDefaultNightMode(
-            if (isSystemInDarkTheme) {
-                AppCompatDelegate.MODE_NIGHT_YES
-            } else {
-                AppCompatDelegate.MODE_NIGHT_NO
-            }
-        )
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         initCoil(context = this)
     }
 
     private fun initCoil(context: Context) {
         val imageLoader = ImageLoader.Builder(context = context)
+            .crossfade(enable = false)
+            .allowHardware(enable = true)
+            .bitmapConfig(bitmapConfig = Bitmap.Config.RGB_565)
             .components {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     add(ImageDecoderDecoder.Factory())

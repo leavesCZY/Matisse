@@ -43,7 +43,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.utils.clickableNoRipple
@@ -109,7 +108,7 @@ internal fun MatissePreviewPage(
                         }
                     ) { pageIndex ->
                         val mediaResource = previewResources[pageIndex]
-                        AsyncImage(
+                        MatisseImage(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .verticalScroll(state = rememberScrollState()),

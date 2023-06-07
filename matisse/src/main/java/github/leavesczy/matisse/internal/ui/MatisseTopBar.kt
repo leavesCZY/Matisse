@@ -40,7 +40,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MediaBucket
 import github.leavesczy.matisse.internal.utils.clickableNoRipple
@@ -146,7 +145,7 @@ private fun BucketDropdownMenu(
                     modifier = Modifier,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    AsyncImage(
+                    MatisseImage(
                         modifier = Modifier
                             .size(size = 54.dp)
                             .clip(shape = RoundedCornerShape(size = 4.dp))
