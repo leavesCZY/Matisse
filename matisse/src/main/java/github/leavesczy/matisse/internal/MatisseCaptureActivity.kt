@@ -105,6 +105,7 @@ class MatisseCaptureActivity : AppCompatActivity() {
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
             val imageUri = tempImageUriForTakePicture
             if (imageUri != null) {
+                tempImageUriForTakePicture = null
                 if (successful) {
                     val resource = captureStrategy.loadResource(
                         context = applicationContext,

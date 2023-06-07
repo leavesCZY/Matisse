@@ -58,14 +58,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             val darkTheme = mainViewModel.darkTheme
             MatisseTheme(darkTheme = darkTheme) {
-                SetSystemUi(darkTheme = darkTheme)
+                SetSystemBarUi(darkTheme = darkTheme)
                 MainPage(mainViewModel = mainViewModel)
             }
         }
     }
 
     @Composable
-    private fun SetSystemUi(darkTheme: Boolean) {
+    private fun SetSystemBarUi(darkTheme: Boolean) {
         val systemUiController = rememberSystemUiController()
         val statusBarColor = MaterialTheme.colorScheme.primary
         val navigationBarColor = MaterialTheme.colorScheme.background

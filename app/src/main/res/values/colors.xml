@@ -2,13 +2,6 @@
 <resources>
     <color name="color_status_bar">#FF03A9F4</color>
     <color name="color_navigation_bar">#FFFFFFFF</color>
-    <color name="color_page_background">#FFFFFFFF</color>
-    <color name="color_primary">#FF03A9F4</color>
-    <color name="color_primary_variant">#FF03A9F4</color>
-    <color name="color_on_primary">#FFFFFFFF</color>
-    <color name="color_secondary">#FF03A9F4</color>
-    <color name="color_secondary_variant">#FF03A9F4</color>
-    <color name="color_on_secondary">#FF03A9F4</color>
     <!-- 自定义主题 -->
     <integer name="matisse_image_span_count">3</integer>
     <bool name="matisse_status_bar_dark_icons">false</bool>

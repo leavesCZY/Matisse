@@ -78,7 +78,7 @@ enum class MimeType(val type: String) {
             }
         }
 
-        fun onVideo(): List<MimeType> {
+        fun ofVideo(): List<MimeType> {
             return listOf(MPEG, MP4, QUICKTIME, THREEGPP, THREEGPP2, MKV, WEBM, TS, AVI)
         }
 

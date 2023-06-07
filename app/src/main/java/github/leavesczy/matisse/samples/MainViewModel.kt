@@ -118,7 +118,7 @@ class MainViewModel : ViewModel() {
             }
 
             MediaType.Video -> {
-                MimeType.onVideo()
+                MimeType.ofVideo()
             }
         }
         return Matisse(

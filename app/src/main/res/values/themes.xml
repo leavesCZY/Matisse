@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Matisse.Base" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@color/color_page_background</item>
-        <item name="android:statusBarColor">@color/color_status_bar</item>
-        <item name="android:navigationBarColor">@color/color_navigation_bar</item>
-        <item name="colorPrimary">@color/color_primary</item>
-        <item name="colorPrimaryVariant">@color/color_primary_variant</item>
-        <item name="colorOnPrimary">@color/color_on_primary</item>
-        <item name="colorSecondary">@color/color_secondary</item>
-        <item name="colorSecondaryVariant">@color/color_secondary_variant</item>
-        <item name="colorOnSecondary">@color/color_on_secondary</item>
-    </style>
+    <style name="Theme.Matisse.Base" parent="Theme.AppCompat.NoActionBar" />
 
     <style name="Theme.Matisse.Samples" parent="Theme.Matisse.Base" />
 
