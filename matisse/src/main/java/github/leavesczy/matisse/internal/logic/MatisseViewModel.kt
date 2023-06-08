@@ -58,7 +58,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         matisse = matisse,
         title = defaultBucket.displayName,
         mediaBuckets = emptyList(),
-        onSelectBucket = ::onSelectBucket
+        onClickBucket = ::onClickBucket
     )
 
     var selectedResources by mutableStateOf(
@@ -122,15 +122,17 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         }
     }
 
-    private fun onSelectBucket(mediaBucket: MediaBucket) {
-        matisseTopBarViewState = matisseTopBarViewState.copy(title = mediaBucket.displayName)
-        matissePageViewState = matissePageViewState.copy(
-            selectedBucket = mediaBucket,
-            lazyGridState = LazyGridState(
-                firstVisibleItemIndex = 0,
-                firstVisibleItemScrollOffset = 0
+    private fun onClickBucket(mediaBucket: MediaBucket) {
+        if (matissePageViewState.selectedBucket != mediaBucket) {
+            matisseTopBarViewState = matisseTopBarViewState.copy(title = mediaBucket.displayName)
+            matissePageViewState = matissePageViewState.copy(
+                selectedBucket = mediaBucket,
+                lazyGridState = LazyGridState(
+                    firstVisibleItemIndex = 0,
+                    firstVisibleItemScrollOffset = 0
+                )
             )
-        )
+        }
     }
 
     private suspend fun groupByBucket(resources: List<MediaResource>): List<MediaBucket> {

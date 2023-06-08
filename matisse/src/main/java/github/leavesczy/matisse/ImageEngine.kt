@@ -3,7 +3,6 @@ package github.leavesczy.matisse
 import android.net.Uri
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 
@@ -17,7 +16,6 @@ interface ImageEngine : Parcelable {
     fun Image(
         modifier: Modifier,
         model: Uri,
-        alignment: Alignment,
         contentScale: ContentScale,
         contentDescription: String?
     )

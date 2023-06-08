@@ -2,7 +2,6 @@ package github.leavesczy.matisse.samples
 
 import android.net.Uri
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
@@ -23,7 +22,6 @@ class CoilImageEngine : ImageEngine {
     override fun Image(
         modifier: Modifier,
         model: Uri,
-        alignment: Alignment,
         contentScale: ContentScale,
         contentDescription: String?
     ) {
@@ -37,7 +35,6 @@ class CoilImageEngine : ImageEngine {
             modifier = modifier,
             model = request,
             contentScale = contentScale,
-            alignment = alignment,
             filterQuality = FilterQuality.None,
             contentDescription = contentDescription
         )

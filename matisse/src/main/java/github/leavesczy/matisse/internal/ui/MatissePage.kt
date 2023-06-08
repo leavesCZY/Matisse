@@ -176,7 +176,6 @@ private fun AlbumItem(
         matisse.imageEngine.Image(
             modifier = Modifier.fillMaxSize(),
             model = mediaResource.uri,
-            alignment = Alignment.Center,
             contentScale = ContentScale.Crop,
             contentDescription = mediaResource.displayName
         )

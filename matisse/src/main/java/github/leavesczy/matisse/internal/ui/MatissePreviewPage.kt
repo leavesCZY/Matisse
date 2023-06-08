@@ -121,7 +121,6 @@ internal fun MatissePreviewPage(
                                 .fillMaxSize()
                                 .verticalScroll(state = rememberScrollState()),
                             model = mediaResource.uri,
-                            alignment = Alignment.Center,
                             contentScale = ContentScale.FillWidth,
                             contentDescription = mediaResource.displayName
                         )

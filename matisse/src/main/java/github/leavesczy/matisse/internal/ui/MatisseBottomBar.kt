@@ -54,6 +54,7 @@ internal fun MatisseBottomBar(
                 .fillMaxHeight()
                 .padding(horizontal = 24.dp)
                 .wrapContentSize(align = Alignment.Center),
+            text = bottomBarViewState.previewButtonText,
             textAlign = TextAlign.Center,
             style = TextStyle(
                 color = if (bottomBarViewState.previewButtonClickable) {
@@ -62,8 +63,7 @@ internal fun MatisseBottomBar(
                     colorResource(id = R.color.matisse_preview_text_color_if_disable)
                 },
                 fontSize = 16.sp
-            ),
-            text = bottomBarViewState.previewButtonText
+            )
         )
         Text(
             modifier = Modifier
@@ -78,6 +78,7 @@ internal fun MatisseBottomBar(
                 .fillMaxHeight()
                 .padding(horizontal = 24.dp)
                 .wrapContentSize(align = Alignment.Center),
+            text = bottomBarViewState.sureButtonText,
             textAlign = TextAlign.Center,
             style = TextStyle(
                 color = colorResource(
@@ -88,8 +89,7 @@ internal fun MatisseBottomBar(
                     }
                 ),
                 fontSize = 16.sp
-            ),
-            text = bottomBarViewState.sureButtonText
+            )
         )
     }
 }

@@ -30,7 +30,7 @@ internal data class MatisseTopBarViewState(
     val matisse: Matisse,
     val title: String,
     val mediaBuckets: List<MediaBucket>,
-    val onSelectBucket: (MediaBucket) -> Unit
+    val onClickBucket: (MediaBucket) -> Unit
 )
 
 internal data class MatisseBottomBarViewState(
