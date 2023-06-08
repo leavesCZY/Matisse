@@ -85,7 +85,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         matisseViewState = permissionRequestingViewState
     }
 
-    fun onRequestReadMediaPermissionResult(granted: Boolean) {
+    fun requestReadMediaPermissionResult(granted: Boolean) {
         viewModelScope.launch(context = Dispatchers.Main.immediate) {
             if (granted) {
                 loadResources()

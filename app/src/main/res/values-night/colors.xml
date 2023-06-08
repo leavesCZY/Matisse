@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="color_status_bar">#FF363636</color>
-    <color name="color_navigation_bar">#FF161616</color>
     <!-- 自定义主题 -->
-    <integer name="matisse_image_span_count">3</integer>
+    <integer name="matisse_image_span_count">4</integer>
     <bool name="matisse_status_bar_dark_icons">false</bool>
     <bool name="matisse_navigation_bar_dark_icons">false</bool>
     <color name="matisse_status_bar_color">#FF2B2A34</color>
     <color name="matisse_navigation_bar_color">#FF2B2A34</color>
     <color name="matisse_main_page_background_color">#FF22202A</color>
-    <color name="matisse_preview_page_background_color">#FF2B2A34</color>
-    <color name="matisse_preview_page_controller_background_color">#CC000000</color>
+    <color name="matisse_preview_page_background_color">#FF22202A</color>
+    <color name="matisse_preview_page_controller_background_color">#FF2B2A34</color>
     <color name="matisse_image_item_background_color">#CCFFFFFF</color>
     <color name="matisse_image_item_border_color_when_selected">#FFEF5350</color>
     <color name="matisse_capture_icon_color">#FFFFFFFF</color>

@@ -12,6 +12,7 @@ import kotlinx.parcelize.Parcelize
 /**
  * @param maxSelectable 最多允许选择几个媒体资源
  * @param mimeTypes 要展示的媒体类型
+ * @param imageEngine 用于实现加载显示图片的逻辑
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 @Parcelize

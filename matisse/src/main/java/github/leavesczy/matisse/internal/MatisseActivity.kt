@@ -39,7 +39,8 @@ class MatisseActivity : AppCompatActivity() {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return MatisseViewModel(
-                    application = application, matisse = matisse
+                    application = application,
+                    matisse = matisse
                 ) as T
             }
         }
@@ -47,7 +48,7 @@ class MatisseActivity : AppCompatActivity() {
 
     private val requestReadMediaPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
-            matisseViewModel.onRequestReadMediaPermissionResult(granted = result.all { it.value })
+            matisseViewModel.requestReadMediaPermissionResult(granted = result.all { it.value })
         }
 
     private val takePictureLauncher = registerForActivityResult(MatisseCaptureContract()) {
@@ -64,7 +65,7 @@ class MatisseActivity : AppCompatActivity() {
                 SetSystemUi(previewPageVisible = matisseViewModel.matissePreviewViewState.visible)
                 MatissePage(
                     viewModel = matisseViewModel,
-                    onRequestTakePicture = ::onRequestTakePicture,
+                    onRequestTakePicture = ::requestTakePicture,
                     onSure = ::onSure
                 )
                 MatissePreviewPage(
@@ -97,14 +98,14 @@ class MatisseActivity : AppCompatActivity() {
             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
         if (PermissionUtils.checkSelfPermission(context = this, permissions = permissions)) {
-            matisseViewModel.onRequestReadMediaPermissionResult(granted = true)
+            matisseViewModel.requestReadMediaPermissionResult(granted = true)
         } else {
             matisseViewModel.onRequestReadMediaPermission()
             requestReadMediaPermissionLauncher.launch(permissions)
         }
     }
 
-    private fun onRequestTakePicture() {
+    private fun requestTakePicture() {
         takePictureLauncher.launch(MatisseCapture(captureStrategy = matisse.captureStrategy))
     }
 
@@ -148,9 +149,15 @@ private fun SetSystemUi(previewPageVisible: Boolean) {
     systemUiController.setStatusBarColor(
         color = statusBarColor,
         darkIcons = statusBarDarkIcons,
+        transformColorForLightContent = {
+            statusBarColor
+        }
     )
     systemUiController.setNavigationBarColor(
         color = navigationBarColor,
         darkIcons = navigationBarDarkIcons,
+        transformColorForLightContent = {
+            navigationBarColor
+        }
     )
 }

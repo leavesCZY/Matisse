@@ -6,8 +6,8 @@
     <color name="matisse_status_bar_color">#FFFFFFFF</color>
     <color name="matisse_navigation_bar_color">#FFFFFFFF</color>
     <color name="matisse_main_page_background_color">#FFFFFFFF</color>
-    <color name="matisse_preview_page_background_color">#FF2B2A34</color>
-    <color name="matisse_preview_page_controller_background_color">#CC000000</color>
+    <color name="matisse_preview_page_background_color">#FF22202A</color>
+    <color name="matisse_preview_page_controller_background_color">#FF2B2A34</color>
     <color name="matisse_image_item_background_color">#66CCCCCC</color>
     <color name="matisse_image_item_border_color_when_selected">#FF03A9F4</color>
     <color name="matisse_capture_icon_color">#66000000</color>

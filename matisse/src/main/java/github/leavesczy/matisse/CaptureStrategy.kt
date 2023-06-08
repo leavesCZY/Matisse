@@ -54,9 +54,9 @@ interface CaptureStrategy : Parcelable {
     suspend fun onTakePictureCanceled(context: Context, imageUri: Uri)
 
     /**
-     * 生成图片文件名
+     * 用于拍照时生成图片名
      */
-    fun createImageName(): String {
+    suspend fun createImageName(): String {
         val uuid = UUID.randomUUID().toString()
         val randomName = uuid.substring(0, 8)
         return "$randomName.jpg"
@@ -127,13 +127,16 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
         }
     }
 
-    private fun createTempFile(context: Context): File? {
-        val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val file = File(storageDir, createImageName())
-        if (file.createNewFile()) {
-            return file
+    private suspend fun createTempFile(context: Context): File? {
+        return withContext(context = Dispatchers.IO) {
+            val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            val file = File(storageDir, createImageName())
+            if (file.createNewFile()) {
+                file
+            } else {
+                null
+            }
         }
-        return null
     }
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
@@ -141,17 +144,24 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
             val imageFile = uriFileMap[imageUri]!!
             uriFileMap.remove(key = imageUri)
             val imageFilePath = imageFile.absolutePath
+            val displayName = imageFile.name
             val option = BitmapFactory.Options()
             option.inJustDecodeBounds = true
             BitmapFactory.decodeFile(imageFilePath, option)
+            val outMimeType = option.outMimeType
+            val mimeType = if (outMimeType.isNullOrBlank()) {
+                ""
+            } else {
+                outMimeType
+            }
             return@withContext MediaResource(
                 id = 0,
                 bucketId = "",
                 bucketDisplayName = "",
                 uri = imageUri,
                 path = imageFilePath,
-                displayName = imageFile.name,
-                mimeType = option.outMimeType ?: ""
+                displayName = displayName,
+                mimeType = mimeType
             )
         }
     }
