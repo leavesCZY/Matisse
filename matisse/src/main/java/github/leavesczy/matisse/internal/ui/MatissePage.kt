@@ -7,18 +7,17 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.SlowMotionVideo
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,10 +31,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
-import github.leavesczy.matisse.ImageEngine
+import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatisseViewModel
+import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
+import github.leavesczy.matisse.internal.logic.MatissePageViewState
+import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
+import github.leavesczy.matisse.internal.utils.isVideo
 
 /**
  * @Author: CZY
@@ -44,27 +46,14 @@ import github.leavesczy.matisse.internal.logic.MatisseViewModel
  */
 @Composable
 internal fun MatissePage(
-    viewModel: MatisseViewModel,
+    matisse: Matisse,
+    matissePageViewState: MatissePageViewState,
+    matisseTopBarViewState: MatisseTopBarViewState,
+    matisseBottomBarViewState: MatisseBottomBarViewState,
+    selectedResources: List<MediaResource>,
     onRequestTakePicture: () -> Unit,
     onSure: () -> Unit
 ) {
-    val matisseViewState = viewModel.matisseViewState
-    val matisse = matisseViewState.matisse
-    val maxSelectable = matisse.maxSelectable
-    val imageEngine = matisse.imageEngine
-    val selectedMediaResources = matisseViewState.selectedResources
-    val allBucket = matisseViewState.allBucket
-    val selectedBucket = matisseViewState.selectedBucket
-    val selectedBucketResources = selectedBucket.resources
-    val supportCapture = selectedBucket.supportCapture
-    val lazyGridState by remember(key1 = selectedBucket.id) {
-        mutableStateOf(
-            value = LazyGridState(
-                firstVisibleItemIndex = 0,
-                firstVisibleItemScrollOffset = 0
-            )
-        )
-    }
     val context = LocalContext.current
     val spanCount = remember {
         context.resources.getInteger(R.integer.matisse_image_span_count)
@@ -74,18 +63,13 @@ internal fun MatissePage(
         containerColor = colorResource(id = R.color.matisse_main_page_background_color),
         topBar = {
             MatisseTopBar(
-                imageEngine = imageEngine,
-                allBucket = allBucket,
-                selectedBucket = selectedBucket,
-                onSelectBucket = {
-                    viewModel.onSelectBucket(bucket = it)
-                }
+                matisse = matisse,
+                topBarViewState = matisseTopBarViewState
             )
         },
         bottomBar = {
             MatisseBottomBar(
-                previewButtonViewState = viewModel.previewButtonViewState,
-                sureButtonViewState = viewModel.sureButtonViewState,
+                bottomBarViewState = matisseBottomBarViewState,
                 onSure = onSure
             )
         }
@@ -94,48 +78,37 @@ internal fun MatissePage(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
-            state = lazyGridState,
+            state = matissePageViewState.lazyGridState,
             columns = GridCells.Fixed(count = spanCount),
             contentPadding = PaddingValues(
                 bottom = 60.dp
             )
         ) {
-            if (supportCapture) {
+            val selectedBucket = matissePageViewState.selectedBucket
+            if (selectedBucket.supportCapture) {
                 item(
-                    key = "MatisseCapture",
-                    contentType = "MatisseCapture",
+                    key = "Capture",
+                    contentType = "Capture",
                     content = {
                         CaptureItem(onClick = onRequestTakePicture)
                     }
                 )
             }
             items(
-                items = selectedBucketResources,
+                items = selectedBucket.resources,
                 key = {
                     it.id
-                }, contentType = {
-                    "MatisseAlbum"
+                },
+                contentType = {
+                    "Media"
                 },
                 itemContent = { media ->
-                    val index = selectedMediaResources.indexOf(element = media)
-                    val isSelected = index > -1
-                    val enabled = isSelected || selectedMediaResources.size < maxSelectable
                     AlbumItem(
-                        media = media,
-                        imageEngine = imageEngine,
-                        isSelected = isSelected,
-                        enabled = enabled,
-                        position = if (isSelected) {
-                            (index + 1).toString()
-                        } else {
-                            ""
-                        },
-                        onClickMedia = {
-                            viewModel.onClickMedia(mediaResource = media)
-                        },
-                        onClickCheckBox = {
-                            viewModel.onMediaCheckChanged(mediaResource = media)
-                        }
+                        matisse = matisse,
+                        mediaResource = media,
+                        selectedResources = selectedResources,
+                        onClickMedia = matissePageViewState.onClickMedia,
+                        onClickCheckBox = matissePageViewState.onMediaCheckChanged
                     )
                 }
             )
@@ -145,19 +118,49 @@ internal fun MatissePage(
 
 @Composable
 private fun AlbumItem(
-    media: MediaResource,
-    imageEngine: ImageEngine,
-    isSelected: Boolean,
-    enabled: Boolean,
-    position: String,
-    onClickMedia: () -> Unit,
-    onClickCheckBox: () -> Unit
+    matisse: Matisse,
+    mediaResource: MediaResource,
+    selectedResources: List<MediaResource>,
+    onClickMedia: (MediaResource) -> Unit,
+    onClickCheckBox: (MediaResource) -> Unit
 ) {
+    val index = selectedResources.indexOf(element = mediaResource)
+    val isSelected = index > -1
+    val enabled = isSelected || selectedResources.size < matisse.maxSelectable
+    val position = if (isSelected) {
+        (index + 1).toString()
+    } else {
+        ""
+    }
+//    val index by remember {
+//        derivedStateOf {
+//            selectedResources.indexOf(element = mediaResource)
+//        }
+//    }
+//    val isSelected by remember {
+//        derivedStateOf {
+//            index > -1
+//        }
+//    }
+//    val enabled by remember {
+//        derivedStateOf {
+//            isSelected || selectedResources.size < maxSelectable
+//        }
+//    }
+//    val position by remember {
+//        derivedStateOf {
+//            if (isSelected) {
+//                (index + 1).toString()
+//            } else {
+//                ""
+//            }
+//        }
+//    }
     Box(
         modifier = Modifier
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
-            .clip(shape = RoundedCornerShape(size = 2.dp))
+            .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_image_item_background_color))
             .then(
                 other = if (isSelected) {
@@ -166,14 +169,16 @@ private fun AlbumItem(
                     Modifier
                 }
             )
-            .clickable(onClick = onClickMedia)
+            .clickable(onClick = {
+                onClickMedia(mediaResource)
+            })
     ) {
-        imageEngine.Image(
+        matisse.imageEngine.Image(
             modifier = Modifier.fillMaxSize(),
-            model = media.uri,
+            model = mediaResource.uri,
             alignment = Alignment.Center,
             contentScale = ContentScale.Crop,
-            contentDescription = media.displayName
+            contentDescription = mediaResource.displayName
         )
         MatisseCheckbox(
             modifier = Modifier
@@ -182,8 +187,20 @@ private fun AlbumItem(
             text = position,
             checked = isSelected,
             enabled = enabled,
-            onClick = onClickCheckBox
+            onClick = {
+                onClickCheckBox(mediaResource)
+            }
         )
+        if (mediaResource.isVideo) {
+            Icon(
+                modifier = Modifier
+                    .align(alignment = Alignment.Center)
+                    .size(size = 32.dp),
+                imageVector = Icons.Filled.SlowMotionVideo,
+                tint = colorResource(id = R.color.matisse_video_icon_color),
+                contentDescription = mediaResource.displayName
+            )
+        }
     }
 }
 

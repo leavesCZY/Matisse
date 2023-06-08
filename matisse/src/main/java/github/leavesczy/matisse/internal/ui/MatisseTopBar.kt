@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIos
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -40,9 +40,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import github.leavesczy.matisse.ImageEngine
+import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MediaBucket
+import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
 import github.leavesczy.matisse.internal.utils.clickableNoRipple
 
 /**
@@ -52,12 +52,7 @@ import github.leavesczy.matisse.internal.utils.clickableNoRipple
  * @Github：https://github.com/leavesCZY
  */
 @Composable
-internal fun MatisseTopBar(
-    imageEngine: ImageEngine,
-    allBucket: List<MediaBucket>,
-    selectedBucket: MediaBucket,
-    onSelectBucket: (MediaBucket) -> Unit
-) {
+internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewState) {
     var menuExpanded by remember {
         mutableStateOf(value = false)
     }
@@ -74,11 +69,12 @@ internal fun MatisseTopBar(
     ) {
         Box {
             IconButton(
-                modifier = Modifier.padding(start = 6.dp, end = 2.dp), content = {
+                modifier = Modifier.padding(start = 6.dp, end = 2.dp),
+                content = {
                     Icon(
-                        imageVector = Icons.Default.ArrowBackIos,
+                        imageVector = Icons.Default.ArrowBackIosNew,
                         tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-                        contentDescription = "Back",
+                        contentDescription = null,
                     )
                 },
                 onClick = {
@@ -86,13 +82,12 @@ internal fun MatisseTopBar(
                 }
             )
             BucketDropdownMenu(
-                imageEngine = imageEngine,
-                allBucket = allBucket,
+                matisse = matisse,
+                topBarViewState = topBarViewState,
                 menuExpanded = menuExpanded,
                 onDismissRequest = {
                     menuExpanded = false
-                },
-                onSelectBucket = onSelectBucket
+                }
             )
         }
         Row(
@@ -103,9 +98,10 @@ internal fun MatisseTopBar(
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val title = topBarViewState.title
             Text(
                 modifier = Modifier.weight(weight = 1f, fill = false),
-                text = selectedBucket.displayName,
+                text = title,
                 style = TextStyle(
                     color = colorResource(id = R.color.matisse_top_bar_text_color),
                     fontSize = 19.sp
@@ -117,7 +113,7 @@ internal fun MatisseTopBar(
             Icon(
                 imageVector = Icons.Filled.ArrowDropDown,
                 tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-                contentDescription = selectedBucket.displayName
+                contentDescription = title
             )
         }
     }
@@ -125,11 +121,10 @@ internal fun MatisseTopBar(
 
 @Composable
 private fun BucketDropdownMenu(
-    imageEngine: ImageEngine,
-    allBucket: List<MediaBucket>,
+    matisse: Matisse,
+    topBarViewState: MatisseTopBarViewState,
     menuExpanded: Boolean,
-    onDismissRequest: () -> Unit,
-    onSelectBucket: (MediaBucket) -> Unit
+    onDismissRequest: () -> Unit
 ) {
     DropdownMenu(
         modifier = Modifier
@@ -141,48 +136,51 @@ private fun BucketDropdownMenu(
         expanded = menuExpanded,
         onDismissRequest = onDismissRequest
     ) {
-        allBucket.forEach { bucket ->
-            DropdownMenuItem(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(
-                horizontal = 10.dp, vertical = 4.dp
-            ), text = {
-                Row(
-                    modifier = Modifier,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    imageEngine.Image(
-                        modifier = Modifier
-                            .size(size = 54.dp)
-                            .clip(shape = RoundedCornerShape(size = 4.dp))
-                            .background(color = colorResource(id = R.color.matisse_image_item_background_color)),
-                        model = bucket.displayIcon,
-                        alignment = Alignment.Center,
-                        contentScale = ContentScale.Crop,
-                        contentDescription = bucket.displayName
-                    )
-                    val textStyle = TextStyle(
-                        fontSize = 14.sp,
-                        color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
-                    )
-                    Text(
-                        modifier = Modifier
-                            .weight(weight = 1f, fill = false)
-                            .padding(start = 6.dp),
-                        text = bucket.displayName,
-                        style = textStyle,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 4.dp, end = 4.dp),
-                        text = "(${bucket.resources.size})",
-                        style = textStyle,
-                        maxLines = 1
-                    )
-                }
-            }, onClick = {
-                onDismissRequest()
-                onSelectBucket(bucket)
-            })
+        for (bucket in topBarViewState.mediaBuckets) {
+            DropdownMenuItem(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(
+                    horizontal = 10.dp, vertical = 4.dp
+                ),
+                text = {
+                    Row(
+                        modifier = Modifier,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        matisse.imageEngine.Image(
+                            modifier = Modifier
+                                .size(size = 54.dp)
+                                .clip(shape = RoundedCornerShape(size = 4.dp))
+                                .background(color = colorResource(id = R.color.matisse_image_item_background_color)),
+                            model = bucket.displayIcon,
+                            alignment = Alignment.Center,
+                            contentScale = ContentScale.Crop,
+                            contentDescription = bucket.displayName
+                        )
+                        val textStyle = TextStyle(
+                            fontSize = 14.sp,
+                            color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
+                        )
+                        Text(
+                            modifier = Modifier
+                                .weight(weight = 1f, fill = false)
+                                .padding(start = 6.dp),
+                            text = bucket.displayName,
+                            style = textStyle,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 4.dp, end = 4.dp),
+                            text = "(${bucket.resources.size})",
+                            style = textStyle,
+                            maxLines = 1
+                        )
+                    }
+                }, onClick = {
+                    onDismissRequest()
+                    topBarViewState.onSelectBucket(bucket)
+                })
         }
     }
 }

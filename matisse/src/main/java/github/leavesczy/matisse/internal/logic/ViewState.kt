@@ -1,6 +1,7 @@
 package github.leavesczy.matisse.internal.logic
 
 import android.net.Uri
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 
@@ -10,13 +11,12 @@ import github.leavesczy.matisse.MediaResource
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
-internal enum class MatisseState {
-    PermissionRequesting,
-    PermissionDenied,
-    ImagesLoading,
-    ImagesLoaded,
-    ImagesEmpty;
-}
+internal data class MatissePageViewState(
+    val lazyGridState: LazyGridState,
+    val selectedBucket: MediaBucket,
+    val onClickMedia: (MediaResource) -> Unit,
+    val onMediaCheckChanged: (MediaResource) -> Unit
+)
 
 internal data class MediaBucket(
     val id: String,
@@ -26,29 +26,28 @@ internal data class MediaBucket(
     val supportCapture: Boolean
 )
 
-internal data class MatisseViewState(
+internal data class MatisseTopBarViewState(
     val matisse: Matisse,
-    val state: MatisseState,
-    val allBucket: List<MediaBucket>,
-    val selectedBucket: MediaBucket,
-    val selectedResources: List<MediaResource>
+    val title: String,
+    val mediaBuckets: List<MediaBucket>,
+    val onSelectBucket: (MediaBucket) -> Unit
 )
 
-internal data class MatissePreviewButtonViewState(
-    val text: String,
-    val clickable: Boolean,
-    val onClick: () -> Unit
+internal data class MatisseBottomBarViewState(
+    val previewButtonText: String,
+    val previewButtonClickable: Boolean,
+    val onClickPreviewButton: () -> Unit,
+    val sureButtonText: String,
+    val sureButtonClickable: Boolean
 )
 
-internal data class MatisseSureButtonViewState(
-    val text: String,
-    val clickable: Boolean
-)
-
-internal data class MatissePreviewViewState(
-    val matisse: Matisse,
+internal data class MatissePreviewPageViewState(
     val visible: Boolean,
     val initialPage: Int,
+    val sureButtonText: String,
+    val sureButtonClickable: Boolean,
     val previewResources: List<MediaResource>,
-    val selectedResources: List<MediaResource>
+    val selectedResources: List<MediaResource>,
+    val onMediaCheckChanged: (MediaResource) -> Unit,
+    val onDismissRequest: () -> Unit
 )

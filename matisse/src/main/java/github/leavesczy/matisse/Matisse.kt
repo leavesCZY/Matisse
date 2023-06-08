@@ -62,9 +62,9 @@ enum class MimeType(val type: String) {
     TS(type = "video/mp2ts"),
     AVI(type = "video/avi");
 
-    internal val isImage = type.startsWith("image/")
+    internal val isImage = type.startsWith(prefix = "image/")
 
-    internal val isVideo = type.startsWith("video/")
+    internal val isVideo = type.startsWith(prefix = "video/")
 
     companion object {
 

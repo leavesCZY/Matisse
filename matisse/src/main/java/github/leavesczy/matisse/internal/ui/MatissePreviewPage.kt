@@ -20,16 +20,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SlowMotionVideo
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,9 +46,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import github.leavesczy.matisse.Matisse
+import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatisseViewModel
+import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
 import github.leavesczy.matisse.internal.utils.clickableNoRipple
+import github.leavesczy.matisse.internal.utils.isVideo
 
 /**
  * @Author: CZY
@@ -54,18 +60,12 @@ import github.leavesczy.matisse.internal.utils.clickableNoRipple
  */
 @Composable
 internal fun MatissePreviewPage(
-    viewModel: MatisseViewModel,
+    matisse: Matisse,
+    pageViewState: MatissePreviewPageViewState,
+    requestOpenVideo: (MediaResource) -> Unit,
     onSure: () -> Unit
 ) {
-    val matissePreviewViewState = viewModel.matissePreviewViewState
-    val imageEngine = matissePreviewViewState.matisse.imageEngine
-    val visible = matissePreviewViewState.visible
-    var controllerVisible by remember(key1 = visible) {
-        mutableStateOf(value = true)
-    }
-    BackHandler(enabled = visible, onBack = {
-        viewModel.dismissPreviewPage()
-    })
+    val visible = pageViewState.visible
     AnimatedVisibility(
         visible = visible,
         enter = slideInHorizontally(animationSpec = tween(
@@ -75,9 +75,7 @@ internal fun MatissePreviewPage(
             durationMillis = 400, easing = FastOutSlowInEasing
         ), targetOffsetX = { it })
     ) {
-        val previewResources = matissePreviewViewState.previewResources
-        val initialPage = matissePreviewViewState.initialPage
-        val pagerState = rememberPagerState(initialPage = initialPage)
+        BackHandler(enabled = visible, onBack = pageViewState.onDismissRequest)
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             contentWindowInsets = WindowInsets(
@@ -93,23 +91,32 @@ internal fun MatissePreviewPage(
                     .fillMaxSize()
                     .padding(paddingValues = paddingValues)
             ) {
-                if (previewResources.isNotEmpty()) {
-                    HorizontalPager(
+                var controllerVisible by remember {
+                    mutableStateOf(value = true)
+                }
+                val previewResources = pageViewState.previewResources
+                val pagerState = rememberPagerState(initialPage = pageViewState.initialPage)
+                HorizontalPager(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickableNoRipple {
+                            controllerVisible = !controllerVisible
+                        },
+                    state = pagerState,
+                    pageCount = previewResources.size,
+                    pageSpacing = 20.dp,
+                    verticalAlignment = Alignment.CenterVertically,
+                    key = { index ->
+                        previewResources[index].id
+                    }
+                ) { pageIndex ->
+                    val mediaResource = previewResources[pageIndex]
+                    val isVideo = mediaResource.isVideo
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .clickableNoRipple {
-                                controllerVisible = !controllerVisible
-                            },
-                        state = pagerState,
-                        pageCount = previewResources.size,
-                        pageSpacing = 20.dp,
-                        verticalAlignment = Alignment.CenterVertically,
-                        key = { index ->
-                            previewResources[index].id
-                        }
-                    ) { pageIndex ->
-                        val mediaResource = previewResources[pageIndex]
-                        imageEngine.Image(
+                    ) {
+                        matisse.imageEngine.Image(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .verticalScroll(state = rememberScrollState()),
@@ -118,14 +125,29 @@ internal fun MatissePreviewPage(
                             contentScale = ContentScale.FillWidth,
                             contentDescription = mediaResource.displayName
                         )
+                        if (isVideo) {
+                            Icon(
+                                modifier = Modifier
+                                    .align(alignment = Alignment.Center)
+                                    .clickableNoRipple {
+                                        requestOpenVideo(mediaResource)
+                                    }
+                                    .padding(all = 20.dp)
+                                    .size(size = 44.dp),
+                                imageVector = Icons.Filled.SlowMotionVideo,
+                                tint = colorResource(id = R.color.matisse_video_icon_color),
+                                contentDescription = mediaResource.displayName
+                            )
+                        }
                     }
-                    BottomController(
-                        visible = controllerVisible,
-                        viewModel = viewModel,
-                        pagerState = pagerState,
-                        onSure = onSure
-                    )
                 }
+                BottomController(
+                    visible = controllerVisible,
+                    matisse = matisse,
+                    pageViewState = pageViewState,
+                    pagerState = pagerState,
+                    onSure = onSure
+                )
             }
         }
     }
@@ -134,16 +156,15 @@ internal fun MatissePreviewPage(
 @Composable
 private fun BoxScope.BottomController(
     visible: Boolean,
-    viewModel: MatisseViewModel,
+    matisse: Matisse,
+    pageViewState: MatissePreviewPageViewState,
     pagerState: PagerState,
     onSure: () -> Unit
 ) {
     AnimatedVisibility(
         modifier = Modifier
             .align(alignment = Alignment.BottomCenter)
-            .clickableNoRipple {
-
-            },
+            .clickableNoRipple {},
         visible = visible,
         enter = slideInVertically(
             animationSpec = tween(
@@ -158,19 +179,18 @@ private fun BoxScope.BottomController(
                 it
             })
     ) {
-        val currentImageIndex by remember {
-            derivedStateOf {
-                val viewState = viewModel.matissePreviewViewState
-                viewState.selectedResources.indexOf(element = viewState.previewResources[pagerState.currentPage])
-            }
+        val currentImageIndex by remember(
+            key1 = pageViewState.selectedResources,
+            key2 = pagerState.currentPage
+        ) {
+            mutableStateOf(value = pageViewState.selectedResources.indexOf(element = pageViewState.previewResources[pagerState.currentPage]))
         }
-        val checkboxEnabled by remember {
-            derivedStateOf {
-                val viewState = viewModel.matissePreviewViewState
-                currentImageIndex > -1 || viewState.selectedResources.size < viewState.matisse.maxSelectable
-            }
+        val checkboxEnabled by remember(
+            key1 = pageViewState.selectedResources,
+            key2 = pagerState.currentPage
+        ) {
+            mutableStateOf(value = currentImageIndex > -1 || pageViewState.selectedResources.size < matisse.maxSelectable)
         }
-        val sureButtonViewState = viewModel.sureButtonViewState
         Box(
             modifier = Modifier
                 .background(color = colorResource(id = R.color.matisse_preview_page_controller_background_color))
@@ -181,7 +201,7 @@ private fun BoxScope.BottomController(
             Text(
                 modifier = Modifier
                     .align(alignment = Alignment.CenterStart)
-                    .clickable(onClick = viewModel::dismissPreviewPage)
+                    .clickable(onClick = pageViewState.onDismissRequest)
                     .fillMaxHeight()
                     .padding(horizontal = 24.dp)
                     .wrapContentSize(align = Alignment.Center),
@@ -194,23 +214,23 @@ private fun BoxScope.BottomController(
             )
             MatisseCheckbox(
                 modifier = Modifier.align(alignment = Alignment.Center),
-                size = 24.dp,
                 text = if (currentImageIndex > -1) {
                     (currentImageIndex + 1).toString()
                 } else {
                     ""
                 },
+                size = 24.dp,
                 checked = currentImageIndex > -1,
                 enabled = checkboxEnabled,
                 onClick = {
-                    viewModel.onMediaCheckChanged(mediaResource = viewModel.matissePreviewViewState.previewResources[pagerState.currentPage])
+                    pageViewState.onMediaCheckChanged(pageViewState.previewResources[pagerState.currentPage])
                 }
             )
             Text(
                 modifier = Modifier
                     .align(alignment = Alignment.CenterEnd)
                     .then(
-                        other = if (sureButtonViewState.clickable) {
+                        other = if (pageViewState.sureButtonClickable) {
                             Modifier.clickable(onClick = onSure)
                         } else {
                             Modifier
@@ -219,18 +239,18 @@ private fun BoxScope.BottomController(
                     .fillMaxHeight()
                     .padding(horizontal = 24.dp)
                     .wrapContentSize(align = Alignment.Center),
+                text = pageViewState.sureButtonText,
                 textAlign = TextAlign.Center,
                 style = TextStyle(
                     color = colorResource(
-                        id = if (sureButtonViewState.clickable) {
+                        id = if (pageViewState.sureButtonClickable) {
                             R.color.matisse_sure_text_color
                         } else {
                             R.color.matisse_sure_text_color_if_disable
                         }
                     ),
                     fontSize = 16.sp
-                ),
-                text = sureButtonViewState.text
+                )
             )
         }
     }

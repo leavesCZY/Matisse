@@ -2,6 +2,7 @@ package github.leavesczy.matisse.internal
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -53,7 +54,7 @@ class MatisseActivity : AppCompatActivity() {
 
     private val takePictureLauncher = registerForActivityResult(MatisseCaptureContract()) {
         if (it != null) {
-            onSure(selectedMediaResources = listOf(it))
+            onSure(selectedResources = listOf(it))
         }
     }
 
@@ -62,15 +63,21 @@ class MatisseActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             MatisseTheme {
-                SetSystemUi(previewPageVisible = matisseViewModel.matissePreviewViewState.visible)
+                SetSystemUi(previewPageVisible = matisseViewModel.matissePreviewPageViewState.visible)
                 MatissePage(
-                    viewModel = matisseViewModel,
+                    matisse = matisse,
+                    matissePageViewState = matisseViewModel.matissePageViewState,
+                    matisseTopBarViewState = matisseViewModel.matisseTopBarViewState,
+                    matisseBottomBarViewState = matisseViewModel.matisseBottomBarViewState,
+                    selectedResources = matisseViewModel.selectedResources,
                     onRequestTakePicture = ::requestTakePicture,
                     onSure = ::onSure
                 )
                 MatissePreviewPage(
-                    viewModel = matisseViewModel,
-                    onSure = ::onSure
+                    matisse = matisse,
+                    pageViewState = matisseViewModel.matissePreviewPageViewState,
+                    onSure = ::onSure,
+                    requestOpenVideo = ::requestOpenVideo
                 )
             }
         }
@@ -100,7 +107,6 @@ class MatisseActivity : AppCompatActivity() {
         if (PermissionUtils.checkSelfPermission(context = this, permissions = permissions)) {
             matisseViewModel.requestReadMediaPermissionResult(granted = true)
         } else {
-            matisseViewModel.onRequestReadMediaPermission()
             requestReadMediaPermissionLauncher.launch(permissions)
         }
     }
@@ -109,16 +115,21 @@ class MatisseActivity : AppCompatActivity() {
         takePictureLauncher.launch(MatisseCapture(captureStrategy = matisse.captureStrategy))
     }
 
-    private fun onSure() {
-        val selectedResources = matisseViewModel.matisseViewState.selectedResources
-        onSure(selectedMediaResources = selectedResources)
+    private fun requestOpenVideo(mediaResource: MediaResource) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(mediaResource.uri, mediaResource.mimeType)
+        startActivity(intent)
     }
 
-    private fun onSure(selectedMediaResources: List<MediaResource>) {
-        if (selectedMediaResources.isEmpty()) {
+    private fun onSure() {
+        onSure(selectedResources = matisseViewModel.selectedResources)
+    }
+
+    private fun onSure(selectedResources: List<MediaResource>) {
+        if (selectedResources.isEmpty()) {
             setResult(Activity.RESULT_CANCELED)
         } else {
-            val data = MatisseContract.buildResult(selectedMediaResources = selectedMediaResources)
+            val data = MatisseContract.buildResult(selectedMediaResources = selectedResources)
             setResult(Activity.RESULT_OK, data)
         }
         finish()
