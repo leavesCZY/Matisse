@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -76,7 +77,6 @@ internal fun MatissePage(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
-            state = matissePageViewState.lazyGridState,
             columns = GridCells.Fixed(count = integerResource(id = R.integer.matisse_image_span_count)),
             contentPadding = PaddingValues(bottom = 60.dp)
         ) {
@@ -132,7 +132,7 @@ internal fun MatissePage(
 private class MediaPlacement(val isSelected: Boolean, val enabled: Boolean, val position: String)
 
 @Composable
-private fun MediaItem(
+private fun LazyGridItemScope.MediaItem(
     matisse: Matisse,
     mediaResource: MediaResource,
     mediaPlacement: MediaPlacement,
@@ -141,6 +141,7 @@ private fun MediaItem(
 ) {
     Box(
         modifier = Modifier
+            .animateItemPlacement()
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
@@ -187,9 +188,10 @@ private fun MediaItem(
 }
 
 @Composable
-private fun CaptureItem(onClick: () -> Unit) {
+private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
     Box(
         modifier = Modifier
+            .animateItemPlacement()
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))

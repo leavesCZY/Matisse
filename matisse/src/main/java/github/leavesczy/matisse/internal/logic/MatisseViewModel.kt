@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -45,10 +44,6 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     )
 
     private val nothingMatissePageViewState = MatissePageViewState(
-        lazyGridState = LazyGridState(
-            firstVisibleItemIndex = 0,
-            firstVisibleItemScrollOffset = 0
-        ),
         selectedBucket = defaultBucket,
         onClickMedia = ::onClickMedia,
         onMediaCheckChanged = ::onMediaCheckChanged
@@ -124,13 +119,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     private fun onClickBucket(mediaBucket: MediaBucket) {
         if (matissePageViewState.selectedBucket != mediaBucket) {
             matisseTopBarViewState = matisseTopBarViewState.copy(title = mediaBucket.displayName)
-            matissePageViewState = matissePageViewState.copy(
-                selectedBucket = mediaBucket,
-                lazyGridState = LazyGridState(
-                    firstVisibleItemIndex = 0,
-                    firstVisibleItemScrollOffset = 0
-                )
-            )
+            matissePageViewState = matissePageViewState.copy(selectedBucket = mediaBucket)
         }
     }
 
