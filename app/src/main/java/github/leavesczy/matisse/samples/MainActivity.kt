@@ -1,10 +1,10 @@
 package github.leavesczy.matisse.samples
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,13 +39,17 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import coil.compose.AsyncImage
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import github.leavesczy.matisse.MatisseCapture
 import github.leavesczy.matisse.MatisseCaptureContract
 import github.leavesczy.matisse.MatisseContract
 import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.samples.logic.MainPageViewState
+import github.leavesczy.matisse.samples.logic.MainViewModel
+import github.leavesczy.matisse.samples.logic.MediaCaptureStrategy
+import github.leavesczy.matisse.samples.logic.MediaImageEngine
+import github.leavesczy.matisse.samples.logic.MediaType
 import github.leavesczy.matisse.samples.ui.theme.MatisseTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val mainViewModel by viewModels<MainViewModel>()
 
@@ -66,10 +70,7 @@ class MainActivity : ComponentActivity() {
                 MainPage(
                     mainPageViewState = mainViewModel.mainPageViewState,
                     takePicture = {
-                        val matisseCapture = MatisseCapture(
-                            captureStrategy = mainViewModel.getMediaCaptureStrategy()
-                        )
-                        takePictureLauncher.launch(matisseCapture)
+                        takePictureLauncher.launch(mainViewModel.buildMatisseCapture())
                     },
                     imagePicker = {
                         imagePickerLauncher.launch(mainViewModel.buildMatisse())
@@ -187,6 +188,21 @@ private fun MainPage(
                         selected = mainPageViewState.maxSelectable == i,
                         onClick = {
                             mainPageViewState.onMaxSelectableChanged(i)
+                        }
+                    )
+                }
+            }
+            Text(
+                modifier = Modifier,
+                text = "ImageEngine"
+            )
+            FlowRow(modifier = Modifier) {
+                for (engine in MediaImageEngine.values()) {
+                    MyRadioButton(
+                        tips = engine.name,
+                        selected = mainPageViewState.imageEngine == engine,
+                        onClick = {
+                            mainPageViewState.onImageEngineChanged(engine)
                         }
                     )
                 }

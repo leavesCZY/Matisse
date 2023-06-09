@@ -11,8 +11,8 @@ import kotlinx.parcelize.Parcelize
  */
 /**
  * @param maxSelectable 最多允许选择几个媒体资源
- * @param mimeTypes 要展示的媒体类型
- * @param imageEngine 用于实现加载显示图片的逻辑
+ * @param mimeTypes 要展示的媒体资源类型
+ * @param imageEngine 用于实现加载图片的逻辑
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 @Parcelize
@@ -68,20 +68,24 @@ enum class MimeType(val type: String) {
 
     companion object {
 
-        fun ofAll(): List<MimeType> {
-            return MimeType.values().toList()
+        fun ofAll(hasGif: Boolean = true): List<MimeType> {
+            return if (hasGif) {
+                values().toList()
+            } else {
+                values().filter { it != GIF }
+            }
         }
 
-        fun ofImage(hasGif: Boolean): List<MimeType> {
+        fun ofImage(hasGif: Boolean = true): List<MimeType> {
             return if (hasGif) {
-                listOf(JPEG, PNG, WEBP, HEIC, HEIF, BMP, GIF)
+                values().filter { it.isImage }
             } else {
-                listOf(JPEG, PNG, WEBP, HEIC, HEIF, BMP)
+                values().filter { it.isImage && it != GIF }
             }
         }
 
         fun ofVideo(): List<MimeType> {
-            return listOf(MPEG, MP4, QUICKTIME, THREEGPP, THREEGPP2, MKV, WEBM, TS, AVI)
+            return values().filter { it.isVideo }
         }
 
     }

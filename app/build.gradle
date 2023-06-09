@@ -1,6 +1,7 @@
 plugins {
     id "com.android.application"
     id "org.jetbrains.kotlin.android"
+    id "org.jetbrains.kotlin.kapt"
     id "kotlin-parcelize"
 }
 
@@ -51,11 +52,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
         freeCompilerArgs += [
                 "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
                 "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi",
@@ -103,5 +104,10 @@ dependencies {
     implementation "io.coil-kt:coil-gif:$coilVersion"
     implementation "io.coil-kt:coil-video:$coilVersion"
     implementation "io.coil-kt:coil-compose:$coilVersion"
+    def glideVersion = "4.15.1"
+    def glideComposeVersion = "1.0.0-alpha.3"
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    kapt "com.github.bumptech.glide:compiler:$glideVersion"
+    implementation "com.github.bumptech.glide:compose:$glideComposeVersion"
     implementation project(path: ":matisse")
 }

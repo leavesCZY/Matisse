@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.samples
+package github.leavesczy.matisse.samples.engine
 
 import android.net.Uri
 import androidx.compose.runtime.Composable

@@ -5,14 +5,22 @@ plugins {
 }
 
 android {
+    namespace "github.leavesczy.matisse"
     compileSdk 33
     defaultConfig {
         minSdk 21
         targetSdk 33
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+        freeCompilerArgs += [
+                "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+                "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi",
+        ]
     }
     buildFeatures {
         compose true
@@ -20,14 +28,6 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion "1.4.4"
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs += [
-                "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-                "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi",
-        ]
-    }
-    namespace "github.leavesczy.matisse"
 }
 
 dependencies {

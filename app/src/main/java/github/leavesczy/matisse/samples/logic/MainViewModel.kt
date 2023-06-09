@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.samples
+package github.leavesczy.matisse.samples.logic
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.getValue
@@ -8,11 +8,14 @@ import androidx.lifecycle.ViewModel
 import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.FileProviderCaptureStrategy
 import github.leavesczy.matisse.Matisse
+import github.leavesczy.matisse.MatisseCapture
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaStoreCaptureStrategy
 import github.leavesczy.matisse.MimeType
 import github.leavesczy.matisse.NothingCaptureStrategy
 import github.leavesczy.matisse.SmartCaptureStrategy
+import github.leavesczy.matisse.samples.engine.CoilImageEngine
+import github.leavesczy.matisse.samples.engine.GlideImageEngine
 
 class MainViewModel : ViewModel() {
 
@@ -27,11 +30,13 @@ class MainViewModel : ViewModel() {
             mediaType = MediaType.All,
             supportGif = true,
             captureStrategy = MediaCaptureStrategy.Smart,
+            imageEngine = MediaImageEngine.Coil,
             mediaList = emptyList(),
             onMaxSelectableChanged = ::onMaxSelectableChanged,
             onMediaTypeChanged = ::onMediaTypeChanged,
             onSupportGifChanged = ::onSupportGifChanged,
             onCaptureStrategyChanged = ::onCaptureStrategyChanged,
+            onImageEngineChanged = ::onImageEngineChanged,
             switchTheme = ::switchTheme,
         )
     )
@@ -59,6 +64,12 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    private fun onImageEngineChanged(imageEngine: MediaImageEngine) {
+        if (mainPageViewState.imageEngine != imageEngine) {
+            mainPageViewState = mainPageViewState.copy(imageEngine = imageEngine)
+        }
+    }
+
     private fun onCaptureStrategyChanged(captureStrategy: MediaCaptureStrategy) {
         if (mainPageViewState.captureStrategy != captureStrategy) {
             mainPageViewState = mainPageViewState.copy(captureStrategy = captureStrategy)
@@ -78,7 +89,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun getMediaCaptureStrategy(): CaptureStrategy {
+    private fun getMediaCaptureStrategy(): CaptureStrategy {
         return when (mainPageViewState.captureStrategy) {
             MediaCaptureStrategy.Nothing -> {
                 NothingCaptureStrategy
@@ -112,25 +123,41 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun buildMatisseCapture(): MatisseCapture {
+        return MatisseCapture(
+            captureStrategy = getMediaCaptureStrategy()
+        )
+    }
+
     fun buildMatisse(): Matisse {
+        val hasGif = mainPageViewState.supportGif
         val mimeTypes = when (mainPageViewState.mediaType) {
             MediaType.All -> {
-                MimeType.ofAll()
+                MimeType.ofAll(hasGif = hasGif)
             }
 
             MediaType.Image -> {
-                MimeType.ofImage(hasGif = mainPageViewState.supportGif)
+                MimeType.ofImage(hasGif = hasGif)
             }
 
             MediaType.Video -> {
                 MimeType.ofVideo()
             }
         }
+        val imageEngine = when (mainPageViewState.imageEngine) {
+            MediaImageEngine.Coil -> {
+                CoilImageEngine()
+            }
+
+            MediaImageEngine.Glide -> {
+                GlideImageEngine()
+            }
+        }
         return Matisse(
             maxSelectable = mainPageViewState.maxSelectable,
             mimeTypes = mimeTypes,
             captureStrategy = getMediaCaptureStrategy(),
-            imageEngine = CoilImageEngine()
+            imageEngine = imageEngine
         )
     }
 
