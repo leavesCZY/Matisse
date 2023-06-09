@@ -37,7 +37,7 @@ class MatisseCaptureActivity : AppCompatActivity() {
             if (granted) {
                 requestCameraPermissionIfNeed()
             } else {
-                showToast(getString(R.string.matisse_on_write_external_storage_permission_denied))
+                showToast(getString(R.string.matisse_write_external_storage_permission_denied))
                 canceled()
             }
         }
@@ -47,7 +47,7 @@ class MatisseCaptureActivity : AppCompatActivity() {
             if (granted) {
                 takePicture()
             } else {
-                showToast(getString(R.string.matisse_on_camera_permission_denied))
+                showToast(getString(R.string.matisse_camera_permission_denied))
                 canceled()
             }
         }

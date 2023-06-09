@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
-internal class MatisseViewModel(application: Application, private val matisse: Matisse) :
+internal class MatisseViewModel(application: Application, matisse: Matisse) :
     AndroidViewModel(application) {
 
     companion object {
@@ -35,12 +35,18 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     private val context: Context
         get() = getApplication()
 
+    private val supportCapture = matisse.captureStrategy.isEnabled()
+
+    private val maxSelectable = matisse.maxSelectable
+
+    private val mimeTypes = matisse.mimeTypes
+
     private val defaultBucket = MediaBucket(
         id = DEFAULT_BUCKET_ID,
         displayName = getString(R.string.matisse_default_bucket_name),
         displayIcon = Uri.EMPTY,
         resources = emptyList(),
-        supportCapture = matisse.captureStrategy.isEnabled()
+        supportCapture = supportCapture
     )
 
     private val nothingMatissePageViewState = MatissePageViewState(
@@ -51,7 +57,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
 
     private val nothingMatisseTopBarViewState = MatisseTopBarViewState(
         title = defaultBucket.displayName,
-        mediaBuckets = emptyList(),
+        mediaBuckets = listOf(defaultBucket),
         onClickBucket = ::onClickBucket
     )
 
@@ -97,7 +103,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             if (granted) {
                 val resources = MediaProvider.loadResources(
                     context = context,
-                    mimeTypes = matisse.mimeTypes
+                    mimeTypes = mimeTypes
                 )
                 val allBucket = groupByBucket(
                     resources = resources
@@ -111,7 +117,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             } else {
                 matissePageViewState = nothingMatissePageViewState
                 matisseTopBarViewState = nothingMatisseTopBarViewState
-                showToast(message = getString(R.string.matisse_on_read_external_storage_permission_denied))
+                showToast(message = getString(R.string.matisse_read_media_permission_denied))
             }
         }
     }
@@ -149,7 +155,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                             resources[0].uri
                         },
                         resources = resources,
-                        supportCapture = matisse.captureStrategy.isEnabled()
+                        supportCapture = supportCapture
                     )
                 )
                 resourcesMap.forEach {
@@ -176,7 +182,6 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         if (alreadySelected) {
             selectedResourcesMutable.remove(element = mediaResource)
         } else {
-            val maxSelectable = matisse.maxSelectable
             if (maxSelectable == 1) {
                 selectedResourcesMutable.clear()
                 selectedResourcesMutable.add(element = mediaResource)
@@ -200,7 +205,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 sureButtonText = String.format(
                     getString(R.string.matisse_sure),
                     selectedResources.size,
-                    matisse.maxSelectable
+                    maxSelectable
                 ),
                 sureButtonClickable = selectedResources.isNotEmpty()
             )
@@ -226,7 +231,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             sureButtonText = String.format(
                 getString(R.string.matisse_sure),
                 mSelectedResources.size,
-                matisse.maxSelectable
+                maxSelectable
             ),
             sureButtonClickable = mSelectedResources.isNotEmpty(),
             selectedResources = mSelectedResources,
@@ -264,7 +269,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             sureButtonText = String.format(
                 getString(R.string.matisse_sure),
                 selectedResources.size,
-                matisse.maxSelectable
+                maxSelectable
             ),
             sureButtonClickable = selectedResources.isNotEmpty()
         )
