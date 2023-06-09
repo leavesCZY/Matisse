@@ -55,7 +55,6 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     )
 
     private val nothingMatisseTopBarViewState = MatisseTopBarViewState(
-        matisse = matisse,
         title = defaultBucket.displayName,
         mediaBuckets = emptyList(),
         onClickBucket = ::onClickBucket
@@ -103,7 +102,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             if (granted) {
                 val resources = MediaProvider.loadResources(
                     context = context,
-                    supportedMimeTypes = matisse.mimeTypes
+                    mimeTypes = matisse.mimeTypes
                 )
                 val allBucket = groupByBucket(
                     resources = resources

@@ -2,7 +2,6 @@ package github.leavesczy.matisse.internal.logic
 
 import android.net.Uri
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 
 /**
@@ -27,7 +26,6 @@ internal data class MediaBucket(
 )
 
 internal data class MatisseTopBarViewState(
-    val matisse: Matisse,
     val title: String,
     val mediaBuckets: List<MediaBucket>,
     val onClickBucket: (MediaBucket) -> Unit

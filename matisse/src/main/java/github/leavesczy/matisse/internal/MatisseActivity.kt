@@ -5,13 +5,14 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.colorResource
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
@@ -23,6 +24,8 @@ import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.ui.rememberSystemUiController
 import github.leavesczy.matisse.internal.utils.PermissionUtils
+import github.leavesczy.matisse.internal.utils.isImage
+import github.leavesczy.matisse.internal.utils.isVideo
 
 /**
  * @Author: leavesCZY
@@ -118,7 +121,11 @@ class MatisseActivity : AppCompatActivity() {
     private fun requestOpenVideo(mediaResource: MediaResource) {
         val intent = Intent(Intent.ACTION_VIEW)
         intent.setDataAndType(mediaResource.uri, mediaResource.mimeType)
-        startActivity(intent)
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            showToast(message = getString(R.string.matisse_no_apps_support_video_preview))
+        }
     }
 
     private fun onSure() {
@@ -135,11 +142,16 @@ class MatisseActivity : AppCompatActivity() {
         finish()
     }
 
+    private fun showToast(message: String) {
+        if (message.isNotBlank()) {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
 }
 
 @Composable
 private fun SetSystemUi(previewPageVisible: Boolean) {
-    val resources = LocalContext.current.resources
     val statusBarColor = Color.Transparent
     val navigationBarColor = if (previewPageVisible) {
         Color.Transparent
@@ -149,12 +161,12 @@ private fun SetSystemUi(previewPageVisible: Boolean) {
     val statusBarDarkIcons = if (previewPageVisible) {
         false
     } else {
-        resources.getBoolean(R.bool.matisse_status_bar_dark_icons)
+        booleanResource(id = R.bool.matisse_status_bar_dark_icons)
     }
     val navigationBarDarkIcons = if (previewPageVisible) {
         false
     } else {
-        resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
+        booleanResource(id = R.bool.matisse_navigation_bar_dark_icons)
     }
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(

@@ -2,6 +2,8 @@ package github.leavesczy.matisse
 
 import android.net.Uri
 import android.os.Parcelable
+import github.leavesczy.matisse.internal.utils.isImage
+import github.leavesczy.matisse.internal.utils.isVideo
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -61,10 +63,6 @@ enum class MimeType(val type: String) {
     WEBM(type = "video/webm"),
     TS(type = "video/mp2ts"),
     AVI(type = "video/avi");
-
-    internal val isImage = type.startsWith(prefix = "image/")
-
-    internal val isVideo = type.startsWith(prefix = "video/")
 
     companion object {
 

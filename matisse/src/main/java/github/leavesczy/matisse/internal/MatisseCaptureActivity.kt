@@ -96,6 +96,8 @@ class MatisseCaptureActivity : AppCompatActivity() {
                     takePictureLauncher.launch(imageUri)
                     return@launch
                 }
+            } else {
+                showToast(message = getString(R.string.matisse_no_apps_support_take_picture))
             }
             canceled()
         }

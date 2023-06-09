@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.MimeType
 
 /**
  * @Author: CZY
@@ -25,3 +26,9 @@ internal fun Modifier.clickableNoRipple(
 
 internal val MediaResource.isVideo: Boolean
     get() = mimeType.startsWith(prefix = "video/")
+
+internal val MimeType.isImage: Boolean
+    get() = type.startsWith(prefix = "image/")
+
+internal val MimeType.isVideo: Boolean
+    get() = type.startsWith(prefix = "video/")

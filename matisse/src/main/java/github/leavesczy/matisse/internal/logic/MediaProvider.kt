@@ -114,13 +114,13 @@ internal object MediaProvider {
 
     suspend fun loadResources(
         context: Context,
-        supportedMimeTypes: List<MimeType>
+        mimeTypes: List<MimeType>
     ): List<MediaResource> {
         return withContext(context = Dispatchers.IO) {
             val selection = StringBuilder()
             selection.append(MediaStore.MediaColumns.MIME_TYPE)
             selection.append(" IN (")
-            supportedMimeTypes.forEachIndexed { index, mimeType ->
+            mimeTypes.forEachIndexed { index, mimeType ->
                 if (index != 0) {
                     selection.append(",")
                 }

@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -111,7 +110,6 @@ internal fun MatissePreviewPage(
                     }
                 ) { pageIndex ->
                     val mediaResource = previewResources[pageIndex]
-                    val isVideo = mediaResource.isVideo
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -124,7 +122,7 @@ internal fun MatissePreviewPage(
                             contentScale = ContentScale.FillWidth,
                             contentDescription = mediaResource.displayName
                         )
-                        if (isVideo) {
+                        if (mediaResource.isVideo) {
                             Icon(
                                 modifier = Modifier
                                     .align(alignment = Alignment.Center)
@@ -132,7 +130,7 @@ internal fun MatissePreviewPage(
                                         requestOpenVideo(mediaResource)
                                     }
                                     .padding(all = 20.dp)
-                                    .size(size = 44.dp),
+                                    .size(size = 48.dp),
                                 imageVector = Icons.Filled.SlowMotionVideo,
                                 tint = colorResource(id = R.color.matisse_video_icon_color),
                                 contentDescription = mediaResource.displayName
@@ -144,7 +142,7 @@ internal fun MatissePreviewPage(
                     visible = controllerVisible,
                     matisse = matisse,
                     pageViewState = pageViewState,
-                    pagerState = pagerState,
+                    currentPageIndex = pagerState.currentPage,
                     onSure = onSure
                 )
             }
@@ -157,7 +155,7 @@ private fun BoxScope.BottomController(
     visible: Boolean,
     matisse: Matisse,
     pageViewState: MatissePreviewPageViewState,
-    pagerState: PagerState,
+    currentPageIndex: Int,
     onSure: () -> Unit
 ) {
     AnimatedVisibility(
@@ -178,17 +176,17 @@ private fun BoxScope.BottomController(
                 it
             })
     ) {
-        val currentImageIndex by remember(
-            key1 = pageViewState.selectedResources,
-            key2 = pagerState.currentPage
-        ) {
-            mutableStateOf(value = pageViewState.selectedResources.indexOf(element = pageViewState.previewResources[pagerState.currentPage]))
+        val selectedResources = pageViewState.selectedResources
+        val previewResources = pageViewState.previewResources
+        val imagePosition by remember(key1 = selectedResources, key2 = currentPageIndex) {
+            mutableStateOf(
+                value = selectedResources.indexOf(element = previewResources[currentPageIndex])
+            )
         }
-        val checkboxEnabled by remember(
-            key1 = pageViewState.selectedResources,
-            key2 = pagerState.currentPage
-        ) {
-            mutableStateOf(value = currentImageIndex > -1 || pageViewState.selectedResources.size < matisse.maxSelectable)
+        val checkboxEnabled by remember(key1 = imagePosition) {
+            mutableStateOf(
+                value = imagePosition > -1 || selectedResources.size < matisse.maxSelectable
+            )
         }
         Box(
             modifier = Modifier
@@ -204,25 +202,25 @@ private fun BoxScope.BottomController(
                     .fillMaxHeight()
                     .padding(horizontal = 24.dp)
                     .wrapContentSize(align = Alignment.Center),
+                text = stringResource(id = R.string.matisse_back),
                 textAlign = TextAlign.Center,
                 style = TextStyle(
                     color = colorResource(id = R.color.matisse_back_text_color),
                     fontSize = 16.sp
-                ),
-                text = stringResource(id = R.string.matisse_back)
+                )
             )
             MatisseCheckbox(
                 modifier = Modifier.align(alignment = Alignment.Center),
-                text = if (currentImageIndex > -1) {
-                    (currentImageIndex + 1).toString()
+                text = if (imagePosition > -1) {
+                    (imagePosition + 1).toString()
                 } else {
                     ""
                 },
                 size = 24.dp,
-                checked = currentImageIndex > -1,
+                checked = imagePosition > -1,
                 enabled = checkboxEnabled,
                 onClick = {
-                    pageViewState.onMediaCheckChanged(pageViewState.previewResources[pagerState.currentPage])
+                    pageViewState.onMediaCheckChanged(previewResources[currentPageIndex])
                 }
             )
             Text(

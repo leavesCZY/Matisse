@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.SlowMotionVideo
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,8 +30,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
@@ -54,10 +56,6 @@ internal fun MatissePage(
     onRequestTakePicture: () -> Unit,
     onSure: () -> Unit
 ) {
-    val context = LocalContext.current
-    val spanCount = remember {
-        context.resources.getInteger(R.integer.matisse_image_span_count)
-    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = colorResource(id = R.color.matisse_main_page_background_color),
@@ -79,10 +77,8 @@ internal fun MatissePage(
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
             state = matissePageViewState.lazyGridState,
-            columns = GridCells.Fixed(count = spanCount),
-            contentPadding = PaddingValues(
-                bottom = 60.dp
-            )
+            columns = GridCells.Fixed(count = integerResource(id = R.integer.matisse_image_span_count)),
+            contentPadding = PaddingValues(bottom = 60.dp)
         ) {
             val selectedBucket = matissePageViewState.selectedBucket
             if (selectedBucket.supportCapture) {
@@ -102,11 +98,28 @@ internal fun MatissePage(
                 contentType = {
                     "Media"
                 },
-                itemContent = { media ->
-                    AlbumItem(
+                itemContent = {
+                    val mediaPlacement by remember(key1 = selectedResources) {
+                        val index = selectedResources.indexOf(element = it)
+                        val isSelected = index > -1
+                        val enabled = isSelected || selectedResources.size < matisse.maxSelectable
+                        val position = if (isSelected) {
+                            (index + 1).toString()
+                        } else {
+                            ""
+                        }
+                        mutableStateOf(
+                            value = MediaPlacement(
+                                isSelected = isSelected,
+                                enabled = enabled,
+                                position = position
+                            )
+                        )
+                    }
+                    MediaItem(
                         matisse = matisse,
-                        mediaResource = media,
-                        selectedResources = selectedResources,
+                        mediaResource = it,
+                        mediaPlacement = mediaPlacement,
                         onClickMedia = matissePageViewState.onClickMedia,
                         onClickCheckBox = matissePageViewState.onMediaCheckChanged
                     )
@@ -116,46 +129,16 @@ internal fun MatissePage(
     }
 }
 
+private class MediaPlacement(val isSelected: Boolean, val enabled: Boolean, val position: String)
+
 @Composable
-private fun AlbumItem(
+private fun MediaItem(
     matisse: Matisse,
     mediaResource: MediaResource,
-    selectedResources: List<MediaResource>,
+    mediaPlacement: MediaPlacement,
     onClickMedia: (MediaResource) -> Unit,
     onClickCheckBox: (MediaResource) -> Unit
 ) {
-    val index = selectedResources.indexOf(element = mediaResource)
-    val isSelected = index > -1
-    val enabled = isSelected || selectedResources.size < matisse.maxSelectable
-    val position = if (isSelected) {
-        (index + 1).toString()
-    } else {
-        ""
-    }
-//    val index by remember {
-//        derivedStateOf {
-//            selectedResources.indexOf(element = mediaResource)
-//        }
-//    }
-//    val isSelected by remember {
-//        derivedStateOf {
-//            index > -1
-//        }
-//    }
-//    val enabled by remember {
-//        derivedStateOf {
-//            isSelected || selectedResources.size < maxSelectable
-//        }
-//    }
-//    val position by remember {
-//        derivedStateOf {
-//            if (isSelected) {
-//                (index + 1).toString()
-//            } else {
-//                ""
-//            }
-//        }
-//    }
     Box(
         modifier = Modifier
             .padding(all = 1.dp)
@@ -163,15 +146,15 @@ private fun AlbumItem(
             .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_image_item_background_color))
             .then(
-                other = if (isSelected) {
+                other = if (mediaPlacement.isSelected) {
                     Modifier.drawBorder(color = colorResource(id = R.color.matisse_image_item_border_color_when_selected))
                 } else {
                     Modifier
                 }
             )
-            .clickable(onClick = {
+            .clickable {
                 onClickMedia(mediaResource)
-            })
+            }
     ) {
         matisse.imageEngine.Image(
             modifier = Modifier.fillMaxSize(),
@@ -183,9 +166,9 @@ private fun AlbumItem(
             modifier = Modifier
                 .align(alignment = Alignment.TopEnd)
                 .padding(all = 3.dp),
-            text = position,
-            checked = isSelected,
-            enabled = enabled,
+            text = mediaPlacement.position,
+            checked = mediaPlacement.isSelected,
+            enabled = mediaPlacement.enabled,
             onClick = {
                 onClickCheckBox(mediaResource)
             }
@@ -209,7 +192,7 @@ private fun CaptureItem(onClick: () -> Unit) {
         modifier = Modifier
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
-            .clip(shape = RoundedCornerShape(size = 2.dp))
+            .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_image_item_background_color))
             .clickable(onClick = onClick)
     ) {
