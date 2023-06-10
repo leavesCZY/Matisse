@@ -162,7 +162,7 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
                 bucketDisplayName = "",
                 uri = imageUri,
                 path = imageFilePath,
-                displayName = displayName,
+                name = displayName,
                 mimeType = mimeType
             )
         }

@@ -167,7 +167,7 @@ private fun LazyGridItemScope.MediaItem(
             modifier = Modifier.fillMaxSize(),
             model = mediaResource.uri,
             contentScale = ContentScale.Crop,
-            contentDescription = mediaResource.displayName
+            contentDescription = mediaResource.name
         )
         MatisseCheckbox(
             modifier = Modifier
@@ -187,7 +187,7 @@ private fun LazyGridItemScope.MediaItem(
                     .size(size = 32.dp),
                 imageVector = Icons.Filled.SlowMotionVideo,
                 tint = colorResource(id = R.color.matisse_video_icon_color),
-                contentDescription = mediaResource.displayName
+                contentDescription = mediaResource.name
             )
         }
     }

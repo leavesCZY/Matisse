@@ -119,7 +119,7 @@ internal fun MatissePreviewPage(
                                 .verticalScroll(state = rememberScrollState()),
                             model = mediaResource.uri,
                             contentScale = ContentScale.FillWidth,
-                            contentDescription = mediaResource.displayName
+                            contentDescription = mediaResource.name
                         )
                         if (mediaResource.isVideo) {
                             Icon(
@@ -132,7 +132,7 @@ internal fun MatissePreviewPage(
                                     .size(size = 48.dp),
                                 imageVector = Icons.Filled.SlowMotionVideo,
                                 tint = colorResource(id = R.color.matisse_video_icon_color),
-                                contentDescription = mediaResource.displayName
+                                contentDescription = mediaResource.name
                             )
                         }
                     }

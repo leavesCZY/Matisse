@@ -19,8 +19,6 @@ import github.leavesczy.matisse.samples.engine.GlideImageEngine
 
 class MainViewModel : ViewModel() {
 
-    private val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
-
     var darkTheme by mutableStateOf(value = false)
         private set
 
@@ -90,6 +88,7 @@ class MainViewModel : ViewModel() {
     }
 
     private fun getMediaCaptureStrategy(): CaptureStrategy {
+        val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
         return when (mainPageViewState.captureStrategy) {
             MediaCaptureStrategy.Nothing -> {
                 NothingCaptureStrategy
@@ -117,7 +116,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun imagePickerResult(result: List<MediaResource>) {
+    fun mediaPickerResult(result: List<MediaResource>) {
         if (result.isNotEmpty()) {
             mainPageViewState = mainPageViewState.copy(mediaList = result)
         }

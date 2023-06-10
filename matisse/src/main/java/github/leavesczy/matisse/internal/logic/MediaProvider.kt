@@ -88,7 +88,7 @@ internal object MediaProvider {
                         if (id == Long.MAX_VALUE || data.isBlank() || !File(data).exists()) {
                             continue
                         }
-                        val displayName = cursor.getString(displayNameColumn, "")
+                        val name = cursor.getString(displayNameColumn, "")
                         val mimeType = cursor.getString(mineTypeColumn, "")
                         val bucketId = cursor.getString(bucketIdColumn, "")
                         val bucketDisplayName = cursor.getString(bucketDisplayNameColumn, "")
@@ -97,7 +97,7 @@ internal object MediaProvider {
                             id = id,
                             path = data,
                             uri = uri,
-                            displayName = displayName,
+                            name = name,
                             mimeType = mimeType,
                             bucketId = bucketId,
                             bucketDisplayName = bucketDisplayName

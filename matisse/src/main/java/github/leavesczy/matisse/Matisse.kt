@@ -45,7 +45,7 @@ data class MediaResource(
     internal val bucketDisplayName: String,
     val uri: Uri,
     val path: String,
-    val displayName: String,
+    val name: String,
     val mimeType: String,
 ) : Parcelable
 

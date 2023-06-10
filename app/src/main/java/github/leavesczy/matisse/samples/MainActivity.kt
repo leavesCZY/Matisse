@@ -61,9 +61,9 @@ class MainActivity : AppCompatActivity() {
                 rememberLauncherForActivityResult(contract = MatisseCaptureContract()) { result ->
                     mainViewModel.takePictureResult(result = result)
                 }
-            val imagePickerLauncher =
+            val mediaPickerLauncher =
                 rememberLauncherForActivityResult(contract = MatisseContract()) { result ->
-                    mainViewModel.imagePickerResult(result = result)
+                    mainViewModel.mediaPickerResult(result = result)
                 }
             MatisseTheme(darkTheme = mainViewModel.darkTheme) {
                 SetSystemBarUi(darkTheme = mainViewModel.darkTheme)
@@ -72,8 +72,8 @@ class MainActivity : AppCompatActivity() {
                     takePicture = {
                         takePictureLauncher.launch(mainViewModel.buildMatisseCapture())
                     },
-                    imagePicker = {
-                        imagePickerLauncher.launch(mainViewModel.buildMatisse())
+                    mediaPicker = {
+                        mediaPickerLauncher.launch(mainViewModel.buildMatisse())
                     }
                 )
             }
@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
 private fun MainPage(
     mainPageViewState: MainPageViewState,
     takePicture: () -> Unit,
-    imagePicker: () -> Unit
+    mediaPicker: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -142,7 +142,7 @@ private fun MainPage(
                 ),
             horizontalAlignment = Alignment.Start,
         ) {
-            Title(text = "媒体类型")
+            Title(text = "类型")
             Row(modifier = Modifier) {
                 for (value in MediaType.values()) {
                     RadioButton(
@@ -171,7 +171,7 @@ private fun MainPage(
                     }
                 )
             }
-            Title(text = "选取数量")
+            Title(text = "数量")
             Row(modifier = Modifier) {
                 for (i in 1..3) {
                     RadioButton(
@@ -220,7 +220,7 @@ private fun MainPage(
             Button(
                 text = "选择图片或视频",
                 enabled = true,
-                onClick = imagePicker
+                onClick = mediaPicker
             )
             Spacer(
                 modifier = Modifier
