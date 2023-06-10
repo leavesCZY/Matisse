@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.Parcelable
+import androidx.compose.runtime.Stable
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import github.leavesczy.matisse.internal.logic.MediaProvider
@@ -26,6 +27,7 @@ import java.util.*
 /**
  * 拍照策略
  */
+@Stable
 interface CaptureStrategy : Parcelable {
 
     /**

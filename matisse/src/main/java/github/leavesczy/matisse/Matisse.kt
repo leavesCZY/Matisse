@@ -2,6 +2,7 @@ package github.leavesczy.matisse
 
 import android.net.Uri
 import android.os.Parcelable
+import androidx.compose.runtime.Stable
 import github.leavesczy.matisse.internal.utils.isImage
 import github.leavesczy.matisse.internal.utils.isVideo
 import kotlinx.parcelize.Parcelize
@@ -17,6 +18,7 @@ import kotlinx.parcelize.Parcelize
  * @param imageEngine 用于实现加载图片的逻辑
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
+@Stable
 @Parcelize
 data class Matisse(
     val maxSelectable: Int,
@@ -35,6 +37,7 @@ data class Matisse(
 @Parcelize
 data class MatisseCapture(val captureStrategy: CaptureStrategy) : Parcelable
 
+@Stable
 @Parcelize
 data class MediaResource(
     internal val id: Long,

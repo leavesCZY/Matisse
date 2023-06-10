@@ -41,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -204,10 +203,8 @@ private fun BoxScope.BottomController(
                     .wrapContentSize(align = Alignment.Center),
                 text = stringResource(id = R.string.matisse_back),
                 textAlign = TextAlign.Center,
-                style = TextStyle(
-                    color = colorResource(id = R.color.matisse_back_text_color),
-                    fontSize = 16.sp
-                )
+                fontSize = 16.sp,
+                color = colorResource(id = R.color.matisse_back_text_color)
             )
             MatisseCheckbox(
                 modifier = Modifier.align(alignment = Alignment.Center),
@@ -238,15 +235,13 @@ private fun BoxScope.BottomController(
                     .wrapContentSize(align = Alignment.Center),
                 text = pageViewState.sureButtonText,
                 textAlign = TextAlign.Center,
-                style = TextStyle(
-                    color = colorResource(
-                        id = if (pageViewState.sureButtonClickable) {
-                            R.color.matisse_sure_text_color
-                        } else {
-                            R.color.matisse_sure_text_color_if_disable
-                        }
-                    ),
-                    fontSize = 16.sp
+                fontSize = 16.sp,
+                color = colorResource(
+                    id = if (pageViewState.sureButtonClickable) {
+                        R.color.matisse_sure_text_color
+                    } else {
+                        R.color.matisse_sure_text_color_if_disable
+                    }
                 )
             )
         }

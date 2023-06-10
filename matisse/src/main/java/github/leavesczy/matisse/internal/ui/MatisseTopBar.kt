@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -31,7 +32,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
@@ -77,7 +79,9 @@ internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewS
                     .clickableNoRipple {
                         (context as Activity).finish()
                     }
-                    .padding(start = 18.dp, end = 12.dp, top = 2.dp, bottom = 2.dp),
+                    .padding(start = 18.dp, end = 12.dp)
+                    .fillMaxHeight()
+                    .size(size = 22.dp),
                 imageVector = Icons.Filled.ArrowBackIos,
                 tint = colorResource(id = R.color.matisse_top_bar_icon_color),
                 contentDescription = null
@@ -88,10 +92,8 @@ internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewS
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start,
-                style = TextStyle(
-                    color = colorResource(id = R.color.matisse_top_bar_text_color),
-                    fontSize = 19.sp
-                )
+                fontSize = 19.sp,
+                color = colorResource(id = R.color.matisse_top_bar_text_color)
             )
             Icon(
                 modifier = Modifier.size(size = 32.dp),
@@ -145,23 +147,25 @@ private fun BucketDropdownMenu(
                             contentScale = ContentScale.Crop,
                             contentDescription = bucket.displayName
                         )
-                        val textStyle = TextStyle(
-                            fontSize = 14.sp,
-                            color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
-                        )
                         Text(
                             modifier = Modifier
                                 .weight(weight = 1f, fill = false)
                                 .padding(start = 10.dp),
                             text = bucket.displayName,
-                            style = textStyle,
+                            fontSize = 15.sp,
+                            fontStyle = FontStyle.Normal,
+                            fontWeight = FontWeight.Normal,
+                            color = colorResource(id = R.color.matisse_dropdown_menu_text_color),
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 2
                         )
                         Text(
                             modifier = Modifier.padding(start = 6.dp, end = 6.dp),
                             text = "(${bucket.resources.size})",
-                            style = textStyle,
+                            fontSize = 15.sp,
+                            fontStyle = FontStyle.Normal,
+                            fontWeight = FontWeight.Normal,
+                            color = colorResource(id = R.color.matisse_dropdown_menu_text_color),
                             maxLines = 1
                         )
                     }

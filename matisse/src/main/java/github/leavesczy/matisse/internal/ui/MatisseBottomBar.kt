@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,14 +55,12 @@ internal fun MatisseBottomBar(
                 .wrapContentSize(align = Alignment.Center),
             text = bottomBarViewState.previewButtonText,
             textAlign = TextAlign.Center,
-            style = TextStyle(
-                color = if (bottomBarViewState.previewButtonClickable) {
-                    colorResource(id = R.color.matisse_preview_text_color)
-                } else {
-                    colorResource(id = R.color.matisse_preview_text_color_if_disable)
-                },
-                fontSize = 16.sp
-            )
+            fontSize = 16.sp,
+            color = if (bottomBarViewState.previewButtonClickable) {
+                colorResource(id = R.color.matisse_preview_text_color)
+            } else {
+                colorResource(id = R.color.matisse_preview_text_color_if_disable)
+            }
         )
         Text(
             modifier = Modifier
@@ -80,15 +77,13 @@ internal fun MatisseBottomBar(
                 .wrapContentSize(align = Alignment.Center),
             text = bottomBarViewState.sureButtonText,
             textAlign = TextAlign.Center,
-            style = TextStyle(
-                color = colorResource(
-                    id = if (bottomBarViewState.sureButtonClickable) {
-                        R.color.matisse_sure_text_color
-                    } else {
-                        R.color.matisse_sure_text_color_if_disable
-                    }
-                ),
-                fontSize = 16.sp
+            fontSize = 16.sp,
+            color = colorResource(
+                id = if (bottomBarViewState.sureButtonClickable) {
+                    R.color.matisse_sure_text_color
+                } else {
+                    R.color.matisse_sure_text_color_if_disable
+                }
             )
         )
     }

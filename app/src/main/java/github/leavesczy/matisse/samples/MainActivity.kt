@@ -137,18 +137,15 @@ private fun MainPage(
                 .padding(paddingValues = innerPadding)
                 .verticalScroll(state = rememberScrollState())
                 .padding(
-                    start = 20.dp, top = 20.dp,
-                    end = 20.dp, bottom = 60.dp
+                    start = 16.dp, top = 10.dp,
+                    end = 16.dp, bottom = 60.dp
                 ),
             horizontalAlignment = Alignment.Start,
         ) {
-            Text(
-                modifier = Modifier,
-                text = "媒体类型"
-            )
+            Title(text = "媒体类型")
             Row(modifier = Modifier) {
                 for (value in MediaType.values()) {
-                    MyRadioButton(
+                    RadioButton(
                         tips = value.name,
                         selected = mainPageViewState.mediaType == value,
                         onClick = {
@@ -157,19 +154,16 @@ private fun MainPage(
                     )
                 }
             }
-            Text(
-                modifier = Modifier,
-                text = "Gif"
-            )
+            Title(text = "Gif")
             Row(modifier = Modifier) {
-                MyRadioButton(
+                RadioButton(
                     tips = "包含",
                     selected = mainPageViewState.supportGif,
                     onClick = {
                         mainPageViewState.onSupportGifChanged(true)
                     }
                 )
-                MyRadioButton(
+                RadioButton(
                     tips = "不包含",
                     selected = !mainPageViewState.supportGif,
                     onClick = {
@@ -177,13 +171,10 @@ private fun MainPage(
                     }
                 )
             }
-            Text(
-                modifier = Modifier,
-                text = "选取数量"
-            )
+            Title(text = "选取数量")
             Row(modifier = Modifier) {
                 for (i in 1..3) {
-                    MyRadioButton(
+                    RadioButton(
                         tips = i.toString(),
                         selected = mainPageViewState.maxSelectable == i,
                         onClick = {
@@ -192,13 +183,10 @@ private fun MainPage(
                     )
                 }
             }
-            Text(
-                modifier = Modifier,
-                text = "ImageEngine"
-            )
+            Title(text = "ImageEngine")
             FlowRow(modifier = Modifier) {
                 for (engine in MediaImageEngine.values()) {
-                    MyRadioButton(
+                    RadioButton(
                         tips = engine.name,
                         selected = mainPageViewState.imageEngine == engine,
                         onClick = {
@@ -207,13 +195,10 @@ private fun MainPage(
                     )
                 }
             }
-            Text(
-                modifier = Modifier,
-                text = "拍照策略"
-            )
+            Title(text = "拍照策略")
             FlowRow(modifier = Modifier) {
                 for (strategy in MediaCaptureStrategy.values()) {
-                    MyRadioButton(
+                    RadioButton(
                         tips = strategy.name,
                         selected = mainPageViewState.captureStrategy == strategy,
                         onClick = {
@@ -223,36 +208,20 @@ private fun MainPage(
                 }
             }
             Button(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                text = "切换主题",
+                enabled = true,
                 onClick = mainPageViewState.switchTheme
-            ) {
-                Text(
-                    modifier = Modifier,
-                    text = "切换主题"
-                )
-            }
+            )
             Button(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                text = "直接拍照",
                 enabled = mainPageViewState.captureStrategy != MediaCaptureStrategy.Nothing,
                 onClick = takePicture
-            ) {
-                Text(
-                    modifier = Modifier,
-                    text = "直接拍照"
-                )
-            }
+            )
             Button(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                text = "选择图片或视频",
+                enabled = true,
                 onClick = imagePicker
-            ) {
-                Text(
-                    modifier = Modifier,
-                    text = "选择图片或视频"
-                )
-            }
+            )
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -262,6 +231,54 @@ private fun MainPage(
                 MediaResourceItem(mediaResource = mediaResource)
             }
         }
+    }
+}
+
+@Composable
+private fun Button(text: String, enabled: Boolean, onClick: () -> Unit) {
+    Button(
+        modifier = Modifier
+            .fillMaxWidth(),
+        enabled = enabled,
+        onClick = onClick
+    ) {
+        Text(
+            modifier = Modifier,
+            text = text,
+            fontSize = 16.sp
+        )
+    }
+}
+
+@Composable
+private fun Title(text: String) {
+    Text(
+        modifier = Modifier,
+        text = text,
+        fontSize = 17.sp
+    )
+}
+
+@Composable
+private fun RadioButton(
+    tips: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.padding(top = 6.dp, bottom = 6.dp, end = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier,
+            text = tips,
+            fontSize = 16.sp
+        )
+        RadioButton(
+            modifier = Modifier,
+            selected = selected,
+            onClick = onClick
+        )
     }
 }
 
@@ -293,27 +310,5 @@ private fun MediaResourceItem(mediaResource: MediaResource) {
                 lineHeight = 16.sp
             )
         }
-    }
-}
-
-@Composable
-private fun MyRadioButton(
-    tips: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier.padding(top = 6.dp, bottom = 6.dp, end = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            modifier = Modifier,
-            text = tips
-        )
-        RadioButton(
-            modifier = Modifier,
-            selected = selected,
-            onClick = onClick
-        )
     }
 }

@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.SlowMotionVideo
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -129,7 +130,12 @@ internal fun MatissePage(
     }
 }
 
-private class MediaPlacement(val isSelected: Boolean, val enabled: Boolean, val position: String)
+@Stable
+private data class MediaPlacement(
+    val isSelected: Boolean,
+    val enabled: Boolean,
+    val position: String
+)
 
 @Composable
 private fun LazyGridItemScope.MediaItem(
