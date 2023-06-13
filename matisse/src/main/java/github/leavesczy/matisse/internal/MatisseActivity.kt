@@ -2,6 +2,7 @@ package github.leavesczy.matisse.internal
 
 import android.Manifest
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -119,11 +120,11 @@ class MatisseActivity : AppCompatActivity() {
     }
 
     private fun requestOpenVideo(mediaResource: MediaResource) {
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(mediaResource.uri, mediaResource.mimeType)
-        if (intent.resolveActivity(packageManager) != null) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(mediaResource.uri, "video/*")
             startActivity(intent)
-        } else {
+        } catch (e: ActivityNotFoundException) {
             showToast(message = getString(R.string.matisse_no_apps_support_video_preview))
         }
     }
