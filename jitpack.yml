@@ -1,5 +1,8 @@
 jdk:
   - openjdk17
+jitpack:
+  release:
+    - 1.0.0
 before_install:
   - sdk update
   - sdk install java 17.0.3-tem
