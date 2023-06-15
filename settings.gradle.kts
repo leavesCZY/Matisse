@@ -1,6 +1,9 @@
 @file:Suppress("UnstableApiUsage")
 pluginManagement {
     repositories {
+        google()
+        gradlePluginPortal()
+        mavenCentral()
         maven {
             url = uri("https://mirrors.cloud.tencent.com/gradle/")
         }
@@ -10,9 +13,6 @@ pluginManagement {
         maven {
             url = uri("https://maven.aliyun.com/repository/gradle-plugin")
         }
-        google()
-        gradlePluginPortal()
-        mavenCentral()
     }
     plugins {
         val agpVersion: String by settings
@@ -28,11 +28,11 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
+        google()
+        mavenCentral()
         maven {
             url = uri("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
         }
-        google()
-        mavenCentral()
     }
 }
 
