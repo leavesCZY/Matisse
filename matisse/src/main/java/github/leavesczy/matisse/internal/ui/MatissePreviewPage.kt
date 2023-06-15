@@ -33,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -93,7 +94,14 @@ internal fun MatissePreviewPage(
                     mutableStateOf(value = true)
                 }
                 val previewResources = pageViewState.previewResources
-                val pagerState = rememberPagerState(initialPage = pageViewState.initialPage)
+                val pagerState = rememberPagerState(
+                    initialPage = pageViewState.initialPage,
+                    initialPageOffsetFraction = 0f
+                ) {
+                    // provide pageCount
+                    previewResources.size
+                }
+                //IMPORTANT  accompanist修改了pager的入参方法,0.31版本以下不再兼容
                 HorizontalPager(
                     modifier = Modifier
                         .fillMaxSize()
@@ -101,7 +109,6 @@ internal fun MatissePreviewPage(
                             controllerVisible = !controllerVisible
                         },
                     state = pagerState,
-                    pageCount = previewResources.size,
                     pageSpacing = 20.dp,
                     verticalAlignment = Alignment.CenterVertically,
                     key = { index ->
@@ -178,7 +185,7 @@ private fun BoxScope.BottomController(
         val selectedResources = pageViewState.selectedResources
         val previewResources = pageViewState.previewResources
         val imagePosition by remember(key1 = selectedResources, key2 = currentPageIndex) {
-            mutableStateOf(
+            mutableIntStateOf(
                 value = selectedResources.indexOf(element = previewResources[currentPageIndex])
             )
         }
