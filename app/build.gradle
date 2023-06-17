@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 plugins {
     id "com.android.application"
     id "org.jetbrains.kotlin.android"
@@ -49,6 +51,15 @@ android {
             zipAlignEnabled true
             debuggable false
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def simpleDateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
+            simpleDateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+            def time = simpleDateFormat.format(Calendar.getInstance().time)
+            output.outputFileName =
+                    "matisse_${variant.name}_versionCode_${variant.versionCode}_versionName_${variant.versionName}_${time}.apk"
         }
     }
     compileOptions {

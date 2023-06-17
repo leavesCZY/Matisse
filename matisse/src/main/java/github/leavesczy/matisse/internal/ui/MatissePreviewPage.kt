@@ -213,7 +213,6 @@ private fun BoxScope.BottomController(
                 } else {
                     ""
                 },
-                size = 24.dp,
                 checked = imagePosition > -1,
                 enabled = checkboxEnabled,
                 onClick = {

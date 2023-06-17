@@ -172,7 +172,7 @@ private fun LazyGridItemScope.MediaItem(
         MatisseCheckbox(
             modifier = Modifier
                 .align(alignment = Alignment.TopEnd)
-                .padding(all = 3.dp),
+                .padding(all = 4.dp),
             text = mediaPlacement.position,
             checked = mediaPlacement.isSelected,
             enabled = mediaPlacement.enabled,

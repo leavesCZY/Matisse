@@ -123,7 +123,7 @@ private fun BucketDropdownMenu(
     DropdownMenu(
         modifier = Modifier
             .background(color = colorResource(id = R.color.matisse_dropdown_menu_background_color))
-            .widthIn(min = 220.dp)
+            .widthIn(min = 200.dp)
             .heightIn(max = 400.dp),
         expanded = menuExpanded,
         offset = DpOffset(x = 10.dp, y = (-10).dp),
