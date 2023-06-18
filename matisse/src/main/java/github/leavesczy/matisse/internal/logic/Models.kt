@@ -1,6 +1,5 @@
 package github.leavesczy.matisse.internal.logic
 
-import android.net.Uri
 import androidx.compose.runtime.Stable
 import github.leavesczy.matisse.MediaResource
 
@@ -20,8 +19,7 @@ internal data class MatissePageViewState(
 @Stable
 internal data class MediaBucket(
     val id: String,
-    val displayName: String,
-    val displayIcon: Uri,
+    val name: String,
     val resources: List<MediaResource>,
     val supportCapture: Boolean
 )

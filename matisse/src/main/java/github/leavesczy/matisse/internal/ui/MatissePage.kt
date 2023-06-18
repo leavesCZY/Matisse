@@ -185,11 +185,10 @@ private fun LazyGridItemScope.MediaItem(
                 onClickMedia(mediaResource)
             }
     ) {
-        matisse.imageEngine.Image(
+        matisse.imageEngine.Thumbnail(
             modifier = Modifier.fillMaxSize(),
-            model = mediaResource.uri,
-            contentScale = ContentScale.Crop,
-            contentDescription = mediaResource.name
+            mediaResource = mediaResource,
+            contentScale = ContentScale.Crop
         )
         MatisseCheckbox(
             modifier = Modifier

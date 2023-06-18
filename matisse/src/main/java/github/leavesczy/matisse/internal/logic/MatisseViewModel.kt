@@ -2,7 +2,6 @@ package github.leavesczy.matisse.internal.logic
 
 import android.app.Application
 import android.content.Context
-import android.net.Uri
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
@@ -43,8 +42,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val defaultBucket = MediaBucket(
         id = DEFAULT_BUCKET_ID,
-        displayName = getString(R.string.matisse_default_bucket_name),
-        displayIcon = Uri.EMPTY,
+        name = getString(R.string.matisse_default_bucket_name),
         resources = emptyList(),
         supportCapture = supportCapture
     )
@@ -56,7 +54,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     )
 
     private val nothingMatisseTopBarViewState = MatisseTopBarViewState(
-        title = defaultBucket.displayName,
+        title = defaultBucket.name,
         mediaBuckets = listOf(defaultBucket),
         onClickBucket = ::onClickBucket
     )
@@ -130,7 +128,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private fun onClickBucket(mediaBucket: MediaBucket) {
         if (matissePageViewState.selectedBucket != mediaBucket) {
-            matisseTopBarViewState = matisseTopBarViewState.copy(title = mediaBucket.displayName)
+            matisseTopBarViewState = matisseTopBarViewState.copy(title = mediaBucket.name)
             matissePageViewState = matissePageViewState.copy(selectedBucket = mediaBucket)
         }
     }
@@ -154,12 +152,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 add(
                     element = MediaBucket(
                         id = DEFAULT_BUCKET_ID,
-                        displayName = getString(R.string.matisse_default_bucket_name),
-                        displayIcon = if (resources.isEmpty()) {
-                            Uri.EMPTY
-                        } else {
-                            resources[0].uri
-                        },
+                        name = getString(R.string.matisse_default_bucket_name),
                         resources = resources,
                         supportCapture = supportCapture
                     )
@@ -171,8 +164,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                     add(
                         element = MediaBucket(
                             id = bucketId,
-                            displayName = firstResource.bucketDisplayName,
-                            displayIcon = firstResource.uri,
+                            name = firstResource.bucketDisplayName,
                             resources = resourcesList,
                             supportCapture = false
                         )

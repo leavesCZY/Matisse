@@ -118,9 +118,8 @@ internal fun MatissePreviewPage(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .verticalScroll(state = rememberScrollState()),
-                            model = mediaResource.uri,
-                            contentScale = ContentScale.FillWidth,
-                            contentDescription = mediaResource.name
+                            mediaResource = mediaResource,
+                            contentScale = ContentScale.FillWidth
                         )
                         if (mediaResource.isVideo) {
                             Icon(

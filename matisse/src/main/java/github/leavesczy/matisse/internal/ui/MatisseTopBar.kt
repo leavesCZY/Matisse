@@ -2,6 +2,7 @@ package github.leavesczy.matisse.internal.ui
 
 import android.app.Activity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -138,20 +139,25 @@ private fun BucketDropdownMenu(
                         modifier = Modifier,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        matisse.imageEngine.Image(
-                            modifier = Modifier
-                                .size(size = 52.dp)
-                                .clip(shape = RoundedCornerShape(size = 4.dp))
-                                .background(color = colorResource(id = R.color.matisse_image_item_background_color)),
-                            model = bucket.displayIcon,
-                            contentScale = ContentScale.Crop,
-                            contentDescription = bucket.displayName
-                        )
+                        val firstResource = bucket.resources.firstOrNull()
+                        val modifier = Modifier
+                            .size(size = 52.dp)
+                            .clip(shape = RoundedCornerShape(size = 4.dp))
+                            .background(color = colorResource(id = R.color.matisse_image_item_background_color))
+                        if (firstResource != null) {
+                            matisse.imageEngine.Thumbnail(
+                                modifier = modifier,
+                                mediaResource = firstResource,
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Box(modifier = modifier)
+                        }
                         Text(
                             modifier = Modifier
                                 .weight(weight = 1f, fill = false)
                                 .padding(start = 10.dp),
-                            text = bucket.displayName,
+                            text = bucket.name,
                             fontSize = 15.sp,
                             fontStyle = FontStyle.Normal,
                             fontWeight = FontWeight.Normal,
