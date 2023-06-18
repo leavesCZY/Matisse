@@ -1,7 +1,6 @@
 package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
@@ -41,6 +40,7 @@ import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
 import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
+import github.leavesczy.matisse.internal.utils.clickableLimit
 import github.leavesczy.matisse.internal.utils.isVideo
 
 /**
@@ -130,6 +130,28 @@ internal fun MatissePage(
     }
 }
 
+@Composable
+private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .animateItemPlacement()
+            .padding(all = 1.dp)
+            .aspectRatio(ratio = 1f)
+            .clip(shape = RoundedCornerShape(size = 4.dp))
+            .background(color = colorResource(id = R.color.matisse_image_item_background_color))
+            .clickableLimit(minDuration = 1500L, onClick = onClick)
+    ) {
+        Icon(
+            modifier = Modifier
+                .fillMaxSize(fraction = 0.5f)
+                .align(alignment = Alignment.Center),
+            imageVector = Icons.Filled.PhotoCamera,
+            tint = colorResource(id = R.color.matisse_capture_icon_color),
+            contentDescription = "Capture"
+        )
+    }
+}
+
 @Stable
 private data class MediaPlacement(
     val isSelected: Boolean,
@@ -159,7 +181,7 @@ private fun LazyGridItemScope.MediaItem(
                     Modifier
                 }
             )
-            .clickable {
+            .clickableLimit {
                 onClickMedia(mediaResource)
             }
     ) {
@@ -190,28 +212,6 @@ private fun LazyGridItemScope.MediaItem(
                 contentDescription = mediaResource.name
             )
         }
-    }
-}
-
-@Composable
-private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .animateItemPlacement()
-            .padding(all = 1.dp)
-            .aspectRatio(ratio = 1f)
-            .clip(shape = RoundedCornerShape(size = 4.dp))
-            .background(color = colorResource(id = R.color.matisse_image_item_background_color))
-            .clickable(onClick = onClick)
-    ) {
-        Icon(
-            modifier = Modifier
-                .fillMaxSize(fraction = 0.5f)
-                .align(alignment = Alignment.Center),
-            imageVector = Icons.Filled.PhotoCamera,
-            tint = colorResource(id = R.color.matisse_capture_icon_color),
-            contentDescription = "Capture"
-        )
     }
 }
 

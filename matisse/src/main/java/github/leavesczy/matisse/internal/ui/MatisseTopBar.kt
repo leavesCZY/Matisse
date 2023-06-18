@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
-import github.leavesczy.matisse.internal.utils.clickableNoRipple
+import github.leavesczy.matisse.internal.utils.clickableNoRippleLimit
 
 /**
  * @Author: leavesCZY
@@ -68,7 +68,7 @@ internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewS
         Row(
             modifier = Modifier
                 .padding(end = 30.dp)
-                .clickableNoRipple {
+                .clickableNoRippleLimit {
                     menuExpanded = true
                 },
             verticalAlignment = Alignment.CenterVertically
@@ -76,7 +76,7 @@ internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewS
             val context = LocalContext.current
             Icon(
                 modifier = Modifier
-                    .clickableNoRipple {
+                    .clickableNoRippleLimit {
                         (context as Activity).finish()
                     }
                     .padding(start = 18.dp, end = 12.dp)

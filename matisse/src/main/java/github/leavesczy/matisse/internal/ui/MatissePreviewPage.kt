@@ -10,7 +10,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
@@ -48,7 +47,9 @@ import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
+import github.leavesczy.matisse.internal.utils.clickableLimit
 import github.leavesczy.matisse.internal.utils.clickableNoRipple
+import github.leavesczy.matisse.internal.utils.clickableNoRippleLimit
 import github.leavesczy.matisse.internal.utils.isVideo
 
 /**
@@ -97,7 +98,7 @@ internal fun MatissePreviewPage(
                 HorizontalPager(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickableNoRipple {
+                        .clickableNoRippleLimit {
                             controllerVisible = !controllerVisible
                         },
                     state = pagerState,
@@ -125,7 +126,7 @@ internal fun MatissePreviewPage(
                             Icon(
                                 modifier = Modifier
                                     .align(alignment = Alignment.Center)
-                                    .clickableNoRipple {
+                                    .clickableNoRippleLimit {
                                         requestOpenVideo(mediaResource)
                                     }
                                     .padding(all = 20.dp)
@@ -197,7 +198,7 @@ private fun BoxScope.BottomController(
             Text(
                 modifier = Modifier
                     .align(alignment = Alignment.CenterStart)
-                    .clickable(onClick = pageViewState.onDismissRequest)
+                    .clickableLimit(onClick = pageViewState.onDismissRequest)
                     .fillMaxHeight()
                     .padding(horizontal = 24.dp)
                     .wrapContentSize(align = Alignment.Center),
@@ -224,7 +225,7 @@ private fun BoxScope.BottomController(
                     .align(alignment = Alignment.CenterEnd)
                     .then(
                         other = if (pageViewState.sureButtonClickable) {
-                            Modifier.clickable(onClick = onSure)
+                            Modifier.clickableLimit(onClick = onSure)
                         } else {
                             Modifier
                         }
