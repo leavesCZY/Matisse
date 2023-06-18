@@ -95,12 +95,16 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     )
         private set
 
+    var loadingDialogVisible by mutableStateOf(value = false)
+        private set
+
     fun requestReadMediaPermissionResult(granted: Boolean) {
         viewModelScope.launch(context = Dispatchers.Main.immediate) {
             dismissPreviewPage()
             matisseBottomBarViewState = buildMatisseBottomBarViewState()
             selectedResources = emptyList()
             if (granted) {
+                loadingDialog(visible = true)
                 val resources = MediaProvider.loadResources(
                     context = context,
                     mimeTypes = mimeTypes
@@ -114,9 +118,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 matisseTopBarViewState = matisseTopBarViewState.copy(
                     mediaBuckets = allBucket
                 )
+                loadingDialog(visible = false)
             } else {
                 matissePageViewState = nothingMatissePageViewState
                 matisseTopBarViewState = nothingMatisseTopBarViewState
+                loadingDialog(visible = false)
                 showToast(message = getString(R.string.matisse_read_media_permission_denied))
             }
         }
@@ -273,6 +279,12 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             ),
             sureButtonClickable = selectedResources.isNotEmpty()
         )
+    }
+
+    private fun loadingDialog(visible: Boolean) {
+        if (loadingDialogVisible != visible) {
+            loadingDialogVisible = visible
+        }
     }
 
     private fun getString(@StringRes strId: Int): String {

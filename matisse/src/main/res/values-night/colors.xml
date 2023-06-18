@@ -27,4 +27,5 @@
     <color name="matisse_check_box_fill_color">#FF009688</color>
     <color name="matisse_check_box_text_color">#FFFFFFFF</color>
     <color name="matisse_video_icon_color">#99FFFFFF</color>
+    <color name="matisse_circular_loading_color">#FF009688</color>
 </resources>

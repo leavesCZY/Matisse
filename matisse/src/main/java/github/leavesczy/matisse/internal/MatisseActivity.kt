@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider
 import github.leavesczy.matisse.*
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.theme.MatisseTheme
+import github.leavesczy.matisse.internal.ui.LoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.ui.rememberSystemUiController
@@ -83,6 +84,7 @@ class MatisseActivity : AppCompatActivity() {
                     onSure = ::onSure,
                     requestOpenVideo = ::requestOpenVideo
                 )
+                LoadingDialog(visible = matisseViewModel.loadingDialogVisible)
             }
         }
         requestReadMediaPermission()
