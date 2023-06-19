@@ -40,10 +40,6 @@ class MainViewModel : ViewModel() {
     )
         private set
 
-    init {
-        setDefaultNightMode(darkTheme = darkTheme)
-    }
-
     private fun onMaxSelectableChanged(maxSelectable: Int) {
         if (mainPageViewState.maxSelectable != maxSelectable) {
             mainPageViewState = mainPageViewState.copy(maxSelectable = maxSelectable)

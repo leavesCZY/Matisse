@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import coil.compose.AsyncImage
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import github.leavesczy.matisse.MatisseCaptureContract
 import github.leavesczy.matisse.MatisseContract
 import github.leavesczy.matisse.MediaResource
@@ -66,7 +65,6 @@ class MainActivity : AppCompatActivity() {
                     mainViewModel.mediaPickerResult(result = result)
                 }
             MatisseTheme(darkTheme = mainViewModel.darkTheme) {
-                SetSystemBarUi(darkTheme = mainViewModel.darkTheme)
                 MainPage(
                     mainPageViewState = mainViewModel.mainPageViewState,
                     takePicture = {
@@ -78,27 +76,6 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
-    }
-
-    @Composable
-    private fun SetSystemBarUi(darkTheme: Boolean) {
-        val systemUiController = rememberSystemUiController()
-        val statusBarColor = MaterialTheme.colorScheme.primary
-        val navigationBarColor = MaterialTheme.colorScheme.background
-        systemUiController.setStatusBarColor(
-            color = statusBarColor,
-            darkIcons = false,
-            transformColorForLightContent = {
-                statusBarColor
-            }
-        )
-        systemUiController.setNavigationBarColor(
-            color = navigationBarColor,
-            darkIcons = !darkTheme,
-            transformColorForLightContent = {
-                navigationBarColor
-            }
-        )
     }
 
 }
@@ -116,10 +93,10 @@ private fun MainPage(
         topBar = {
             Box(
                 modifier = Modifier
+                    .background(color = MaterialTheme.colorScheme.primary)
                     .fillMaxWidth()
                     .statusBarsPadding()
                     .height(height = 60.dp)
-                    .background(color = MaterialTheme.colorScheme.primary)
             ) {
                 Text(
                     modifier = Modifier

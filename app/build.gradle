@@ -3,7 +3,6 @@ import java.text.SimpleDateFormat
 plugins {
     id "com.android.application"
     id "org.jetbrains.kotlin.android"
-    id "org.jetbrains.kotlin.kapt"
     id "kotlin-parcelize"
 }
 
@@ -99,25 +98,15 @@ dependencies {
     implementation "androidx.appcompat:appcompat:1.6.1"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
     implementation "androidx.activity:activity-compose:1.7.2"
-    implementation "com.google.accompanist:accompanist-systemuicontroller:0.30.1"
     def composeBom = platform("androidx.compose:compose-bom:2023.06.00")
     implementation composeBom
-    androidTestImplementation composeBom
     implementation "androidx.compose.ui:ui"
-    implementation "androidx.compose.ui:ui-graphics"
-    implementation "androidx.compose.ui:ui-tooling-preview"
     implementation "androidx.compose.material3:material3"
-    debugImplementation "androidx.compose.ui:ui-tooling"
-    debugImplementation "androidx.compose.ui:ui-test-manifest"
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4"
     def coilVersion = "2.4.0"
     implementation "io.coil-kt:coil-gif:$coilVersion"
     implementation "io.coil-kt:coil-video:$coilVersion"
     implementation "io.coil-kt:coil-compose:$coilVersion"
-    def glideVersion = "4.15.1"
     def glideComposeVersion = "1.0.0-alpha.3"
-    implementation "com.github.bumptech.glide:glide:$glideVersion"
-    kapt "com.github.bumptech.glide:compiler:$glideVersion"
     implementation "com.github.bumptech.glide:compose:$glideComposeVersion"
     implementation project(path: ":matisse")
 }

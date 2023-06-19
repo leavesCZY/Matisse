@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SlowMotionVideo
@@ -37,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -102,40 +104,18 @@ internal fun MatissePreviewPage(
                             controllerVisible = !controllerVisible
                         },
                     state = pagerState,
-                    pageCount = previewResources.size,
-                    pageSpacing = 20.dp,
+                    pageSpacing = 30.dp,
                     verticalAlignment = Alignment.CenterVertically,
+                    pageCount = previewResources.size,
                     key = { index ->
                         previewResources[index].id
                     }
                 ) { pageIndex ->
-                    val mediaResource = previewResources[pageIndex]
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                    ) {
-                        matisse.imageEngine.Image(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(state = rememberScrollState()),
-                            mediaResource = mediaResource,
-                            contentScale = ContentScale.FillWidth
-                        )
-                        if (mediaResource.isVideo) {
-                            Icon(
-                                modifier = Modifier
-                                    .align(alignment = Alignment.Center)
-                                    .clickableNoRippleLimit {
-                                        requestOpenVideo(mediaResource)
-                                    }
-                                    .padding(all = 20.dp)
-                                    .size(size = 48.dp),
-                                imageVector = Icons.Filled.SlowMotionVideo,
-                                tint = colorResource(id = R.color.matisse_video_icon_color),
-                                contentDescription = mediaResource.name
-                            )
-                        }
-                    }
+                    PreviewPage(
+                        matisse = matisse,
+                        mediaResource = previewResources[pageIndex],
+                        requestOpenVideo = requestOpenVideo
+                    )
                 }
                 BottomController(
                     visible = controllerVisible,
@@ -145,6 +125,52 @@ internal fun MatissePreviewPage(
                     onSure = onSure
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun PreviewPage(
+    matisse: Matisse,
+    mediaResource: MediaResource,
+    requestOpenVideo: (MediaResource) -> Unit
+) {
+    if (mediaResource.isVideo) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            matisse.imageEngine.Image(
+                modifier = Modifier
+                    .align(alignment = Alignment.Center)
+                    .fillMaxWidth(),
+                mediaResource = mediaResource,
+                contentScale = ContentScale.FillWidth
+            )
+            Icon(
+                modifier = Modifier
+                    .align(alignment = Alignment.Center)
+                    .clip(shape = CircleShape)
+                    .clickableLimit {
+                        requestOpenVideo(mediaResource)
+                    }
+                    .padding(all = 10.dp)
+                    .size(size = 48.dp),
+                imageVector = Icons.Filled.SlowMotionVideo,
+                tint = colorResource(id = R.color.matisse_video_icon_color),
+                contentDescription = mediaResource.name
+            )
+        }
+    } else {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(state = rememberScrollState())
+        ) {
+            matisse.imageEngine.Image(
+                modifier = Modifier
+                    .align(alignment = Alignment.Center)
+                    .fillMaxWidth(),
+                mediaResource = mediaResource,
+                contentScale = ContentScale.FillWidth
+            )
         }
     }
 }

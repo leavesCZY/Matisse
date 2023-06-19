@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -139,19 +140,20 @@ private fun BucketDropdownMenu(
                         modifier = Modifier,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        val firstResource = bucket.resources.firstOrNull()
-                        val modifier = Modifier
-                            .size(size = 52.dp)
-                            .clip(shape = RoundedCornerShape(size = 4.dp))
-                            .background(color = colorResource(id = R.color.matisse_image_item_background_color))
-                        if (firstResource != null) {
-                            matisse.imageEngine.Thumbnail(
-                                modifier = modifier,
-                                mediaResource = firstResource,
-                                contentScale = ContentScale.Crop
-                            )
-                        } else {
-                            Box(modifier = modifier)
+                        Box(
+                            modifier = Modifier
+                                .size(size = 52.dp)
+                                .clip(shape = RoundedCornerShape(size = 4.dp))
+                                .background(color = colorResource(id = R.color.matisse_image_item_background_color))
+                        ) {
+                            val firstResource = bucket.resources.firstOrNull()
+                            if (firstResource != null) {
+                                matisse.imageEngine.Thumbnail(
+                                    modifier = Modifier.fillMaxSize(),
+                                    mediaResource = firstResource,
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                         }
                         Text(
                             modifier = Modifier

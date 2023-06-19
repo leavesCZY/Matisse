@@ -91,7 +91,7 @@ internal object MediaProvider {
                         val name = cursor.getString(displayNameColumn, "")
                         val mimeType = cursor.getString(mineTypeColumn, "")
                         val bucketId = cursor.getString(bucketIdColumn, "")
-                        val bucketDisplayName = cursor.getString(bucketDisplayNameColumn, "")
+                        val bucketName = cursor.getString(bucketDisplayNameColumn, "")
                         val uri = ContentUris.withAppendedId(contentUri, id)
                         val mediaResource = MediaResource(
                             id = id,
@@ -100,7 +100,7 @@ internal object MediaProvider {
                             name = name,
                             mimeType = mimeType,
                             bucketId = bucketId,
-                            bucketDisplayName = bucketDisplayName
+                            bucketName = bucketName
                         )
                         mediaResourceList.add(element = mediaResource)
                     }

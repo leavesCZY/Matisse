@@ -137,8 +137,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         return withContext(context = Dispatchers.IO) {
             val resourcesMap = linkedMapOf<String, MutableList<MediaResource>>()
             resources.forEach { res ->
-                val bucketDisplayName = res.bucketDisplayName
-                if (bucketDisplayName.isNotBlank()) {
+                if (res.bucketName.isNotBlank()) {
                     val bucketId = res.bucketId
                     val list = resourcesMap[bucketId]
                     if (list == null) {
@@ -160,11 +159,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 resourcesMap.forEach {
                     val bucketId = it.key
                     val resourcesList = it.value
-                    val firstResource = resourcesList[0]
+                    val bucketName = resourcesList[0].bucketName
                     add(
                         element = MediaBucket(
                             id = bucketId,
-                            name = firstResource.bucketDisplayName,
+                            name = bucketName,
                             resources = resourcesList,
                             supportCapture = false
                         )

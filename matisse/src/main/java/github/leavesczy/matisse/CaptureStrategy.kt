@@ -3,7 +3,6 @@ package github.leavesczy.matisse
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -41,7 +40,7 @@ interface CaptureStrategy : Parcelable {
     fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean
 
     /**
-     * 获取用于存储拍照结果的 Uri
+     * 生成用于存储照片的图片 Uri
      */
     suspend fun createImageUri(context: Context): Uri?
 
@@ -59,9 +58,11 @@ interface CaptureStrategy : Parcelable {
      * 用于拍照时生成图片名
      */
     suspend fun createImageName(): String {
-        val uuid = UUID.randomUUID().toString()
-        val randomName = uuid.substring(0, 8)
-        return "$randomName.jpg"
+        return withContext(context = Dispatchers.IO) {
+            val uuid = UUID.randomUUID().toString()
+            val randomName = uuid.substring(0, 9)
+            return@withContext "$randomName.jpg"
+        }
     }
 
 }
@@ -95,9 +96,9 @@ object NothingCaptureStrategy : CaptureStrategy {
 }
 
 /**
- *  通过 FileProvider 来生成拍照所需要的 ImageUri
- *  无需申请权限，所拍的照片不会保存在系统相册里
- *  外部必须配置 FileProvider，并在此处传入 authority
+ *  通过 FileProvider 生成 ImageUri
+ *  外部必须配置 FileProvider，并通过 authority 来实例化 FileProviderCaptureStrategy
+ *  此策略无需申请任何权限，所拍的照片不会保存在系统相册里
  */
 @Parcelize
 class FileProviderCaptureStrategy(private val authority: String) : CaptureStrategy {
@@ -147,19 +148,11 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
             uriFileMap.remove(key = imageUri)
             val imageFilePath = imageFile.absolutePath
             val displayName = imageFile.name
-            val option = BitmapFactory.Options()
-            option.inJustDecodeBounds = true
-            BitmapFactory.decodeFile(imageFilePath, option)
-            val outMimeType = option.outMimeType
-            val mimeType = if (outMimeType.isNullOrBlank()) {
-                ""
-            } else {
-                outMimeType
-            }
+            val mimeType = "image/jpeg"
             return@withContext MediaResource(
                 id = 0,
                 bucketId = "",
-                bucketDisplayName = "",
+                bucketName = "",
                 uri = imageUri,
                 path = imageFilePath,
                 name = displayName,
@@ -181,7 +174,7 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
 }
 
 /**
- *  通过 MediaStore 来生成拍照所需要的 ImageUri
+ *  通过 MediaStore 生成 ImageUri
  *  根据系统版本决定是否需要申请 WRITE_EXTERNAL_STORAGE 权限
  *  所拍的照片会保存在系统相册里
  */
@@ -218,9 +211,9 @@ class MediaStoreCaptureStrategy : CaptureStrategy {
 
 /**
  * 根据系统版本智能选择拍照策略
- * 既避免需要申请权限，又可以在系统允许的情况下将拍照所得照片存入到系统相册中
  * 当系统版本小于 Android 10 时，执行 FileProviderCaptureStrategy 策略
  * 当系统版本大于等于 Android 10 时，执行 MediaStoreCaptureStrategy 策略
+ * 既避免需要申请权限，又可以在系统允许的情况下将照片存入到系统相册中
  */
 @Parcelize
 @Suppress("CanBeParameter")

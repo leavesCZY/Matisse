@@ -19,12 +19,10 @@ import github.leavesczy.matisse.MimeType
  * @Date: 2023/2/19 18:56
  * @Desc:
  */
-private const val MIN_DURATION = 500L
-
 private inline fun Modifier.clickableLimit(
     indication: Indication?,
     interactionSource: MutableInteractionSource,
-    minDuration: Long = MIN_DURATION,
+    minDuration: Long,
     crossinline onClick: () -> Unit
 ): Modifier = composed {
     var lastClickTime by remember { mutableStateOf(value = 0L) }
@@ -39,6 +37,8 @@ private inline fun Modifier.clickableLimit(
         }
     }
 }
+
+private const val MIN_DURATION = 500L
 
 internal inline fun Modifier.clickableLimit(
     minDuration: Long = MIN_DURATION,

@@ -17,7 +17,7 @@ import github.leavesczy.matisse.internal.utils.clickableNoRipple
  * @Desc:
  */
 @Composable
-fun LoadingDialog(visible: Boolean) {
+internal fun MatisseLoadingDialog(visible: Boolean) {
     if (visible) {
         Box(
             modifier = Modifier

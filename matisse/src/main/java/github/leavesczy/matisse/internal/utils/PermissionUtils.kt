@@ -14,16 +14,16 @@ internal object PermissionUtils {
     /**
      * 判断是否拥有指定权限
      */
-    fun checkSelfPermission(context: Context, permissions: Array<String>): Boolean {
+    fun permissionGranted(context: Context, permissions: Array<String>): Boolean {
         return permissions.all {
-            checkSelfPermission(context = context, permission = it)
+            permissionGranted(context = context, permission = it)
         }
     }
 
     /**
      * 判断是否拥有指定权限
      */
-    fun checkSelfPermission(context: Context, permission: String): Boolean {
+    fun permissionGranted(context: Context, permission: String): Boolean {
         return ActivityCompat.checkSelfPermission(
             context,
             permission

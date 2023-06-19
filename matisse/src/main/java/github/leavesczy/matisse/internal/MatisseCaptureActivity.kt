@@ -77,7 +77,7 @@ class MatisseCaptureActivity : AppCompatActivity() {
         if (PermissionUtils.containsPermission(
                 context = this,
                 permission = cameraPermission
-            ) && !PermissionUtils.checkSelfPermission(context = this, permission = cameraPermission)
+            ) && !PermissionUtils.permissionGranted(context = this, permission = cameraPermission)
         ) {
             requestCameraPermissionLauncher.launch(cameraPermission)
         } else {

@@ -42,7 +42,7 @@ data class MatisseCapture(val captureStrategy: CaptureStrategy) : Parcelable
 data class MediaResource(
     internal val id: Long,
     internal val bucketId: String,
-    internal val bucketDisplayName: String,
+    internal val bucketName: String,
     val uri: Uri,
     val path: String,
     val name: String,
