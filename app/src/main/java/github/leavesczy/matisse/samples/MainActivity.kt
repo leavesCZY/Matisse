@@ -43,6 +43,7 @@ import github.leavesczy.matisse.MatisseContract
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.samples.logic.MainPageViewState
 import github.leavesczy.matisse.samples.logic.MainViewModel
+import github.leavesczy.matisse.samples.logic.MediaCapturePreferences
 import github.leavesczy.matisse.samples.logic.MediaCaptureStrategy
 import github.leavesczy.matisse.samples.logic.MediaImageEngine
 import github.leavesczy.matisse.samples.logic.MediaType
@@ -180,6 +181,18 @@ private fun MainPage(
                         selected = mainPageViewState.captureStrategy == strategy,
                         onClick = {
                             mainPageViewState.onCaptureStrategyChanged(strategy)
+                        }
+                    )
+                }
+            }
+            Title(text = "拍照配置项")
+            FlowRow(modifier = Modifier) {
+                for (preferences in MediaCapturePreferences.values()) {
+                    RadioButton(
+                        tips = preferences.name,
+                        selected = mainPageViewState.capturePreferences == preferences,
+                        onClick = {
+                            mainPageViewState.onCapturePreferencesChanged(preferences)
                         }
                     )
                 }

@@ -7,8 +7,8 @@
 - 适配到 Android 13
 - 解决了多个系统兼容性问题
 - 按需索取权限，极简的权限声明
-- 支持自定义主题，提供了日夜间两套默认主题
 - 完全用 Kotlin & Jetpack Compose 实现
+- 支持自定义主题，提供了日夜间两套默认主题
 - 支持多种拍照策略，可以自由选择是否要申请权限
 
 接入指南：[Wiki](https://github.com/leavesCZY/Matisse/wiki)

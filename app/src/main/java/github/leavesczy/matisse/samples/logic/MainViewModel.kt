@@ -1,5 +1,6 @@
 package github.leavesczy.matisse.samples.logic
 
+import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,12 +29,14 @@ class MainViewModel : ViewModel() {
             mediaType = MediaType.All,
             supportGif = true,
             captureStrategy = MediaCaptureStrategy.Smart,
+            capturePreferences = MediaCapturePreferences.Normal,
             imageEngine = MediaImageEngine.Coil,
             mediaList = emptyList(),
             onMaxSelectableChanged = ::onMaxSelectableChanged,
             onMediaTypeChanged = ::onMediaTypeChanged,
             onSupportGifChanged = ::onSupportGifChanged,
             onCaptureStrategyChanged = ::onCaptureStrategyChanged,
+            onCapturePreferencesChanged = ::onCapturePreferencesChanged,
             onImageEngineChanged = ::onImageEngineChanged,
             switchTheme = ::switchTheme,
         )
@@ -70,6 +73,12 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    private fun onCapturePreferencesChanged(capturePreferences: MediaCapturePreferences) {
+        if (mainPageViewState.capturePreferences != capturePreferences) {
+            mainPageViewState = mainPageViewState.copy(capturePreferences = capturePreferences)
+        }
+    }
+
     private fun switchTheme() {
         darkTheme = !darkTheme
         setDefaultNightMode(darkTheme = darkTheme)
@@ -85,13 +94,20 @@ class MainViewModel : ViewModel() {
 
     private fun getMediaCaptureStrategy(): CaptureStrategy {
         val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
+        val extra = if (mainPageViewState.capturePreferences == MediaCapturePreferences.Normal) {
+            Bundle.EMPTY
+        } else {
+            val bundle = Bundle()
+            bundle.putBoolean("android.intent.extra.USE_FRONT_CAMERA", true)
+            bundle
+        }
         return when (mainPageViewState.captureStrategy) {
             MediaCaptureStrategy.Nothing -> {
                 NothingCaptureStrategy
             }
 
             MediaCaptureStrategy.FileProvider -> {
-                FileProviderCaptureStrategy(authority = fileProviderAuthority)
+                FileProviderCaptureStrategy(authority = fileProviderAuthority, extra = extra)
             }
 
             MediaCaptureStrategy.MediaStore -> {
@@ -99,7 +115,7 @@ class MainViewModel : ViewModel() {
             }
 
             MediaCaptureStrategy.Smart -> {
-                SmartCaptureStrategy(authority = fileProviderAuthority)
+                SmartCaptureStrategy(authority = fileProviderAuthority, extra = extra)
             }
         }
     }

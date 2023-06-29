@@ -15,6 +15,11 @@ enum class MediaCaptureStrategy {
     Smart
 }
 
+enum class MediaCapturePreferences {
+    Normal,
+    Custom
+}
+
 enum class MediaImageEngine {
     Coil,
     Glide
@@ -26,11 +31,13 @@ data class MainPageViewState(
     val supportGif: Boolean,
     val imageEngine: MediaImageEngine,
     val captureStrategy: MediaCaptureStrategy,
+    val capturePreferences: MediaCapturePreferences,
     val mediaList: List<MediaResource>,
     val onMaxSelectableChanged: (Int) -> Unit,
     val onMediaTypeChanged: (MediaType) -> Unit,
     val onSupportGifChanged: (Boolean) -> Unit,
     val onCaptureStrategyChanged: (MediaCaptureStrategy) -> Unit,
+    val onCapturePreferencesChanged: (MediaCapturePreferences) -> Unit,
     val onImageEngineChanged: (MediaImageEngine) -> Unit,
     val switchTheme: () -> Unit
 )

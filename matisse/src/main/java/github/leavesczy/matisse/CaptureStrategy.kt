@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
 import androidx.compose.runtime.Stable
@@ -16,7 +17,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.io.File
-import java.util.*
+import java.util.UUID
 
 /**
  * @Author: CZY
@@ -65,6 +66,14 @@ interface CaptureStrategy : Parcelable {
         }
     }
 
+    /**
+     * 用于为相机设置启动参数
+     * 返回值会传递给 ImageCapture Intent
+     */
+    fun getCaptureExtra(): Bundle {
+        return Bundle.EMPTY
+    }
+
 }
 
 /**
@@ -101,7 +110,10 @@ object NothingCaptureStrategy : CaptureStrategy {
  *  此策略无需申请任何权限，所拍的照片不会保存在系统相册里
  */
 @Parcelize
-class FileProviderCaptureStrategy(private val authority: String) : CaptureStrategy {
+data class FileProviderCaptureStrategy(
+    private val authority: String,
+    private val extra: Bundle = Bundle.EMPTY
+) : CaptureStrategy {
 
     @IgnoredOnParcel
     private val uriFileMap = mutableMapOf<Uri, File>()
@@ -171,6 +183,10 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
         }
     }
 
+    override fun getCaptureExtra(): Bundle {
+        return extra
+    }
+
 }
 
 /**
@@ -179,7 +195,7 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
  *  所拍的照片会保存在系统相册里
  */
 @Parcelize
-class MediaStoreCaptureStrategy : CaptureStrategy {
+data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) : CaptureStrategy {
 
     override fun isEnabled(): Boolean {
         return true
@@ -207,6 +223,10 @@ class MediaStoreCaptureStrategy : CaptureStrategy {
         MediaProvider.deleteMedia(context = context, uri = imageUri)
     }
 
+    override fun getCaptureExtra(): Bundle {
+        return extra
+    }
+
 }
 
 /**
@@ -216,14 +236,16 @@ class MediaStoreCaptureStrategy : CaptureStrategy {
  * 既避免需要申请权限，又可以在系统允许的情况下将照片存入到系统相册中
  */
 @Parcelize
-@Suppress("CanBeParameter")
-class SmartCaptureStrategy(private val authority: String) : CaptureStrategy {
+data class SmartCaptureStrategy(
+    private val authority: String,
+    private val extra: Bundle = Bundle.EMPTY
+) : CaptureStrategy {
 
     @IgnoredOnParcel
     private val proxy = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        MediaStoreCaptureStrategy()
+        MediaStoreCaptureStrategy(extra = extra)
     } else {
-        FileProviderCaptureStrategy(authority = authority)
+        FileProviderCaptureStrategy(authority = authority, extra = extra)
     }
 
     override fun isEnabled(): Boolean {
@@ -244,6 +266,14 @@ class SmartCaptureStrategy(private val authority: String) : CaptureStrategy {
 
     override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
         proxy.onTakePictureCanceled(context = context, imageUri = imageUri)
+    }
+
+    override suspend fun createImageName(): String {
+        return proxy.createImageName()
+    }
+
+    override fun getCaptureExtra(): Bundle {
+        return proxy.getCaptureExtra()
     }
 
 }
