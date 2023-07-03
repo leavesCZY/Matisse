@@ -2,6 +2,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
+    id("maven-publish")
 }
 
 android {
@@ -27,6 +28,25 @@ android {
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.4"
+    }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+//                groupId = "com.github.leavesczy"
+//                artifactId = "matisse"
+//                version = "1.0.0"
+                from(components["release"])
+            }
+        }
     }
 }
 
