@@ -41,7 +41,7 @@ afterEvaluate {
     publishing {
         publications {
             create<MavenPublication>("release") {
-//                groupId = "com.github.leavesczy"
+//                groupId = "com.github.leavesCZY"
 //                artifactId = "matisse"
 //                version = "1.0.0"
                 from(components["release"])
@@ -55,8 +55,8 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.activity:activity-compose:1.7.0")
-    val composeBom = platform("androidx.compose:compose-bom:2023.04.00")
+    implementation("androidx.activity:activity-compose:1.7.2")
+    val composeBom = platform("androidx.compose:compose-bom:2023.06.01")
     implementation(composeBom)
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
