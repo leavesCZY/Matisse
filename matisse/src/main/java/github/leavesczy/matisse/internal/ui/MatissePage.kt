@@ -78,6 +78,7 @@ internal fun MatissePage(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
+            state = matissePageViewState.lazyGridState,
             columns = GridCells.Fixed(count = integerResource(id = R.integer.matisse_image_span_count)),
             contentPadding = PaddingValues(bottom = 60.dp)
         ) {

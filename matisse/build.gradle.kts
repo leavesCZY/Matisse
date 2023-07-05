@@ -42,7 +42,7 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
 //                groupId = "com.github.leavesCZY"
-//                artifactId = "matisse"
+//                artifactId = "Matisse"
 //                version = "1.0.0"
                 from(components["release"])
             }

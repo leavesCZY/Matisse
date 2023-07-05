@@ -1,5 +1,6 @@
 package github.leavesczy.matisse.internal.logic
 
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Stable
 import github.leavesczy.matisse.MediaResource
 
@@ -11,6 +12,7 @@ import github.leavesczy.matisse.MediaResource
  */
 @Stable
 internal data class MatissePageViewState(
+    val lazyGridState: LazyGridState,
     val selectedBucket: MediaBucket,
     val onClickMedia: (MediaResource) -> Unit,
     val onMediaCheckChanged: (MediaResource) -> Unit

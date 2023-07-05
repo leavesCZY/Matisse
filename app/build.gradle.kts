@@ -79,7 +79,7 @@ android {
     }
     packaging {
         resources {
-            excludes += listOf(
+            excludes += setOf(
                 "**/*.md",
                 "**/*.version",
                 "**/*.properties",
