@@ -36,12 +36,12 @@ interface CaptureStrategy : Parcelable {
     fun isEnabled(): Boolean
 
     /**
-     * 是否需要申请读取存储卡的权限
+     * 是否需要申请 WRITE_EXTERNAL_STORAGE 权限
      */
     fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean
 
     /**
-     * 生成用于存储照片的图片 Uri
+     * 生成图片 Uri
      */
     suspend fun createImageUri(context: Context): Uri?
 
@@ -56,7 +56,7 @@ interface CaptureStrategy : Parcelable {
     suspend fun onTakePictureCanceled(context: Context, imageUri: Uri)
 
     /**
-     * 用于拍照时生成图片名
+     * 生成图片名
      */
     suspend fun createImageName(): String {
         return withContext(context = Dispatchers.IO) {
@@ -106,7 +106,7 @@ object NothingCaptureStrategy : CaptureStrategy {
 
 /**
  *  通过 FileProvider 生成 ImageUri
- *  外部必须配置 FileProvider，并通过 authority 来实例化 FileProviderCaptureStrategy
+ *  外部必须配置 FileProvider，通过 authority 来实例化 FileProviderCaptureStrategy
  *  此策略无需申请任何权限，所拍的照片不会保存在系统相册里
  */
 @Parcelize
@@ -192,7 +192,7 @@ data class FileProviderCaptureStrategy(
 /**
  *  通过 MediaStore 生成 ImageUri
  *  根据系统版本决定是否需要申请 WRITE_EXTERNAL_STORAGE 权限
- *  所拍的照片会保存在系统相册里
+ *  所拍的照片会保存在系统相册中
  */
 @Parcelize
 data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) : CaptureStrategy {
