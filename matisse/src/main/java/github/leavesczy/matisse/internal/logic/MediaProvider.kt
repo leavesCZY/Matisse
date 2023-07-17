@@ -20,18 +20,19 @@ import java.io.File
  */
 internal object MediaProvider {
 
-    suspend fun createImage(context: Context, fileName: String): Uri? {
+    suspend fun createImage(context: Context, imageName: String, mimeType: String): Uri? {
         return withContext(context = Dispatchers.IO) {
             return@withContext try {
+                val contentValues = ContentValues()
+                contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageName)
+                contentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
+                contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/Camera")
                 val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
                 } else {
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 }
-                val newImage = ContentValues().apply {
-                    put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-                }
-                context.contentResolver.insert(imageCollection, newImage)
+                context.contentResolver.insert(imageCollection, contentValues)
             } catch (e: Throwable) {
                 e.printStackTrace()
                 null

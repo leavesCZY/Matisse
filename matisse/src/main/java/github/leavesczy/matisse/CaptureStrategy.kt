@@ -1,6 +1,7 @@
 package github.leavesczy.matisse
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -17,7 +18,8 @@ import kotlinx.coroutines.withContext
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.io.File
-import java.util.UUID
+import java.text.SimpleDateFormat
+import java.util.Date
 
 /**
  * @Author: CZY
@@ -58,17 +60,19 @@ interface CaptureStrategy : Parcelable {
     /**
      * 生成图片名
      */
-    suspend fun createImageName(): String {
+    @SuppressLint("SimpleDateFormat")
+    suspend fun createImageName(context: Context): String {
         return withContext(context = Dispatchers.IO) {
-            val uuid = UUID.randomUUID().toString()
-            val randomName = uuid.substring(0, 9)
-            return@withContext "$randomName.jpg"
+            val date = Date()
+            val time = SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(date)
+            val imageName = "IMG_" + time.format(date)
+            return@withContext "$imageName.jpg"
         }
     }
 
     /**
      * 用于为相机设置启动参数
-     * 返回值会传递给 ImageCapture Intent
+     * 返回值会传递给启动相机的 Intent
      */
     fun getCaptureExtra(): Bundle {
         return Bundle.EMPTY
@@ -145,7 +149,7 @@ data class FileProviderCaptureStrategy(
     private suspend fun createTempFile(context: Context): File? {
         return withContext(context = Dispatchers.IO) {
             val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val file = File(storageDir, createImageName())
+            val file = File(storageDir, createImageName(context = context))
             if (file.createNewFile()) {
                 file
             } else {
@@ -212,7 +216,11 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
     }
 
     override suspend fun createImageUri(context: Context): Uri? {
-        return MediaProvider.createImage(context = context, fileName = createImageName())
+        return MediaProvider.createImage(
+            context = context,
+            imageName = createImageName(context = context),
+            mimeType = "image/jpeg"
+        )
     }
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
@@ -268,8 +276,8 @@ data class SmartCaptureStrategy(
         proxy.onTakePictureCanceled(context = context, imageUri = imageUri)
     }
 
-    override suspend fun createImageName(): String {
-        return proxy.createImageName()
+    override suspend fun createImageName(context: Context): String {
+        return proxy.createImageName(context = context)
     }
 
     override fun getCaptureExtra(): Bundle {
