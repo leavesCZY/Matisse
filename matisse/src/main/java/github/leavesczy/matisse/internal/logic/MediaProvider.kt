@@ -20,13 +20,18 @@ import java.io.File
  */
 internal object MediaProvider {
 
-    suspend fun createImage(context: Context, imageName: String, mimeType: String): Uri? {
-        return withContext(context = Dispatchers.IO) {
+    suspend fun createImage(
+        context: Context,
+        imageName: String,
+        mimeType: String,
+        relativePath: String
+    ): Uri? {
+        return withContext(context = Dispatchers.Default) {
             return@withContext try {
                 val contentValues = ContentValues()
                 contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageName)
                 contentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
-                contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/Camera")
+                contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, relativePath)
                 val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
                 } else {
@@ -41,7 +46,7 @@ internal object MediaProvider {
     }
 
     suspend fun deleteMedia(context: Context, uri: Uri) {
-        withContext(context = Dispatchers.IO) {
+        withContext(context = Dispatchers.Default) {
             try {
                 context.contentResolver.delete(uri, null, null)
             } catch (e: Throwable) {
@@ -55,7 +60,7 @@ internal object MediaProvider {
         selection: String?,
         selectionArgs: Array<String>?
     ): List<MediaResource>? {
-        return withContext(context = Dispatchers.IO) {
+        return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID
             val dataColumn = MediaStore.MediaColumns.DATA
             val displayNameColumn = MediaStore.MediaColumns.DISPLAY_NAME
@@ -117,7 +122,7 @@ internal object MediaProvider {
         context: Context,
         mimeTypes: List<MimeType>
     ): List<MediaResource> {
-        return withContext(context = Dispatchers.IO) {
+        return withContext(context = Dispatchers.Default) {
             val selection = StringBuilder()
             selection.append(MediaStore.MediaColumns.MIME_TYPE)
             selection.append(" IN (")
@@ -139,11 +144,8 @@ internal object MediaProvider {
     }
 
     suspend fun loadResources(context: Context, uri: Uri): MediaResource? {
-        return withContext(context = Dispatchers.IO) {
+        return withContext(context = Dispatchers.Default) {
             val id = ContentUris.parseId(uri)
-            if (id == -1L) {
-                return@withContext null
-            }
             val selection = MediaStore.MediaColumns._ID + " = " + id
             val resources = loadResources(
                 context = context,

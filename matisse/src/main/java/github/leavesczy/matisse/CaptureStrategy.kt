@@ -62,7 +62,7 @@ interface CaptureStrategy : Parcelable {
      */
     @SuppressLint("SimpleDateFormat")
     suspend fun createImageName(context: Context): String {
-        return withContext(context = Dispatchers.IO) {
+        return withContext(context = Dispatchers.Default) {
             val date = Date()
             val time = SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(date)
             val imageName = "IMG_" + time.format(date)
@@ -108,6 +108,8 @@ object NothingCaptureStrategy : CaptureStrategy {
 
 }
 
+private const val JPG_MIME_TYPE = "image/jpeg"
+
 /**
  *  通过 FileProvider 生成 ImageUri
  *  外部必须配置 FileProvider，通过 authority 来实例化 FileProviderCaptureStrategy
@@ -131,7 +133,7 @@ data class FileProviderCaptureStrategy(
     }
 
     override suspend fun createImageUri(context: Context): Uri? {
-        return withContext(context = Dispatchers.IO) {
+        return withContext(context = Dispatchers.Default) {
             try {
                 val tempFile = createTempFile(context = context)
                 if (tempFile != null) {
@@ -159,12 +161,11 @@ data class FileProviderCaptureStrategy(
     }
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
-        return withContext(context = Dispatchers.IO) {
+        return withContext(context = Dispatchers.Default) {
             val imageFile = uriFileMap[imageUri]!!
             uriFileMap.remove(key = imageUri)
             val imageFilePath = imageFile.absolutePath
             val displayName = imageFile.name
-            val mimeType = "image/jpeg"
             return@withContext MediaResource(
                 id = 0,
                 bucketId = "",
@@ -172,7 +173,7 @@ data class FileProviderCaptureStrategy(
                 uri = imageUri,
                 path = imageFilePath,
                 name = displayName,
-                mimeType = mimeType
+                mimeType = JPG_MIME_TYPE
             )
         }
     }
@@ -219,7 +220,8 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
         return MediaProvider.createImage(
             context = context,
             imageName = createImageName(context = context),
-            mimeType = "image/jpeg"
+            mimeType = JPG_MIME_TYPE,
+            relativePath = "DCIM/Camera"
         )
     }
 

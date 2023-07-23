@@ -139,7 +139,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     }
 
     private suspend fun groupByBucket(resources: List<MediaResource>): List<MediaBucket> {
-        return withContext(context = Dispatchers.IO) {
+        return withContext(context = Dispatchers.Default) {
             val resourcesMap = linkedMapOf<String, MutableList<MediaResource>>()
             resources.forEach { res ->
                 if (res.bucketName.isNotBlank()) {

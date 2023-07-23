@@ -282,6 +282,7 @@ private fun MediaResourceItem(mediaResource: MediaResource) {
     ) {
         Row(
             modifier = Modifier
+                .padding(all = 6.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -295,6 +296,8 @@ private fun MediaResourceItem(mediaResource: MediaResource) {
             Text(
                 modifier = Modifier.padding(start = 10.dp),
                 text = mediaResource.uri.toString() + "\n\n" +
+                        mediaResource.path + "\n\n" +
+                        mediaResource.name + "\n\n" +
                         mediaResource.mimeType,
                 fontSize = 14.sp,
                 lineHeight = 16.sp

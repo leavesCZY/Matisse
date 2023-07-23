@@ -94,12 +94,17 @@ class MainViewModel : ViewModel() {
 
     private fun getMediaCaptureStrategy(): CaptureStrategy {
         val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
-        val extra = if (mainPageViewState.capturePreferences == MediaCapturePreferences.Normal) {
-            Bundle.EMPTY
-        } else {
-            val bundle = Bundle()
-            bundle.putBoolean("android.intent.extra.USE_FRONT_CAMERA", true)
-            bundle
+        val extra = when (mainPageViewState.capturePreferences) {
+            MediaCapturePreferences.Normal -> {
+                Bundle.EMPTY
+            }
+
+            MediaCapturePreferences.Custom -> {
+                val bundle = Bundle()
+                bundle.putBoolean("android.intent.extra.USE_FRONT_CAMERA", true)
+                bundle.putInt("android.intent.extras.CAMERA_FACING", 1)
+                bundle
+            }
         }
         return when (mainPageViewState.captureStrategy) {
             MediaCaptureStrategy.Nothing -> {
