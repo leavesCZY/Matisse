@@ -38,7 +38,7 @@ private inline fun Modifier.clickableLimit(
     }
 }
 
-private const val MIN_DURATION = 500L
+private const val MIN_DURATION = 300L
 
 internal inline fun Modifier.clickableLimit(
     minDuration: Long = MIN_DURATION,

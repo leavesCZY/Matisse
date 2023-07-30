@@ -66,9 +66,8 @@ internal fun MatissePreviewPage(
     requestOpenVideo: (MediaResource) -> Unit,
     onSure: () -> Unit
 ) {
-    val visible = pageViewState.visible
     AnimatedVisibility(
-        visible = visible,
+        visible = pageViewState.visible,
         enter = slideInHorizontally(animationSpec = tween(
             durationMillis = 400, easing = FastOutSlowInEasing
         ), initialOffsetX = { it }),
@@ -76,7 +75,17 @@ internal fun MatissePreviewPage(
             durationMillis = 400, easing = FastOutSlowInEasing
         ), targetOffsetX = { it })
     ) {
-        BackHandler(enabled = visible, onBack = pageViewState.onDismissRequest)
+        BackHandler(enabled = pageViewState.visible, onBack = pageViewState.onDismissRequest)
+        var controllerVisible by remember {
+            mutableStateOf(value = true)
+        }
+        val previewResources = pageViewState.previewResources
+        val pagerState = rememberPagerState(
+            initialPage = pageViewState.initialPage,
+            initialPageOffsetFraction = 0f
+        ) {
+            previewResources.size
+        }
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             contentWindowInsets = WindowInsets(
@@ -92,11 +101,6 @@ internal fun MatissePreviewPage(
                     .fillMaxSize()
                     .padding(paddingValues = paddingValues)
             ) {
-                var controllerVisible by remember {
-                    mutableStateOf(value = true)
-                }
-                val previewResources = pageViewState.previewResources
-                val pagerState = rememberPagerState(initialPage = pageViewState.initialPage)
                 HorizontalPager(
                     modifier = Modifier
                         .fillMaxSize()
@@ -104,9 +108,8 @@ internal fun MatissePreviewPage(
                             controllerVisible = !controllerVisible
                         },
                     state = pagerState,
-                    pageSpacing = 30.dp,
+                    pageSpacing = 20.dp,
                     verticalAlignment = Alignment.CenterVertically,
-                    pageCount = previewResources.size,
                     key = { index ->
                         previewResources[index].id
                     }
@@ -186,7 +189,9 @@ private fun BoxScope.BottomController(
     AnimatedVisibility(
         modifier = Modifier
             .align(alignment = Alignment.BottomCenter)
-            .clickableNoRipple {},
+            .clickableNoRipple {
+
+            },
         visible = visible,
         enter = slideInVertically(
             animationSpec = tween(
