@@ -2,7 +2,7 @@
 
 一个用 Jetpack Compose 实现的 Android 图片/视频 选择框架
 
-特点 & 优势：
+特点：
 
 - 适配到 Android 13
 - 解决了多个系统兼容性问题

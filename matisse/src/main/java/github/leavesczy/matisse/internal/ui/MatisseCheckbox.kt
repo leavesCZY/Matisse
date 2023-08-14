@@ -5,13 +5,16 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.*
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,9 +25,6 @@ import github.leavesczy.matisse.R
  * @Date: 2022/5/31 14:27
  * @Desc:
  */
-private val CheckboxSize = 24.dp
-
-@OptIn(ExperimentalTextApi::class)
 @Composable
 internal fun MatisseCheckbox(
     modifier: Modifier,
@@ -42,6 +42,7 @@ internal fun MatisseCheckbox(
     )
     val fillColor = colorResource(id = R.color.matisse_check_box_fill_color)
     val textColor = colorResource(id = R.color.matisse_check_box_text_color)
+    val checkboxSize = 24.dp
     val textMeasurer = rememberTextMeasurer()
     Canvas(
         modifier = modifier
@@ -53,10 +54,10 @@ internal fun MatisseCheckbox(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(
                     bounded = false,
-                    radius = CheckboxSize / 2
+                    radius = checkboxSize / 2
                 )
             )
-            .requiredSize(size = CheckboxSize)
+            .requiredSize(size = checkboxSize)
     ) {
         val checkboxSide = this.size.width
         val checkboxRadius = checkboxSide / 2f

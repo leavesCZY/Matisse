@@ -33,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -209,7 +210,7 @@ private fun BoxScope.BottomController(
         val selectedResources = pageViewState.selectedResources
         val previewResources = pageViewState.previewResources
         val imagePosition by remember(key1 = selectedResources, key2 = currentPageIndex) {
-            mutableStateOf(
+            mutableIntStateOf(
                 value = selectedResources.indexOf(element = previewResources[currentPageIndex])
             )
         }

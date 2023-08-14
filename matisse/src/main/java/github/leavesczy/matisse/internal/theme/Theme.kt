@@ -10,9 +10,9 @@ import androidx.compose.ui.unit.dp
 
 private val colors = lightColorScheme()
 
-private val Typography = Typography()
+private val typography = Typography()
 
-private val Shapes = Shapes(
+private val shapes = Shapes(
     small = RoundedCornerShape(size = 4.dp),
     medium = RoundedCornerShape(size = 8.dp),
     large = RoundedCornerShape(size = 12.dp)
@@ -22,8 +22,8 @@ private val Shapes = Shapes(
 internal fun MatisseTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = colors,
-        typography = Typography,
-        shapes = Shapes,
+        typography = typography,
+        shapes = shapes,
         content = content
     )
 }
