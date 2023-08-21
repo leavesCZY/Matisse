@@ -45,6 +45,7 @@ import github.leavesczy.matisse.samples.logic.MainPageViewState
 import github.leavesczy.matisse.samples.logic.MainViewModel
 import github.leavesczy.matisse.samples.logic.MediaCapturePreferences
 import github.leavesczy.matisse.samples.logic.MediaCaptureStrategy
+import github.leavesczy.matisse.samples.logic.MediaFilterStrategy
 import github.leavesczy.matisse.samples.logic.MediaImageEngine
 import github.leavesczy.matisse.samples.logic.MediaType
 import github.leavesczy.matisse.samples.ui.theme.MatisseTheme
@@ -193,6 +194,18 @@ private fun MainPage(
                         selected = mainPageViewState.capturePreferences == preferences,
                         onClick = {
                             mainPageViewState.onCapturePreferencesChanged(preferences)
+                        }
+                    )
+                }
+            }
+            Title(text = "图片过滤策略")
+            FlowRow(modifier = Modifier) {
+                for (strategy in MediaFilterStrategy.values()) {
+                    RadioButton(
+                        tips = strategy.name,
+                        selected = mainPageViewState.filterStrategy == strategy,
+                        onClick = {
+                            mainPageViewState.onFilterStrategyChanged(strategy)
                         }
                     )
                 }

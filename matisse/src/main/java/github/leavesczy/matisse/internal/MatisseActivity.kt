@@ -94,7 +94,7 @@ class MatisseActivity : AppCompatActivity() {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
         ) {
-            val mimeTypes = matisse.mimeTypes
+            val mimeTypes = matisse.mediaFilter.supportedMimeTypes()
             val onlyImage = mimeTypes.all { it.isImage }
             val onlyVideo = mimeTypes.all { it.isVideo }
             if (onlyImage) {

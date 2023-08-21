@@ -14,7 +14,7 @@ import kotlinx.parcelize.Parcelize
  */
 /**
  * @param maxSelectable 最多允许选择几个媒体资源
- * @param mimeTypes 要展示的媒体资源类型
+ * @param mediaFilter 用于定义媒体资源的加载和过滤规则
  * @param imageEngine 用于实现加载图片的逻辑
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
@@ -22,14 +22,14 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Matisse(
     val maxSelectable: Int,
-    val mimeTypes: List<MimeType>,
+    val mediaFilter: MediaFilter,
     val imageEngine: ImageEngine,
     val captureStrategy: CaptureStrategy = NothingCaptureStrategy
 ) : Parcelable {
 
     init {
         assert(value = maxSelectable >= 1)
-        assert(value = mimeTypes.isNotEmpty())
+        assert(value = mediaFilter.supportedMimeTypes().isNotEmpty())
     }
 
 }
@@ -69,24 +69,24 @@ enum class MimeType(val type: String) {
 
     companion object {
 
-        fun ofAll(hasGif: Boolean = true): List<MimeType> {
+        fun ofAll(hasGif: Boolean = true): Set<MimeType> {
             return if (hasGif) {
-                values().toList()
+                values().toSet()
             } else {
-                values().filter { it != GIF }
+                values().filter { it != GIF }.toSet()
             }
         }
 
-        fun ofImage(hasGif: Boolean = true): List<MimeType> {
+        fun ofImage(hasGif: Boolean = true): Set<MimeType> {
             return if (hasGif) {
                 values().filter { it.isImage }
             } else {
                 values().filter { it.isImage && it != GIF }
-            }
+            }.toSet()
         }
 
-        fun ofVideo(): List<MimeType> {
-            return values().filter { it.isVideo }
+        fun ofVideo(): Set<MimeType> {
+            return values().filter { it.isVideo }.toSet()
         }
 
     }

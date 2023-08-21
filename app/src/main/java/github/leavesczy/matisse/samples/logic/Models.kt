@@ -25,12 +25,19 @@ enum class MediaImageEngine {
     Glide
 }
 
+enum class MediaFilterStrategy {
+    Close,
+    IgnoreSelected,
+    AttachSelected
+}
+
 data class MainPageViewState(
     val maxSelectable: Int,
     val mediaType: MediaType,
     val supportGif: Boolean,
     val imageEngine: MediaImageEngine,
     val captureStrategy: MediaCaptureStrategy,
+    val filterStrategy: MediaFilterStrategy,
     val capturePreferences: MediaCapturePreferences,
     val mediaList: List<MediaResource>,
     val onMaxSelectableChanged: (Int) -> Unit,
@@ -38,6 +45,7 @@ data class MainPageViewState(
     val onSupportGifChanged: (Boolean) -> Unit,
     val onCaptureStrategyChanged: (MediaCaptureStrategy) -> Unit,
     val onCapturePreferencesChanged: (MediaCapturePreferences) -> Unit,
+    val onFilterStrategyChanged: (MediaFilterStrategy) -> Unit,
     val onImageEngineChanged: (MediaImageEngine) -> Unit,
     val switchTheme: () -> Unit
 )

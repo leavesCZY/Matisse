@@ -7,8 +7,8 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import github.leavesczy.matisse.MediaFilter
 import github.leavesczy.matisse.MediaResource
-import github.leavesczy.matisse.MimeType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -58,7 +58,8 @@ internal object MediaProvider {
     private suspend fun loadResources(
         context: Context,
         selection: String?,
-        selectionArgs: Array<String>?
+        selectionArgs: Array<String>?,
+        ignoreMedia: suspend (MediaResource) -> Boolean,
     ): List<MediaResource>? {
         return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID
@@ -108,6 +109,9 @@ internal object MediaProvider {
                             bucketId = bucketId,
                             bucketName = bucketName
                         )
+                        if (ignoreMedia(mediaResource)) {
+                            continue
+                        }
                         mediaResourceList.add(element = mediaResource)
                     }
                 }
@@ -120,12 +124,13 @@ internal object MediaProvider {
 
     suspend fun loadResources(
         context: Context,
-        mimeTypes: List<MimeType>
+        mediaFilter: MediaFilter,
     ): List<MediaResource> {
         return withContext(context = Dispatchers.Default) {
             val selection = StringBuilder()
             selection.append(MediaStore.MediaColumns.MIME_TYPE)
             selection.append(" IN (")
+            val mimeTypes = mediaFilter.supportedMimeTypes()
             mimeTypes.forEachIndexed { index, mimeType ->
                 if (index != 0) {
                     selection.append(",")
@@ -138,7 +143,8 @@ internal object MediaProvider {
             return@withContext loadResources(
                 context = context,
                 selection = selection.toString(),
-                selectionArgs = null
+                selectionArgs = null,
+                ignoreMedia = mediaFilter::ignoreMedia
             ) ?: emptyList()
         }
     }
@@ -150,7 +156,10 @@ internal object MediaProvider {
             val resources = loadResources(
                 context = context,
                 selection = selection,
-                selectionArgs = null
+                selectionArgs = null,
+                ignoreMedia = {
+                    false
+                }
             )
             if (resources.isNullOrEmpty() || resources.size != 1) {
                 return@withContext null

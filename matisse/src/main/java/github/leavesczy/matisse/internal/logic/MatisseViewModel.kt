@@ -39,7 +39,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val maxSelectable = matisse.maxSelectable
 
-    private val mimeTypes = matisse.mimeTypes
+    private val mediaFilter = matisse.mediaFilter
 
     private val defaultBucket = MediaBucket(
         id = DEFAULT_BUCKET_ID,
@@ -101,16 +101,14 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     fun requestReadMediaPermissionResult(granted: Boolean) {
         viewModelScope.launch(context = Dispatchers.Main.immediate) {
             dismissPreviewPage()
-            matisseBottomBarViewState = buildMatisseBottomBarViewState()
-            selectedResources = emptyList()
             if (granted) {
                 loadingDialog(visible = true)
-                val resources = MediaProvider.loadResources(
+                val allResources = MediaProvider.loadResources(
                     context = context,
-                    mimeTypes = mimeTypes
+                    mediaFilter = mediaFilter
                 )
                 val allBucket = groupByBucket(
-                    resources = resources
+                    resources = allResources
                 )
                 matissePageViewState = matissePageViewState.copy(
                     selectedBucket = allBucket[0]
@@ -118,13 +116,20 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 matisseTopBarViewState = matisseTopBarViewState.copy(
                     mediaBuckets = allBucket
                 )
+                val alreadySelected = allResources.filter {
+                    mediaFilter.selectMedia(mediaResource = it)
+                }
+                assert(value = alreadySelected.size <= maxSelectable)
+                selectedResources = alreadySelected
                 loadingDialog(visible = false)
             } else {
+                selectedResources = emptyList()
                 matissePageViewState = nothingMatissePageViewState
                 matisseTopBarViewState = nothingMatisseTopBarViewState
                 loadingDialog(visible = false)
                 showToast(message = getString(R.string.matisse_read_media_permission_denied))
             }
+            matisseBottomBarViewState = buildMatisseBottomBarViewState()
         }
     }
 

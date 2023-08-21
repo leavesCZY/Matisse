@@ -13,6 +13,7 @@ import github.leavesczy.matisse.MatisseCapture
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaStoreCaptureStrategy
 import github.leavesczy.matisse.MimeType
+import github.leavesczy.matisse.NormalMediaFilter
 import github.leavesczy.matisse.NothingCaptureStrategy
 import github.leavesczy.matisse.SmartCaptureStrategy
 import github.leavesczy.matisse.samples.engine.CoilImageEngine
@@ -30,6 +31,7 @@ class MainViewModel : ViewModel() {
             supportGif = true,
             captureStrategy = MediaCaptureStrategy.Smart,
             capturePreferences = MediaCapturePreferences.Normal,
+            filterStrategy = MediaFilterStrategy.Close,
             imageEngine = MediaImageEngine.Coil,
             mediaList = emptyList(),
             onMaxSelectableChanged = ::onMaxSelectableChanged,
@@ -37,6 +39,7 @@ class MainViewModel : ViewModel() {
             onSupportGifChanged = ::onSupportGifChanged,
             onCaptureStrategyChanged = ::onCaptureStrategyChanged,
             onCapturePreferencesChanged = ::onCapturePreferencesChanged,
+            onFilterStrategyChanged = ::onFilterStrategyChanged,
             onImageEngineChanged = ::onImageEngineChanged,
             switchTheme = ::switchTheme,
         )
@@ -76,6 +79,12 @@ class MainViewModel : ViewModel() {
     private fun onCapturePreferencesChanged(capturePreferences: MediaCapturePreferences) {
         if (mainPageViewState.capturePreferences != capturePreferences) {
             mainPageViewState = mainPageViewState.copy(capturePreferences = capturePreferences)
+        }
+    }
+
+    private fun onFilterStrategyChanged(filterStrategy: MediaFilterStrategy) {
+        if (mainPageViewState.filterStrategy != filterStrategy) {
+            mainPageViewState = mainPageViewState.copy(filterStrategy = filterStrategy)
         }
     }
 
@@ -169,11 +178,30 @@ class MainViewModel : ViewModel() {
                 GlideImageEngine()
             }
         }
+        val mediaFilter = when (mainPageViewState.filterStrategy) {
+            MediaFilterStrategy.Close -> {
+                NormalMediaFilter(supportedMimeTypes = mimeTypes)
+            }
+
+            MediaFilterStrategy.IgnoreSelected -> {
+                NormalMediaFilter(
+                    supportedMimeTypes = mimeTypes,
+                    ignoredResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
+                )
+            }
+
+            MediaFilterStrategy.AttachSelected -> {
+                NormalMediaFilter(
+                    supportedMimeTypes = mimeTypes,
+                    selectedResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
+                )
+            }
+        }
         return Matisse(
             maxSelectable = mainPageViewState.maxSelectable,
-            mimeTypes = mimeTypes,
-            captureStrategy = getMediaCaptureStrategy(),
-            imageEngine = imageEngine
+            mediaFilter = mediaFilter,
+            imageEngine = imageEngine,
+            captureStrategy = getMediaCaptureStrategy()
         )
     }
 
