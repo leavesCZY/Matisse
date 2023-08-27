@@ -116,11 +116,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 matisseTopBarViewState = matisseTopBarViewState.copy(
                     mediaBuckets = allBucket
                 )
-                val alreadySelected = allResources.filter {
+                val defaultSelected = allResources.filter {
                     mediaFilter.selectMedia(mediaResource = it)
                 }
-                assert(value = alreadySelected.size <= maxSelectable)
-                selectedResources = alreadySelected
+                assert(value = defaultSelected.size <= maxSelectable)
+                selectedResources = defaultSelected
                 loadingDialog(visible = false)
             } else {
                 selectedResources = emptyList()
