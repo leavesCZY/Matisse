@@ -6,7 +6,7 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -25,7 +25,9 @@ private inline fun Modifier.clickableLimit(
     minDuration: Long,
     crossinline onClick: () -> Unit
 ): Modifier = composed {
-    var lastClickTime by remember { mutableStateOf(value = 0L) }
+    var lastClickTime by remember {
+        mutableLongStateOf(value = 0L)
+    }
     clickable(
         indication = indication,
         interactionSource = interactionSource
@@ -52,9 +54,9 @@ internal inline fun Modifier.clickableLimit(
     )
 }
 
-internal fun Modifier.clickableNoRippleLimit(
+internal inline fun Modifier.clickableNoRippleLimit(
     minDuration: Long = MIN_DURATION,
-    onClick: () -> Unit
+    crossinline onClick: () -> Unit
 ): Modifier = composed {
     clickableLimit(
         indication = null,

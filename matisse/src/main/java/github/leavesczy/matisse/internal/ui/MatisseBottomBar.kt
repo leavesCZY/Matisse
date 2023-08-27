@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,7 +56,8 @@ internal fun MatisseBottomBar(
                 .wrapContentSize(align = Alignment.Center),
             text = bottomBarViewState.previewButtonText,
             textAlign = TextAlign.Center,
-            fontSize = 16.sp,
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Medium,
             color = if (bottomBarViewState.previewButtonClickable) {
                 colorResource(id = R.color.matisse_preview_text_color)
             } else {
@@ -77,7 +79,8 @@ internal fun MatisseBottomBar(
                 .wrapContentSize(align = Alignment.Center),
             text = bottomBarViewState.sureButtonText,
             textAlign = TextAlign.Center,
-            fontSize = 16.sp,
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Medium,
             color = colorResource(
                 id = if (bottomBarViewState.sureButtonClickable) {
                     R.color.matisse_sure_text_color

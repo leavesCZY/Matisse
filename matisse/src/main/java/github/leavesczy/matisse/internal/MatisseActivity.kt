@@ -34,7 +34,7 @@ import github.leavesczy.matisse.internal.utils.isVideo
  * @Date: 2022/5/28 22:28
  * @Desc:
  */
-class MatisseActivity : AppCompatActivity() {
+internal class MatisseActivity : AppCompatActivity() {
 
     private val matisse by lazy {
         MatisseContract.getRequest(intent = intent)

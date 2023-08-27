@@ -7,13 +7,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import github.leavesczy.matisse.CaptureStrategy
+import github.leavesczy.matisse.DefaultMediaFilter
 import github.leavesczy.matisse.FileProviderCaptureStrategy
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MatisseCapture
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaStoreCaptureStrategy
 import github.leavesczy.matisse.MimeType
-import github.leavesczy.matisse.NormalMediaFilter
 import github.leavesczy.matisse.NothingCaptureStrategy
 import github.leavesczy.matisse.SmartCaptureStrategy
 import github.leavesczy.matisse.samples.engine.CoilImageEngine
@@ -180,18 +180,18 @@ class MainViewModel : ViewModel() {
         }
         val mediaFilter = when (mainPageViewState.filterStrategy) {
             MediaFilterStrategy.Close -> {
-                NormalMediaFilter(supportedMimeTypes = mimeTypes)
+                DefaultMediaFilter(supportedMimeTypes = mimeTypes)
             }
 
             MediaFilterStrategy.IgnoreSelected -> {
-                NormalMediaFilter(
+                DefaultMediaFilter(
                     supportedMimeTypes = mimeTypes,
                     ignoredResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
                 )
             }
 
             MediaFilterStrategy.AttachSelected -> {
-                NormalMediaFilter(
+                DefaultMediaFilter(
                     supportedMimeTypes = mimeTypes,
                     selectedResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
                 )

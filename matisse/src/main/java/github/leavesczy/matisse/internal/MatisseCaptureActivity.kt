@@ -15,6 +15,7 @@ import github.leavesczy.matisse.MatisseCaptureContract
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseTakePictureContract
+import github.leavesczy.matisse.internal.logic.MatisseTakePictureContractParams
 import github.leavesczy.matisse.internal.utils.PermissionUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,7 +25,7 @@ import kotlinx.coroutines.launch
  * @Date: 2023/4/11 16:31
  * @Desc:
  */
-class MatisseCaptureActivity : AppCompatActivity() {
+internal class MatisseCaptureActivity : AppCompatActivity() {
 
     private val matisseCapture by lazy {
         MatisseCaptureContract.getRequest(intent = intent)
@@ -95,9 +96,9 @@ class MatisseCaptureActivity : AppCompatActivity() {
                 if (imageUri != null) {
                     tempImageUriForTakePicture = imageUri
                     takePictureLauncher.launch(
-                        Pair(
-                            first = imageUri,
-                            second = captureStrategy.getCaptureExtra()
+                        MatisseTakePictureContractParams(
+                            uri = imageUri,
+                            extra = captureStrategy.getCaptureExtra()
                         )
                     )
                     return@launch

@@ -19,8 +19,8 @@ interface MediaFilter : Parcelable {
 }
 
 @Parcelize
-class NormalMediaFilter(
-    private val supportedMimeTypes: Set<MimeType> = emptySet(),
+class DefaultMediaFilter(
+    private val supportedMimeTypes: Set<MimeType>,
     private val ignoredResourceUri: Set<Uri> = emptySet(),
     private val selectedResourceUri: Set<Uri> = emptySet()
 ) : MediaFilter {

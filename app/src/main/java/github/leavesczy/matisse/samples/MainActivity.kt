@@ -133,6 +133,30 @@ private fun MainPage(
                     )
                 }
             }
+            Title(text = "过滤策略")
+            FlowRow(modifier = Modifier) {
+                for (strategy in MediaFilterStrategy.values()) {
+                    RadioButton(
+                        tips = strategy.name,
+                        selected = mainPageViewState.filterStrategy == strategy,
+                        onClick = {
+                            mainPageViewState.onFilterStrategyChanged(strategy)
+                        }
+                    )
+                }
+            }
+            Title(text = "数量")
+            Row(modifier = Modifier) {
+                for (i in 1..3) {
+                    RadioButton(
+                        tips = i.toString(),
+                        selected = mainPageViewState.maxSelectable == i,
+                        onClick = {
+                            mainPageViewState.onMaxSelectableChanged(i)
+                        }
+                    )
+                }
+            }
             Title(text = "Gif")
             Row(modifier = Modifier) {
                 RadioButton(
@@ -149,18 +173,6 @@ private fun MainPage(
                         mainPageViewState.onSupportGifChanged(false)
                     }
                 )
-            }
-            Title(text = "数量")
-            Row(modifier = Modifier) {
-                for (i in 1..3) {
-                    RadioButton(
-                        tips = i.toString(),
-                        selected = mainPageViewState.maxSelectable == i,
-                        onClick = {
-                            mainPageViewState.onMaxSelectableChanged(i)
-                        }
-                    )
-                }
             }
             Title(text = "ImageEngine")
             FlowRow(modifier = Modifier) {
@@ -194,18 +206,6 @@ private fun MainPage(
                         selected = mainPageViewState.capturePreferences == preferences,
                         onClick = {
                             mainPageViewState.onCapturePreferencesChanged(preferences)
-                        }
-                    )
-                }
-            }
-            Title(text = "图片过滤策略")
-            FlowRow(modifier = Modifier) {
-                for (strategy in MediaFilterStrategy.values()) {
-                    RadioButton(
-                        tips = strategy.name,
-                        selected = mainPageViewState.filterStrategy == strategy,
-                        onClick = {
-                            mainPageViewState.onFilterStrategyChanged(strategy)
                         }
                     )
                 }
@@ -269,7 +269,7 @@ private fun RadioButton(
     onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.padding(top = 6.dp, bottom = 6.dp, end = 10.dp),
+        modifier = Modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
