@@ -36,6 +36,7 @@ internal fun MatisseBottomBar(
     Box(
         modifier = Modifier
             .shadow(elevation = 4.dp)
+            .background(color = colorResource(id = R.color.matisse_navigation_bar_color))
             .navigationBarsPadding()
             .fillMaxWidth()
             .height(height = 56.dp)

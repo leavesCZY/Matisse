@@ -7,15 +7,13 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.booleanResource
-import androidx.compose.ui.res.colorResource
-import androidx.core.view.WindowCompat
+import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import github.leavesczy.matisse.*
@@ -24,7 +22,6 @@ import github.leavesczy.matisse.internal.theme.MatisseTheme
 import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
-import github.leavesczy.matisse.internal.ui.rememberSystemUiController
 import github.leavesczy.matisse.internal.utils.PermissionUtils
 import github.leavesczy.matisse.internal.utils.isImage
 import github.leavesczy.matisse.internal.utils.isVideo
@@ -65,10 +62,14 @@ internal class MatisseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
+            DisposableEffect(key1 = matisseViewModel.matissePreviewPageViewState.visible) {
+                setSystemBarUi(previewPageVisible = matisseViewModel.matissePreviewPageViewState.visible)
+                onDispose {
+
+                }
+            }
             MatisseTheme {
-                SetSystemUi(previewPageVisible = matisseViewModel.matissePreviewPageViewState.visible)
                 MatissePage(
                     matisse = matisse,
                     matissePageViewState = matisseViewModel.matissePageViewState,
@@ -145,45 +146,49 @@ internal class MatisseActivity : AppCompatActivity() {
         finish()
     }
 
+    private fun setSystemBarUi(previewPageVisible: Boolean) {
+        val statusBarDarkIcons = if (previewPageVisible) {
+            false
+        } else {
+            resources.getBoolean(R.bool.matisse_status_bar_dark_icons)
+        }
+        val navigationBarDarkIcons = if (previewPageVisible) {
+            false
+        } else {
+            resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
+        }
+        val statusBarColor = android.graphics.Color.TRANSPARENT
+        val navigationBarColor = android.graphics.Color.TRANSPARENT
+        val statusBarStyle = if (statusBarDarkIcons) {
+            SystemBarStyle.light(
+                scrim = statusBarColor,
+                darkScrim = statusBarColor
+            )
+        } else {
+            SystemBarStyle.dark(
+                scrim = statusBarColor
+            )
+        }
+        val navigationBarStyle = if (navigationBarDarkIcons) {
+            SystemBarStyle.light(
+                scrim = navigationBarColor,
+                darkScrim = navigationBarColor
+            )
+        } else {
+            SystemBarStyle.dark(
+                scrim = navigationBarColor
+            )
+        }
+        enableEdgeToEdge(
+            statusBarStyle = statusBarStyle,
+            navigationBarStyle = navigationBarStyle
+        )
+    }
+
     private fun showToast(message: String) {
         if (message.isNotBlank()) {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
 
-}
-
-@Composable
-private fun SetSystemUi(previewPageVisible: Boolean) {
-    val statusBarColor = Color.Transparent
-    val navigationBarColor = if (previewPageVisible) {
-        Color.Transparent
-    } else {
-        colorResource(id = R.color.matisse_navigation_bar_color)
-    }
-    val statusBarDarkIcons = if (previewPageVisible) {
-        false
-    } else {
-        booleanResource(id = R.bool.matisse_status_bar_dark_icons)
-    }
-    val navigationBarDarkIcons = if (previewPageVisible) {
-        false
-    } else {
-        booleanResource(id = R.bool.matisse_navigation_bar_dark_icons)
-    }
-    val systemUiController = rememberSystemUiController()
-    systemUiController.setStatusBarColor(
-        color = statusBarColor,
-        darkIcons = statusBarDarkIcons,
-        transformColorForLightContent = {
-            statusBarColor
-        }
-    )
-    systemUiController.setNavigationBarColor(
-        color = navigationBarColor,
-        darkIcons = navigationBarDarkIcons,
-        transformColorForLightContent = {
-            navigationBarColor
-        }
-    )
 }
