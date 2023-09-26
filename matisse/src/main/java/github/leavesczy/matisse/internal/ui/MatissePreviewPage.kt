@@ -23,9 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SlowMotionVideo
 import androidx.compose.material3.Icon
@@ -40,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -53,7 +50,6 @@ import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
 import github.leavesczy.matisse.internal.utils.clickableLimit
 import github.leavesczy.matisse.internal.utils.clickableNoRipple
 import github.leavesczy.matisse.internal.utils.clickableNoRippleLimit
-import github.leavesczy.matisse.internal.utils.isVideo
 
 /**
  * @Author: CZY
@@ -139,15 +135,9 @@ private fun PreviewPage(
     mediaResource: MediaResource,
     requestOpenVideo: (MediaResource) -> Unit
 ) {
-    if (mediaResource.isVideo) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            matisse.imageEngine.Image(
-                modifier = Modifier
-                    .align(alignment = Alignment.Center)
-                    .fillMaxWidth(),
-                mediaResource = mediaResource,
-                contentScale = ContentScale.FillWidth
-            )
+    Box(modifier = Modifier.fillMaxSize()) {
+        matisse.imageEngine.Image(mediaResource = mediaResource)
+        if (mediaResource.isVideo) {
             Icon(
                 modifier = Modifier
                     .align(alignment = Alignment.Center)
@@ -160,20 +150,6 @@ private fun PreviewPage(
                 imageVector = Icons.Filled.SlowMotionVideo,
                 tint = colorResource(id = R.color.matisse_video_icon_color),
                 contentDescription = mediaResource.name
-            )
-        }
-    } else {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(state = rememberScrollState())
-        ) {
-            matisse.imageEngine.Image(
-                modifier = Modifier
-                    .align(alignment = Alignment.Center)
-                    .fillMaxWidth(),
-                mediaResource = mediaResource,
-                contentScale = ContentScale.FillWidth
             )
         }
     }

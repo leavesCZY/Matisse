@@ -17,7 +17,9 @@ import github.leavesczy.matisse.MimeType
 import github.leavesczy.matisse.NothingCaptureStrategy
 import github.leavesczy.matisse.SmartCaptureStrategy
 import github.leavesczy.matisse.samples.engine.CoilImageEngine
+import github.leavesczy.matisse.samples.engine.CoilZoomImageEngine
 import github.leavesczy.matisse.samples.engine.GlideImageEngine
+import github.leavesczy.matisse.samples.engine.GlideZoomImageEngine
 
 class MainViewModel : ViewModel() {
 
@@ -174,8 +176,16 @@ class MainViewModel : ViewModel() {
                 CoilImageEngine()
             }
 
+            MediaImageEngine.CoilZoom -> {
+                CoilZoomImageEngine()
+            }
+
             MediaImageEngine.Glide -> {
                 GlideImageEngine()
+            }
+
+            MediaImageEngine.GlideZoom -> {
+                GlideZoomImageEngine()
             }
         }
         val mediaFilter = when (mainPageViewState.filterStrategy) {

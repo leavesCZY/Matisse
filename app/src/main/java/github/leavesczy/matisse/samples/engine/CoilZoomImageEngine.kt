@@ -2,26 +2,25 @@ package github.leavesczy.matisse.samples.engine
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
+import com.github.panpf.zoomimage.CoilZoomAsyncImage
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import kotlinx.parcelize.Parcelize
 
 /**
  * @Author: leavesCZY
+ * @Date: 2023/9/25 16:53
  * @Desc:
  */
 @Parcelize
-class CoilImageEngine : ImageEngine {
+class CoilZoomImageEngine : ImageEngine {
 
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
@@ -51,12 +50,11 @@ class CoilImageEngine : ImageEngine {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(state = rememberScrollState())
             ) {
-                AsyncImage(
+                CoilZoomAsyncImage(
                     modifier = Modifier
                         .align(alignment = Alignment.Center)
-                        .fillMaxWidth(),
+                        .fillMaxSize(),
                     model = mediaResource.uri,
                     contentDescription = mediaResource.name,
                     contentScale = ContentScale.FillWidth,

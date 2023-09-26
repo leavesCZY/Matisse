@@ -107,7 +107,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-    implementation("androidx.activity:activity-compose:1.8.0-beta01")
+    implementation("androidx.activity:activity-compose:1.8.0-rc01")
     val composeBom = platform("androidx.compose:compose-bom:2023.08.00")
     implementation(composeBom)
     implementation("androidx.compose.ui:ui")
@@ -117,7 +117,10 @@ dependencies {
     implementation("io.coil-kt:coil-gif:$coilVersion")
     implementation("io.coil-kt:coil-video:$coilVersion")
     implementation("io.coil-kt:coil-compose:$coilVersion")
-    val glideVersion = "1.0.0-alpha.6"
+    val glideVersion = "1.0.0-alpha.3"
     implementation("com.github.bumptech.glide:compose:$glideVersion")
+    val zoomImageVersion = "1.0.0-beta02"
+    implementation("io.github.panpf.zoomimage:zoomimage-compose-coil:${zoomImageVersion}")
+    implementation("io.github.panpf.zoomimage:zoomimage-compose-glide:${zoomImageVersion}")
     implementation(project(":matisse"))
 }

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -31,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontStyle
@@ -148,11 +146,7 @@ private fun BucketDropdownMenu(
                         ) {
                             val firstResource = bucket.resources.firstOrNull()
                             if (firstResource != null) {
-                                matisse.imageEngine.Thumbnail(
-                                    modifier = Modifier.fillMaxSize(),
-                                    mediaResource = firstResource,
-                                    contentScale = ContentScale.Crop
-                                )
+                                matisse.imageEngine.Thumbnail(mediaResource = firstResource)
                             }
                         }
                         Text(

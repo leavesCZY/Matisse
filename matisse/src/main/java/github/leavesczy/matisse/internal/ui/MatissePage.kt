@@ -30,7 +30,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.unit.dp
@@ -41,7 +40,6 @@ import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
 import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
 import github.leavesczy.matisse.internal.utils.clickableLimit
-import github.leavesczy.matisse.internal.utils.isVideo
 
 /**
  * @Author: CZY
@@ -186,11 +184,7 @@ private fun LazyGridItemScope.MediaItem(
                 onClickMedia(mediaResource)
             }
     ) {
-        matisse.imageEngine.Thumbnail(
-            modifier = Modifier.fillMaxSize(),
-            mediaResource = mediaResource,
-            contentScale = ContentScale.Crop
-        )
+        matisse.imageEngine.Thumbnail(mediaResource = mediaResource)
         MatisseCheckbox(
             modifier = Modifier
                 .align(alignment = Alignment.TopEnd)

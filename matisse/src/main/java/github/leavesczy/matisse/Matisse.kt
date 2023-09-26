@@ -47,7 +47,15 @@ data class MediaResource(
     val path: String,
     val name: String,
     val mimeType: String,
-) : Parcelable
+) : Parcelable {
+
+    val isImage: Boolean
+        get() = mimeType.startsWith(prefix = "image")
+
+    val isVideo: Boolean
+        get() = mimeType.startsWith(prefix = "video")
+
+}
 
 enum class MimeType(val type: String) {
     JPEG(type = "image/jpeg"),

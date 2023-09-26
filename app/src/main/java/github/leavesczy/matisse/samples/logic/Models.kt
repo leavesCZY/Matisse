@@ -22,7 +22,9 @@ enum class MediaCapturePreferences {
 
 enum class MediaImageEngine {
     Coil,
-    Glide
+    CoilZoom,
+    Glide,
+    GlideZoom
 }
 
 enum class MediaFilterStrategy {
