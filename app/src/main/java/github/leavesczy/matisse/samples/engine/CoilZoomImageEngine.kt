@@ -1,12 +1,9 @@
 package github.leavesczy.matisse.samples.engine
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import com.github.panpf.zoomimage.CoilZoomAsyncImage
@@ -25,12 +22,10 @@ class CoilZoomImageEngine : ImageEngine {
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
         AsyncImage(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             model = mediaResource.uri,
-            contentDescription = mediaResource.name,
             contentScale = ContentScale.Crop,
-            filterQuality = FilterQuality.None
+            contentDescription = mediaResource.name
         )
     }
 
@@ -38,29 +33,18 @@ class CoilZoomImageEngine : ImageEngine {
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
             AsyncImage(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentHeight(align = Alignment.CenterVertically),
+                modifier = Modifier.fillMaxWidth(),
                 model = mediaResource.uri,
-                contentDescription = mediaResource.name,
                 contentScale = ContentScale.FillWidth,
-                filterQuality = FilterQuality.None
+                contentDescription = mediaResource.name
             )
         } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                CoilZoomAsyncImage(
-                    modifier = Modifier
-                        .align(alignment = Alignment.Center)
-                        .fillMaxSize(),
-                    model = mediaResource.uri,
-                    contentDescription = mediaResource.name,
-                    contentScale = ContentScale.FillWidth,
-                    filterQuality = FilterQuality.None
-                )
-            }
+            CoilZoomAsyncImage(
+                modifier = Modifier.fillMaxSize(),
+                model = mediaResource.uri,
+                contentScale = ContentScale.FillWidth,
+                contentDescription = mediaResource.name
+            )
         }
     }
 

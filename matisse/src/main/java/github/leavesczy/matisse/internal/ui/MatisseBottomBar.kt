@@ -58,7 +58,7 @@ internal fun MatisseBottomBar(
             text = bottomBarViewState.previewButtonText,
             textAlign = TextAlign.Center,
             fontSize = 17.sp,
-            fontWeight = FontWeight.Medium,
+            fontWeight = FontWeight.Normal,
             color = if (bottomBarViewState.previewButtonClickable) {
                 colorResource(id = R.color.matisse_preview_text_color)
             } else {
@@ -81,7 +81,7 @@ internal fun MatisseBottomBar(
             text = bottomBarViewState.sureButtonText,
             textAlign = TextAlign.Center,
             fontSize = 17.sp,
-            fontWeight = FontWeight.Medium,
+            fontWeight = FontWeight.Normal,
             color = colorResource(
                 id = if (bottomBarViewState.sureButtonClickable) {
                     R.color.matisse_sure_text_color

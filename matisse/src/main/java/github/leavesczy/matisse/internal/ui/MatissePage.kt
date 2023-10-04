@@ -182,7 +182,8 @@ private fun LazyGridItemScope.MediaItem(
             )
             .clickableLimit {
                 onClickMedia(mediaResource)
-            }
+            },
+        contentAlignment = Alignment.Center
     ) {
         matisse.imageEngine.Thumbnail(mediaResource = mediaResource)
         MatisseCheckbox(

@@ -1,15 +1,11 @@
 package github.leavesczy.matisse.samples.engine
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import github.leavesczy.matisse.ImageEngine
@@ -26,12 +22,10 @@ class CoilImageEngine : ImageEngine {
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
         AsyncImage(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             model = mediaResource.uri,
-            contentDescription = mediaResource.name,
             contentScale = ContentScale.Crop,
-            filterQuality = FilterQuality.None
+            contentDescription = mediaResource.name
         )
     }
 
@@ -39,30 +33,20 @@ class CoilImageEngine : ImageEngine {
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
             AsyncImage(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentHeight(align = Alignment.CenterVertically),
+                modifier = Modifier.fillMaxWidth(),
                 model = mediaResource.uri,
-                contentDescription = mediaResource.name,
                 contentScale = ContentScale.FillWidth,
-                filterQuality = FilterQuality.None
+                contentDescription = mediaResource.name
             )
         } else {
-            Box(
+            AsyncImage(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(state = rememberScrollState())
-            ) {
-                AsyncImage(
-                    modifier = Modifier
-                        .align(alignment = Alignment.Center)
-                        .fillMaxWidth(),
-                    model = mediaResource.uri,
-                    contentDescription = mediaResource.name,
-                    contentScale = ContentScale.FillWidth,
-                    filterQuality = FilterQuality.None
-                )
-            }
+                    .fillMaxWidth()
+                    .verticalScroll(state = rememberScrollState()),
+                model = mediaResource.uri,
+                contentScale = ContentScale.FillWidth,
+                contentDescription = mediaResource.name
+            )
         }
     }
 

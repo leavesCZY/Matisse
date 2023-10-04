@@ -68,11 +68,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
         freeCompilerArgs += setOf(
             "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
             "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi",
@@ -117,9 +117,9 @@ dependencies {
     implementation("io.coil-kt:coil-gif:$coilVersion")
     implementation("io.coil-kt:coil-video:$coilVersion")
     implementation("io.coil-kt:coil-compose:$coilVersion")
-    val glideVersion = "1.0.0-alpha.3"
+    val glideVersion = "1.0.0-beta01"
     implementation("com.github.bumptech.glide:compose:$glideVersion")
-    val zoomImageVersion = "1.0.0-beta02"
+    val zoomImageVersion = "1.0.0-beta03"
     implementation("io.github.panpf.zoomimage:zoomimage-compose-coil:${zoomImageVersion}")
     implementation("io.github.panpf.zoomimage:zoomimage-compose-glide:${zoomImageVersion}")
     implementation(project(":matisse"))

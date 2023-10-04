@@ -142,7 +142,8 @@ private fun BucketDropdownMenu(
                             modifier = Modifier
                                 .size(size = 52.dp)
                                 .clip(shape = RoundedCornerShape(size = 4.dp))
-                                .background(color = colorResource(id = R.color.matisse_image_item_background_color))
+                                .background(color = colorResource(id = R.color.matisse_image_item_background_color)),
+                            contentAlignment = Alignment.Center
                         ) {
                             val firstResource = bucket.resources.firstOrNull()
                             if (firstResource != null) {

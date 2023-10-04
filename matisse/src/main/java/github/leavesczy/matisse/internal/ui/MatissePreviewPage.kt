@@ -105,7 +105,7 @@ internal fun MatissePreviewPage(
                             controllerVisible = !controllerVisible
                         },
                     state = pagerState,
-                    pageSpacing = 20.dp,
+                    pageSpacing = 0.dp,
                     verticalAlignment = Alignment.CenterVertically,
                     key = { index ->
                         previewResources[index].id
@@ -135,12 +135,14 @@ private fun PreviewPage(
     mediaResource: MediaResource,
     requestOpenVideo: (MediaResource) -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         matisse.imageEngine.Image(mediaResource = mediaResource)
         if (mediaResource.isVideo) {
             Icon(
                 modifier = Modifier
-                    .align(alignment = Alignment.Center)
                     .clip(shape = CircleShape)
                     .clickableLimit {
                         requestOpenVideo(mediaResource)
