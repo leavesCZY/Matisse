@@ -1,8 +1,10 @@
 package github.leavesczy.matisse.samples
 
 import android.os.Bundle
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
@@ -36,7 +38,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import coil.compose.AsyncImage
 import github.leavesczy.matisse.MatisseCaptureContract
 import github.leavesczy.matisse.MatisseContract
@@ -55,8 +56,8 @@ class MainActivity : AppCompatActivity() {
     private val mainViewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setSystemBarUi()
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             val takePictureLauncher =
                 rememberLauncherForActivityResult(contract = MatisseCaptureContract()) { result ->
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                 rememberLauncherForActivityResult(contract = MatisseContract()) { result ->
                     mainViewModel.mediaPickerResult(result = result)
                 }
-            MatisseTheme(darkTheme = mainViewModel.darkTheme) {
+            MatisseTheme {
                 MainPage(
                     mainPageViewState = mainViewModel.mainPageViewState,
                     takePicture = {
@@ -78,6 +79,19 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+    }
+
+    private fun setSystemBarUi() {
+        val statusBarColor = android.graphics.Color.TRANSPARENT
+        val navigationBarColor = android.graphics.Color.TRANSPARENT
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(
+                scrim = statusBarColor
+            ),
+            navigationBarStyle = SystemBarStyle.dark(
+                scrim = navigationBarColor
+            )
+        )
     }
 
 }
