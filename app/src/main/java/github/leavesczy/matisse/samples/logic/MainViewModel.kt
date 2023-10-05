@@ -30,7 +30,6 @@ class MainViewModel : ViewModel() {
         value = MainPageViewState(
             maxSelectable = 3,
             mediaType = MediaType.All,
-            supportGif = true,
             captureStrategy = MediaCaptureStrategy.Smart,
             capturePreferences = MediaCapturePreferences.Normal,
             filterStrategy = MediaFilterStrategy.Close,
@@ -38,7 +37,6 @@ class MainViewModel : ViewModel() {
             mediaList = emptyList(),
             onMaxSelectableChanged = ::onMaxSelectableChanged,
             onMediaTypeChanged = ::onMediaTypeChanged,
-            onSupportGifChanged = ::onSupportGifChanged,
             onCaptureStrategyChanged = ::onCaptureStrategyChanged,
             onCapturePreferencesChanged = ::onCapturePreferencesChanged,
             onFilterStrategyChanged = ::onFilterStrategyChanged,
@@ -57,12 +55,6 @@ class MainViewModel : ViewModel() {
     private fun onMediaTypeChanged(mediaType: MediaType) {
         if (mainPageViewState.mediaType != mediaType) {
             mainPageViewState = mainPageViewState.copy(mediaType = mediaType)
-        }
-    }
-
-    private fun onSupportGifChanged(supportGif: Boolean) {
-        if (mainPageViewState.supportGif != supportGif) {
-            mainPageViewState = mainPageViewState.copy(supportGif = supportGif)
         }
     }
 
@@ -144,8 +136,8 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun mediaPickerResult(result: List<MediaResource>) {
-        if (result.isNotEmpty()) {
+    fun mediaPickerResult(result: List<MediaResource>?) {
+        if (!result.isNullOrEmpty()) {
             mainPageViewState = mainPageViewState.copy(mediaList = result)
         }
     }
@@ -157,14 +149,13 @@ class MainViewModel : ViewModel() {
     }
 
     fun buildMatisse(): Matisse {
-        val hasGif = mainPageViewState.supportGif
         val mimeTypes = when (mainPageViewState.mediaType) {
             MediaType.All -> {
-                MimeType.ofAll(hasGif = hasGif)
+                MimeType.ofAll(hasGif = true)
             }
 
             MediaType.Image -> {
-                MimeType.ofImage(hasGif = hasGif)
+                MimeType.ofImage(hasGif = true)
             }
 
             MediaType.Video -> {

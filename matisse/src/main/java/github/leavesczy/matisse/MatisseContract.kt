@@ -12,7 +12,7 @@ import github.leavesczy.matisse.internal.MatisseActivity
  * @Date: 2022/6/2 15:30
  * @Desc:
  */
-class MatisseContract : ActivityResultContract<Matisse, List<MediaResource>>() {
+class MatisseContract : ActivityResultContract<Matisse, List<MediaResource>?>() {
 
     companion object {
 
@@ -41,11 +41,16 @@ class MatisseContract : ActivityResultContract<Matisse, List<MediaResource>>() {
         return intent
     }
 
-    override fun parseResult(resultCode: Int, intent: Intent?): List<MediaResource> {
-        return if (resultCode == Activity.RESULT_OK && intent != null) {
-            intent.getParcelableArrayListExtra(keyResult) ?: emptyList()
+    override fun parseResult(resultCode: Int, intent: Intent?): List<MediaResource>? {
+        val result = if (resultCode == Activity.RESULT_OK && intent != null) {
+            intent.getParcelableArrayListExtra<MediaResource>(keyResult)
         } else {
-            emptyList()
+            null
+        }
+        return if (result.isNullOrEmpty()) {
+            null
+        } else {
+            result
         }
     }
 

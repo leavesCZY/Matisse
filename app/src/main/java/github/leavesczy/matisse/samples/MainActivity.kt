@@ -122,7 +122,7 @@ private fun MainPage(
             horizontalAlignment = Alignment.Start,
         ) {
             Title(text = "类型")
-            Row(modifier = Modifier) {
+            Row {
                 for (value in MediaType.values()) {
                     RadioButton(
                         tips = value.name,
@@ -134,7 +134,7 @@ private fun MainPage(
                 }
             }
             Title(text = "过滤策略")
-            FlowRow(modifier = Modifier) {
+            FlowRow {
                 for (strategy in MediaFilterStrategy.values()) {
                     RadioButton(
                         tips = strategy.name,
@@ -146,7 +146,7 @@ private fun MainPage(
                 }
             }
             Title(text = "数量")
-            Row(modifier = Modifier) {
+            Row {
                 for (i in 1..3) {
                     RadioButton(
                         tips = i.toString(),
@@ -156,23 +156,6 @@ private fun MainPage(
                         }
                     )
                 }
-            }
-            Title(text = "Gif")
-            Row(modifier = Modifier) {
-                RadioButton(
-                    tips = "包含",
-                    selected = mainPageViewState.supportGif,
-                    onClick = {
-                        mainPageViewState.onSupportGifChanged(true)
-                    }
-                )
-                RadioButton(
-                    tips = "不包含",
-                    selected = !mainPageViewState.supportGif,
-                    onClick = {
-                        mainPageViewState.onSupportGifChanged(false)
-                    }
-                )
             }
             Title(text = "ImageEngine")
             FlowRow(
@@ -205,7 +188,7 @@ private fun MainPage(
                 }
             }
             Title(text = "拍照配置项")
-            FlowRow(modifier = Modifier) {
+            FlowRow {
                 for (preferences in MediaCapturePreferences.values()) {
                     RadioButton(
                         tips = preferences.name,
