@@ -1,10 +1,16 @@
-package github.leavesczy.matisse.samples.engine
+@file:OptIn(
+    ExperimentalGlideComposeApi::class,
+    com.github.panpf.zoomimage.compose.glide.internal.ExperimentalGlideComposeApi::class
+)
+
+package github.leavesczy.matisse.samples.engine.glide
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.github.panpf.zoomimage.GlideZoomAsyncImage
 import github.leavesczy.matisse.ImageEngine
@@ -19,7 +25,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 class GlideZoomImageEngine : ImageEngine {
 
-    @OptIn(com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi::class)
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
         GlideImage(
@@ -30,10 +35,6 @@ class GlideZoomImageEngine : ImageEngine {
         )
     }
 
-    @OptIn(
-        com.github.panpf.zoomimage.compose.glide.internal.ExperimentalGlideComposeApi::class,
-        com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi::class
-    )
     @Composable
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {

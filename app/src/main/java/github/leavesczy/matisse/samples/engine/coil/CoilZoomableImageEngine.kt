@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.samples.engine
+package github.leavesczy.matisse.samples.engine.coil
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -6,18 +6,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
-import com.github.panpf.zoomimage.CoilZoomAsyncImage
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import kotlinx.parcelize.Parcelize
+import me.saket.telephoto.zoomable.coil.ZoomableAsyncImage
 
 /**
  * @Author: leavesCZY
- * @Date: 2023/9/25 16:53
+ * @Date: 2023/10/6 0:19
  * @Desc:
  */
 @Parcelize
-class CoilZoomImageEngine : ImageEngine {
+class CoilZoomableImageEngine : ImageEngine {
 
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
@@ -39,7 +39,7 @@ class CoilZoomImageEngine : ImageEngine {
                 contentDescription = mediaResource.name
             )
         } else {
-            CoilZoomAsyncImage(
+            ZoomableAsyncImage(
                 modifier = Modifier.fillMaxSize(),
                 model = mediaResource.uri,
                 contentScale = ContentScale.FillWidth,

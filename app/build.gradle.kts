@@ -15,7 +15,7 @@ android {
     compileSdk = 34
     defaultConfig {
         applicationId = "github.leavesczy.matisse.samples"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 33
         versionCode = 1
         versionName = "1.0.0"
@@ -122,5 +122,8 @@ dependencies {
     val zoomImageVersion = "1.0.0-beta03"
     implementation("io.github.panpf.zoomimage:zoomimage-compose-coil:${zoomImageVersion}")
     implementation("io.github.panpf.zoomimage:zoomimage-compose-glide:${zoomImageVersion}")
+    val zoomableImageVersion = "0.6.2"
+    implementation("me.saket.telephoto:zoomable-image-coil:${zoomableImageVersion}")
+    implementation("me.saket.telephoto:zoomable-image-glide:${zoomableImageVersion}")
     implementation(project(":matisse"))
 }

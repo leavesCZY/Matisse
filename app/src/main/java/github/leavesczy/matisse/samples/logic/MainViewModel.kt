@@ -16,10 +16,12 @@ import github.leavesczy.matisse.MediaStoreCaptureStrategy
 import github.leavesczy.matisse.MimeType
 import github.leavesczy.matisse.NothingCaptureStrategy
 import github.leavesczy.matisse.SmartCaptureStrategy
-import github.leavesczy.matisse.samples.engine.CoilImageEngine
-import github.leavesczy.matisse.samples.engine.CoilZoomImageEngine
-import github.leavesczy.matisse.samples.engine.GlideImageEngine
-import github.leavesczy.matisse.samples.engine.GlideZoomImageEngine
+import github.leavesczy.matisse.samples.engine.coil.CoilImageEngine
+import github.leavesczy.matisse.samples.engine.coil.CoilZoomImageEngine
+import github.leavesczy.matisse.samples.engine.coil.CoilZoomableImageEngine
+import github.leavesczy.matisse.samples.engine.glide.GlideImageEngine
+import github.leavesczy.matisse.samples.engine.glide.GlideZoomImageEngine
+import github.leavesczy.matisse.samples.engine.glide.GlideZoomableImageEngine
 
 class MainViewModel : ViewModel() {
 
@@ -167,6 +169,10 @@ class MainViewModel : ViewModel() {
                 CoilImageEngine()
             }
 
+            MediaImageEngine.CoilZoomable -> {
+                CoilZoomableImageEngine()
+            }
+
             MediaImageEngine.CoilZoom -> {
                 CoilZoomImageEngine()
             }
@@ -175,9 +181,14 @@ class MainViewModel : ViewModel() {
                 GlideImageEngine()
             }
 
+            MediaImageEngine.GlideZoomable -> {
+                GlideZoomableImageEngine()
+            }
+
             MediaImageEngine.GlideZoom -> {
                 GlideZoomImageEngine()
             }
+
         }
         val mediaFilter = when (mainPageViewState.filterStrategy) {
             MediaFilterStrategy.Close -> {

@@ -3,12 +3,9 @@ package github.leavesczy.matisse.internal.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -34,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,8 +44,6 @@ import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
 import github.leavesczy.matisse.internal.utils.clickableLimit
-import github.leavesczy.matisse.internal.utils.clickableNoRipple
-import github.leavesczy.matisse.internal.utils.clickableNoRippleLimit
 
 /**
  * @Author: CZY
@@ -73,9 +67,6 @@ internal fun MatissePreviewPage(
         ), targetOffsetX = { it })
     ) {
         BackHandler(enabled = pageViewState.visible, onBack = pageViewState.onDismissRequest)
-        var controllerVisible by remember {
-            mutableStateOf(value = true)
-        }
         val previewResources = pageViewState.previewResources
         val pagerState = rememberPagerState(
             initialPage = pageViewState.initialPage,
@@ -101,11 +92,10 @@ internal fun MatissePreviewPage(
                 HorizontalPager(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickableNoRippleLimit {
-                            controllerVisible = !controllerVisible
-                        },
+                        .navigationBarsPadding()
+                        .padding(bottom = bottomControllerHeight),
                     state = pagerState,
-                    pageSpacing = 0.dp,
+                    pageSpacing = 2.dp,
                     verticalAlignment = Alignment.CenterVertically,
                     key = { index ->
                         previewResources[index].id
@@ -118,7 +108,6 @@ internal fun MatissePreviewPage(
                     )
                 }
                 BottomController(
-                    visible = controllerVisible,
                     matisse = matisse,
                     pageViewState = pageViewState,
                     currentPageIndex = pagerState.currentPage,
@@ -157,102 +146,83 @@ private fun PreviewPage(
     }
 }
 
+private val bottomControllerHeight = 56.dp
+
 @Composable
 private fun BoxScope.BottomController(
-    visible: Boolean,
     matisse: Matisse,
     pageViewState: MatissePreviewPageViewState,
     currentPageIndex: Int,
     onSure: () -> Unit
 ) {
-    AnimatedVisibility(
+    val selectedResources = pageViewState.selectedResources
+    val previewResources = pageViewState.previewResources
+    val imagePosition by remember(key1 = selectedResources, key2 = currentPageIndex) {
+        mutableIntStateOf(
+            value = selectedResources.indexOf(element = previewResources[currentPageIndex])
+        )
+    }
+    val checkboxEnabled by remember(key1 = imagePosition) {
+        mutableStateOf(
+            value = imagePosition > -1 || selectedResources.size < matisse.maxSelectable
+        )
+    }
+    Box(
         modifier = Modifier
             .align(alignment = Alignment.BottomCenter)
-            .clickableNoRipple {
-
-            },
-        visible = visible,
-        enter = slideInVertically(
-            animationSpec = tween(
-                durationMillis = 100, easing = LinearEasing
-            ), initialOffsetY = {
-                2 * it
-            }),
-        exit = slideOutVertically(
-            animationSpec = tween(
-                durationMillis = 100, easing = LinearEasing
-            ), targetOffsetY = {
-                it
-            })
+            .background(color = colorResource(id = R.color.matisse_preview_page_controller_background_color))
+            .navigationBarsPadding()
+            .fillMaxWidth()
+            .height(height = bottomControllerHeight)
     ) {
-        val selectedResources = pageViewState.selectedResources
-        val previewResources = pageViewState.previewResources
-        val imagePosition by remember(key1 = selectedResources, key2 = currentPageIndex) {
-            mutableIntStateOf(
-                value = selectedResources.indexOf(element = previewResources[currentPageIndex])
-            )
-        }
-        val checkboxEnabled by remember(key1 = imagePosition) {
-            mutableStateOf(
-                value = imagePosition > -1 || selectedResources.size < matisse.maxSelectable
-            )
-        }
-        Box(
+        Text(
             modifier = Modifier
-                .background(color = colorResource(id = R.color.matisse_preview_page_controller_background_color))
-                .navigationBarsPadding()
-                .fillMaxWidth()
-                .height(height = 56.dp)
-        ) {
-            Text(
-                modifier = Modifier
-                    .align(alignment = Alignment.CenterStart)
-                    .clickableLimit(onClick = pageViewState.onDismissRequest)
-                    .fillMaxHeight()
-                    .padding(horizontal = 24.dp)
-                    .wrapContentSize(align = Alignment.Center),
-                text = stringResource(id = R.string.matisse_back),
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-                color = colorResource(id = R.color.matisse_back_text_color)
-            )
-            MatisseCheckbox(
-                modifier = Modifier.align(alignment = Alignment.Center),
-                text = if (imagePosition > -1) {
-                    (imagePosition + 1).toString()
-                } else {
-                    ""
-                },
-                checked = imagePosition > -1,
-                enabled = checkboxEnabled,
-                onClick = {
-                    pageViewState.onMediaCheckChanged(previewResources[currentPageIndex])
-                }
-            )
-            Text(
-                modifier = Modifier
-                    .align(alignment = Alignment.CenterEnd)
-                    .then(
-                        other = if (pageViewState.sureButtonClickable) {
-                            Modifier.clickableLimit(onClick = onSure)
-                        } else {
-                            Modifier
-                        }
-                    )
-                    .fillMaxHeight()
-                    .padding(horizontal = 24.dp)
-                    .wrapContentSize(align = Alignment.Center),
-                text = pageViewState.sureButtonText,
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-                color = colorResource(
-                    id = if (pageViewState.sureButtonClickable) {
-                        R.color.matisse_sure_text_color
+                .align(alignment = Alignment.CenterStart)
+                .clickableLimit(onClick = pageViewState.onDismissRequest)
+                .fillMaxHeight()
+                .padding(horizontal = 24.dp)
+                .wrapContentSize(align = Alignment.Center),
+            text = stringResource(id = R.string.matisse_back),
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp,
+            color = colorResource(id = R.color.matisse_back_text_color)
+        )
+        MatisseCheckbox(
+            modifier = Modifier.align(alignment = Alignment.Center),
+            text = if (imagePosition > -1) {
+                (imagePosition + 1).toString()
+            } else {
+                ""
+            },
+            checked = imagePosition > -1,
+            enabled = checkboxEnabled,
+            onClick = {
+                pageViewState.onMediaCheckChanged(previewResources[currentPageIndex])
+            }
+        )
+        Text(
+            modifier = Modifier
+                .align(alignment = Alignment.CenterEnd)
+                .then(
+                    other = if (pageViewState.sureButtonClickable) {
+                        Modifier.clickableLimit(onClick = onSure)
                     } else {
-                        R.color.matisse_sure_text_color_if_disable
+                        Modifier
                     }
                 )
+                .fillMaxHeight()
+                .padding(horizontal = 24.dp)
+                .wrapContentSize(align = Alignment.Center),
+            text = pageViewState.sureButtonText,
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp,
+            color = colorResource(
+                id = if (pageViewState.sureButtonClickable) {
+                    R.color.matisse_sure_text_color
+                } else {
+                    R.color.matisse_sure_text_color_if_disable
+                }
             )
-        }
+        )
     }
 }

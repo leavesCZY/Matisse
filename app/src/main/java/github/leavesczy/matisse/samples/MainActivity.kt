@@ -173,8 +173,7 @@ private fun MainPage(
             }
             Title(text = "ImageEngine")
             FlowRow(
-                modifier = Modifier,
-                maxItemsInEachRow = 2
+                maxItemsInEachRow = 3
             ) {
                 for (engine in MediaImageEngine.values()) {
                     RadioButton(
@@ -188,7 +187,6 @@ private fun MainPage(
             }
             Title(text = "拍照策略")
             FlowRow(
-                modifier = Modifier,
                 maxItemsInEachRow = 2
             ) {
                 for (strategy in MediaCaptureStrategy.values()) {

@@ -1,4 +1,6 @@
-package github.leavesczy.matisse.samples.engine
+@file:OptIn(ExperimentalGlideComposeApi::class)
+
+package github.leavesczy.matisse.samples.engine.glide
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +18,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 class GlideImageEngine : ImageEngine {
 
-    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
         GlideImage(
@@ -28,7 +29,6 @@ class GlideImageEngine : ImageEngine {
         )
     }
 
-    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
