@@ -7,13 +7,14 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.DisposableEffect
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import github.leavesczy.matisse.*
@@ -157,32 +158,17 @@ internal class MatisseActivity : AppCompatActivity() {
         } else {
             resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
         }
-        val statusBarColor = android.graphics.Color.TRANSPARENT
-        val navigationBarColor = android.graphics.Color.TRANSPARENT
-        val statusBarStyle = if (statusBarDarkIcons) {
-            SystemBarStyle.light(
-                scrim = statusBarColor,
-                darkScrim = statusBarColor
-            )
-        } else {
-            SystemBarStyle.dark(
-                scrim = statusBarColor
-            )
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            if (previewPageVisible) {
+                hide(WindowInsetsCompat.Type.statusBars())
+            } else {
+                show(WindowInsetsCompat.Type.statusBars())
+            }
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+            isAppearanceLightStatusBars = statusBarDarkIcons
+            isAppearanceLightNavigationBars = navigationBarDarkIcons
         }
-        val navigationBarStyle = if (navigationBarDarkIcons) {
-            SystemBarStyle.light(
-                scrim = navigationBarColor,
-                darkScrim = navigationBarColor
-            )
-        } else {
-            SystemBarStyle.dark(
-                scrim = navigationBarColor
-            )
-        }
-        enableEdgeToEdge(
-            statusBarStyle = statusBarStyle,
-            navigationBarStyle = navigationBarStyle
-        )
     }
 
     private fun showToast(message: String) {
