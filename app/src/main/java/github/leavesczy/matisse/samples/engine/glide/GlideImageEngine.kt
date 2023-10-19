@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalGlideComposeApi::class)
-
 package github.leavesczy.matisse.samples.engine.glide
 
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,17 +16,18 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 class GlideImageEngine : ImageEngine {
 
+    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
         GlideImage(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             model = mediaResource.uri,
             contentScale = ContentScale.Crop,
             contentDescription = mediaResource.name
         )
     }
 
+    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {

@@ -30,8 +30,8 @@ class GlideZoomImageEngine : ImageEngine {
         GlideImage(
             modifier = Modifier.fillMaxSize(),
             model = mediaResource.uri,
-            contentDescription = mediaResource.name,
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            contentDescription = mediaResource.name
         )
     }
 
