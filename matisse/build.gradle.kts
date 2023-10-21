@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     id("maven-publish")
+    id("signing")
 }
 
 android {
@@ -40,17 +41,54 @@ android {
     }
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-//                groupId = "com.github.leavesCZY"
-//                artifactId = "Matisse"
-//                version = "1.0.0"
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            groupId = "io.github.leavesczy"
+            artifactId = "matisse"
+            version = "0.0.1-test03"
+            afterEvaluate {
                 from(components["release"])
+            }
+            pom {
+                name = "Matisse"
+                description = "A Image/Video Selector Implemented with Jetpack Compose"
+                url = "https://github.com/leavesCZY/Matisse"
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                        distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "leavesCZY"
+                        name = "leavesCZY"
+                        email = properties.getting("ossrh.email")
+                    }
+                }
+                scm {
+                    url = "https://github.com/leavesCZY/Matisse"
+                    connection = "https://github.com/leavesCZY/Matisse"
+                    developerConnection = "https://github.com/leavesCZY/Matisse"
+                }
             }
         }
     }
+    repositories {
+        maven {
+            setUrl("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                username = properties["ossrh.username"].toString()
+                password = properties["ossrh.password"].toString()
+            }
+        }
+    }
+}
+
+signing {
+    sign(publishing.publications["release"])
 }
 
 dependencies {

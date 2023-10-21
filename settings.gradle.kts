@@ -11,13 +11,11 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+//        maven {
+//            setUrl("https://maven.aliyun.com/repository/central")
+//        }
         google()
         mavenCentral()
-    }
-    versionCatalogs {
-        create("libs") {
-            from(files("libs.versions.toml"))
-        }
     }
 }
 
