@@ -1,6 +1,6 @@
 [versions]
 android-plugin = "8.1.2"
-kotlin-plugin = "1.8.22"
+kotlin-plugin = "1.9.10"
 
 junit-junit = "4.13.2"
 androidx-junit = "1.1.5"
@@ -9,8 +9,8 @@ androidx-appcompat = "1.6.1"
 androidx-activity-compose = "1.8.0"
 androidx-lifecycle-runtime-ktx = "2.6.2"
 
-compose-bom = "2023.09.00"
-compose-compiler = "1.4.8"
+compose-bom = "2023.10.01"
+compose-compiler = "1.5.3"
 
 coil = "2.4.0"
 glide = "1.0.0-beta01"
