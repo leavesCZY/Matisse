@@ -6,11 +6,9 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.DisposableEffect
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -32,11 +30,14 @@ import github.leavesczy.matisse.internal.utils.isVideo
  * @Date: 2022/5/28 22:28
  * @Desc:
  */
-internal class MatisseActivity : AppCompatActivity() {
+internal class MatisseActivity : BaseMatisseCaptureActivity() {
 
     private val matisse by lazy {
         MatisseContract.getRequest(intent = intent)
     }
+
+    override val captureStrategy: CaptureStrategy
+        get() = matisse.captureStrategy
 
     private val matisseViewModel by viewModels<MatisseViewModel>(factoryProducer = {
         object : ViewModelProvider.Factory {
@@ -54,12 +55,6 @@ internal class MatisseActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
             matisseViewModel.requestReadMediaPermissionResult(granted = result.all { it.value })
         }
-
-    private val takePictureLauncher = registerForActivityResult(MatisseCaptureContract()) {
-        if (it != null) {
-            onSure(selectedResources = listOf(it))
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,29 +114,33 @@ internal class MatisseActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestTakePicture() {
-        takePictureLauncher.launch(MatisseCapture(captureStrategy = matisse.captureStrategy))
-    }
-
     private fun requestOpenVideo(mediaResource: MediaResource) {
         try {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setDataAndType(mediaResource.uri, "video/*")
             startActivity(intent)
         } catch (e: ActivityNotFoundException) {
-            showToast(message = getString(R.string.matisse_no_apps_support_video_preview))
+            showToast(id = R.string.matisse_no_apps_support_video_preview)
         }
     }
 
-    private fun onSure() {
-        onSure(selectedResources = matisseViewModel.selectedResources)
+    override fun dispatchTakePictureResult(mediaResource: MediaResource) {
+        onSure(resources = listOf(mediaResource))
     }
 
-    private fun onSure(selectedResources: List<MediaResource>) {
-        if (selectedResources.isEmpty()) {
+    override fun onCancelTakePicture() {
+
+    }
+
+    private fun onSure() {
+        onSure(resources = matisseViewModel.selectedResources)
+    }
+
+    private fun onSure(resources: List<MediaResource>) {
+        if (resources.isEmpty()) {
             setResult(Activity.RESULT_CANCELED)
         } else {
-            val data = MatisseContract.buildResult(selectedMediaResources = selectedResources)
+            val data = MatisseContract.buildResult(selectedMediaResources = resources)
             setResult(Activity.RESULT_OK, data)
         }
         finish()
@@ -168,12 +167,6 @@ internal class MatisseActivity : AppCompatActivity() {
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
             isAppearanceLightStatusBars = statusBarDarkIcons
             isAppearanceLightNavigationBars = navigationBarDarkIcons
-        }
-    }
-
-    private fun showToast(message: String) {
-        if (message.isNotBlank()) {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
 

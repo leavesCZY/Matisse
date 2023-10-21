@@ -3,6 +3,8 @@ package github.leavesczy.matisse.internal.utils
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * @Author: CZY
@@ -33,21 +35,23 @@ internal object PermissionUtils {
     /**
      * 检查应用是否声明了指定权限
      */
-    fun containsPermission(context: Context, permission: String): Boolean {
-        try {
-            val packageManager: PackageManager = context.packageManager
-            val packageInfo = packageManager.getPackageInfo(
-                context.packageName,
-                PackageManager.GET_PERMISSIONS
-            )
-            val permissions = packageInfo.requestedPermissions
-            if (!permissions.isNullOrEmpty()) {
-                return permissions.contains(permission)
+    suspend fun containsPermission(context: Context, permission: String): Boolean {
+        return withContext(context = Dispatchers.Default) {
+            try {
+                val packageManager: PackageManager = context.packageManager
+                val packageInfo = packageManager.getPackageInfo(
+                    context.packageName,
+                    PackageManager.GET_PERMISSIONS
+                )
+                val permissions = packageInfo.requestedPermissions
+                if (!permissions.isNullOrEmpty()) {
+                    return@withContext permissions.contains(permission)
+                }
+            } catch (e: Throwable) {
+                e.printStackTrace()
             }
-        } catch (e: Throwable) {
-            e.printStackTrace()
+            return@withContext false
         }
-        return false
     }
 
 }
