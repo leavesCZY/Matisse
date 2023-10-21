@@ -1,0 +1,51 @@
+[versions]
+android-plugin = "8.1.2"
+kotlin-plugin = "1.8.22"
+
+junit-junit = "4.13.2"
+androidx-junit = "1.1.5"
+androidx-espresso = "3.5.1"
+androidx-appcompat = "1.6.1"
+androidx-activity-compose = "1.8.0"
+androidx-lifecycle-runtime-ktx = "2.6.2"
+
+compose-bom = "2023.09.00"
+compose-compiler = "1.4.8"
+
+coil = "2.4.0"
+glide = "1.0.0-beta01"
+zoomImage = "1.0.0-beta03"
+zoomableImage = "0.6.2"
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "android-plugin" }
+android-library = { id = "com.android.library", version.ref = "android-plugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-plugin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-plugin" }
+
+[libraries]
+test-junit = { module = "junit:junit", version.ref = "junit-junit" }
+test-androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
+test-androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
+
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle-runtime-ktx" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
+
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-foundation = { module = "androidx.compose.foundation:foundation" }
+compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coil" }
+coil-video = { module = "io.coil-kt:coil-video", version.ref = "coil" }
+
+glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glide" }
+
+zoomImage-coil = { module = "io.github.panpf.zoomimage:zoomimage-compose-coil", version.ref = "zoomImage" }
+zoomImage-glide = { module = "io.github.panpf.zoomimage:zoomimage-compose-glide", version.ref = "zoomImage" }
+
+zoomableImage-coil = { module = "me.saket.telephoto:zoomable-image-coil", version.ref = "zoomableImage" }
+zoomableImage-glide = { module = "me.saket.telephoto:zoomable-image-glide", version.ref = "zoomableImage" }
