@@ -11,9 +11,9 @@ import github.leavesczy.matisse.MediaResource
  * @Date: 2023/4/11 16:31
  * @Desc:
  */
-internal class MatisseCaptureActivity : BaseMatisseCaptureActivity() {
+internal class MatisseCaptureActivity : BaseMatisseActivity() {
 
-    private val matisseCapture by lazy {
+    private val matisseCapture by lazy(mode = LazyThreadSafetyMode.NONE) {
         MatisseCaptureContract.getRequest(intent = intent)
     }
 
@@ -31,7 +31,7 @@ internal class MatisseCaptureActivity : BaseMatisseCaptureActivity() {
         finish()
     }
 
-    override fun onCancelTakePicture() {
+    override fun takePictureCancelled() {
         setResult(Activity.RESULT_CANCELED)
         finish()
     }

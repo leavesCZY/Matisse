@@ -30,7 +30,7 @@ enum class MediaImageEngine {
 }
 
 enum class MediaFilterStrategy {
-    Close,
+    Nothing,
     IgnoreSelected,
     AttachSelected
 }

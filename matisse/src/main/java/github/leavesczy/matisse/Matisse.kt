@@ -3,8 +3,6 @@ package github.leavesczy.matisse
 import android.net.Uri
 import android.os.Parcelable
 import androidx.compose.runtime.Stable
-import github.leavesczy.matisse.internal.utils.isImage
-import github.leavesczy.matisse.internal.utils.isVideo
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -98,5 +96,11 @@ enum class MimeType(val type: String) {
         }
 
     }
+
+    val isImage: Boolean
+        get() = type.startsWith(prefix = "image")
+
+    val isVideo: Boolean
+        get() = type.startsWith(prefix = "video")
 
 }

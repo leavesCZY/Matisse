@@ -22,17 +22,15 @@ import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.utils.PermissionUtils
-import github.leavesczy.matisse.internal.utils.isImage
-import github.leavesczy.matisse.internal.utils.isVideo
 
 /**
  * @Author: leavesCZY
  * @Date: 2022/5/28 22:28
  * @Desc:
  */
-internal class MatisseActivity : BaseMatisseCaptureActivity() {
+internal class MatisseActivity : BaseMatisseActivity() {
 
-    private val matisse by lazy {
+    private val matisse by lazy(mode = LazyThreadSafetyMode.NONE) {
         MatisseContract.getRequest(intent = intent)
     }
 
@@ -128,7 +126,7 @@ internal class MatisseActivity : BaseMatisseCaptureActivity() {
         onSure(resources = listOf(mediaResource))
     }
 
-    override fun onCancelTakePicture() {
+    override fun takePictureCancelled() {
 
     }
 

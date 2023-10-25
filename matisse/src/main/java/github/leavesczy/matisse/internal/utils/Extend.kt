@@ -11,7 +11,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import github.leavesczy.matisse.MimeType
 
 /**
  * @Author: CZY
@@ -53,18 +52,6 @@ internal inline fun Modifier.clickableLimit(
     )
 }
 
-internal inline fun Modifier.clickableNoRippleLimit(
-    minDuration: Long = MIN_DURATION,
-    crossinline onClick: () -> Unit
-): Modifier = composed {
-    clickableLimit(
-        indication = null,
-        interactionSource = remember { MutableInteractionSource() },
-        minDuration = minDuration,
-        onClick = onClick
-    )
-}
-
 internal fun Modifier.clickableNoRipple(
     onClick: () -> Unit
 ): Modifier =
@@ -75,9 +62,3 @@ internal fun Modifier.clickableNoRipple(
             onClick = onClick
         )
     }
-
-internal val MimeType.isImage: Boolean
-    get() = type.startsWith(prefix = "image/")
-
-internal val MimeType.isVideo: Boolean
-    get() = type.startsWith(prefix = "video/")

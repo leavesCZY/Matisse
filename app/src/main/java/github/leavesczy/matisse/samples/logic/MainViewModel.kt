@@ -25,8 +25,7 @@ import github.leavesczy.matisse.samples.engine.glide.GlideZoomableImageEngine
 
 class MainViewModel : ViewModel() {
 
-    var darkTheme by mutableStateOf(value = false)
-        private set
+    private var darkTheme by mutableStateOf(value = false)
 
     var mainPageViewState by mutableStateOf(
         value = MainPageViewState(
@@ -34,7 +33,7 @@ class MainViewModel : ViewModel() {
             mediaType = MediaType.All,
             captureStrategy = MediaCaptureStrategy.Smart,
             capturePreferences = MediaCapturePreferences.Normal,
-            filterStrategy = MediaFilterStrategy.Close,
+            filterStrategy = MediaFilterStrategy.Nothing,
             imageEngine = MediaImageEngine.Coil,
             mediaList = emptyList(),
             onMaxSelectableChanged = ::onMaxSelectableChanged,
@@ -191,7 +190,7 @@ class MainViewModel : ViewModel() {
 
         }
         val mediaFilter = when (mainPageViewState.filterStrategy) {
-            MediaFilterStrategy.Close -> {
+            MediaFilterStrategy.Nothing -> {
                 DefaultMediaFilter(supportedMimeTypes = mimeTypes)
             }
 

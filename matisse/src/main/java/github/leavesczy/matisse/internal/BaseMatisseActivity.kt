@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
  * @Date: 2023/10/21 16:49
  * @Desc:
  */
-internal abstract class BaseMatisseCaptureActivity : AppCompatActivity() {
+internal abstract class BaseMatisseActivity : AppCompatActivity() {
 
     protected abstract val captureStrategy: CaptureStrategy
 
@@ -33,7 +33,7 @@ internal abstract class BaseMatisseCaptureActivity : AppCompatActivity() {
                 requestCameraPermissionIfNeed()
             } else {
                 showToast(id = R.string.matisse_write_external_storage_permission_denied)
-                onCancelTakePicture()
+                takePictureCancelled()
             }
         }
 
@@ -43,7 +43,7 @@ internal abstract class BaseMatisseCaptureActivity : AppCompatActivity() {
                 takePicture()
             } else {
                 showToast(id = R.string.matisse_camera_permission_denied)
-                onCancelTakePicture()
+                takePictureCancelled()
             }
         }
 
@@ -55,7 +55,7 @@ internal abstract class BaseMatisseCaptureActivity : AppCompatActivity() {
     private var tempImageUriForTakePicture: Uri? = null
 
     protected fun requestTakePicture() {
-        if (captureStrategy.shouldRequestWriteExternalStoragePermission(context = this)) {
+        if (captureStrategy.shouldRequestWriteExternalStoragePermission(context = applicationContext)) {
             requestWriteExternalStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         } else {
             requestCameraPermissionIfNeed()
@@ -65,12 +65,11 @@ internal abstract class BaseMatisseCaptureActivity : AppCompatActivity() {
     private fun requestCameraPermissionIfNeed() {
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
             val cameraPermission = Manifest.permission.CAMERA
-            val context = this@BaseMatisseCaptureActivity
             val requirePermissionToTakePhotos = PermissionUtils.containsPermission(
-                context = context,
+                context = applicationContext,
                 permission = cameraPermission
             ) && !PermissionUtils.permissionGranted(
-                context = context,
+                context = applicationContext,
                 permission = cameraPermission
             )
             if (requirePermissionToTakePhotos) {
@@ -100,15 +99,15 @@ internal abstract class BaseMatisseCaptureActivity : AppCompatActivity() {
             } else {
                 showToast(id = R.string.matisse_no_apps_support_take_picture)
             }
-            onCancelTakePicture()
+            takePictureCancelled()
         }
     }
 
     private fun takePictureResult(successful: Boolean) {
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
             val imageUri = tempImageUriForTakePicture
+            tempImageUriForTakePicture = null
             if (imageUri != null) {
-                tempImageUriForTakePicture = null
                 if (successful) {
                     val resource = captureStrategy.loadResource(
                         context = applicationContext,
@@ -125,13 +124,13 @@ internal abstract class BaseMatisseCaptureActivity : AppCompatActivity() {
                     )
                 }
             }
-            onCancelTakePicture()
+            takePictureCancelled()
         }
     }
 
     protected abstract fun dispatchTakePictureResult(mediaResource: MediaResource)
 
-    protected abstract fun onCancelTakePicture()
+    protected abstract fun takePictureCancelled()
 
     protected fun showToast(@StringRes id: Int) {
         val msg = getString(id)
