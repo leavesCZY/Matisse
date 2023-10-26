@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.google.ksp)
 }
 
 android {
@@ -116,7 +117,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
     implementation(libs.coil.video)
+    implementation(libs.glide)
     implementation(libs.glide.compose)
+    ksp(libs.glide.ksp)
     implementation(libs.zoomImage.coil)
     implementation(libs.zoomImage.glide)
     implementation(libs.zoomableImage.coil)

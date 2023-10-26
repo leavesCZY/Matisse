@@ -26,12 +26,6 @@ import kotlinx.coroutines.withContext
 internal class MatisseViewModel(application: Application, matisse: Matisse) :
     AndroidViewModel(application) {
 
-    companion object {
-
-        private const val DEFAULT_BUCKET_ID = "&__defaultBucketId__&"
-
-    }
-
     private val context: Context
         get() = getApplication()
 
@@ -41,8 +35,10 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val mediaFilter = matisse.mediaFilter
 
+    private val defaultBucketId = "&__matisseDefaultBucketId__&"
+
     private val defaultBucket = MediaBucket(
-        id = DEFAULT_BUCKET_ID,
+        id = defaultBucketId,
         name = getString(R.string.matisse_default_bucket_name),
         resources = emptyList(),
         supportCapture = supportCapture
@@ -160,7 +156,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             buildList {
                 add(
                     element = MediaBucket(
-                        id = DEFAULT_BUCKET_ID,
+                        id = defaultBucketId,
                         name = getString(R.string.matisse_default_bucket_name),
                         resources = resources,
                         supportCapture = supportCapture

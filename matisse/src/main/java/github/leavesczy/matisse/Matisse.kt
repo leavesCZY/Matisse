@@ -97,10 +97,10 @@ enum class MimeType(val type: String) {
 
     }
 
-    val isImage: Boolean
+    internal val isImage: Boolean
         get() = type.startsWith(prefix = "image")
 
-    val isVideo: Boolean
+    internal val isVideo: Boolean
         get() = type.startsWith(prefix = "video")
 
 }
