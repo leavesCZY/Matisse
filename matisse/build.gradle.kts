@@ -60,7 +60,7 @@ if (signingKeyId != null
             create<MavenPublication>("release") {
                 groupId = "io.github.leavesczy"
                 artifactId = "matisse"
-                version = "1.1.1"
+                version = libs.versions.matisse.publishing.get()
                 afterEvaluate {
                     from(components["release"])
                 }
