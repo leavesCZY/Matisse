@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
-    id("maven-publish")
-    id("signing")
+    id(libs.plugins.maven.publish.get().pluginId)
+    id(libs.plugins.signing.get().pluginId)
 }
 
 android {
@@ -13,7 +13,6 @@ android {
     compileSdk = 34
     defaultConfig {
         minSdk = 21
-        targetSdk = 33
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
