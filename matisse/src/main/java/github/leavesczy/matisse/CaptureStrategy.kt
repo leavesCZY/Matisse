@@ -1,7 +1,6 @@
 package github.leavesczy.matisse
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -20,6 +19,7 @@ import kotlinx.parcelize.Parcelize
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 /**
  * @Author: CZY
@@ -60,13 +60,10 @@ interface CaptureStrategy : Parcelable {
     /**
      * 生成图片名
      */
-    @SuppressLint("SimpleDateFormat")
     suspend fun createImageName(context: Context): String {
         return withContext(context = Dispatchers.Default) {
-            val date = Date()
-            val time = SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(date)
-            val imageName = "IMG_" + time.format(date)
-            return@withContext "$imageName.jpg"
+            val time = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.CHINA).format(Date())
+            return@withContext "IMG_$time.jpg"
         }
     }
 

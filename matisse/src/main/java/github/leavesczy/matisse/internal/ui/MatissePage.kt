@@ -1,6 +1,7 @@
 package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
@@ -25,11 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.unit.dp
@@ -175,7 +171,11 @@ private fun LazyGridItemScope.MediaItem(
             .background(color = colorResource(id = R.color.matisse_image_item_background_color))
             .then(
                 other = if (mediaPlacement.isSelected) {
-                    Modifier.drawBorder(color = colorResource(id = R.color.matisse_image_item_border_color_when_selected))
+                    Modifier.border(
+                        width = 3.dp,
+                        color = colorResource(id = R.color.matisse_image_item_border_color_when_selected),
+                        shape = RoundedCornerShape(size = 4.dp)
+                    )
                 } else {
                     Modifier
                 }
@@ -205,23 +205,6 @@ private fun LazyGridItemScope.MediaItem(
                 imageVector = Icons.Filled.SlowMotionVideo,
                 tint = colorResource(id = R.color.matisse_video_icon_color),
                 contentDescription = mediaResource.name
-            )
-        }
-    }
-}
-
-private fun Modifier.drawBorder(color: Color): Modifier {
-    return drawWithCache {
-        val lineWidth = 3.dp.toPx()
-        val topLeftPoint = lineWidth / 2f
-        val rectSize = size.width - lineWidth
-        onDrawWithContent {
-            drawContent()
-            drawRect(
-                color = color,
-                topLeft = Offset(topLeftPoint, topLeftPoint),
-                size = Size(width = rectSize, height = rectSize),
-                style = Stroke(width = lineWidth)
             )
         }
     }

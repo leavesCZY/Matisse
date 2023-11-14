@@ -1,29 +1,15 @@
 package github.leavesczy.matisse.internal.theme
 
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
-import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.dp
 
-private val colors = lightColorScheme()
-
-private val typography = Typography()
-
-private val shapes = Shapes(
-    small = RoundedCornerShape(size = 4.dp),
-    medium = RoundedCornerShape(size = 8.dp),
-    large = RoundedCornerShape(size = 12.dp)
-)
+private val lightColorScheme = lightColorScheme()
 
 @Composable
 internal fun MatisseTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = colors,
-        typography = typography,
-        shapes = shapes,
+        colorScheme = lightColorScheme,
         content = content
     )
 }

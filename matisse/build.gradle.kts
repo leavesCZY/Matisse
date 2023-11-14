@@ -102,16 +102,6 @@ if (signingKeyId != null
     signing {
         sign(publishing.publications["release"])
     }
-} else {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                afterEvaluate {
-                    from(components["release"])
-                }
-            }
-        }
-    }
 }
 
 dependencies {

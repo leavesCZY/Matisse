@@ -59,14 +59,25 @@ internal fun MatissePreviewPage(
 ) {
     AnimatedVisibility(
         visible = pageViewState.visible,
-        enter = slideInHorizontally(animationSpec = tween(
-            durationMillis = 400, easing = FastOutSlowInEasing
-        ), initialOffsetX = { it }),
-        exit = slideOutHorizontally(animationSpec = tween(
-            durationMillis = 400, easing = FastOutSlowInEasing
-        ), targetOffsetX = { it })
+        enter = slideInHorizontally(
+            animationSpec = tween(
+                durationMillis = 400,
+                easing = FastOutSlowInEasing
+            ),
+            initialOffsetX = { it }
+        ),
+        exit = slideOutHorizontally(
+            animationSpec = tween(
+                durationMillis = 400,
+                easing = FastOutSlowInEasing
+            ),
+            targetOffsetX = { it }
+        )
     ) {
-        BackHandler(enabled = pageViewState.visible, onBack = pageViewState.onDismissRequest)
+        BackHandler(
+            enabled = pageViewState.visible,
+            onBack = pageViewState.onDismissRequest
+        )
         val previewResources = pageViewState.previewResources
         val pagerState = rememberPagerState(
             initialPage = pageViewState.initialPage,

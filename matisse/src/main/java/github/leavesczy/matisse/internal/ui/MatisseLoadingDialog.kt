@@ -28,7 +28,8 @@ internal fun MatisseLoadingDialog(visible: Boolean) {
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.size(size = 42.dp),
+                modifier = Modifier
+                    .size(size = 42.dp),
                 color = colorResource(id = R.color.matisse_circular_loading_color)
             )
         }

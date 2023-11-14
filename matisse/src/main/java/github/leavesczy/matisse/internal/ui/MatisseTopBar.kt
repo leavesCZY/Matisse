@@ -87,7 +87,8 @@ internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewS
                 contentDescription = null
             )
             Text(
-                modifier = Modifier.weight(weight = 1f, fill = false),
+                modifier = Modifier
+                    .weight(weight = 1f, fill = false),
                 text = topBarViewState.title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -96,7 +97,8 @@ internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewS
                 color = colorResource(id = R.color.matisse_top_bar_text_color)
             )
             Icon(
-                modifier = Modifier.size(size = 32.dp),
+                modifier = Modifier
+                    .size(size = 32.dp),
                 imageVector = Icons.Filled.ArrowDropDown,
                 tint = colorResource(id = R.color.matisse_top_bar_icon_color),
                 contentDescription = null
@@ -131,7 +133,8 @@ private fun BucketDropdownMenu(
     ) {
         for (bucket in topBarViewState.mediaBuckets) {
             DropdownMenuItem(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
                 text = {
                     Row(
@@ -155,21 +158,22 @@ private fun BucketDropdownMenu(
                                 .weight(weight = 1f, fill = false)
                                 .padding(start = 10.dp),
                             text = bucket.name,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                             fontSize = 15.sp,
                             fontStyle = FontStyle.Normal,
                             fontWeight = FontWeight.Normal,
-                            color = colorResource(id = R.color.matisse_dropdown_menu_text_color),
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 2
+                            color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
                         )
                         Text(
-                            modifier = Modifier.padding(start = 6.dp, end = 6.dp),
+                            modifier = Modifier
+                                .padding(start = 6.dp, end = 6.dp),
                             text = "(${bucket.resources.size})",
+                            maxLines = 1,
                             fontSize = 15.sp,
                             fontStyle = FontStyle.Normal,
                             fontWeight = FontWeight.Normal,
-                            color = colorResource(id = R.color.matisse_dropdown_menu_text_color),
-                            maxLines = 1
+                            color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
                         )
                     }
                 },
