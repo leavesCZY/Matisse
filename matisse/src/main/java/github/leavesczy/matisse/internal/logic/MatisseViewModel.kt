@@ -37,23 +37,21 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val defaultBucketId = "&__matisseDefaultBucketId__&"
 
-    private val defaultBucket = MediaBucket(
-        id = defaultBucketId,
-        name = getString(R.string.matisse_default_bucket_name),
-        resources = emptyList(),
-        supportCapture = supportCapture
-    )
-
     private val nothingMatissePageViewState = MatissePageViewState(
         lazyGridState = LazyGridState(),
-        selectedBucket = defaultBucket,
+        selectedBucket = MediaBucket(
+            id = defaultBucketId,
+            name = getString(R.string.matisse_default_bucket_name),
+            resources = emptyList(),
+            supportCapture = supportCapture
+        ),
         onClickMedia = ::onClickMedia,
         onMediaCheckChanged = ::onMediaCheckChanged
     )
 
     private val nothingMatisseTopBarViewState = MatisseTopBarViewState(
-        title = defaultBucket.name,
-        mediaBuckets = listOf(element = defaultBucket),
+        title = nothingMatissePageViewState.selectedBucket.name,
+        mediaBuckets = listOf(element = nothingMatissePageViewState.selectedBucket),
         onClickBucket = ::onClickBucket
     )
 
@@ -98,7 +96,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         viewModelScope.launch(context = Dispatchers.Main.immediate) {
             dismissPreviewPage()
             if (granted) {
-                loadingDialog(visible = true)
+                showLoadingDialog()
                 val allResources = MediaProvider.loadResources(
                     context = context,
                     mediaFilter = mediaFilter
@@ -117,25 +115,21 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 }
                 assert(value = defaultSelected.size <= maxSelectable)
                 selectedResources = defaultSelected
-                loadingDialog(visible = false)
             } else {
                 selectedResources = emptyList()
                 matissePageViewState = nothingMatissePageViewState
                 matisseTopBarViewState = nothingMatisseTopBarViewState
-                loadingDialog(visible = false)
                 showToast(message = getString(R.string.matisse_read_media_permission_denied))
             }
+            dismissLoadingDialog()
             matisseBottomBarViewState = buildMatisseBottomBarViewState()
         }
     }
 
     private fun onClickBucket(mediaBucket: MediaBucket) {
         if (matissePageViewState.selectedBucket != mediaBucket) {
-            viewModelScope.launch {
-                matissePageViewState.lazyGridState.scrollToItem(index = 0)
-                matisseTopBarViewState = matisseTopBarViewState.copy(title = mediaBucket.name)
-                matissePageViewState = matissePageViewState.copy(selectedBucket = mediaBucket)
-            }
+            matisseTopBarViewState = matisseTopBarViewState.copy(title = mediaBucket.name)
+            matissePageViewState = matissePageViewState.copy(selectedBucket = mediaBucket)
         }
     }
 
@@ -164,13 +158,13 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 )
                 resourcesMap.forEach {
                     val bucketId = it.key
-                    val resourcesList = it.value
-                    val bucketName = resourcesList[0].bucketName
+                    val resourceList = it.value
+                    val bucketName = resourceList[0].bucketName
                     add(
                         element = MediaBucket(
                             id = bucketId,
                             name = bucketName,
-                            resources = resourcesList,
+                            resources = resourceList,
                             supportCapture = false
                         )
                     )
@@ -215,7 +209,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         }
     }
 
-    private fun previewImage(
+    private fun previewResource(
         initialMedia: MediaResource?,
         previewResources: List<MediaResource>
     ) {
@@ -226,8 +220,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         val initialPage = if (initialMedia == null) {
             0
         } else {
-            previewResources.indexOf(element = initialMedia)
-        }.coerceAtLeast(minimumValue = 0)
+            previewResources.indexOf(element = initialMedia).coerceAtLeast(minimumValue = 0)
+        }
         matissePreviewPageViewState = matissePreviewPageViewState.copy(
             visible = true,
             initialPage = initialPage,
@@ -243,7 +237,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     }
 
     private fun onClickMedia(mediaResource: MediaResource) {
-        previewImage(
+        previewResource(
             initialMedia = mediaResource,
             previewResources = matissePageViewState.selectedBucket.resources
         )
@@ -251,7 +245,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private fun onClickPreviewButton() {
         if (selectedResources.isNotEmpty()) {
-            previewImage(
+            previewResource(
                 initialMedia = null,
                 previewResources = selectedResources
             )
@@ -278,10 +272,12 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         )
     }
 
-    private fun loadingDialog(visible: Boolean) {
-        if (loadingDialogVisible != visible) {
-            loadingDialogVisible = visible
-        }
+    private fun showLoadingDialog() {
+        loadingDialogVisible = true
+    }
+
+    private fun dismissLoadingDialog() {
+        loadingDialogVisible = false
     }
 
     private fun getString(@StringRes strId: Int): String {

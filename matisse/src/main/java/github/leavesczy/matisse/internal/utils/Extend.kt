@@ -38,10 +38,8 @@ private inline fun Modifier.clickableLimit(
     }
 }
 
-private const val MIN_DURATION = 300L
-
 internal inline fun Modifier.clickableLimit(
-    minDuration: Long = MIN_DURATION,
+    minDuration: Long = 300L,
     crossinline onClick: () -> Unit
 ): Modifier = composed {
     clickableLimit(
@@ -54,11 +52,10 @@ internal inline fun Modifier.clickableLimit(
 
 internal fun Modifier.clickableNoRipple(
     onClick: () -> Unit
-): Modifier =
-    composed {
-        clickable(
-            indication = null,
-            interactionSource = remember { MutableInteractionSource() },
-            onClick = onClick
-        )
-    }
+): Modifier = composed {
+    clickable(
+        indication = null,
+        interactionSource = remember { MutableInteractionSource() },
+        onClick = onClick
+    )
+}
