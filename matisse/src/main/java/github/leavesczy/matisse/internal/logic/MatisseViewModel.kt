@@ -31,6 +31,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val maxSelectable = matisse.maxSelectable
 
+    private val singleMediaType = matisse.singleMediaType
+
     private val mediaFilter = matisse.mediaFilter
 
     private val captureStrategy = matisse.captureStrategy
@@ -113,7 +115,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 val defaultSelected = allResources.filter {
                     mediaFilter.selectMedia(mediaResource = it)
                 }
-                assert(value = defaultSelected.size <= maxSelectable)
                 selectedResources = defaultSelected
             } else {
                 selectedResources = emptyList()
@@ -181,7 +182,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         } else {
             if (maxSelectable == 1) {
                 selectedResourcesMutable.clear()
-                selectedResourcesMutable.add(element = mediaResource)
             } else if (selectedResourcesMutable.size >= maxSelectable) {
                 showToast(
                     message = String.format(
@@ -190,9 +190,16 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                     )
                 )
                 return
-            } else {
-                selectedResourcesMutable.add(element = mediaResource)
+            } else if (singleMediaType) {
+                val illegalMediaType = selectedResourcesMutable.any {
+                    it.isImage != mediaResource.isImage
+                }
+                if (illegalMediaType) {
+                    showToast(message = getString(R.string.matisse_cannot_select_both_picture_and_video_at_the_same_time))
+                    return
+                }
             }
+            selectedResourcesMutable.add(element = mediaResource)
         }
         selectedResources = selectedResourcesMutable
         matisseBottomBarViewState = buildMatisseBottomBarViewState()

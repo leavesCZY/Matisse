@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -138,9 +139,9 @@ private fun MainPage(
                 ),
             horizontalAlignment = Alignment.Start,
         ) {
-            Title(text = "类型")
+            Title(text = "mediaType")
             Row {
-                for (value in MediaType.values()) {
+                for (value in MediaType.entries) {
                     RadioButton(
                         tips = value.name,
                         selected = mainPageViewState.mediaType == value,
@@ -150,9 +151,28 @@ private fun MainPage(
                     )
                 }
             }
-            Title(text = "过滤策略")
+            OptionDivider()
+            Title(text = "singleMediaType")
+            Row {
+                RadioButton(
+                    tips = "true",
+                    selected = mainPageViewState.singleMediaType,
+                    onClick = {
+                        mainPageViewState.onSingleMediaTypeChanged(true)
+                    }
+                )
+                RadioButton(
+                    tips = "false",
+                    selected = !mainPageViewState.singleMediaType,
+                    onClick = {
+                        mainPageViewState.onSingleMediaTypeChanged(false)
+                    }
+                )
+            }
+            OptionDivider()
+            Title(text = "mediaFilter")
             FlowRow {
-                for (strategy in MediaFilterStrategy.values()) {
+                for (strategy in MediaFilterStrategy.entries) {
                     RadioButton(
                         tips = strategy.name,
                         selected = mainPageViewState.filterStrategy == strategy,
@@ -162,7 +182,8 @@ private fun MainPage(
                     )
                 }
             }
-            Title(text = "数量")
+            OptionDivider()
+            Title(text = "maxSelectable")
             Row {
                 for (i in 1..3) {
                     RadioButton(
@@ -174,11 +195,12 @@ private fun MainPage(
                     )
                 }
             }
+            OptionDivider()
             Title(text = "ImageEngine")
             FlowRow(
                 maxItemsInEachRow = 3
             ) {
-                for (engine in MediaImageEngine.values()) {
+                for (engine in MediaImageEngine.entries) {
                     RadioButton(
                         tips = engine.name,
                         selected = mainPageViewState.imageEngine == engine,
@@ -188,11 +210,12 @@ private fun MainPage(
                     )
                 }
             }
-            Title(text = "拍照策略")
+            OptionDivider()
+            Title(text = "CaptureStrategy")
             FlowRow(
                 maxItemsInEachRow = 2
             ) {
-                for (strategy in MediaCaptureStrategy.values()) {
+                for (strategy in MediaCaptureStrategy.entries) {
                     RadioButton(
                         tips = strategy.name,
                         selected = mainPageViewState.captureStrategy == strategy,
@@ -202,9 +225,10 @@ private fun MainPage(
                     )
                 }
             }
-            Title(text = "拍照配置项")
+            OptionDivider()
+            Title(text = "CapturePreferences")
             FlowRow {
-                for (preferences in MediaCapturePreferences.values()) {
+                for (preferences in MediaCapturePreferences.entries) {
                     RadioButton(
                         tips = preferences.name,
                         selected = mainPageViewState.capturePreferences == preferences,
@@ -239,6 +263,14 @@ private fun MainPage(
             }
         }
     }
+}
+
+@Composable
+private fun OptionDivider() {
+    Divider(
+        modifier = Modifier,
+        thickness = 0.6.dp
+    )
 }
 
 @Composable

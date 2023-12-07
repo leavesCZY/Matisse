@@ -30,6 +30,7 @@ class MainViewModel : ViewModel() {
         value = MainPageViewState(
             maxSelectable = 3,
             mediaType = MediaType.All,
+            singleMediaType = false,
             captureStrategy = MediaCaptureStrategy.Smart,
             capturePreferences = MediaCapturePreferences.Normal,
             filterStrategy = MediaFilterStrategy.Nothing,
@@ -37,6 +38,7 @@ class MainViewModel : ViewModel() {
             mediaList = emptyList(),
             onMaxSelectableChanged = ::onMaxSelectableChanged,
             onMediaTypeChanged = ::onMediaTypeChanged,
+            onSingleMediaTypeChanged = ::onSingleMediaTypeChanged,
             onCaptureStrategyChanged = ::onCaptureStrategyChanged,
             onCapturePreferencesChanged = ::onCapturePreferencesChanged,
             onFilterStrategyChanged = ::onFilterStrategyChanged,
@@ -55,6 +57,12 @@ class MainViewModel : ViewModel() {
     private fun onMediaTypeChanged(mediaType: MediaType) {
         if (mainPageViewState.mediaType != mediaType) {
             mainPageViewState = mainPageViewState.copy(mediaType = mediaType)
+        }
+    }
+
+    private fun onSingleMediaTypeChanged(singleType: Boolean) {
+        if (mainPageViewState.singleMediaType != singleType) {
+            mainPageViewState = mainPageViewState.copy(singleMediaType = singleType)
         }
     }
 
@@ -210,6 +218,7 @@ class MainViewModel : ViewModel() {
             maxSelectable = mainPageViewState.maxSelectable,
             mediaFilter = mediaFilter,
             imageEngine = imageEngine,
+            singleMediaType = mainPageViewState.singleMediaType,
             captureStrategy = getMediaCaptureStrategy()
         )
     }

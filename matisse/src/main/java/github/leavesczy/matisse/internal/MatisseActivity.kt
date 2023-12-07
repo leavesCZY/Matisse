@@ -128,8 +128,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
     override fun dispatchTakePictureResult(mediaResource: MediaResource) {
         val maxSelectable = matisse.maxSelectable
         val selectedResources = matisseViewModel.selectedResources
-        val selectedResourcesSize = selectedResources.size
-        if (maxSelectable > 1 && (selectedResourcesSize in 1..<maxSelectable)) {
+        val illegalMediaType = matisse.singleMediaType && selectedResources.any {
+            it.isVideo
+        }
+        if (maxSelectable > 1 && (selectedResources.size in 1..<maxSelectable) && !illegalMediaType) {
             val selectedResourcesMutable = selectedResources.toMutableList()
             selectedResourcesMutable.add(element = mediaResource)
             onSure(resources = selectedResourcesMutable)
