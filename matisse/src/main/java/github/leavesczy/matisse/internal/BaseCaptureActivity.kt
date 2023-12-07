@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
  * @Date: 2023/10/21 16:49
  * @Desc:
  */
-internal abstract class BaseMatisseActivity : AppCompatActivity() {
+internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     protected abstract val captureStrategy: CaptureStrategy
 

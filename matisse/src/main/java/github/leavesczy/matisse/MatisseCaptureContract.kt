@@ -31,16 +31,6 @@ class MatisseCaptureContract : ActivityResultContract<MatisseCapture, MediaResou
 
     }
 
-    override fun getSynchronousResult(
-        context: Context,
-        input: MatisseCapture
-    ): SynchronousResult<MediaResource?>? {
-        if (input.captureStrategy.isEnabled()) {
-            return super.getSynchronousResult(context, input)
-        }
-        return SynchronousResult(value = null)
-    }
-
     override fun createIntent(context: Context, input: MatisseCapture): Intent {
         val intent = Intent(context, MatisseCaptureActivity::class.java)
         intent.putExtra(keyRequest, input)

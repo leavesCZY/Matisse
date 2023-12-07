@@ -22,7 +22,7 @@ data class Matisse(
     val maxSelectable: Int,
     val mediaFilter: MediaFilter,
     val imageEngine: ImageEngine,
-    val captureStrategy: CaptureStrategy = NothingCaptureStrategy
+    val captureStrategy: CaptureStrategy? = null
 ) : Parcelable {
 
     init {
@@ -82,22 +82,22 @@ enum class MimeType(val type: String) {
 
         fun ofAll(hasGif: Boolean = true): Set<MimeType> {
             return if (hasGif) {
-                values().toSet()
+                entries.toSet()
             } else {
-                values().filter { it != GIF }.toSet()
+                entries.filter { it != GIF }.toSet()
             }
         }
 
         fun ofImage(hasGif: Boolean = true): Set<MimeType> {
             return if (hasGif) {
-                values().filter { it.isImage }
+                entries.filter { it.isImage }
             } else {
-                values().filter { it.isImage && it != GIF }
+                entries.filter { it.isImage && it != GIF }
             }.toSet()
         }
 
         fun ofVideo(): Set<MimeType> {
-            return values().filter { it.isVideo }.toSet()
+            return entries.filter { it.isVideo }.toSet()
         }
 
     }

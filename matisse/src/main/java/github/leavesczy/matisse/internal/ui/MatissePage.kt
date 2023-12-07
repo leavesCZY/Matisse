@@ -77,7 +77,8 @@ internal fun MatissePage(
             contentPadding = PaddingValues(bottom = 60.dp)
         ) {
             val selectedBucket = matissePageViewState.selectedBucket
-            if (selectedBucket.supportCapture) {
+            val captureStrategy = selectedBucket.captureStrategy
+            if (captureStrategy != null) {
                 item(
                     key = "Capture",
                     contentType = "Capture",

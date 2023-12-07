@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Stable
+import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MediaResource
 
 /**
@@ -25,7 +26,7 @@ internal data class MediaBucket(
     val id: String,
     val name: String,
     val resources: List<MediaResource>,
-    val supportCapture: Boolean
+    val captureStrategy: CaptureStrategy?
 )
 
 @Stable

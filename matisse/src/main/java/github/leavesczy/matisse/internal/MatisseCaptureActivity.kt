@@ -11,7 +11,7 @@ import github.leavesczy.matisse.MediaResource
  * @Date: 2023/4/11 16:31
  * @Desc:
  */
-internal class MatisseCaptureActivity : BaseMatisseActivity() {
+internal class MatisseCaptureActivity : BaseCaptureActivity() {
 
     private val matisseCapture by lazy(mode = LazyThreadSafetyMode.NONE) {
         MatisseCaptureContract.getRequest(intent = intent)

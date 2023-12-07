@@ -29,11 +29,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     private val context: Context
         get() = getApplication()
 
-    private val supportCapture = matisse.captureStrategy.isEnabled()
-
     private val maxSelectable = matisse.maxSelectable
 
     private val mediaFilter = matisse.mediaFilter
+
+    private val captureStrategy = matisse.captureStrategy
 
     private val defaultBucketId = "&__matisseDefaultBucketId__&"
 
@@ -43,7 +43,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             id = defaultBucketId,
             name = getString(R.string.matisse_default_bucket_name),
             resources = emptyList(),
-            supportCapture = supportCapture
+            captureStrategy = captureStrategy
         ),
         onClickMedia = ::onClickMedia,
         onMediaCheckChanged = ::onMediaCheckChanged
@@ -153,7 +153,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                         id = defaultBucketId,
                         name = getString(R.string.matisse_default_bucket_name),
                         resources = resources,
-                        supportCapture = supportCapture
+                        captureStrategy = captureStrategy
                     )
                 )
                 resourcesMap.forEach {
@@ -165,7 +165,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                             id = bucketId,
                             name = bucketName,
                             resources = resourceList,
-                            supportCapture = false
+                            captureStrategy = null
                         )
                     )
                 }

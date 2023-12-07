@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
-    id(libs.plugins.maven.publish.get().pluginId)
-    id(libs.plugins.signing.get().pluginId)
+    id("maven-publish")
+    id("signing")
 }
 
 android {
@@ -105,14 +105,14 @@ if (signingKeyId != null
 }
 
 dependencies {
-    testImplementation(libs.test.junit)
-    androidTestImplementation(libs.test.androidx.junit)
-    androidTestImplementation(libs.test.androidx.espresso)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
-    implementation(libs.compose.material.icons)
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.material3)
 }

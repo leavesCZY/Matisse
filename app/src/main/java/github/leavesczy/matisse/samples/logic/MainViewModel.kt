@@ -14,7 +14,6 @@ import github.leavesczy.matisse.MatisseCapture
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaStoreCaptureStrategy
 import github.leavesczy.matisse.MimeType
-import github.leavesczy.matisse.NothingCaptureStrategy
 import github.leavesczy.matisse.SmartCaptureStrategy
 import github.leavesczy.matisse.samples.engine.coil.CoilImageEngine
 import github.leavesczy.matisse.samples.engine.coil.CoilZoomImageEngine
@@ -96,7 +95,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private fun getMediaCaptureStrategy(): CaptureStrategy {
+    private fun getMediaCaptureStrategy(): CaptureStrategy? {
         val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
         val extra = when (mainPageViewState.capturePreferences) {
             MediaCapturePreferences.Normal -> {
@@ -112,7 +111,7 @@ class MainViewModel : ViewModel() {
         }
         return when (mainPageViewState.captureStrategy) {
             MediaCaptureStrategy.Nothing -> {
-                NothingCaptureStrategy
+                null
             }
 
             MediaCaptureStrategy.FileProvider -> {
@@ -143,10 +142,9 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun buildMatisseCapture(): MatisseCapture {
-        return MatisseCapture(
-            captureStrategy = getMediaCaptureStrategy()
-        )
+    fun buildMatisseCapture(): MatisseCapture? {
+        val captureStrategy = getMediaCaptureStrategy() ?: return null
+        return MatisseCapture(captureStrategy = captureStrategy)
     }
 
     fun buildMatisse(): Matisse {

@@ -33,11 +33,6 @@ import java.util.Locale
 interface CaptureStrategy : Parcelable {
 
     /**
-     * 是否启用拍照功能
-     */
-    fun isEnabled(): Boolean
-
-    /**
      * 是否需要申请 WRITE_EXTERNAL_STORAGE 权限
      */
     fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean
@@ -77,34 +72,6 @@ interface CaptureStrategy : Parcelable {
 
 }
 
-/**
- *  不开启拍照功能
- */
-@Parcelize
-object NothingCaptureStrategy : CaptureStrategy {
-
-    override fun isEnabled(): Boolean {
-        return false
-    }
-
-    override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
-        return false
-    }
-
-    override suspend fun createImageUri(context: Context): Uri? {
-        return null
-    }
-
-    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
-        return null
-    }
-
-    override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
-
-    }
-
-}
-
 private const val JPG_MIME_TYPE = "image/jpeg"
 
 /**
@@ -120,10 +87,6 @@ data class FileProviderCaptureStrategy(
 
     @IgnoredOnParcel
     private val uriFileMap = mutableMapOf<Uri, File>()
-
-    override fun isEnabled(): Boolean {
-        return true
-    }
 
     override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
         return false
@@ -199,10 +162,6 @@ data class FileProviderCaptureStrategy(
 @Parcelize
 data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) : CaptureStrategy {
 
-    override fun isEnabled(): Boolean {
-        return true
-    }
-
     override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return false
@@ -253,10 +212,6 @@ data class SmartCaptureStrategy(
         MediaStoreCaptureStrategy(extra = extra)
     } else {
         FileProviderCaptureStrategy(authority = authority, extra = extra)
-    }
-
-    override fun isEnabled(): Boolean {
-        return proxy.isEnabled()
     }
 
     override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {

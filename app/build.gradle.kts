@@ -1,5 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
@@ -60,7 +61,7 @@ android {
     }
     applicationVariants.all {
         outputs.all {
-            if (this is com.android.build.gradle.internal.api.ApkVariantOutputImpl) {
+            if (this is ApkVariantOutputImpl) {
                 val simpleDateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
                 simpleDateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
                 val time = simpleDateFormat.format(Calendar.getInstance().time)
@@ -104,9 +105,9 @@ android {
 }
 
 dependencies {
-    testImplementation(libs.test.junit)
-    androidTestImplementation(libs.test.androidx.junit)
-    androidTestImplementation(libs.test.androidx.espresso)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)

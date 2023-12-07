@@ -15,7 +15,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import github.leavesczy.matisse.*
+import github.leavesczy.matisse.CaptureStrategy
+import github.leavesczy.matisse.MatisseContract
+import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.theme.MatisseTheme
 import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
@@ -28,14 +31,14 @@ import github.leavesczy.matisse.internal.utils.PermissionUtils
  * @Date: 2022/5/28 22:28
  * @Desc:
  */
-internal class MatisseActivity : BaseMatisseActivity() {
+internal class MatisseActivity : BaseCaptureActivity() {
 
     private val matisse by lazy(mode = LazyThreadSafetyMode.NONE) {
         MatisseContract.getRequest(intent = intent)
     }
 
     override val captureStrategy: CaptureStrategy
-        get() = matisse.captureStrategy
+        get() = requireCaptureStrategy()
 
     private val matisseViewModel by viewModels<MatisseViewModel>(factoryProducer = {
         object : ViewModelProvider.Factory {
@@ -128,6 +131,12 @@ internal class MatisseActivity : BaseMatisseActivity() {
 
     override fun takePictureCancelled() {
 
+    }
+
+    private fun requireCaptureStrategy(): CaptureStrategy {
+        val captureStrategy = matisse.captureStrategy
+        checkNotNull(captureStrategy)
+        return captureStrategy
     }
 
     private fun onSure() {

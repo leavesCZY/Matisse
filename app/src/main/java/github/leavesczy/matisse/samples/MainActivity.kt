@@ -71,7 +71,10 @@ class MainActivity : AppCompatActivity() {
                 MainPage(
                     mainPageViewState = mainViewModel.mainPageViewState,
                     takePicture = {
-                        takePictureLauncher.launch(mainViewModel.buildMatisseCapture())
+                        val matisseCapture = mainViewModel.buildMatisseCapture()
+                        if (matisseCapture != null) {
+                            takePictureLauncher.launch(matisseCapture)
+                        }
                     },
                     mediaPicker = {
                         mediaPickerLauncher.launch(mainViewModel.buildMatisse())
