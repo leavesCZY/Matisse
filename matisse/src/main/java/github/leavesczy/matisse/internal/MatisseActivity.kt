@@ -126,7 +126,16 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     override fun dispatchTakePictureResult(mediaResource: MediaResource) {
-        onSure(resources = listOf(mediaResource))
+        val maxSelectable = matisse.maxSelectable
+        val selectedResources = matisseViewModel.selectedResources
+        val selectedResourcesSize = selectedResources.size
+        if (maxSelectable > 1 && (selectedResourcesSize in 1..<maxSelectable)) {
+            val selectedResourcesMutable = selectedResources.toMutableList()
+            selectedResourcesMutable.add(element = mediaResource)
+            onSure(resources = selectedResourcesMutable)
+        } else {
+            onSure(resources = listOf(mediaResource))
+        }
     }
 
     override fun takePictureCancelled() {
