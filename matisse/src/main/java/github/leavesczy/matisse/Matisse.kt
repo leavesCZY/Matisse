@@ -14,7 +14,7 @@ import kotlinx.parcelize.Parcelize
  * @param maxSelectable 最多允许选择几个媒体资源
  * @param mediaFilter 用于定义媒体资源的加载和过滤规则
  * @param imageEngine 用于实现加载图片的逻辑
- * @param singleMediaType 用于设置是否允许同时选择图片和视频，为 true 则用户只能选择同一种媒体类型
+ * @param singleMediaType 用于设置是否允许用户同时选择图片和视频。为 true 则用户只能选择一种媒体类型，为 false 则允许同时选择图片和视频
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 @Stable

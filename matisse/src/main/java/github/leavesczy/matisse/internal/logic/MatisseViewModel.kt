@@ -180,23 +180,29 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         if (alreadySelected) {
             selectedResourcesMutable.remove(element = mediaResource)
         } else {
-            if (maxSelectable == 1) {
-                selectedResourcesMutable.clear()
-            } else if (selectedResourcesMutable.size >= maxSelectable) {
-                showToast(
-                    message = String.format(
-                        getString(R.string.matisse_limit_the_number_of_pictures),
-                        maxSelectable
-                    )
-                )
-                return
-            } else if (singleMediaType) {
-                val illegalMediaType = selectedResourcesMutable.any {
-                    it.isImage != mediaResource.isImage
+            when {
+                maxSelectable == 1 -> {
+                    selectedResourcesMutable.clear()
                 }
-                if (illegalMediaType) {
-                    showToast(message = getString(R.string.matisse_cannot_select_both_picture_and_video_at_the_same_time))
+
+                selectedResourcesMutable.size >= maxSelectable -> {
+                    showToast(
+                        message = String.format(
+                            getString(R.string.matisse_limit_the_number_of_pictures),
+                            maxSelectable
+                        )
+                    )
                     return
+                }
+
+                singleMediaType -> {
+                    val illegalMediaType = selectedResourcesMutable.any {
+                        it.isImage != mediaResource.isImage
+                    }
+                    if (illegalMediaType) {
+                        showToast(message = getString(R.string.matisse_cannot_select_both_picture_and_video_at_the_same_time))
+                        return
+                    }
                 }
             }
             selectedResourcesMutable.add(element = mediaResource)

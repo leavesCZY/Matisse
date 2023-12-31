@@ -136,7 +136,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
             selectedResourcesMutable.add(element = mediaResource)
             onSure(resources = selectedResourcesMutable)
         } else {
-            onSure(resources = listOf(mediaResource))
+            onSure(resources = listOf(element = mediaResource))
         }
     }
 
