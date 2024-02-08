@@ -10,9 +10,8 @@ androidx-appcompat = "1.6.1"
 androidx-activity-compose = "1.8.2"
 androidx-lifecycle-runtime-ktx = "2.7.0"
 
-androidx-compose-bom = "2024.01.00"
-androidx-compose-material3 = "1.2.0-rc01"
-androidx-compose-compiler = "1.5.8"
+androidx-compose-bom = "2024.02.00"
+androidx-compose-compiler = "1.5.9"
 
 matisse-remote = "1.1.4"
 matisse-publishing = "1.1.4"
@@ -44,7 +43,7 @@ androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = 
 androidx-compose-ui = { module = "androidx.compose.ui:ui" }
 androidx-compose-foundation = { module = "androidx.compose.foundation:foundation" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
-androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "androidx-compose-material3" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
 
 junit-junit = { module = "junit:junit", version.ref = "junit-junit" }
 
