@@ -20,7 +20,7 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.Matisse.Samples"
         tools:ignore="DataExtractionRules"
-        tools:targetApi="33">
+        tools:targetApi="34">
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation|locale|layoutDirection"

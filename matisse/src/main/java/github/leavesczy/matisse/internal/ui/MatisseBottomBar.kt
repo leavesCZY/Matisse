@@ -1,6 +1,7 @@
 package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,7 +47,7 @@ internal fun MatisseBottomBar(
                 .align(alignment = Alignment.CenterStart)
                 .then(
                     other = if (bottomBarViewState.previewButtonClickable) {
-                        Modifier.clickableNoRipple(onClick = bottomBarViewState.onClickPreviewButton)
+                        Modifier.clickable(onClick = bottomBarViewState.onClickPreviewButton)
                     } else {
                         Modifier
                     }
@@ -69,7 +70,7 @@ internal fun MatisseBottomBar(
                 .align(alignment = Alignment.CenterEnd)
                 .then(
                     other = if (bottomBarViewState.sureButtonClickable) {
-                        Modifier.clickableNoRipple(onClick = onSure)
+                        Modifier.clickable(onClick = onSure)
                     } else {
                         Modifier
                     }

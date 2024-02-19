@@ -21,7 +21,7 @@
             android:configChanges="orientation"
             android:exported="false"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.Matisse.Transparent" />
+            android:theme="@style/Theme.Matisse.Capture" />
         <activity
             android:name=".internal.MatisseVideoViewActivity"
             android:configChanges="orientation"

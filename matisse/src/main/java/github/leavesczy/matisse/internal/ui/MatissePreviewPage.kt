@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
@@ -143,7 +144,7 @@ private fun PreviewPage(
             Icon(
                 modifier = Modifier
                     .clip(shape = CircleShape)
-                    .clickableNoRipple {
+                    .clickable {
                         requestOpenVideo(mediaResource)
                     }
                     .padding(all = 10.dp)
@@ -188,7 +189,7 @@ private fun BoxScope.BottomController(
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterStart)
-                .clickableNoRipple(onClick = pageViewState.onDismissRequest)
+                .clickable(onClick = pageViewState.onDismissRequest)
                 .fillMaxHeight()
                 .padding(horizontal = 24.dp)
                 .wrapContentSize(align = Alignment.Center),
@@ -215,7 +216,7 @@ private fun BoxScope.BottomController(
                 .align(alignment = Alignment.CenterEnd)
                 .then(
                     other = if (pageViewState.sureButtonClickable) {
-                        Modifier.clickableNoRipple(onClick = onSure)
+                        Modifier.clickable(onClick = onSure)
                     } else {
                         Modifier
                     }

@@ -2,6 +2,7 @@ package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
@@ -134,7 +135,7 @@ private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_image_item_background_color))
-            .clickableNoRipple(onClick = onClick)
+            .clickable(onClick = onClick)
     ) {
         Icon(
             modifier = Modifier
@@ -180,7 +181,7 @@ private fun LazyGridItemScope.MediaItem(
                     Modifier
                 }
             )
-            .clickableNoRipple {
+            .clickable {
                 onClickMedia(mediaResource)
             },
         contentAlignment = Alignment.Center

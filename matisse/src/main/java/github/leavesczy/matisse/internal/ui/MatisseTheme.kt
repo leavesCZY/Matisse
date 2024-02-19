@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.internal.theme
+package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
