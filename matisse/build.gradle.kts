@@ -41,9 +41,6 @@ android {
 }
 
 dependencies {
-    testImplementation(libs.junit.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))

@@ -5,6 +5,7 @@ import androidx.compose.foundation.Indication
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
@@ -22,20 +23,22 @@ private inline fun Modifier.clickableLimit(
     interactionSource: MutableInteractionSource,
     minDuration: Long,
     crossinline onClick: () -> Unit
-): Modifier = composed {
-    var lastClickTime by remember {
-        mutableLongStateOf(value = 0L)
-    }
-    clickable(
-        indication = indication,
-        interactionSource = interactionSource
-    ) {
-        val currentTimeMillis = SystemClock.elapsedRealtime()
-        if (currentTimeMillis - lastClickTime > minDuration) {
-            lastClickTime = currentTimeMillis
-            onClick()
+): Modifier {
+    return then(other = Modifier.composed {
+        var lastClickTime by remember {
+            mutableLongStateOf(value = 0L)
         }
-    }
+        clickable(
+            indication = indication,
+            interactionSource = interactionSource
+        ) {
+            val currentTimeMillis = SystemClock.elapsedRealtime()
+            if (currentTimeMillis - lastClickTime > minDuration) {
+                lastClickTime = currentTimeMillis
+                onClick()
+            }
+        }
+    })
 }
 
 internal inline fun Modifier.clickableLimit(
@@ -50,12 +53,14 @@ internal inline fun Modifier.clickableLimit(
     )
 }
 
-internal fun Modifier.clickableNoRipple(
-    onClick: () -> Unit
-): Modifier = composed {
-    clickable(
-        indication = null,
-        interactionSource = remember { MutableInteractionSource() },
-        onClick = onClick
+@Composable
+internal fun Modifier.clickableNoRipple(onClick: () -> Unit): Modifier {
+    return then(
+        other = Modifier.clickable(
+            onClickLabel = null,
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() },
+            onClick = onClick
+        )
     )
 }

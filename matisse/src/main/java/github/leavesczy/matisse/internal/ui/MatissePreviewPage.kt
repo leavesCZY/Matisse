@@ -106,7 +106,7 @@ internal fun MatissePreviewPage(
                         .navigationBarsPadding()
                         .padding(bottom = bottomControllerHeight),
                     state = pagerState,
-                    pageSpacing = 2.dp,
+                    pageSpacing = 10.dp,
                     verticalAlignment = Alignment.CenterVertically,
                     key = { index ->
                         previewResources[index].id

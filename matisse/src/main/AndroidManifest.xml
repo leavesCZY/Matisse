@@ -21,5 +21,11 @@
             android:configChanges="orientation"
             android:exported="false"
             android:theme="@style/Theme.Matisse.Transparent" />
+        <activity
+            android:name=".internal.MatisseVideoViewActivity"
+            android:configChanges="orientation"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:theme="@style/Theme.Matisse.VideoView" />
     </application>
 </manifest>

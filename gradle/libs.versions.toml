@@ -23,7 +23,7 @@ glide-compose = "1.0.0-beta01"
 
 zoom-image = "1.0.2"
 
-zoomable-image = "0.7.1"
+zoomable-image = "0.8.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }

@@ -2,7 +2,6 @@ package github.leavesczy.matisse.internal
 
 import android.Manifest
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -116,13 +115,9 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     private fun requestOpenVideo(mediaResource: MediaResource) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(mediaResource.uri, "video/*")
-            startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            showToast(id = R.string.matisse_no_apps_support_video_preview)
-        }
+        val intent = Intent(this, MatisseVideoViewActivity::class.java)
+        intent.putExtra(MediaResource::class.java.simpleName, mediaResource)
+        startActivity(intent)
     }
 
     override fun dispatchTakePictureResult(mediaResource: MediaResource) {
