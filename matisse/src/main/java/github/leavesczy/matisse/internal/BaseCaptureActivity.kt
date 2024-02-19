@@ -132,10 +132,13 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     protected abstract fun takePictureCancelled()
 
-    protected fun showToast(@StringRes id: Int) {
-        val msg = getString(id)
-        if (msg.isNotBlank()) {
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    private fun showToast(@StringRes id: Int) {
+        showToast(message = getString(id))
+    }
+
+    protected fun showToast(message: String) {
+        if (message.isNotBlank()) {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
 

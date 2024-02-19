@@ -146,6 +146,17 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     private fun onSure() {
+        val maxSelectable = matisse.maxSelectable
+        val selectedResourcesSize = matisseViewModel.selectedResources.size
+        if (selectedResourcesSize > maxSelectable) {
+            showToast(
+                message = String.format(
+                    getString(R.string.matisse_limit_the_number_of_pictures),
+                    maxSelectable
+                )
+            )
+            return
+        }
         onSure(resources = matisseViewModel.selectedResources)
     }
 
