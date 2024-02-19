@@ -23,7 +23,6 @@ import github.leavesczy.matisse.internal.theme.MatisseTheme
 import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
-import github.leavesczy.matisse.internal.utils.PermissionUtils
 
 /**
  * @Author: leavesCZY
@@ -107,7 +106,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         } else {
             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
-        if (PermissionUtils.permissionGranted(context = this, permissions = permissions)) {
+        if (permissionGranted(context = this, permissions = permissions)) {
             matisseViewModel.requestReadMediaPermissionResult(granted = true)
         } else {
             requestReadMediaPermissionLauncher.launch(permissions)

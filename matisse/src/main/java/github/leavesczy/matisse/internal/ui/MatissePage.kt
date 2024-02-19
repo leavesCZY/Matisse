@@ -35,7 +35,6 @@ import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
 import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
-import github.leavesczy.matisse.internal.utils.clickableLimit
 
 /**
  * @Author: CZY
@@ -135,7 +134,7 @@ private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_image_item_background_color))
-            .clickableLimit(minDuration = 1500L, onClick = onClick)
+            .clickableNoRipple(onClick = onClick)
     ) {
         Icon(
             modifier = Modifier
@@ -181,7 +180,7 @@ private fun LazyGridItemScope.MediaItem(
                     Modifier
                 }
             )
-            .clickableLimit {
+            .clickableNoRipple {
                 onClickMedia(mediaResource)
             },
         contentAlignment = Alignment.Center

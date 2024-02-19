@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
-import github.leavesczy.matisse.internal.utils.clickableNoRipple
 
 /**
  * @Author: leavesCZY

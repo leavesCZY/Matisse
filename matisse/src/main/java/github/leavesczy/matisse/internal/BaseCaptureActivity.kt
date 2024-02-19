@@ -1,22 +1,25 @@
 package github.leavesczy.matisse.internal
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseTakePictureContract
 import github.leavesczy.matisse.internal.logic.MatisseTakePictureContractParams
-import github.leavesczy.matisse.internal.utils.PermissionUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * @Author: leavesCZY
@@ -65,10 +68,10 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     private fun requestCameraPermissionIfNeed() {
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
             val cameraPermission = Manifest.permission.CAMERA
-            val requirePermissionToTakePhotos = PermissionUtils.containsPermission(
+            val requirePermissionToTakePhotos = containsPermission(
                 context = applicationContext,
                 permission = cameraPermission
-            ) && !PermissionUtils.permissionGranted(
+            ) && !permissionGranted(
                 context = applicationContext,
                 permission = cameraPermission
             )
@@ -139,6 +142,38 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     protected fun showToast(message: String) {
         if (message.isNotBlank()) {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    protected fun permissionGranted(context: Context, permissions: Array<String>): Boolean {
+        return permissions.all {
+            permissionGranted(context = context, permission = it)
+        }
+    }
+
+    private fun permissionGranted(context: Context, permission: String): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            context,
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private suspend fun containsPermission(context: Context, permission: String): Boolean {
+        return withContext(context = Dispatchers.Default) {
+            try {
+                val packageManager: PackageManager = context.packageManager
+                val packageInfo = packageManager.getPackageInfo(
+                    context.packageName,
+                    PackageManager.GET_PERMISSIONS
+                )
+                val permissions = packageInfo.requestedPermissions
+                if (!permissions.isNullOrEmpty()) {
+                    return@withContext permissions.contains(permission)
+                }
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+            return@withContext false
         }
     }
 

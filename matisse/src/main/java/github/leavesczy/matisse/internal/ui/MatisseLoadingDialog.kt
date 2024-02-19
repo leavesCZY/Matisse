@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.utils.clickableNoRipple
 
 /**
  * @Author: leavesCZY

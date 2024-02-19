@@ -43,7 +43,6 @@ import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
-import github.leavesczy.matisse.internal.utils.clickableLimit
 
 /**
  * @Author: CZY
@@ -144,7 +143,7 @@ private fun PreviewPage(
             Icon(
                 modifier = Modifier
                     .clip(shape = CircleShape)
-                    .clickableLimit {
+                    .clickableNoRipple {
                         requestOpenVideo(mediaResource)
                     }
                     .padding(all = 10.dp)
@@ -189,7 +188,7 @@ private fun BoxScope.BottomController(
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterStart)
-                .clickableLimit(onClick = pageViewState.onDismissRequest)
+                .clickableNoRipple(onClick = pageViewState.onDismissRequest)
                 .fillMaxHeight()
                 .padding(horizontal = 24.dp)
                 .wrapContentSize(align = Alignment.Center),
@@ -216,7 +215,7 @@ private fun BoxScope.BottomController(
                 .align(alignment = Alignment.CenterEnd)
                 .then(
                     other = if (pageViewState.sureButtonClickable) {
-                        Modifier.clickableLimit(onClick = onSure)
+                        Modifier.clickableNoRipple(onClick = onSure)
                     } else {
                         Modifier
                     }

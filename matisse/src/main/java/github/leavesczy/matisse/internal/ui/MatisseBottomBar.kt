@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
-import github.leavesczy.matisse.internal.utils.clickableLimit
 
 /**
  * @Author: leavesCZY
@@ -47,7 +46,7 @@ internal fun MatisseBottomBar(
                 .align(alignment = Alignment.CenterStart)
                 .then(
                     other = if (bottomBarViewState.previewButtonClickable) {
-                        Modifier.clickableLimit(onClick = bottomBarViewState.onClickPreviewButton)
+                        Modifier.clickableNoRipple(onClick = bottomBarViewState.onClickPreviewButton)
                     } else {
                         Modifier
                     }
@@ -70,7 +69,7 @@ internal fun MatisseBottomBar(
                 .align(alignment = Alignment.CenterEnd)
                 .then(
                     other = if (bottomBarViewState.sureButtonClickable) {
-                        Modifier.clickableLimit(onClick = onSure)
+                        Modifier.clickableNoRipple(onClick = onSure)
                     } else {
                         Modifier
                     }
