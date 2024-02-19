@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIos
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -81,8 +81,8 @@ internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewS
                     }
                     .padding(start = 18.dp, end = 12.dp)
                     .fillMaxHeight()
-                    .size(size = 22.dp),
-                imageVector = Icons.Filled.ArrowBackIos,
+                    .size(size = 24.dp),
+                imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
                 tint = colorResource(id = R.color.matisse_top_bar_icon_color),
                 contentDescription = null
             )
@@ -93,7 +93,7 @@ internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewS
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start,
-                fontSize = 19.sp,
+                fontSize = 20.sp,
                 color = colorResource(id = R.color.matisse_top_bar_text_color)
             )
             Icon(

@@ -15,7 +15,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.SlowMotionVideo
+import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -203,7 +203,7 @@ private fun LazyGridItemScope.MediaItem(
                 modifier = Modifier
                     .align(alignment = Alignment.Center)
                     .size(size = 32.dp),
-                imageVector = Icons.Filled.SlowMotionVideo,
+                imageVector = Icons.Filled.PlayCircleOutline,
                 tint = colorResource(id = R.color.matisse_video_icon_color),
                 contentDescription = mediaResource.name
             )

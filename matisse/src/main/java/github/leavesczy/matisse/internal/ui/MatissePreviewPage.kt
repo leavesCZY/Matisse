@@ -22,7 +22,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SlowMotionVideo
+import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -149,7 +149,7 @@ private fun PreviewPage(
                     }
                     .padding(all = 10.dp)
                     .size(size = 48.dp),
-                imageVector = Icons.Filled.SlowMotionVideo,
+                imageVector = Icons.Filled.PlayCircleOutline,
                 tint = colorResource(id = R.color.matisse_video_icon_color),
                 contentDescription = mediaResource.name
             )
