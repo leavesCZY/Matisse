@@ -127,7 +127,6 @@ class MainViewModel : ViewModel() {
                 GlideZoomableImageEngine()
             }
 
-
             MediaImageEngine.CoilZoomable -> {
                 CoilZoomableImageEngine()
             }

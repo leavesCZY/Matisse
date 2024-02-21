@@ -46,7 +46,7 @@ import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
 
 /**
- * @Author: CZY
+ * @Author: leavesCZY
  * @Date: 2022/6/1 19:14
  * @Desc:
  */

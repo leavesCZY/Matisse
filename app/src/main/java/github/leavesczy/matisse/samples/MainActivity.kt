@@ -77,14 +77,14 @@ class MainActivity : AppCompatActivity() {
             MatisseTheme {
                 MainPage(
                     mainPageViewState = mainViewModel.mainPageViewState,
+                    mediaPicker = {
+                        mediaPickerLauncher.launch(mainViewModel.buildMatisse(mimeTypes = MimeType.ofAll()))
+                    },
                     imagePicker = {
                         mediaPickerLauncher.launch(mainViewModel.buildMatisse(mimeTypes = MimeType.ofImage()))
                     },
                     videoPicker = {
                         mediaPickerLauncher.launch(mainViewModel.buildMatisse(mimeTypes = MimeType.ofVideo()))
-                    },
-                    mediaPicker = {
-                        mediaPickerLauncher.launch(mainViewModel.buildMatisse(mimeTypes = MimeType.ofAll()))
                     },
                     takePicture = {
                         val matisseCapture = mainViewModel.buildMatisseCapture()
@@ -115,9 +115,9 @@ class MainActivity : AppCompatActivity() {
 @Composable
 private fun MainPage(
     mainPageViewState: MainPageViewState,
+    mediaPicker: () -> Unit,
     imagePicker: () -> Unit,
     videoPicker: () -> Unit,
-    mediaPicker: () -> Unit,
     takePicture: () -> Unit
 ) {
     Scaffold(
@@ -234,16 +234,16 @@ private fun MainPage(
                 )
             }
             Button(
+                text = "选择图片 + 视频",
+                onClick = mediaPicker
+            )
+            Button(
                 text = "选择图片",
                 onClick = imagePicker
             )
             Button(
                 text = "选择视频",
                 onClick = videoPicker
-            )
-            Button(
-                text = "选择图片 + 视频",
-                onClick = mediaPicker
             )
             Button(
                 text = "直接拍照",

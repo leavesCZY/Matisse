@@ -7,7 +7,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import github.leavesczy.matisse.internal.MatisseActivity
 
 /**
- * @Author: CZY
+ * @Author: leavesCZY
  * @Date: 2022/6/2 15:30
  * @Desc:
  */
