@@ -2,7 +2,7 @@
 
 一个用 Jetpack Compose 实现的 Android 图片/视频 选择框架
 
-- 适配到 Android 13
+- 适配到 Android 14
 - 解决了多个系统兼容性问题
 - 按需索取权限，自由声明权限类型
 - 完全用 Kotlin & Jetpack Compose 实现

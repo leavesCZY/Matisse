@@ -5,14 +5,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
@@ -53,7 +55,7 @@ internal fun MatisseTopBar(topBarViewState: MatisseTopBarViewState) {
         modifier = Modifier
             .shadow(elevation = 4.dp)
             .background(color = colorResource(id = R.color.matisse_status_bar_color))
-            .statusBarsPadding()
+            .windowInsetsPadding(insets = WindowInsets.statusBarsIgnoringVisibility)
             .fillMaxWidth()
             .height(height = 56.dp)
             .background(color = colorResource(id = R.color.matisse_top_bar_background_color)),

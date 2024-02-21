@@ -23,7 +23,8 @@ android {
         jvmTarget = "1.8"
         freeCompilerArgs += setOf(
             "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-            "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi"
+            "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi",
+            "-Xopt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi"
         )
     }
     buildFeatures {
