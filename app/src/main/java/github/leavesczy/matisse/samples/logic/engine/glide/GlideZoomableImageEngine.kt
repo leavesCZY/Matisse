@@ -1,9 +1,9 @@
-package github.leavesczy.matisse.samples.engine.glide
+@file:OptIn(ExperimentalGlideComposeApi::class)
+
+package github.leavesczy.matisse.samples.logic.engine.glide
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -12,11 +12,16 @@ import com.bumptech.glide.integration.compose.GlideImage
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import kotlinx.parcelize.Parcelize
+import me.saket.telephoto.zoomable.glide.ZoomableGlideImage
 
+/**
+ * @Author: leavesCZY
+ * @Date: 2023/10/6 0:19
+ * @Desc:
+ */
 @Parcelize
-class GlideImageEngine : ImageEngine {
+class GlideZoomableImageEngine : ImageEngine {
 
-    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
         GlideImage(
@@ -27,7 +32,6 @@ class GlideImageEngine : ImageEngine {
         )
     }
 
-    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
@@ -38,10 +42,8 @@ class GlideImageEngine : ImageEngine {
                 contentDescription = mediaResource.name
             )
         } else {
-            GlideImage(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(state = rememberScrollState()),
+            ZoomableGlideImage(
+                modifier = Modifier.fillMaxSize(),
                 model = mediaResource.uri,
                 contentScale = ContentScale.Fit,
                 contentDescription = mediaResource.name

@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -26,7 +27,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -43,15 +45,19 @@ import coil.compose.AsyncImage
 import github.leavesczy.matisse.MatisseCaptureContract
 import github.leavesczy.matisse.MatisseContract
 import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.MimeType
 import github.leavesczy.matisse.samples.logic.MainPageViewState
 import github.leavesczy.matisse.samples.logic.MainViewModel
-import github.leavesczy.matisse.samples.logic.MediaCapturePreferences
 import github.leavesczy.matisse.samples.logic.MediaCaptureStrategy
 import github.leavesczy.matisse.samples.logic.MediaFilterStrategy
 import github.leavesczy.matisse.samples.logic.MediaImageEngine
-import github.leavesczy.matisse.samples.logic.MediaType
 import github.leavesczy.matisse.samples.ui.theme.MatisseTheme
 
+/**
+ * @Author: leavesCZY
+ * @Date: 2024/2/21 12:01
+ * @Desc:
+ */
 class MainActivity : AppCompatActivity() {
 
     private val mainViewModel by viewModels<MainViewModel>()
@@ -71,14 +77,20 @@ class MainActivity : AppCompatActivity() {
             MatisseTheme {
                 MainPage(
                     mainPageViewState = mainViewModel.mainPageViewState,
+                    imagePicker = {
+                        mediaPickerLauncher.launch(mainViewModel.buildMatisse(mimeTypes = MimeType.ofImage()))
+                    },
+                    videoPicker = {
+                        mediaPickerLauncher.launch(mainViewModel.buildMatisse(mimeTypes = MimeType.ofVideo()))
+                    },
+                    mediaPicker = {
+                        mediaPickerLauncher.launch(mainViewModel.buildMatisse(mimeTypes = MimeType.ofAll()))
+                    },
                     takePicture = {
                         val matisseCapture = mainViewModel.buildMatisseCapture()
                         if (matisseCapture != null) {
                             takePictureLauncher.launch(matisseCapture)
                         }
-                    },
-                    mediaPicker = {
-                        mediaPickerLauncher.launch(mainViewModel.buildMatisse())
                     }
                 )
             }
@@ -103,8 +115,10 @@ class MainActivity : AppCompatActivity() {
 @Composable
 private fun MainPage(
     mainPageViewState: MainPageViewState,
-    takePicture: () -> Unit,
-    mediaPicker: () -> Unit
+    imagePicker: () -> Unit,
+    videoPicker: () -> Unit,
+    mediaPicker: () -> Unit,
+    takePicture: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -139,35 +153,44 @@ private fun MainPage(
                 ),
             horizontalAlignment = Alignment.Start,
         ) {
-            Title(text = "mediaType")
+            Title(text = "maxSelectable")
             Row {
-                for (value in MediaType.entries) {
+                for (i in 1..4) {
                     RadioButton(
-                        tips = value.name,
-                        selected = mainPageViewState.mediaType == value,
+                        tips = i.toString(),
+                        selected = mainPageViewState.maxSelectable == i,
                         onClick = {
-                            mainPageViewState.onMediaTypeChanged(value)
+                            mainPageViewState.onMaxSelectableChanged(i)
                         }
                     )
                 }
             }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Title(text = "singleMediaType")
+                Checkbox(
+                    checked = mainPageViewState.singleMediaType,
+                    onCheckedChange = {
+                        mainPageViewState.onSingleMediaTypeChanged(it)
+                    }
+                )
+            }
             OptionDivider()
-            Title(text = "singleMediaType")
-            Row {
-                RadioButton(
-                    tips = "true",
-                    selected = mainPageViewState.singleMediaType,
-                    onClick = {
-                        mainPageViewState.onSingleMediaTypeChanged(true)
-                    }
-                )
-                RadioButton(
-                    tips = "false",
-                    selected = !mainPageViewState.singleMediaType,
-                    onClick = {
-                        mainPageViewState.onSingleMediaTypeChanged(false)
-                    }
-                )
+            Title(text = "ImageEngine")
+            FlowRow(
+                maxItemsInEachRow = 2
+            ) {
+                for (engine in MediaImageEngine.entries) {
+                    RadioButton(
+                        tips = engine.name,
+                        selected = mainPageViewState.imageEngine == engine,
+                        onClick = {
+                            mainPageViewState.onImageEngineChanged(engine)
+                        }
+                    )
+                }
             }
             OptionDivider()
             Title(text = "mediaFilter")
@@ -183,37 +206,10 @@ private fun MainPage(
                 }
             }
             OptionDivider()
-            Title(text = "maxSelectable")
-            Row {
-                for (i in 1..3) {
-                    RadioButton(
-                        tips = i.toString(),
-                        selected = mainPageViewState.maxSelectable == i,
-                        onClick = {
-                            mainPageViewState.onMaxSelectableChanged(i)
-                        }
-                    )
-                }
-            }
-            OptionDivider()
-            Title(text = "ImageEngine")
-            FlowRow(
-                maxItemsInEachRow = 3
-            ) {
-                for (engine in MediaImageEngine.entries) {
-                    RadioButton(
-                        tips = engine.name,
-                        selected = mainPageViewState.imageEngine == engine,
-                        onClick = {
-                            mainPageViewState.onImageEngineChanged(engine)
-                        }
-                    )
-                }
-            }
-            OptionDivider()
             Title(text = "CaptureStrategy")
             FlowRow(
-                maxItemsInEachRow = 2
+                maxItemsInEachRow = 2,
+                verticalArrangement = Arrangement.Center
             ) {
                 for (strategy in MediaCaptureStrategy.entries) {
                     RadioButton(
@@ -225,33 +221,38 @@ private fun MainPage(
                     )
                 }
             }
-            OptionDivider()
-            Title(text = "CapturePreferences")
-            FlowRow {
-                for (preferences in MediaCapturePreferences.entries) {
-                    RadioButton(
-                        tips = preferences.name,
-                        selected = mainPageViewState.capturePreferences == preferences,
-                        onClick = {
-                            mainPageViewState.onCapturePreferencesChanged(preferences)
-                        }
-                    )
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Title(text = "CapturePreferencesCustom")
+                Checkbox(
+                    checked = mainPageViewState.capturePreferencesCustom,
+                    onCheckedChange = {
+                        mainPageViewState.onCapturePreferencesCustomChanged(it)
+                    }
+                )
             }
             Button(
-                text = "切换主题",
-                enabled = true,
-                onClick = mainPageViewState.switchTheme
+                text = "选择图片",
+                onClick = imagePicker
+            )
+            Button(
+                text = "选择视频",
+                onClick = videoPicker
+            )
+            Button(
+                text = "选择图片 + 视频",
+                onClick = mediaPicker
             )
             Button(
                 text = "直接拍照",
-                enabled = mainPageViewState.captureStrategy != MediaCaptureStrategy.Nothing,
+                enabled = mainPageViewState.captureStrategy != MediaCaptureStrategy.Close,
                 onClick = takePicture
             )
             Button(
-                text = "选择图片或视频",
-                enabled = true,
-                onClick = mediaPicker
+                text = "切换主题",
+                onClick = mainPageViewState.switchTheme
             )
             Spacer(
                 modifier = Modifier
@@ -267,14 +268,18 @@ private fun MainPage(
 
 @Composable
 private fun OptionDivider() {
-    Divider(
+    HorizontalDivider(
         modifier = Modifier,
         thickness = 0.6.dp
     )
 }
 
 @Composable
-private fun Button(text: String, enabled: Boolean, onClick: () -> Unit) {
+private fun Button(
+    text: String,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
     Button(
         modifier = Modifier
             .fillMaxWidth(),

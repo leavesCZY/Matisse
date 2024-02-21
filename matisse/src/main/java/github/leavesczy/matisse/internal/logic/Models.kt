@@ -12,7 +12,6 @@ import github.leavesczy.matisse.MediaResource
  * @Author: leavesCZY
  * @Date: 2022/5/30 23:24
  * @Desc:
- * @Github：https://github.com/leavesCZY
  */
 @Stable
 internal data class MatissePageViewState(

@@ -24,7 +24,6 @@ import kotlinx.coroutines.withContext
  * @Author: leavesCZY
  * @Date: 2022/6/1 19:19
  * @Desc:
- * @Github：https://github.com/leavesCZY
  */
 internal class MatisseViewModel(application: Application, private val matisse: Matisse) :
     AndroidViewModel(application) {

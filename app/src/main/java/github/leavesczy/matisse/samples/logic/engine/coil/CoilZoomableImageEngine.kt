@@ -1,18 +1,15 @@
-@file:OptIn(ExperimentalGlideComposeApi::class)
-
-package github.leavesczy.matisse.samples.engine.glide
+package github.leavesczy.matisse.samples.logic.engine.coil
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import coil.compose.AsyncImage
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import kotlinx.parcelize.Parcelize
-import me.saket.telephoto.zoomable.glide.ZoomableGlideImage
+import me.saket.telephoto.zoomable.coil.ZoomableAsyncImage
 
 /**
  * @Author: leavesCZY
@@ -20,11 +17,11 @@ import me.saket.telephoto.zoomable.glide.ZoomableGlideImage
  * @Desc:
  */
 @Parcelize
-class GlideZoomableImageEngine : ImageEngine {
+class CoilZoomableImageEngine : ImageEngine {
 
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
-        GlideImage(
+        AsyncImage(
             modifier = Modifier.fillMaxSize(),
             model = mediaResource.uri,
             contentScale = ContentScale.Crop,
@@ -35,17 +32,17 @@ class GlideZoomableImageEngine : ImageEngine {
     @Composable
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
-            GlideImage(
+            AsyncImage(
                 modifier = Modifier.fillMaxWidth(),
                 model = mediaResource.uri,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.FillWidth,
                 contentDescription = mediaResource.name
             )
         } else {
-            ZoomableGlideImage(
+            ZoomableAsyncImage(
                 modifier = Modifier.fillMaxSize(),
                 model = mediaResource.uri,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.FillWidth,
                 contentDescription = mediaResource.name
             )
         }

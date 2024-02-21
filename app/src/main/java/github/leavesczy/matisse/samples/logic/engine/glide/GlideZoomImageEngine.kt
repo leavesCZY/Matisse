@@ -1,27 +1,33 @@
-package github.leavesczy.matisse.samples.engine.coil
+@file:OptIn(
+    ExperimentalGlideComposeApi::class,
+    com.github.panpf.zoomimage.compose.glide.internal.ExperimentalGlideComposeApi::class
+)
+
+package github.leavesczy.matisse.samples.logic.engine.glide
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import coil.compose.AsyncImage
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.github.panpf.zoomimage.GlideZoomAsyncImage
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import kotlinx.parcelize.Parcelize
 
 /**
  * @Author: leavesCZY
+ * @Date: 2023/9/25 16:53
  * @Desc:
  */
 @Parcelize
-class CoilImageEngine : ImageEngine {
+class GlideZoomImageEngine : ImageEngine {
 
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
-        AsyncImage(
+        GlideImage(
             modifier = Modifier.fillMaxSize(),
             model = mediaResource.uri,
             contentScale = ContentScale.Crop,
@@ -32,19 +38,17 @@ class CoilImageEngine : ImageEngine {
     @Composable
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
-            AsyncImage(
+            GlideImage(
                 modifier = Modifier.fillMaxWidth(),
                 model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth,
+                contentScale = ContentScale.Fit,
                 contentDescription = mediaResource.name
             )
         } else {
-            AsyncImage(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(state = rememberScrollState()),
+            GlideZoomAsyncImage(
+                modifier = Modifier.fillMaxSize(),
                 model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth,
+                contentScale = ContentScale.Fit,
                 contentDescription = mediaResource.name
             )
         }

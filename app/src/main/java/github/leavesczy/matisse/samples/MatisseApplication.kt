@@ -15,7 +15,6 @@ import coil.decode.VideoFrameDecoder
  * @Author: leavesCZY
  * @Date: 2022/5/29 21:10
  * @Desc:
- * @Github：https://github.com/leavesCZY
  */
 class MatisseApplication : Application() {
 

@@ -10,7 +10,6 @@ import androidx.activity.result.contract.ActivityResultContract
  * @Author: leavesCZY
  * @Date: 2023/6/28 17:40
  * @Desc:
- * @Github：https://github.com/leavesCZY
  */
 internal class MatisseTakePictureContract :
     ActivityResultContract<MatisseTakePictureContractParams, Boolean>() {

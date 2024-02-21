@@ -46,7 +46,6 @@ import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
  * @Author: leavesCZY
  * @Date: 2021/6/24 16:44
  * @Desc:
- * @Github：https://github.com/leavesCZY
  */
 @Composable
 internal fun MatisseTopBar(topBarViewState: MatisseTopBarViewState) {

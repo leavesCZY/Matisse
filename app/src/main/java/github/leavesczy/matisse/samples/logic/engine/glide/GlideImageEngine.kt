@@ -1,30 +1,27 @@
-@file:OptIn(
-    ExperimentalGlideComposeApi::class,
-    com.github.panpf.zoomimage.compose.glide.internal.ExperimentalGlideComposeApi::class
-)
-
-package github.leavesczy.matisse.samples.engine.glide
+package github.leavesczy.matisse.samples.logic.engine.glide
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.github.panpf.zoomimage.GlideZoomAsyncImage
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import kotlinx.parcelize.Parcelize
 
 /**
  * @Author: leavesCZY
- * @Date: 2023/9/25 16:53
+ * @Date: 2024/2/21 12:12
  * @Desc:
  */
 @Parcelize
-class GlideZoomImageEngine : ImageEngine {
+class GlideImageEngine : ImageEngine {
 
+    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
         GlideImage(
@@ -35,6 +32,7 @@ class GlideZoomImageEngine : ImageEngine {
         )
     }
 
+    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
@@ -45,8 +43,10 @@ class GlideZoomImageEngine : ImageEngine {
                 contentDescription = mediaResource.name
             )
         } else {
-            GlideZoomAsyncImage(
-                modifier = Modifier.fillMaxSize(),
+            GlideImage(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(state = rememberScrollState()),
                 model = mediaResource.uri,
                 contentScale = ContentScale.Fit,
                 contentDescription = mediaResource.name

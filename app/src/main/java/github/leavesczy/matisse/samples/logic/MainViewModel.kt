@@ -15,13 +15,18 @@ import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaStoreCaptureStrategy
 import github.leavesczy.matisse.MimeType
 import github.leavesczy.matisse.SmartCaptureStrategy
-import github.leavesczy.matisse.samples.engine.coil.CoilImageEngine
-import github.leavesczy.matisse.samples.engine.coil.CoilZoomImageEngine
-import github.leavesczy.matisse.samples.engine.coil.CoilZoomableImageEngine
-import github.leavesczy.matisse.samples.engine.glide.GlideImageEngine
-import github.leavesczy.matisse.samples.engine.glide.GlideZoomImageEngine
-import github.leavesczy.matisse.samples.engine.glide.GlideZoomableImageEngine
+import github.leavesczy.matisse.samples.logic.engine.coil.CoilImageEngine
+import github.leavesczy.matisse.samples.logic.engine.coil.CoilZoomImageEngine
+import github.leavesczy.matisse.samples.logic.engine.coil.CoilZoomableImageEngine
+import github.leavesczy.matisse.samples.logic.engine.glide.GlideImageEngine
+import github.leavesczy.matisse.samples.logic.engine.glide.GlideZoomImageEngine
+import github.leavesczy.matisse.samples.logic.engine.glide.GlideZoomableImageEngine
 
+/**
+ * @Author: leavesCZY
+ * @Date: 2024/2/21 12:01
+ * @Desc:
+ */
 class MainViewModel : ViewModel() {
 
     private var darkTheme by mutableStateOf(value = false)
@@ -29,18 +34,16 @@ class MainViewModel : ViewModel() {
     var mainPageViewState by mutableStateOf(
         value = MainPageViewState(
             maxSelectable = 3,
-            mediaType = MediaType.All,
             singleMediaType = false,
             captureStrategy = MediaCaptureStrategy.Smart,
-            capturePreferences = MediaCapturePreferences.Normal,
+            capturePreferencesCustom = false,
             filterStrategy = MediaFilterStrategy.Nothing,
-            imageEngine = MediaImageEngine.Coil,
+            imageEngine = MediaImageEngine.Glide,
             mediaList = emptyList(),
             onMaxSelectableChanged = ::onMaxSelectableChanged,
-            onMediaTypeChanged = ::onMediaTypeChanged,
             onSingleMediaTypeChanged = ::onSingleMediaTypeChanged,
             onCaptureStrategyChanged = ::onCaptureStrategyChanged,
-            onCapturePreferencesChanged = ::onCapturePreferencesChanged,
+            onCapturePreferencesCustomChanged = ::onCapturePreferencesCustomChanged,
             onFilterStrategyChanged = ::onFilterStrategyChanged,
             onImageEngineChanged = ::onImageEngineChanged,
             switchTheme = ::switchTheme,
@@ -49,53 +52,31 @@ class MainViewModel : ViewModel() {
         private set
 
     private fun onMaxSelectableChanged(maxSelectable: Int) {
-        if (mainPageViewState.maxSelectable != maxSelectable) {
-            mainPageViewState = mainPageViewState.copy(maxSelectable = maxSelectable)
-        }
-    }
-
-    private fun onMediaTypeChanged(mediaType: MediaType) {
-        if (mainPageViewState.mediaType != mediaType) {
-            mainPageViewState = mainPageViewState.copy(mediaType = mediaType)
-        }
+        mainPageViewState = mainPageViewState.copy(maxSelectable = maxSelectable)
     }
 
     private fun onSingleMediaTypeChanged(singleType: Boolean) {
-        if (mainPageViewState.singleMediaType != singleType) {
-            mainPageViewState = mainPageViewState.copy(singleMediaType = singleType)
-        }
+        mainPageViewState = mainPageViewState.copy(singleMediaType = singleType)
     }
 
     private fun onImageEngineChanged(imageEngine: MediaImageEngine) {
-        if (mainPageViewState.imageEngine != imageEngine) {
-            mainPageViewState = mainPageViewState.copy(imageEngine = imageEngine)
-        }
+        mainPageViewState = mainPageViewState.copy(imageEngine = imageEngine)
     }
 
     private fun onCaptureStrategyChanged(captureStrategy: MediaCaptureStrategy) {
-        if (mainPageViewState.captureStrategy != captureStrategy) {
-            mainPageViewState = mainPageViewState.copy(captureStrategy = captureStrategy)
-        }
+        mainPageViewState = mainPageViewState.copy(captureStrategy = captureStrategy)
     }
 
-    private fun onCapturePreferencesChanged(capturePreferences: MediaCapturePreferences) {
-        if (mainPageViewState.capturePreferences != capturePreferences) {
-            mainPageViewState = mainPageViewState.copy(capturePreferences = capturePreferences)
-        }
+    private fun onCapturePreferencesCustomChanged(custom: Boolean) {
+        mainPageViewState = mainPageViewState.copy(capturePreferencesCustom = custom)
     }
 
     private fun onFilterStrategyChanged(filterStrategy: MediaFilterStrategy) {
-        if (mainPageViewState.filterStrategy != filterStrategy) {
-            mainPageViewState = mainPageViewState.copy(filterStrategy = filterStrategy)
-        }
+        mainPageViewState = mainPageViewState.copy(filterStrategy = filterStrategy)
     }
 
     private fun switchTheme() {
         darkTheme = !darkTheme
-        setDefaultNightMode(darkTheme = darkTheme)
-    }
-
-    private fun setDefaultNightMode(darkTheme: Boolean) {
         if (darkTheme) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         } else {
@@ -105,95 +86,59 @@ class MainViewModel : ViewModel() {
 
     private fun getMediaCaptureStrategy(): CaptureStrategy? {
         val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
-        val extra = when (mainPageViewState.capturePreferences) {
-            MediaCapturePreferences.Normal -> {
-                Bundle.EMPTY
-            }
-
-            MediaCapturePreferences.Custom -> {
-                val bundle = Bundle()
-                bundle.putBoolean("android.intent.extra.USE_FRONT_CAMERA", true)
-                bundle.putInt("android.intent.extras.CAMERA_FACING", 1)
-                bundle
-            }
+        val captureExtra = if (mainPageViewState.capturePreferencesCustom) {
+            val bundle = Bundle()
+            bundle.putBoolean("android.intent.extra.USE_FRONT_CAMERA", true)
+            bundle.putInt("android.intent.extras.CAMERA_FACING", 1)
+            bundle
+        } else {
+            Bundle.EMPTY
         }
         return when (mainPageViewState.captureStrategy) {
-            MediaCaptureStrategy.Nothing -> {
-                null
+            MediaCaptureStrategy.Smart -> {
+                SmartCaptureStrategy(authority = fileProviderAuthority, extra = captureExtra)
             }
 
             MediaCaptureStrategy.FileProvider -> {
-                FileProviderCaptureStrategy(authority = fileProviderAuthority, extra = extra)
+                FileProviderCaptureStrategy(authority = fileProviderAuthority, extra = captureExtra)
             }
 
             MediaCaptureStrategy.MediaStore -> {
-                MediaStoreCaptureStrategy()
+                MediaStoreCaptureStrategy(extra = captureExtra)
             }
 
-            MediaCaptureStrategy.Smart -> {
-                SmartCaptureStrategy(authority = fileProviderAuthority, extra = extra)
+            MediaCaptureStrategy.Close -> {
+                null
             }
         }
     }
 
-    fun takePictureResult(result: MediaResource?) {
-        if (result != null) {
-            mainPageViewState = mainPageViewState.copy(
-                mediaList = listOf(result)
-            )
-        }
-    }
-
-    fun mediaPickerResult(result: List<MediaResource>?) {
-        if (!result.isNullOrEmpty()) {
-            mainPageViewState = mainPageViewState.copy(mediaList = result)
-        }
-    }
-
-    fun buildMatisseCapture(): MatisseCapture? {
-        val captureStrategy = getMediaCaptureStrategy() ?: return null
-        return MatisseCapture(captureStrategy = captureStrategy)
-    }
-
-    fun buildMatisse(): Matisse {
-        val mimeTypes = when (mainPageViewState.mediaType) {
-            MediaType.All -> {
-                MimeType.ofAll(hasGif = true)
-            }
-
-            MediaType.Image -> {
-                MimeType.ofImage(hasGif = true)
-            }
-
-            MediaType.Video -> {
-                MimeType.ofVideo()
-            }
-        }
+    fun buildMatisse(mimeTypes: Set<MimeType>): Matisse {
         val imageEngine = when (mainPageViewState.imageEngine) {
-            MediaImageEngine.Coil -> {
-                CoilImageEngine()
-            }
-
-            MediaImageEngine.CoilZoomable -> {
-                CoilZoomableImageEngine()
-            }
-
-            MediaImageEngine.CoilZoom -> {
-                CoilZoomImageEngine()
-            }
-
             MediaImageEngine.Glide -> {
                 GlideImageEngine()
+            }
+
+            MediaImageEngine.Coil -> {
+                CoilImageEngine()
             }
 
             MediaImageEngine.GlideZoomable -> {
                 GlideZoomableImageEngine()
             }
 
+
+            MediaImageEngine.CoilZoomable -> {
+                CoilZoomableImageEngine()
+            }
+
             MediaImageEngine.GlideZoom -> {
                 GlideZoomImageEngine()
             }
 
+            MediaImageEngine.CoilZoom -> {
+                CoilZoomImageEngine()
+            }
         }
         val mediaFilter = when (mainPageViewState.filterStrategy) {
             MediaFilterStrategy.Nothing -> {
@@ -221,6 +166,23 @@ class MainViewModel : ViewModel() {
             singleMediaType = mainPageViewState.singleMediaType,
             captureStrategy = getMediaCaptureStrategy()
         )
+    }
+
+    fun buildMatisseCapture(): MatisseCapture? {
+        val captureStrategy = getMediaCaptureStrategy() ?: return null
+        return MatisseCapture(captureStrategy = captureStrategy)
+    }
+
+    fun takePictureResult(result: MediaResource?) {
+        if (result != null) {
+            mainPageViewState = mainPageViewState.copy(mediaList = listOf(element = result))
+        }
+    }
+
+    fun mediaPickerResult(result: List<MediaResource>?) {
+        if (!result.isNullOrEmpty()) {
+            mainPageViewState = mainPageViewState.copy(mediaList = result)
+        }
     }
 
 }

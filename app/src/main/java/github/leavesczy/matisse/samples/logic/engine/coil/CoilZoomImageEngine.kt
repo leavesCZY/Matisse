@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.samples.engine.coil
+package github.leavesczy.matisse.samples.logic.engine.coil
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth

@@ -26,7 +26,6 @@ import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
  * @Author: leavesCZY
  * @Date: 2022/6/1 19:19
  * @Desc:
- * @Github：https://github.com/leavesCZY
  */
 @Composable
 internal fun MatisseBottomBar(
