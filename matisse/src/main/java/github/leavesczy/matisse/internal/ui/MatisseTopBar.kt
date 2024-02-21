@@ -39,7 +39,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
 
@@ -50,7 +49,7 @@ import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
  * @Github：https://github.com/leavesCZY
  */
 @Composable
-internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewState) {
+internal fun MatisseTopBar(topBarViewState: MatisseTopBarViewState) {
     Row(
         modifier = Modifier
             .shadow(elevation = 4.dp)
@@ -104,7 +103,6 @@ internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewS
             )
         }
         BucketDropdownMenu(
-            matisse = matisse,
             topBarViewState = topBarViewState,
             menuExpanded = menuExpanded,
             onDismissRequest = {
@@ -116,7 +114,6 @@ internal fun MatisseTopBar(matisse: Matisse, topBarViewState: MatisseTopBarViewS
 
 @Composable
 private fun BucketDropdownMenu(
-    matisse: Matisse,
     topBarViewState: MatisseTopBarViewState,
     menuExpanded: Boolean,
     onDismissRequest: () -> Unit
@@ -149,7 +146,7 @@ private fun BucketDropdownMenu(
                         ) {
                             val firstResource = bucket.resources.firstOrNull()
                             if (firstResource != null) {
-                                matisse.imageEngine.Thumbnail(mediaResource = firstResource)
+                                topBarViewState.imageEngine.Thumbnail(mediaResource = firstResource)
                             }
                         }
                         Text(

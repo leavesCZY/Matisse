@@ -10,7 +10,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import github.leavesczy.matisse.CaptureStrategy
+import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.Matisse
+import github.leavesczy.matisse.MediaFilter
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import kotlinx.coroutines.Dispatchers
@@ -23,19 +26,26 @@ import kotlinx.coroutines.withContext
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
-internal class MatisseViewModel(application: Application, matisse: Matisse) :
+internal class MatisseViewModel(application: Application, private val matisse: Matisse) :
     AndroidViewModel(application) {
 
     private val context: Context
         get() = getApplication()
 
-    private val maxSelectable = matisse.maxSelectable
+    val maxSelectable: Int
+        get() = matisse.maxSelectable
 
-    private val singleMediaType = matisse.singleMediaType
+    val singleMediaType: Boolean
+        get() = matisse.singleMediaType
 
-    private val mediaFilter = matisse.mediaFilter
+    private val imageEngine: ImageEngine
+        get() = matisse.imageEngine
 
-    private val captureStrategy = matisse.captureStrategy
+    val mediaFilter: MediaFilter
+        get() = matisse.mediaFilter
+
+    val captureStrategy: CaptureStrategy?
+        get() = matisse.captureStrategy
 
     private val defaultBucketId = "&__matisseDefaultBucketId__&"
 
@@ -47,12 +57,14 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             resources = emptyList(),
             captureStrategy = captureStrategy
         ),
+        imageEngine = imageEngine,
         onClickMedia = ::onClickMedia,
         onMediaCheckChanged = ::onMediaCheckChanged
     )
 
     private val nothingMatisseTopBarViewState = MatisseTopBarViewState(
         title = nothingMatissePageViewState.selectedBucket.name,
+        imageEngine = imageEngine,
         mediaBuckets = listOf(element = nothingMatissePageViewState.selectedBucket),
         onClickBucket = ::onClickBucket
     )
@@ -81,6 +93,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         value = MatissePreviewPageViewState(
             visible = false,
             initialPage = 0,
+            maxSelectable = maxSelectable,
+            imageEngine = imageEngine,
             sureButtonText = "",
             sureButtonClickable = false,
             selectedResources = emptyList(),

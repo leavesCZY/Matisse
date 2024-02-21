@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Stable
 import github.leavesczy.matisse.CaptureStrategy
+import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 
 /**
@@ -17,6 +18,7 @@ import github.leavesczy.matisse.MediaResource
 internal data class MatissePageViewState(
     val lazyGridState: LazyGridState,
     val selectedBucket: MediaBucket,
+    val imageEngine: ImageEngine,
     val onClickMedia: (MediaResource) -> Unit,
     val onMediaCheckChanged: (MediaResource) -> Unit
 )
@@ -32,6 +34,7 @@ internal data class MediaBucket(
 @Stable
 internal data class MatisseTopBarViewState(
     val title: String,
+    val imageEngine: ImageEngine,
     val mediaBuckets: List<MediaBucket>,
     val onClickBucket: (MediaBucket) -> Unit
 )
@@ -49,6 +52,8 @@ internal data class MatisseBottomBarViewState(
 internal data class MatissePreviewPageViewState(
     val visible: Boolean,
     val initialPage: Int,
+    val maxSelectable: Int,
+    val imageEngine: ImageEngine,
     val sureButtonText: String,
     val sureButtonClickable: Boolean,
     val previewResources: List<MediaResource>,

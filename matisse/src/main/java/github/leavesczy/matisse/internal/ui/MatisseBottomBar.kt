@@ -31,7 +31,7 @@ import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 @Composable
 internal fun MatisseBottomBar(
     bottomBarViewState: MatisseBottomBarViewState,
-    onSure: () -> Unit
+    onClickSure: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -70,7 +70,7 @@ internal fun MatisseBottomBar(
                 .align(alignment = Alignment.CenterEnd)
                 .then(
                     other = if (bottomBarViewState.sureButtonClickable) {
-                        Modifier.clickable(onClick = onSure)
+                        Modifier.clickable(onClick = onClickSure)
                     } else {
                         Modifier
                     }

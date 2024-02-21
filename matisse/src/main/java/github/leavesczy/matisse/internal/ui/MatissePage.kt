@@ -21,8 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,12 +30,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.unit.dp
-import github.leavesczy.matisse.Matisse
+import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
-import github.leavesczy.matisse.internal.logic.MatissePageViewState
-import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
+import github.leavesczy.matisse.internal.logic.MatisseViewModel
 
 /**
  * @Author: CZY
@@ -44,40 +42,36 @@ import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
  */
 @Composable
 internal fun MatissePage(
-    matisse: Matisse,
-    matissePageViewState: MatissePageViewState,
-    matisseTopBarViewState: MatisseTopBarViewState,
-    matisseBottomBarViewState: MatisseBottomBarViewState,
-    selectedResources: List<MediaResource>,
+    matisseViewModel: MatisseViewModel,
     onRequestTakePicture: () -> Unit,
-    onSure: () -> Unit
+    onClickSure: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = colorResource(id = R.color.matisse_main_page_background_color),
         topBar = {
-            MatisseTopBar(
-                matisse = matisse,
-                topBarViewState = matisseTopBarViewState
-            )
+            MatisseTopBar(topBarViewState = matisseViewModel.matisseTopBarViewState)
         },
         bottomBar = {
             MatisseBottomBar(
-                bottomBarViewState = matisseBottomBarViewState,
-                onSure = onSure
+                bottomBarViewState = matisseViewModel.matisseBottomBarViewState,
+                onClickSure = onClickSure
             )
         }
     ) { innerPadding ->
+        val captureStrategy by remember {
+            derivedStateOf {
+                matisseViewModel.matissePageViewState.selectedBucket.captureStrategy
+            }
+        }
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
-            state = matissePageViewState.lazyGridState,
+            state = matisseViewModel.matissePageViewState.lazyGridState,
             columns = GridCells.Fixed(count = integerResource(id = R.integer.matisse_image_span_count)),
             contentPadding = PaddingValues(bottom = 60.dp)
         ) {
-            val selectedBucket = matissePageViewState.selectedBucket
-            val captureStrategy = selectedBucket.captureStrategy
             if (captureStrategy != null) {
                 item(
                     key = "Capture",
@@ -88,7 +82,7 @@ internal fun MatissePage(
                 )
             }
             items(
-                items = selectedBucket.resources,
+                items = matisseViewModel.matissePageViewState.selectedBucket.resources,
                 key = {
                     it.id
                 },
@@ -96,29 +90,30 @@ internal fun MatissePage(
                     "Media"
                 },
                 itemContent = {
-                    val mediaPlacement by remember(key1 = selectedResources) {
-                        val index = selectedResources.indexOf(element = it)
-                        val isSelected = index > -1
-                        val enabled = isSelected || selectedResources.size < matisse.maxSelectable
-                        val position = if (isSelected) {
-                            (index + 1).toString()
-                        } else {
-                            ""
-                        }
-                        mutableStateOf(
-                            value = MediaPlacement(
+                    val mediaPlacement by remember {
+                        derivedStateOf {
+                            val index = matisseViewModel.selectedResources.indexOf(element = it)
+                            val isSelected = index > -1
+                            val enabled =
+                                isSelected || matisseViewModel.selectedResources.size < matisseViewModel.maxSelectable
+                            val position = if (isSelected) {
+                                (index + 1).toString()
+                            } else {
+                                ""
+                            }
+                            MediaPlacement(
                                 isSelected = isSelected,
                                 enabled = enabled,
                                 position = position
                             )
-                        )
+                        }
                     }
                     MediaItem(
-                        matisse = matisse,
                         mediaResource = it,
                         mediaPlacement = mediaPlacement,
-                        onClickMedia = matissePageViewState.onClickMedia,
-                        onClickCheckBox = matissePageViewState.onMediaCheckChanged
+                        imageEngine = matisseViewModel.matissePageViewState.imageEngine,
+                        onClickMedia = matisseViewModel.matissePageViewState.onClickMedia,
+                        onClickCheckBox = matisseViewModel.matissePageViewState.onMediaCheckChanged
                     )
                 }
             )
@@ -157,9 +152,9 @@ private data class MediaPlacement(
 
 @Composable
 private fun LazyGridItemScope.MediaItem(
-    matisse: Matisse,
     mediaResource: MediaResource,
     mediaPlacement: MediaPlacement,
+    imageEngine: ImageEngine,
     onClickMedia: (MediaResource) -> Unit,
     onClickCheckBox: (MediaResource) -> Unit
 ) {
@@ -186,7 +181,7 @@ private fun LazyGridItemScope.MediaItem(
             },
         contentAlignment = Alignment.Center
     ) {
-        matisse.imageEngine.Thumbnail(mediaResource = mediaResource)
+        imageEngine.Thumbnail(mediaResource = mediaResource)
         MatisseCheckbox(
             modifier = Modifier
                 .align(alignment = Alignment.TopEnd)

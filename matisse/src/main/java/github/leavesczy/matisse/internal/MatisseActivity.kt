@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -15,7 +16,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import github.leavesczy.matisse.CaptureStrategy
-import github.leavesczy.matisse.MatisseContract
+import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
@@ -31,10 +32,6 @@ import github.leavesczy.matisse.internal.ui.MatisseTheme
  */
 internal class MatisseActivity : BaseCaptureActivity() {
 
-    private val matisse by lazy(mode = LazyThreadSafetyMode.NONE) {
-        MatisseContract.getRequest(intent = intent)
-    }
-
     override val captureStrategy: CaptureStrategy
         get() = requireCaptureStrategy()
 
@@ -44,7 +41,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return MatisseViewModel(
                     application = application,
-                    matisse = matisse
+                    matisse = intent.getParcelableExtra(Matisse::class.java.name)!!
                 ) as T
             }
         }
@@ -66,18 +63,13 @@ internal class MatisseActivity : BaseCaptureActivity() {
             }
             MatisseTheme {
                 MatissePage(
-                    matisse = matisse,
-                    matissePageViewState = matisseViewModel.matissePageViewState,
-                    matisseTopBarViewState = matisseViewModel.matisseTopBarViewState,
-                    matisseBottomBarViewState = matisseViewModel.matisseBottomBarViewState,
-                    selectedResources = matisseViewModel.selectedResources,
+                    matisseViewModel = matisseViewModel,
                     onRequestTakePicture = ::requestTakePicture,
-                    onSure = ::onSure
+                    onClickSure = ::onClickSure
                 )
                 MatissePreviewPage(
-                    matisse = matisse,
                     pageViewState = matisseViewModel.matissePreviewPageViewState,
-                    onSure = ::onSure,
+                    onClickSure = ::onClickSure,
                     requestOpenVideo = ::requestOpenVideo
                 )
                 MatisseLoadingDialog(visible = matisseViewModel.loadingDialogVisible)
@@ -90,7 +82,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
         ) {
-            val mimeTypes = matisse.mediaFilter.supportedMimeTypes()
+            val mimeTypes = matisseViewModel.mediaFilter.supportedMimeTypes()
             val onlyImage = mimeTypes.all { it.isImage }
             val onlyVideo = mimeTypes.all { it.isVideo }
             if (onlyImage) {
@@ -120,17 +112,17 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     override fun dispatchTakePictureResult(mediaResource: MediaResource) {
-        val maxSelectable = matisse.maxSelectable
+        val maxSelectable = matisseViewModel.maxSelectable
         val selectedResources = matisseViewModel.selectedResources
-        val illegalMediaType = matisse.singleMediaType && selectedResources.any {
+        val illegalMediaType = matisseViewModel.singleMediaType && selectedResources.any {
             it.isVideo
         }
         if (maxSelectable > 1 && (selectedResources.size in 1..<maxSelectable) && !illegalMediaType) {
             val selectedResourcesMutable = selectedResources.toMutableList()
             selectedResourcesMutable.add(element = mediaResource)
-            onSure(resources = selectedResourcesMutable)
+            onSure(selected = selectedResourcesMutable)
         } else {
-            onSure(resources = listOf(element = mediaResource))
+            onSure(selected = listOf(element = mediaResource))
         }
     }
 
@@ -139,13 +131,13 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     private fun requireCaptureStrategy(): CaptureStrategy {
-        val captureStrategy = matisse.captureStrategy
+        val captureStrategy = matisseViewModel.captureStrategy
         checkNotNull(captureStrategy)
         return captureStrategy
     }
 
-    private fun onSure() {
-        val maxSelectable = matisse.maxSelectable
+    private fun onClickSure() {
+        val maxSelectable = matisseViewModel.maxSelectable
         val selectedResourcesSize = matisseViewModel.selectedResources.size
         if (selectedResourcesSize > maxSelectable) {
             showToast(
@@ -156,14 +148,18 @@ internal class MatisseActivity : BaseCaptureActivity() {
             )
             return
         }
-        onSure(resources = matisseViewModel.selectedResources)
+        onSure(selected = matisseViewModel.selectedResources)
     }
 
-    private fun onSure(resources: List<MediaResource>) {
-        if (resources.isEmpty()) {
+    private fun onSure(selected: List<MediaResource>) {
+        if (selected.isEmpty()) {
             setResult(Activity.RESULT_CANCELED)
         } else {
-            val data = MatisseContract.buildResult(selectedMediaResources = resources)
+            val data = Intent()
+            val resources = arrayListOf<Parcelable>().apply {
+                addAll(selected)
+            }
+            data.putParcelableArrayListExtra(MediaResource::class.java.name, resources)
             setResult(Activity.RESULT_OK, data)
         }
         finish()

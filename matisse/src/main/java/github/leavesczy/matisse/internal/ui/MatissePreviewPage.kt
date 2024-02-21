@@ -40,7 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import github.leavesczy.matisse.Matisse
+import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
@@ -52,10 +52,9 @@ import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
  */
 @Composable
 internal fun MatissePreviewPage(
-    matisse: Matisse,
     pageViewState: MatissePreviewPageViewState,
     requestOpenVideo: (MediaResource) -> Unit,
-    onSure: () -> Unit
+    onClickSure: () -> Unit
 ) {
     AnimatedVisibility(
         visible = pageViewState.visible,
@@ -113,16 +112,16 @@ internal fun MatissePreviewPage(
                     }
                 ) { pageIndex ->
                     PreviewPage(
-                        matisse = matisse,
+                        imageEngine = pageViewState.imageEngine,
                         mediaResource = previewResources[pageIndex],
                         requestOpenVideo = requestOpenVideo
                     )
                 }
                 BottomController(
-                    matisse = matisse,
+                    maxSelectable = pageViewState.maxSelectable,
                     pageViewState = pageViewState,
                     currentPageIndex = pagerState.currentPage,
-                    onSure = onSure
+                    onClickSure = onClickSure
                 )
             }
         }
@@ -131,7 +130,7 @@ internal fun MatissePreviewPage(
 
 @Composable
 private fun PreviewPage(
-    matisse: Matisse,
+    imageEngine: ImageEngine,
     mediaResource: MediaResource,
     requestOpenVideo: (MediaResource) -> Unit
 ) {
@@ -139,7 +138,7 @@ private fun PreviewPage(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        matisse.imageEngine.Image(mediaResource = mediaResource)
+        imageEngine.Image(mediaResource = mediaResource)
         if (mediaResource.isVideo) {
             Icon(
                 modifier = Modifier
@@ -161,10 +160,10 @@ private val bottomControllerHeight = 56.dp
 
 @Composable
 private fun BoxScope.BottomController(
-    matisse: Matisse,
+    maxSelectable: Int,
     pageViewState: MatissePreviewPageViewState,
     currentPageIndex: Int,
-    onSure: () -> Unit
+    onClickSure: () -> Unit
 ) {
     val selectedResources = pageViewState.selectedResources
     val previewResources = pageViewState.previewResources
@@ -175,7 +174,7 @@ private fun BoxScope.BottomController(
     }
     val checkboxEnabled by remember(key1 = imagePosition) {
         mutableStateOf(
-            value = imagePosition > -1 || selectedResources.size < matisse.maxSelectable
+            value = imagePosition > -1 || selectedResources.size < maxSelectable
         )
     }
     Box(
@@ -216,7 +215,7 @@ private fun BoxScope.BottomController(
                 .align(alignment = Alignment.CenterEnd)
                 .then(
                     other = if (pageViewState.sureButtonClickable) {
-                        Modifier.clickable(onClick = onSure)
+                        Modifier.clickable(onClick = onClickSure)
                     } else {
                         Modifier
                     }
