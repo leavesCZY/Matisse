@@ -21,16 +21,20 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.coil.compose)
-    implementation(libs.coil.gif)
-    implementation(libs.coil.video)
+
     implementation(libs.glide)
     implementation(libs.glide.compose)
     ksp(libs.glide.ksp)
-    implementation(libs.zoom.image.coil)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
+    implementation(libs.coil.video)
+
     implementation(libs.zoom.image.glide)
-    implementation(libs.zoomable.image.coil)
+    implementation(libs.zoom.image.coil)
+
     implementation(libs.zoomable.image.glide)
+    implementation(libs.zoomable.image.coil)
+
     implementation(project(":matisse"))
 //    implementation(libs.matisse)
 }
