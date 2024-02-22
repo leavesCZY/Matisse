@@ -147,25 +147,22 @@ class MainViewModel : ViewModel() {
         }
         val mediaFilter = when (mainPageViewState.filterStrategy) {
             MediaFilterStrategy.Nothing -> {
-                DefaultMediaFilter(mediaType = mediaType)
+                DefaultMediaFilter()
             }
 
             MediaFilterStrategy.IgnoreSelected -> {
-                DefaultMediaFilter(
-                    mediaType = mediaType,
-                    ignoredResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
-                )
+                DefaultMediaFilter(ignoredResourceUri = mainPageViewState.mediaList.map { it.uri }
+                    .toSet())
             }
 
             MediaFilterStrategy.AttachSelected -> {
-                DefaultMediaFilter(
-                    mediaType = mediaType,
-                    selectedResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
-                )
+                DefaultMediaFilter(selectedResourceUri = mainPageViewState.mediaList.map { it.uri }
+                    .toSet())
             }
         }
         return Matisse(
             maxSelectable = mainPageViewState.maxSelectable,
+            mediaType = mediaType,
             mediaFilter = mediaFilter,
             imageEngine = imageEngine,
             singleMediaType = mainPageViewState.singleMediaType,

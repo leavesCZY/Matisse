@@ -15,6 +15,7 @@ import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaFilter
 import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,13 +35,16 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     val maxSelectable: Int
         get() = matisse.maxSelectable
 
-    val singleMediaType: Boolean
-        get() = matisse.singleMediaType
-
     private val imageEngine: ImageEngine
         get() = matisse.imageEngine
 
-    val mediaFilter: MediaFilter
+    val mediaType: MediaType
+        get() = matisse.mediaType
+
+    val singleMediaType: Boolean
+        get() = matisse.singleMediaType
+
+    private val mediaFilter: MediaFilter
         get() = matisse.mediaFilter
 
     val captureStrategy: CaptureStrategy?
@@ -114,6 +118,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 showLoadingDialog()
                 val allResources = MediaProvider.loadResources(
                     context = context,
+                    mediaType = mediaType,
                     mediaFilter = mediaFilter
                 )
                 val allBucket = groupByBucket(

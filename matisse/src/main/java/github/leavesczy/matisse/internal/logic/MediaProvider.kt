@@ -125,12 +125,13 @@ internal object MediaProvider {
 
     suspend fun loadResources(
         context: Context,
+        mediaType: MediaType,
         mediaFilter: MediaFilter,
     ): List<MediaResource> {
         return withContext(context = Dispatchers.Default) {
             loadResources(
                 context = context,
-                selection = generateSqlSelection(mediaType = mediaFilter.mediaType()),
+                selection = generateSqlSelection(mediaType = mediaType),
                 selectionArgs = null,
                 ignoreMedia = mediaFilter::ignoreMedia
             ) ?: emptyList()

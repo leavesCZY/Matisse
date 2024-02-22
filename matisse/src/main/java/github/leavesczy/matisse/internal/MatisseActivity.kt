@@ -85,7 +85,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
         ) {
-            val mimeTypes = matisseViewModel.mediaFilter.mediaType()
+            val mimeTypes = matisseViewModel.mediaType
             if (mimeTypes.imageOnly) {
                 arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
             } else if (mimeTypes.videoOnly) {

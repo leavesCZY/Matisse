@@ -256,9 +256,7 @@ private fun MainPage(
                 Title(text = "CapturePreferencesCustom")
                 Checkbox(
                     checked = mainPageViewState.capturePreferencesCustom,
-                    onCheckedChange = {
-                        mainPageViewState.onCapturePreferencesCustomChanged(it)
-                    }
+                    onCheckedChange = mainPageViewState.onCapturePreferencesCustomChanged
                 )
             }
             Button(
