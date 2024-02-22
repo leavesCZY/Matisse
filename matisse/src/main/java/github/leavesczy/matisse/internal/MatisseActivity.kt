@@ -16,9 +16,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import github.leavesczy.matisse.CaptureStrategy
+import github.leavesczy.matisse.ImageMimeTypePrefix
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.R
+import github.leavesczy.matisse.VideoMimeTypePrefix
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
@@ -82,12 +85,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
         ) {
-            val mimeTypes = matisseViewModel.mediaFilter.supportedMimeTypes()
-            val onlyImage = mimeTypes.all { it.isImage }
-            val onlyVideo = mimeTypes.all { it.isVideo }
-            if (onlyImage) {
+            val mimeTypes = matisseViewModel.mediaFilter.mediaType()
+            if (mimeTypes.imageOnly) {
                 arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
-            } else if (onlyVideo) {
+            } else if (mimeTypes.videoOnly) {
                 arrayOf(Manifest.permission.READ_MEDIA_VIDEO)
             } else {
                 arrayOf(
@@ -104,6 +105,40 @@ internal class MatisseActivity : BaseCaptureActivity() {
             requestReadMediaPermissionLauncher.launch(permissions)
         }
     }
+
+    private val MediaType.imageOnly: Boolean
+        get() {
+            return when (this) {
+                is MediaType.ImageAndVideo, MediaType.VideoOnly -> {
+                    false
+                }
+
+                is MediaType.ImageOnly -> {
+                    true
+                }
+
+                is MediaType.SingleMimeType -> {
+                    mimeType.startsWith(prefix = ImageMimeTypePrefix)
+                }
+            }
+        }
+
+    private val MediaType.videoOnly: Boolean
+        get() {
+            return when (this) {
+                is MediaType.ImageAndVideo, is MediaType.ImageOnly -> {
+                    false
+                }
+
+                MediaType.VideoOnly -> {
+                    true
+                }
+
+                is MediaType.SingleMimeType -> {
+                    mimeType.startsWith(prefix = VideoMimeTypePrefix)
+                }
+            }
+        }
 
     private fun requestOpenVideo(mediaResource: MediaResource) {
         val intent = Intent(this, MatisseVideoViewActivity::class.java)

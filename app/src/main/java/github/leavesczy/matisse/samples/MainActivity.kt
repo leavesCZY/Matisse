@@ -45,7 +45,7 @@ import coil.compose.AsyncImage
 import github.leavesczy.matisse.MatisseCaptureContract
 import github.leavesczy.matisse.MatisseContract
 import github.leavesczy.matisse.MediaResource
-import github.leavesczy.matisse.MimeType
+import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.samples.logic.MainPageViewState
 import github.leavesczy.matisse.samples.logic.MainViewModel
 import github.leavesczy.matisse.samples.logic.MediaCaptureStrategy
@@ -77,14 +77,33 @@ class MainActivity : AppCompatActivity() {
             MatisseTheme {
                 MainPage(
                     mainPageViewState = mainViewModel.mainPageViewState,
-                    mediaPicker = {
-                        mediaPickerLauncher.launch(mainViewModel.buildMatisse(mimeTypes = MimeType.ofAll()))
+                    imageAndVideo = {
+                        mediaPickerLauncher.launch(
+                            mainViewModel.buildMatisse(
+                                mediaType = MediaType.ImageAndVideo(includeGif = mainViewModel.mainPageViewState.includeGif)
+                            )
+                        )
                     },
-                    imagePicker = {
-                        mediaPickerLauncher.launch(mainViewModel.buildMatisse(mimeTypes = MimeType.ofImage()))
+                    imageOnly = {
+                        mediaPickerLauncher.launch(
+                            mainViewModel.buildMatisse(
+                                mediaType = MediaType.ImageOnly(
+                                    includeGif = mainViewModel.mainPageViewState.includeGif
+                                )
+                            )
+                        )
                     },
-                    videoPicker = {
-                        mediaPickerLauncher.launch(mainViewModel.buildMatisse(mimeTypes = MimeType.ofVideo()))
+                    videoOnly = {
+                        mediaPickerLauncher.launch(mainViewModel.buildMatisse(mediaType = MediaType.VideoOnly))
+                    },
+                    jpegOnly = {
+                        mediaPickerLauncher.launch(
+                            mainViewModel.buildMatisse(
+                                mediaType = MediaType.SingleMimeType(
+                                    mimeType = "image/jpeg"
+                                )
+                            )
+                        )
                     },
                     takePicture = {
                         val matisseCapture = mainViewModel.buildMatisseCapture()
@@ -115,9 +134,10 @@ class MainActivity : AppCompatActivity() {
 @Composable
 private fun MainPage(
     mainPageViewState: MainPageViewState,
-    mediaPicker: () -> Unit,
-    imagePicker: () -> Unit,
-    videoPicker: () -> Unit,
+    imageAndVideo: () -> Unit,
+    imageOnly: () -> Unit,
+    videoOnly: () -> Unit,
+    jpegOnly: () -> Unit,
     takePicture: () -> Unit
 ) {
     Scaffold(
@@ -172,9 +192,17 @@ private fun MainPage(
                 Title(text = "singleMediaType")
                 Checkbox(
                     checked = mainPageViewState.singleMediaType,
-                    onCheckedChange = {
-                        mainPageViewState.onSingleMediaTypeChanged(it)
-                    }
+                    onCheckedChange = mainPageViewState.onSingleMediaTypeChanged
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Title(text = "includeGif")
+                Checkbox(
+                    checked = mainPageViewState.includeGif,
+                    onCheckedChange = mainPageViewState.onIncludeGifChanged
                 )
             }
             OptionDivider()
@@ -235,15 +263,19 @@ private fun MainPage(
             }
             Button(
                 text = "选择图片 + 视频",
-                onClick = mediaPicker
+                onClick = imageAndVideo
             )
             Button(
                 text = "选择图片",
-                onClick = imagePicker
+                onClick = imageOnly
             )
             Button(
                 text = "选择视频",
-                onClick = videoPicker
+                onClick = videoOnly
+            )
+            Button(
+                text = "选择 jpeg",
+                onClick = jpegOnly
             )
             Button(
                 text = "直接拍照",

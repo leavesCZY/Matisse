@@ -9,6 +9,7 @@ import android.os.Build
 import android.provider.MediaStore
 import github.leavesczy.matisse.MediaFilter
 import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -127,26 +128,52 @@ internal object MediaProvider {
         mediaFilter: MediaFilter,
     ): List<MediaResource> {
         return withContext(context = Dispatchers.Default) {
-            val selection = StringBuilder()
-            selection.append(MediaStore.MediaColumns.MIME_TYPE)
-            selection.append(" IN (")
-            val mimeTypes = mediaFilter.supportedMimeTypes()
-            mimeTypes.forEachIndexed { index, mimeType ->
-                if (index != 0) {
-                    selection.append(",")
-                }
-                selection.append("'")
-                selection.append(mimeType.type)
-                selection.append("'")
-            }
-            selection.append(")")
-            return@withContext loadResources(
+            loadResources(
                 context = context,
-                selection = selection.toString(),
+                selection = generateSqlSelection(mediaType = mediaFilter.mediaType()),
                 selectionArgs = null,
                 ignoreMedia = mediaFilter::ignoreMedia
             ) ?: emptyList()
         }
+    }
+
+    private fun generateSqlSelection(mediaType: MediaType): String {
+        val mimeTypeColumn = MediaStore.Images.Media.MIME_TYPE
+        val queryImageSelection = "$mimeTypeColumn like 'image/%'"
+        val queryVideoSelection = "$mimeTypeColumn like 'video/%'"
+        val excludeGifSelection = "$mimeTypeColumn != 'image/gif'"
+        val selection = StringBuilder()
+        val includeGif: Boolean
+        when (mediaType) {
+            is MediaType.SingleMimeType -> {
+                selection.append("$mimeTypeColumn == '${mediaType.mimeType}'")
+                return selection.toString()
+            }
+
+            is MediaType.ImageOnly -> {
+                selection.append(queryImageSelection)
+                includeGif = mediaType.includeGif
+            }
+
+            MediaType.VideoOnly -> {
+                selection.append(queryVideoSelection)
+                includeGif = false
+            }
+
+            is MediaType.ImageAndVideo -> {
+                selection.append("(")
+                selection.append(queryImageSelection)
+                selection.append(" or ")
+                selection.append(queryVideoSelection)
+                selection.append(")")
+                includeGif = mediaType.includeGif
+            }
+        }
+        if (!includeGif) {
+            selection.append(" and ")
+            selection.append(excludeGifSelection)
+        }
+        return selection.toString()
     }
 
     suspend fun loadResources(context: Context, uri: Uri): MediaResource? {

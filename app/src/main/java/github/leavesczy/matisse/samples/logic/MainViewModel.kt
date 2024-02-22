@@ -15,7 +15,7 @@ import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MatisseCapture
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaStoreCaptureStrategy
-import github.leavesczy.matisse.MimeType
+import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.SmartCaptureStrategy
 import github.leavesczy.matisse.samples.logic.engine.coil.CoilZoomImageEngine
 import github.leavesczy.matisse.samples.logic.engine.coil.CoilZoomableImageEngine
@@ -35,18 +35,20 @@ class MainViewModel : ViewModel() {
         value = MainPageViewState(
             maxSelectable = 3,
             singleMediaType = false,
+            includeGif = true,
+            imageEngine = MediaImageEngine.Glide,
+            filterStrategy = MediaFilterStrategy.Nothing,
             captureStrategy = MediaCaptureStrategy.Smart,
             capturePreferencesCustom = false,
-            filterStrategy = MediaFilterStrategy.Nothing,
-            imageEngine = MediaImageEngine.Glide,
             mediaList = emptyList(),
             onMaxSelectableChanged = ::onMaxSelectableChanged,
             onSingleMediaTypeChanged = ::onSingleMediaTypeChanged,
+            onIncludeGifChanged = ::onIncludeGifChanged,
+            onImageEngineChanged = ::onImageEngineChanged,
+            onFilterStrategyChanged = ::onFilterStrategyChanged,
             onCaptureStrategyChanged = ::onCaptureStrategyChanged,
             onCapturePreferencesCustomChanged = ::onCapturePreferencesCustomChanged,
-            onFilterStrategyChanged = ::onFilterStrategyChanged,
-            onImageEngineChanged = ::onImageEngineChanged,
-            switchTheme = ::switchTheme,
+            switchTheme = ::switchTheme
         )
     )
         private set
@@ -59,8 +61,16 @@ class MainViewModel : ViewModel() {
         mainPageViewState = mainPageViewState.copy(singleMediaType = singleType)
     }
 
+    private fun onIncludeGifChanged(hasGif: Boolean) {
+        mainPageViewState = mainPageViewState.copy(includeGif = hasGif)
+    }
+
     private fun onImageEngineChanged(imageEngine: MediaImageEngine) {
         mainPageViewState = mainPageViewState.copy(imageEngine = imageEngine)
+    }
+
+    private fun onFilterStrategyChanged(filterStrategy: MediaFilterStrategy) {
+        mainPageViewState = mainPageViewState.copy(filterStrategy = filterStrategy)
     }
 
     private fun onCaptureStrategyChanged(captureStrategy: MediaCaptureStrategy) {
@@ -69,10 +79,6 @@ class MainViewModel : ViewModel() {
 
     private fun onCapturePreferencesCustomChanged(custom: Boolean) {
         mainPageViewState = mainPageViewState.copy(capturePreferencesCustom = custom)
-    }
-
-    private fun onFilterStrategyChanged(filterStrategy: MediaFilterStrategy) {
-        mainPageViewState = mainPageViewState.copy(filterStrategy = filterStrategy)
     }
 
     private fun switchTheme() {
@@ -113,7 +119,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun buildMatisse(mimeTypes: Set<MimeType>): Matisse {
+    fun buildMatisse(mediaType: MediaType): Matisse {
         val imageEngine = when (mainPageViewState.imageEngine) {
             MediaImageEngine.Glide -> {
                 GlideImageEngine()
@@ -141,19 +147,19 @@ class MainViewModel : ViewModel() {
         }
         val mediaFilter = when (mainPageViewState.filterStrategy) {
             MediaFilterStrategy.Nothing -> {
-                DefaultMediaFilter(supportedMimeTypes = mimeTypes)
+                DefaultMediaFilter(mediaType = mediaType)
             }
 
             MediaFilterStrategy.IgnoreSelected -> {
                 DefaultMediaFilter(
-                    supportedMimeTypes = mimeTypes,
+                    mediaType = mediaType,
                     ignoredResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
                 )
             }
 
             MediaFilterStrategy.AttachSelected -> {
                 DefaultMediaFilter(
-                    supportedMimeTypes = mimeTypes,
+                    mediaType = mediaType,
                     selectedResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
                 )
             }

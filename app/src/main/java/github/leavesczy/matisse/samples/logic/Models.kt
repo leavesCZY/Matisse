@@ -32,16 +32,18 @@ enum class MediaFilterStrategy {
 data class MainPageViewState(
     val maxSelectable: Int,
     val singleMediaType: Boolean,
+    val includeGif: Boolean,
     val imageEngine: MediaImageEngine,
-    val captureStrategy: MediaCaptureStrategy,
     val filterStrategy: MediaFilterStrategy,
+    val captureStrategy: MediaCaptureStrategy,
     val capturePreferencesCustom: Boolean,
     val mediaList: List<MediaResource>,
     val onMaxSelectableChanged: (Int) -> Unit,
     val onSingleMediaTypeChanged: (Boolean) -> Unit,
+    val onIncludeGifChanged: (Boolean) -> Unit,
+    val onImageEngineChanged: (MediaImageEngine) -> Unit,
+    val onFilterStrategyChanged: (MediaFilterStrategy) -> Unit,
     val onCaptureStrategyChanged: (MediaCaptureStrategy) -> Unit,
     val onCapturePreferencesCustomChanged: (Boolean) -> Unit,
-    val onFilterStrategyChanged: (MediaFilterStrategy) -> Unit,
-    val onImageEngineChanged: (MediaImageEngine) -> Unit,
     val switchTheme: () -> Unit
 )
