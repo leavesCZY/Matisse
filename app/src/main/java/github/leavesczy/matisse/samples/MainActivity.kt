@@ -99,8 +99,8 @@ class MainActivity : AppCompatActivity() {
                     jpegOnly = {
                         mediaPickerLauncher.launch(
                             mainViewModel.buildMatisse(
-                                mediaType = MediaType.SingleMimeType(
-                                    mimeType = "image/jpeg"
+                                mediaType = MediaType.MultipleMimeType(
+                                    mimeTypes = setOf("image/jpeg", "image/png")
                                 )
                             )
                         )
@@ -260,19 +260,19 @@ private fun MainPage(
                 )
             }
             Button(
-                text = "选择图片 + 视频",
+                text = "图片 + 视频",
                 onClick = imageAndVideo
             )
             Button(
-                text = "选择图片",
+                text = "仅 图片",
                 onClick = imageOnly
             )
             Button(
-                text = "选择视频",
+                text = "仅 视频",
                 onClick = videoOnly
             )
             Button(
-                text = "选择 jpeg",
+                text = "仅 jpeg + png",
                 onClick = jpegOnly
             )
             Button(

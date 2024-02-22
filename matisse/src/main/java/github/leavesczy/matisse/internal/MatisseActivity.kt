@@ -117,8 +117,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     true
                 }
 
-                is MediaType.SingleMimeType -> {
-                    mimeType.startsWith(prefix = ImageMimeTypePrefix)
+                is MediaType.MultipleMimeType -> {
+                    mimeTypes.any {
+                        it.startsWith(prefix = ImageMimeTypePrefix)
+                    }
                 }
             }
         }
@@ -134,8 +136,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     true
                 }
 
-                is MediaType.SingleMimeType -> {
-                    mimeType.startsWith(prefix = VideoMimeTypePrefix)
+                is MediaType.MultipleMimeType -> {
+                    mimeTypes.any {
+                        it.startsWith(prefix = VideoMimeTypePrefix)
+                    }
                 }
             }
         }

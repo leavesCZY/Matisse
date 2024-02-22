@@ -35,13 +35,33 @@ data class Matisse(
 
 }
 
-/**
- * @param captureStrategy 拍照策略
- */
 @Parcelize
 data class MatisseCapture(
     val captureStrategy: CaptureStrategy
 ) : Parcelable
+
+@Parcelize
+sealed interface MediaType : Parcelable {
+
+    @Parcelize
+    data class ImageOnly(val includeGif: Boolean = true) : MediaType
+
+    @Parcelize
+    data object VideoOnly : MediaType
+
+    @Parcelize
+    data class ImageAndVideo(val includeGif: Boolean = true) : MediaType
+
+    @Parcelize
+    data class MultipleMimeType(val mimeTypes: Set<String>) : MediaType {
+
+        init {
+            assert(value = mimeTypes.isNotEmpty())
+        }
+
+    }
+
+}
 
 internal const val ImageMimeTypePrefix = "image/"
 
@@ -64,22 +84,5 @@ data class MediaResource(
 
     val isVideo: Boolean
         get() = mimeType.startsWith(prefix = VideoMimeTypePrefix)
-
-}
-
-@Parcelize
-sealed interface MediaType : Parcelable {
-
-    @Parcelize
-    data class ImageOnly(val includeGif: Boolean = true) : MediaType
-
-    @Parcelize
-    data object VideoOnly : MediaType
-
-    @Parcelize
-    data class ImageAndVideo(val includeGif: Boolean = true) : MediaType
-
-    @Parcelize
-    data class SingleMimeType(val mimeType: String) : MediaType
 
 }

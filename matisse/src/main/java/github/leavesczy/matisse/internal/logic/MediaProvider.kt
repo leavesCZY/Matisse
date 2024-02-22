@@ -146,8 +146,17 @@ internal object MediaProvider {
         val selection = StringBuilder()
         val includeGif: Boolean
         when (mediaType) {
-            is MediaType.SingleMimeType -> {
-                selection.append("$mimeTypeColumn == '${mediaType.mimeType}'")
+            is MediaType.MultipleMimeType -> {
+                val mimeTypes = mediaType.mimeTypes
+                val join = mimeTypes.joinToString(
+                    separator = ",",
+                    prefix = "(",
+                    postfix = ")",
+                    transform = {
+                        "'${it}'"
+                    }
+                )
+                selection.append("$mimeTypeColumn in $join")
                 return selection.toString()
             }
 
