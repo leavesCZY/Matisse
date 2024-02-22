@@ -96,11 +96,11 @@ class MainActivity : AppCompatActivity() {
                     videoOnly = {
                         mediaPickerLauncher.launch(mainViewModel.buildMatisse(mediaType = MediaType.VideoOnly))
                     },
-                    jpegOnly = {
+                    jpgAndMp4 = {
                         mediaPickerLauncher.launch(
                             mainViewModel.buildMatisse(
                                 mediaType = MediaType.MultipleMimeType(
-                                    mimeTypes = setOf("image/jpeg", "image/png")
+                                    mimeTypes = setOf("image/jpeg", "video/mp4")
                                 )
                             )
                         )
@@ -137,7 +137,7 @@ private fun MainPage(
     imageAndVideo: () -> Unit,
     imageOnly: () -> Unit,
     videoOnly: () -> Unit,
-    jpegOnly: () -> Unit,
+    jpgAndMp4: () -> Unit,
     takePicture: () -> Unit
 ) {
     Scaffold(
@@ -272,8 +272,8 @@ private fun MainPage(
                 onClick = videoOnly
             )
             Button(
-                text = "仅 jpeg + png",
-                onClick = jpegOnly
+                text = "仅 jpg + mp4",
+                onClick = jpgAndMp4
             )
             Button(
                 text = "直接拍照",
