@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.samples.logic.engine.glide
+package github.leavesczy.matisse
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,10 +7,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import github.leavesczy.matisse.ImageEngine
-import github.leavesczy.matisse.MediaResource
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -21,7 +18,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 class GlideImageEngine : ImageEngine {
 
-    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
         GlideImage(
@@ -32,7 +28,6 @@ class GlideImageEngine : ImageEngine {
         )
     }
 
-    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {

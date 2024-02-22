@@ -19,3 +19,11 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-optimizationpasses 10
+-packageobfuscationdictionary dictionary.txt
+-classobfuscationdictionary dictionary.txt
+-obfuscationdictionary dictionary.txt
+-printseeds seeds.txt
+-printusage usage.txt
+-printmapping mapping.txt

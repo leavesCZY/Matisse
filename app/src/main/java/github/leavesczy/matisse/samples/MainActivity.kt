@@ -155,7 +155,7 @@ private fun MainPage(
         ) {
             Title(text = "maxSelectable")
             Row {
-                for (i in 1..4) {
+                for (i in 1..3) {
                     RadioButton(
                         tips = i.toString(),
                         selected = mainPageViewState.maxSelectable == i,

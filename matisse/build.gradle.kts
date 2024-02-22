@@ -1,39 +1,14 @@
 @file:Suppress("UnstableApiUsage")
 
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.matisse.android.library)
+    alias(libs.plugins.matisse.android.compose)
     id("maven-publish")
     id("signing")
 }
 
 android {
     namespace = "github.leavesczy.matisse"
-    compileSdk = 34
-    defaultConfig {
-        minSdk = 21
-        targetSdk = 34
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs += setOf(
-            "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-            "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi",
-            "-Xopt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi"
-        )
-    }
-    buildFeatures {
-        compose = true
-        buildConfig = false
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.androidx.compose.compiler.get()
-    }
     publishing {
         singleVariant("release") {
             withSourcesJar()
@@ -50,6 +25,8 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.material3)
+    compileOnly(libs.glide.compose)
+    compileOnly(libs.coil.compose)
 }
 
 val signingKeyId = properties["signing.keyId"]?.toString()

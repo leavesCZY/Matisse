@@ -14,7 +14,7 @@ androidx-compose-bom = "2024.02.00"
 androidx-compose-compiler = "1.5.9"
 
 matisse-remote = "1.1.5"
-matisse-publishing = "1.1.5"
+matisse-publishing = "1.2.0-beta01"
 
 coil = "2.5.0"
 
@@ -32,7 +32,14 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-pl
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-plugin" }
 google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-plugin" }
 
+matisse-android-application = { id = "matisse.android.application", version = "unspecified" }
+matisse-android-library = { id = "matisse.android.library", version = "unspecified" }
+matisse-android-compose = { id = "matisse.android.compose", version = "unspecified" }
+
 [libraries]
+android-gradle = { group = "com.android.tools.build", name = "gradle", version.ref = "android-plugin" }
+kotlin-gradle = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin-plugin" }
+
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
 androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }

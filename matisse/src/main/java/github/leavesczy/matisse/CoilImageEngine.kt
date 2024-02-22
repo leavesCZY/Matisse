@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.samples.logic.engine.coil
+package github.leavesczy.matisse
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,13 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
-import github.leavesczy.matisse.ImageEngine
-import github.leavesczy.matisse.MediaResource
 import kotlinx.parcelize.Parcelize
 
 /**
  * @Author: leavesCZY
- * @Date: 2024/2/21 12:13
+ * @Date: 2024/2/21 22:39
  * @Desc:
  */
 @Parcelize

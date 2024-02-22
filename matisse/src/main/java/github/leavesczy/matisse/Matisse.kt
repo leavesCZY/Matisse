@@ -84,10 +84,10 @@ enum class MimeType(val type: String) {
 
         fun ofAll(hasGif: Boolean = true): Set<MimeType> {
             return if (hasGif) {
-                entries.toSet()
+                entries
             } else {
-                entries.filter { it != GIF }.toSet()
-            }
+                entries.filter { it != GIF }
+            }.toSet()
         }
 
         fun ofImage(hasGif: Boolean = true): Set<MimeType> {
