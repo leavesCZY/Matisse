@@ -11,17 +11,17 @@ import kotlinx.parcelize.Parcelize
  * @Desc:
  */
 /**
- * @param maxSelectable 最多允许选择几个媒体资源。默认 1
- * @param imageEngine 用于实现加载图片的逻辑
- * @param mediaType 要加载的媒体资源类型。默认仅图片
- * @param singleMediaType 用于设置是否允许用户同时选择图片和视频。为 true 则用户只能选择一种媒体类型，为 false 则允许同时选择图片和视频
- * @param mediaFilter 用于定义媒体资源的过滤规则
+ * @param maxSelectable 用于设置最多能选择几个媒体资源
+ * @param imageEngine 用于自定义图片加载框架
+ * @param mediaType 用于设置要加载的媒体资源类型。默认仅图片
+ * @param singleMediaType 用于设置是否允许同时选择图片和视频。默认允许
+ * @param mediaFilter 用于定义媒体资源的筛选规则。默认不进行筛选
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 @Stable
 @Parcelize
 data class Matisse(
-    val maxSelectable: Int = 1,
+    val maxSelectable: Int,
     val imageEngine: ImageEngine,
     val mediaType: MediaType = MediaType.ImageOnly,
     val singleMediaType: Boolean = false,
@@ -35,10 +35,11 @@ data class Matisse(
 
 }
 
+/**
+ * @param captureStrategy 拍照策略
+ */
 @Parcelize
-data class MatisseCapture(
-    val captureStrategy: CaptureStrategy
-) : Parcelable
+data class MatisseCapture(val captureStrategy: CaptureStrategy) : Parcelable
 
 @Parcelize
 sealed interface MediaType : Parcelable {

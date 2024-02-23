@@ -255,6 +255,7 @@ private fun MainPage(
                 Title(text = "CapturePreferencesCustom")
                 Checkbox(
                     checked = mainPageViewState.capturePreferencesCustom,
+                    enabled = mainPageViewState.captureStrategy != MediaCaptureStrategy.Close,
                     onCheckedChange = mainPageViewState.onCapturePreferencesCustomChanged
                 )
             }
