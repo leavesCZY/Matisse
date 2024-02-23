@@ -25,26 +25,24 @@ interface MediaFilter : Parcelable {
 }
 
 /**
+ * @param ignoredMimeType 包含在内的 mimeType 将会被忽略，不会展示给用户
  * @param ignoredResourceUri 包含在内的 Uri 将会被忽略，不会展示给用户
  * @param selectedResourceUri 包含在内的 Uri 将会被默认选中
  */
 @Parcelize
 class DefaultMediaFilter(
+    private val ignoredMimeType: Set<String> = emptySet(),
     private val ignoredResourceUri: Set<Uri> = emptySet(),
     private val selectedResourceUri: Set<Uri> = emptySet()
 ) : MediaFilter {
 
     override suspend fun ignoreMedia(mediaResource: MediaResource): Boolean {
-        if (ignoredResourceUri.isEmpty()) {
-            return false
-        }
-        return ignoredResourceUri.contains(element = mediaResource.uri)
+        return ignoredMimeType.contains(element = mediaResource.mimeType) || ignoredResourceUri.contains(
+            element = mediaResource.uri
+        )
     }
 
     override suspend fun selectMedia(mediaResource: MediaResource): Boolean {
-        if (selectedResourceUri.isEmpty()) {
-            return false
-        }
         return selectedResourceUri.contains(element = mediaResource.uri)
     }
 

@@ -80,16 +80,14 @@ class MainActivity : AppCompatActivity() {
                     imageAndVideo = {
                         mediaPickerLauncher.launch(
                             mainViewModel.buildMatisse(
-                                mediaType = MediaType.ImageAndVideo(includeGif = mainViewModel.mainPageViewState.includeGif)
+                                mediaType = MediaType.ImageAndVideo
                             )
                         )
                     },
                     imageOnly = {
                         mediaPickerLauncher.launch(
                             mainViewModel.buildMatisse(
-                                mediaType = MediaType.ImageOnly(
-                                    includeGif = mainViewModel.mainPageViewState.includeGif
-                                )
+                                mediaType = MediaType.ImageOnly
                             )
                         )
                     },
@@ -185,26 +183,6 @@ private fun MainPage(
                     )
                 }
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Title(text = "singleMediaType")
-                Checkbox(
-                    checked = mainPageViewState.singleMediaType,
-                    onCheckedChange = mainPageViewState.onSingleMediaTypeChanged
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Title(text = "includeGif")
-                Checkbox(
-                    checked = mainPageViewState.includeGif,
-                    onCheckedChange = mainPageViewState.onIncludeGifChanged
-                )
-            }
             OptionDivider()
             Title(text = "ImageEngine")
             FlowRow(
@@ -221,6 +199,17 @@ private fun MainPage(
                 }
             }
             OptionDivider()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Title(text = "singleMediaType")
+                Checkbox(
+                    checked = mainPageViewState.singleMediaType,
+                    onCheckedChange = mainPageViewState.onSingleMediaTypeChanged
+                )
+            }
+            OptionDivider()
             Title(text = "mediaFilter")
             FlowRow {
                 for (strategy in MediaFilterStrategy.entries) {
@@ -232,6 +221,16 @@ private fun MainPage(
                         }
                     )
                 }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Title(text = "includeGif")
+                Checkbox(
+                    checked = mainPageViewState.includeGif,
+                    onCheckedChange = mainPageViewState.onIncludeGifChanged
+                )
             }
             OptionDivider()
             Title(text = "CaptureStrategy")
@@ -299,7 +298,7 @@ private fun MainPage(
 @Composable
 private fun OptionDivider() {
     HorizontalDivider(
-        modifier = Modifier,
+        modifier = Modifier.padding(bottom = 8.dp),
         thickness = 0.6.dp
     )
 }

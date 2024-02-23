@@ -60,7 +60,7 @@ internal object MediaProvider {
         context: Context,
         selection: String?,
         selectionArgs: Array<String>?,
-        ignoreMedia: suspend (MediaResource) -> Boolean,
+        ignoreMedia: (suspend (MediaResource) -> Boolean)?
     ): List<MediaResource>? {
         return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID
@@ -110,7 +110,7 @@ internal object MediaProvider {
                             bucketId = bucketId,
                             bucketName = bucketName
                         )
-                        if (ignoreMedia(mediaResource)) {
+                        if (ignoreMedia != null && ignoreMedia(mediaResource)) {
                             continue
                         }
                         mediaResourceList.add(element = mediaResource)
@@ -126,14 +126,16 @@ internal object MediaProvider {
     suspend fun loadResources(
         context: Context,
         mediaType: MediaType,
-        mediaFilter: MediaFilter,
+        mediaFilter: MediaFilter?
     ): List<MediaResource> {
         return withContext(context = Dispatchers.Default) {
             loadResources(
                 context = context,
                 selection = generateSqlSelection(mediaType = mediaType),
                 selectionArgs = null,
-                ignoreMedia = mediaFilter::ignoreMedia
+                ignoreMedia = {
+                    mediaFilter?.ignoreMedia(mediaResource = it) ?: false
+                }
             ) ?: emptyList()
         }
     }
@@ -142,32 +144,25 @@ internal object MediaProvider {
         val mimeTypeColumn = MediaStore.Images.Media.MIME_TYPE
         val queryImageSelection = "$mimeTypeColumn like 'image/%'"
         val queryVideoSelection = "$mimeTypeColumn like 'video/%'"
-        val excludeGifSelection = "$mimeTypeColumn != 'image/gif'"
         val selection = StringBuilder()
-        val includeGif: Boolean
         when (mediaType) {
             is MediaType.MultipleMimeType -> {
-                val mimeTypes = mediaType.mimeTypes
-                val join = mimeTypes.joinToString(
-                    separator = ",",
-                    prefix = "(",
+                return mediaType.mimeTypes.joinToString(
+                    prefix = "$mimeTypeColumn in (",
                     postfix = ")",
+                    separator = ",",
                     transform = {
                         "'${it}'"
                     }
                 )
-                selection.append("$mimeTypeColumn in $join")
-                return selection.toString()
             }
 
             is MediaType.ImageOnly -> {
                 selection.append(queryImageSelection)
-                includeGif = mediaType.includeGif
             }
 
             MediaType.VideoOnly -> {
                 selection.append(queryVideoSelection)
-                includeGif = false
             }
 
             is MediaType.ImageAndVideo -> {
@@ -176,12 +171,7 @@ internal object MediaProvider {
                 selection.append(" or ")
                 selection.append(queryVideoSelection)
                 selection.append(")")
-                includeGif = mediaType.includeGif
             }
-        }
-        if (!includeGif) {
-            selection.append(" and ")
-            selection.append(excludeGifSelection)
         }
         return selection.toString()
     }
@@ -194,9 +184,7 @@ internal object MediaProvider {
                 context = context,
                 selection = selection,
                 selectionArgs = null,
-                ignoreMedia = {
-                    false
-                }
+                ignoreMedia = null
             )
             if (resources.isNullOrEmpty() || resources.size != 1) {
                 return@withContext null

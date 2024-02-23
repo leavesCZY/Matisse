@@ -44,7 +44,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     val singleMediaType: Boolean
         get() = matisse.singleMediaType
 
-    private val mediaFilter: MediaFilter
+    private val mediaFilter: MediaFilter?
         get() = matisse.mediaFilter
 
     val captureStrategy: CaptureStrategy?
@@ -130,8 +130,13 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 matisseTopBarViewState = matisseTopBarViewState.copy(
                     mediaBuckets = allBucket
                 )
-                val defaultSelected = allResources.filter {
-                    mediaFilter.selectMedia(mediaResource = it)
+                val mMediaFilter = mediaFilter
+                val defaultSelected = if (mMediaFilter == null) {
+                    emptyList()
+                } else {
+                    allResources.filter {
+                        mMediaFilter.selectMedia(mediaResource = it)
+                    }
                 }
                 selectedResources = defaultSelected
             } else {

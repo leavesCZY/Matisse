@@ -1,5 +1,6 @@
 package github.leavesczy.matisse.samples.logic
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.getValue
@@ -145,21 +146,34 @@ class MainViewModel : ViewModel() {
                 CoilZoomImageEngine()
             }
         }
-        val mediaFilter = when (mainPageViewState.filterStrategy) {
+        val ignoredMimeType = if (mainPageViewState.includeGif) {
+            emptySet()
+        } else {
+            setOf(element = "image/gif")
+        }
+        val ignoredResourceUri: Set<Uri>
+        val selectedResourceUri: Set<Uri>
+        when (mainPageViewState.filterStrategy) {
             MediaFilterStrategy.Nothing -> {
-                DefaultMediaFilter()
+                ignoredResourceUri = emptySet()
+                selectedResourceUri = emptySet()
             }
 
             MediaFilterStrategy.IgnoreSelected -> {
-                DefaultMediaFilter(ignoredResourceUri = mainPageViewState.mediaList.map { it.uri }
-                    .toSet())
+                ignoredResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
+                selectedResourceUri = emptySet()
             }
 
             MediaFilterStrategy.AttachSelected -> {
-                DefaultMediaFilter(selectedResourceUri = mainPageViewState.mediaList.map { it.uri }
-                    .toSet())
+                ignoredResourceUri = emptySet()
+                selectedResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
             }
         }
+        val mediaFilter = DefaultMediaFilter(
+            ignoredMimeType = ignoredMimeType,
+            ignoredResourceUri = ignoredResourceUri,
+            selectedResourceUri = selectedResourceUri
+        )
         return Matisse(
             maxSelectable = mainPageViewState.maxSelectable,
             mediaType = mediaType,
