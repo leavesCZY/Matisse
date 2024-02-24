@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -35,15 +36,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
+import kotlin.math.absoluteValue
 
 /**
  * @Author: leavesCZY
@@ -105,13 +109,15 @@ internal fun MatissePreviewPage(
                         .navigationBarsPadding()
                         .padding(bottom = bottomControllerHeight),
                     state = pagerState,
-                    pageSpacing = 10.dp,
+                    pageSpacing = 0.dp,
                     verticalAlignment = Alignment.CenterVertically,
                     key = { index ->
                         previewResources[index].id
                     }
                 ) { pageIndex ->
                     PreviewPage(
+                        pagerState = pagerState,
+                        pageIndex = pageIndex,
                         imageEngine = pageViewState.imageEngine,
                         mediaResource = previewResources[pageIndex],
                         requestOpenVideo = requestOpenVideo
@@ -130,28 +136,54 @@ internal fun MatissePreviewPage(
 
 @Composable
 private fun PreviewPage(
+    pagerState: PagerState,
+    pageIndex: Int,
     imageEngine: ImageEngine,
     mediaResource: MediaResource,
     requestOpenVideo: (MediaResource) -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        imageEngine.Image(mediaResource = mediaResource)
-        if (mediaResource.isVideo) {
-            Icon(
-                modifier = Modifier
-                    .clip(shape = CircleShape)
-                    .clickable {
-                        requestOpenVideo(mediaResource)
+        Box(
+            modifier = Modifier
+                .graphicsLayer {
+                    val pageOffset =
+                        ((pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction).absoluteValue
+                    val fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    lerp(
+                        start = 0.84f,
+                        stop = 1f,
+                        fraction = fraction
+                    ).also { scale ->
+                        scaleX = scale
+                        scaleY = scale
                     }
-                    .padding(all = 10.dp)
-                    .size(size = 48.dp),
-                imageVector = Icons.Filled.PlayCircleOutline,
-                tint = colorResource(id = R.color.matisse_video_icon_color),
-                contentDescription = mediaResource.name
-            )
+                    alpha = lerp(
+                        start = 0.5f,
+                        stop = 1f,
+                        fraction = fraction
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            imageEngine.Image(mediaResource = mediaResource)
+            if (mediaResource.isVideo) {
+                Icon(
+                    modifier = Modifier
+                        .clip(shape = CircleShape)
+                        .clickable {
+                            requestOpenVideo(mediaResource)
+                        }
+                        .padding(all = 10.dp)
+                        .size(size = 48.dp),
+                    imageVector = Icons.Filled.PlayCircleOutline,
+                    tint = colorResource(id = R.color.matisse_video_icon_color),
+                    contentDescription = mediaResource.name
+                )
+            }
         }
     }
 }
