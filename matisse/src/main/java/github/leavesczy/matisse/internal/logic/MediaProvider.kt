@@ -60,7 +60,7 @@ internal object MediaProvider {
         context: Context,
         selection: String?,
         selectionArgs: Array<String>?,
-        ignoreMedia: (suspend (MediaResource) -> Boolean)?
+        ignoreMedia: ((MediaResource) -> Boolean)?
     ): List<MediaResource>? {
         return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID

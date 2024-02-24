@@ -15,7 +15,7 @@ import kotlinx.parcelize.Parcelize
  * @param imageEngine 用于自定义图片加载框架
  * @param mediaType 用于设置要加载的媒体资源类型。默认仅图片
  * @param singleMediaType 用于设置是否允许同时选择图片和视频。默认允许
- * @param mediaFilter 用于定义媒体资源的筛选规则。默认不进行筛选
+ * @param mediaFilter 用于设置媒体资源的筛选规则。默认不进行筛选
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 @Stable

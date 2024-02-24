@@ -27,7 +27,7 @@ interface ImageEngine : Parcelable {
     fun Thumbnail(mediaResource: MediaResource)
 
     /**
-     * 在预览页面加载大图时调用
+     * 加载大图时调用
      */
     @Composable
     fun Image(mediaResource: MediaResource)
