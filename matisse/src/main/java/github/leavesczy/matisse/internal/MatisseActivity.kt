@@ -175,17 +175,30 @@ internal class MatisseActivity : BaseCaptureActivity() {
 
     private fun onClickSure() {
         val maxSelectable = matisseViewModel.maxSelectable
-        val selectedResourcesSize = matisseViewModel.selectedResources.size
+        val selectedResources = matisseViewModel.selectedResources
+        val selectedResourcesSize = selectedResources.size
         if (selectedResourcesSize > maxSelectable) {
             showToast(
                 message = String.format(
-                    getString(R.string.matisse_limit_the_number_of_pictures),
+                    getString(R.string.matisse_limit_the_number_of_media),
                     maxSelectable
                 )
             )
             return
         }
-        onSure(selected = matisseViewModel.selectedResources)
+        if (matisseViewModel.singleMediaType) {
+            val hasImage = selectedResources.any {
+                it.isImage
+            }
+            val hasVideo = selectedResources.any {
+                it.isVideo
+            }
+            if (hasImage && hasVideo) {
+                showToast(id = R.string.matisse_cannot_select_both_picture_and_video_at_the_same_time)
+                return
+            }
+        }
+        onSure(selected = selectedResources)
     }
 
     private fun onSure(selected: List<MediaResource>) {

@@ -135,7 +135,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     protected abstract fun takePictureCancelled()
 
-    private fun showToast(@StringRes id: Int) {
+    protected fun showToast(@StringRes id: Int) {
         showToast(message = getString(id))
     }
 
