@@ -211,7 +211,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 selectedResourcesMutable.size >= maxSelectable -> {
                     showToast(
                         message = String.format(
-                            getString(R.string.matisse_limit_the_number_of_pictures),
+                            getString(R.string.matisse_limit_the_number_of_media),
                             maxSelectable
                         )
                     )
