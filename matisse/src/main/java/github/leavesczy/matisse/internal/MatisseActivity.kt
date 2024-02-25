@@ -85,17 +85,15 @@ internal class MatisseActivity : BaseCaptureActivity() {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
         ) {
-            val mimeTypes = matisseViewModel.mediaType
-            if (mimeTypes.imageOnly) {
-                arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
-            } else if (mimeTypes.videoOnly) {
-                arrayOf(Manifest.permission.READ_MEDIA_VIDEO)
-            } else {
-                arrayOf(
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO
-                )
-            }
+            buildList {
+                val mediaType = matisseViewModel.mediaType
+                if (mediaType.hasImage) {
+                    add(element = Manifest.permission.READ_MEDIA_IMAGES)
+                }
+                if (mediaType.hasVideo) {
+                    add(element = Manifest.permission.READ_MEDIA_VIDEO)
+                }
+            }.toTypedArray()
         } else {
             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
@@ -106,15 +104,15 @@ internal class MatisseActivity : BaseCaptureActivity() {
         }
     }
 
-    private val MediaType.imageOnly: Boolean
+    private val MediaType.hasImage: Boolean
         get() {
             return when (this) {
-                is MediaType.ImageAndVideo, MediaType.VideoOnly -> {
-                    false
+                MediaType.ImageOnly, MediaType.ImageAndVideo -> {
+                    true
                 }
 
-                is MediaType.ImageOnly -> {
-                    true
+                MediaType.VideoOnly -> {
+                    false
                 }
 
                 is MediaType.MultipleMimeType -> {
@@ -125,15 +123,15 @@ internal class MatisseActivity : BaseCaptureActivity() {
             }
         }
 
-    private val MediaType.videoOnly: Boolean
+    private val MediaType.hasVideo: Boolean
         get() {
             return when (this) {
-                is MediaType.ImageAndVideo, is MediaType.ImageOnly -> {
-                    false
+                MediaType.VideoOnly, MediaType.ImageAndVideo -> {
+                    true
                 }
 
-                MediaType.VideoOnly -> {
-                    true
+                MediaType.ImageOnly -> {
+                    false
                 }
 
                 is MediaType.MultipleMimeType -> {
