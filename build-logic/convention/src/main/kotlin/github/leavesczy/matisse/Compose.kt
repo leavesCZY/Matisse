@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  * @Date: 2024/2/21 17:51
  * @Desc:
  */
-internal fun Project.configureCompose(commonExtension: CommonExtension<*, *, *, *, *>) {
+internal fun Project.configureCompose(commonExtension: CommonExtension<*, *, *, *, *, *>) {
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
     commonExtension.apply {
         buildFeatures {

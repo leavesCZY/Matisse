@@ -1,5 +1,5 @@
 [versions]
-android-plugin = "8.2.2"
+android-plugin = "8.3.0"
 kotlin-plugin = "1.9.22"
 ksp-plugin = "1.9.22-1.0.17"
 
@@ -10,7 +10,7 @@ androidx-appcompat = "1.6.1"
 androidx-activity-compose = "1.8.2"
 androidx-lifecycle-runtime-ktx = "2.7.0"
 
-androidx-compose-bom = "2024.02.01"
+androidx-compose-bom = "2024.02.02"
 androidx-compose-compiler = "1.5.10"
 
 matisse-remote = "2.0.0"
