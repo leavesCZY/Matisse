@@ -1,7 +1,7 @@
 [versions]
-android-plugin = "8.3.0"
-kotlin-plugin = "1.9.22"
-ksp-plugin = "1.9.22-1.0.17"
+android-plugin = "8.3.1"
+kotlin-plugin = "1.9.23"
+ksp-plugin = "1.9.23-1.0.19"
 
 junit-junit = "4.13.2"
 androidx-junit = "1.1.5"
@@ -10,20 +10,20 @@ androidx-appcompat = "1.6.1"
 androidx-activity-compose = "1.8.2"
 androidx-lifecycle-runtime-ktx = "2.7.0"
 
-androidx-compose-bom = "2024.02.02"
-androidx-compose-compiler = "1.5.10"
+androidx-compose-bom = "2024.03.00"
+androidx-compose-compiler = "1.5.11"
 
 matisse-remote = "2.0.0"
 matisse-publishing = "2.0.0"
 
-coil = "2.5.0"
+coil = "2.6.0"
 
 glide = "5.0.0-rc01"
 glide-compose = "1.0.0-beta01"
 
 zoom-image = "1.0.2"
 
-zoomable-image = "0.8.0"
+zoomable-image = "0.9.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
