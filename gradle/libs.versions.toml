@@ -13,8 +13,8 @@ androidx-lifecycle-runtime = "2.7.0"
 androidx-compose-bom = "2024.04.00"
 androidx-compose-compiler = "1.5.11"
 
-matisse-remote = "2.0.0"
-matisse-publishing = "2.0.0"
+matisse-remote = "2.0.1"
+matisse-publishing = "2.0.1"
 
 coil = "2.6.0"
 
