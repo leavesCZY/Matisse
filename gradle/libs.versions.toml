@@ -1,17 +1,18 @@
 [versions]
-android-plugin = "8.3.2"
+android-plugin = "8.4.0"
 kotlin-plugin = "1.9.23"
 ksp-plugin = "1.9.23-1.0.20"
 
-junit-junit = "4.13.2"
 androidx-junit = "1.1.5"
 androidx-espresso = "3.5.1"
 androidx-appcompat = "1.6.1"
-androidx-activity-compose = "1.8.2"
+androidx-activity-compose = "1.9.0"
 androidx-lifecycle-runtime = "2.7.0"
 
-androidx-compose-bom = "2024.04.00"
-androidx-compose-compiler = "1.5.11"
+androidx-compose-bom = "2024.05.00"
+androidx-compose-compiler = "1.5.13"
+
+junit = "4.13.2"
 
 matisse-remote = "2.0.1"
 matisse-publishing = "2.0.1"
@@ -23,7 +24,7 @@ glide-compose = "1.0.0-beta01"
 
 zoom-image = "1.0.2"
 
-zoomable-image = "0.9.0"
+zoomable-image = "0.11.2"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
@@ -52,7 +53,7 @@ androidx-compose-foundation = { module = "androidx.compose.foundation:foundation
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
 
-junit-junit = { module = "junit:junit", version.ref = "junit-junit" }
+junit = { module = "junit:junit", version.ref = "junit" }
 
 matisse = { module = "io.github.leavesczy:matisse", version.ref = "matisse-remote" }
 

@@ -11,7 +11,7 @@ android {
 }
 
 dependencies {
-    testImplementation(libs.junit.junit)
+    testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso)
     implementation(libs.androidx.appcompat)
@@ -25,6 +25,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.glide.compose)
     ksp(libs.glide.ksp)
+
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
     implementation(libs.coil.video)

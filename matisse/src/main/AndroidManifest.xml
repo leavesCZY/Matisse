@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <queries>
         <intent>
@@ -15,7 +16,8 @@
             android:name=".internal.MatisseActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Matisse" />
+            android:theme="@style/Theme.Matisse"
+            tools:ignore="DiscouragedApi" />
         <activity
             android:name=".internal.MatisseCaptureActivity"
             android:configChanges="orientation"
@@ -28,6 +30,7 @@
             android:exported="false"
             android:launchMode="singleTop"
             android:screenOrientation="sensor"
-            android:theme="@style/Theme.Matisse.VideoView" />
+            android:theme="@style/Theme.Matisse.VideoView"
+            tools:ignore="DiscouragedApi" />
     </application>
 </manifest>

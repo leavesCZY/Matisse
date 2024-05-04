@@ -40,7 +40,8 @@ class GlideImageEngine : ImageEngine {
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
         GlideImage(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             model = mediaResource.uri,
             contentScale = ContentScale.Crop,
             contentDescription = mediaResource.name
@@ -51,7 +52,8 @@ class GlideImageEngine : ImageEngine {
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
             GlideImage(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 model = mediaResource.uri,
                 contentScale = ContentScale.Fit,
                 contentDescription = mediaResource.name
@@ -76,7 +78,8 @@ class CoilImageEngine : ImageEngine {
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
         AsyncImage(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             model = mediaResource.uri,
             contentScale = ContentScale.Crop,
             contentDescription = mediaResource.name
@@ -87,7 +90,8 @@ class CoilImageEngine : ImageEngine {
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
             AsyncImage(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 model = mediaResource.uri,
                 contentScale = ContentScale.FillWidth,
                 contentDescription = mediaResource.name
