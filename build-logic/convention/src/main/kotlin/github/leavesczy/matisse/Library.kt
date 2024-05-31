@@ -3,7 +3,9 @@ package github.leavesczy.matisse
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /**
@@ -16,7 +18,6 @@ internal fun Project.configureAndroidLibrary(commonExtension: LibraryExtension) 
         compileSdk = 34
         defaultConfig {
             minSdk = 21
-            targetSdk = 34
         }
         buildFeatures {
             buildConfig = false
@@ -30,8 +31,8 @@ internal fun Project.configureAndroidLibrary(commonExtension: LibraryExtension) 
         }
     }
     tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_1_8.toString()
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_1_8
         }
     }
 }

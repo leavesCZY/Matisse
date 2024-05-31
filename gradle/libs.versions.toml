@@ -1,16 +1,15 @@
 [versions]
-android-plugin = "8.4.0"
-kotlin-plugin = "1.9.23"
-ksp-plugin = "1.9.23-1.0.20"
+android-plugin = "8.4.1"
+kotlin-plugin = "2.0.0"
+google-ksp-plugin = "2.0.0-1.0.21"
 
 androidx-junit = "1.1.5"
 androidx-espresso = "3.5.1"
-androidx-appcompat = "1.6.1"
+androidx-appcompat = "1.7.0"
 androidx-activity-compose = "1.9.0"
-androidx-lifecycle-runtime = "2.7.0"
+androidx-lifecycle-runtime = "2.8.1"
 
 androidx-compose-bom = "2024.05.00"
-androidx-compose-compiler = "1.5.13"
 
 junit = "4.13.2"
 
@@ -29,9 +28,12 @@ zoomable-image = "0.11.2"
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
 android-library = { id = "com.android.library", version.ref = "android-plugin" }
+
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-plugin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-plugin" }
-google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-plugin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-plugin" }
+
+google-ksp = { id = "com.google.devtools.ksp", version.ref = "google-ksp-plugin" }
 
 matisse-android-application = { id = "matisse.android.application", version = "unspecified" }
 matisse-android-library = { id = "matisse.android.library", version = "unspecified" }

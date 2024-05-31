@@ -1,12 +1,12 @@
-@file:Suppress("UnstableApiUsage")
-
 package github.leavesczy.matisse
 
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 import java.text.SimpleDateFormat
@@ -50,12 +50,12 @@ internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleE
             checkDependencies = true
         }
         compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_1_8
-            targetCompatibility = JavaVersion.VERSION_1_8
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
         }
         tasks.withType<KotlinCompile>().configureEach {
-            kotlinOptions {
-                jvmTarget = JavaVersion.VERSION_1_8.toString()
+            compilerOptions {
+                jvmTarget = JvmTarget.JVM_11
             }
         }
         signingConfigs {
