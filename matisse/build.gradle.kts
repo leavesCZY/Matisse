@@ -91,4 +91,14 @@ if (signingKeyId != null
     signing {
         sign(publishing.publications["release"])
     }
+} else {
+    afterEvaluate {
+        publishing {
+            publications {
+                create<MavenPublication>("release") {
+                    from(components["release"])
+                }
+            }
+        }
+    }
 }
