@@ -34,11 +34,9 @@ internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleE
                 useSupportLibrary = true
             }
             applicationVariants.all {
-                val variant = this
                 outputs.all {
                     if (this is ApkVariantOutputImpl) {
-                        this.outputFileName =
-                            "matisse_${variant.name}_versionCode_${variant.versionCode}_versionName_${variant.versionName}_${getApkBuildTime()}.apk"
+                        this.outputFileName = "matisse_${getApkBuildTime()}.apk"
                     }
                 }
             }

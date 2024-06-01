@@ -141,13 +141,17 @@ internal object MediaProvider {
     }
 
     private fun generateSqlSelection(mediaType: MediaType): String {
-        val mimeTypeColumn = MediaStore.Images.Media.MIME_TYPE
-        val queryImageSelection = "$mimeTypeColumn like 'image/%'"
-        val queryVideoSelection = "$mimeTypeColumn like 'video/%'"
-        val selection = StringBuilder()
-        when (mediaType) {
+        val mediaTypeColumn = MediaStore.Files.FileColumns.MEDIA_TYPE
+        val mediaTypeImageColumn = MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
+        val mediaTypeVideoColumn = MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO
+        val mimeTypeColumn = MediaStore.Files.FileColumns.MIME_TYPE
+        val queryImageSelection =
+            "$mediaTypeColumn = $mediaTypeImageColumn and $mimeTypeColumn like 'image/%'"
+        val queryVideoSelection =
+            "$mediaTypeColumn = $mediaTypeVideoColumn and $mimeTypeColumn like 'video/%'"
+        return when (mediaType) {
             is MediaType.MultipleMimeType -> {
-                return mediaType.mimeTypes.joinToString(
+                mediaType.mimeTypes.joinToString(
                     prefix = "$mimeTypeColumn in (",
                     postfix = ")",
                     separator = ",",
@@ -158,22 +162,21 @@ internal object MediaProvider {
             }
 
             is MediaType.ImageOnly -> {
-                selection.append(queryImageSelection)
+                queryImageSelection
             }
 
             MediaType.VideoOnly -> {
-                selection.append(queryVideoSelection)
+                queryVideoSelection
             }
 
             is MediaType.ImageAndVideo -> {
-                selection.append("(")
-                selection.append(queryImageSelection)
-                selection.append(" or ")
-                selection.append(queryVideoSelection)
-                selection.append(")")
+                buildString {
+                    append(queryImageSelection)
+                    append(" or ")
+                    append(queryVideoSelection)
+                }
             }
         }
-        return selection.toString()
     }
 
     suspend fun loadResources(context: Context, uri: Uri): MediaResource? {

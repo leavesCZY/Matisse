@@ -264,15 +264,15 @@ private fun MainPage(
                 onClick = imageAndVideo
             )
             Button(
-                text = "仅 图片",
+                text = "图片",
                 onClick = imageOnly
             )
             Button(
-                text = "仅 视频",
+                text = "视频",
                 onClick = videoOnly
             )
             Button(
-                text = "仅 jpg + mp4",
+                text = "jpg + mp4",
                 onClick = jpgAndMp4
             )
             Button(

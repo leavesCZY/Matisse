@@ -18,12 +18,11 @@ internal fun Project.configureCompose(commonExtension: CommonExtension<*, *, *, 
     }
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
-            freeCompilerArgs.value(
+            optIn.set(
                 setOf(
-                    "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",
-                    "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi",
-                    "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi",
-                    "-opt-in=com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi"
+                    "androidx.compose.foundation.ExperimentalFoundationApi",
+                    "androidx.compose.foundation.layout.ExperimentalLayoutApi",
+                    "com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi"
                 )
             )
         }
