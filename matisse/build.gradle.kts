@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 plugins {
     alias(libs.plugins.matisse.android.library)
     alias(libs.plugins.matisse.android.compose)
@@ -92,10 +90,10 @@ if (signingKeyId != null
         sign(publishing.publications["release"])
     }
 } else {
-    afterEvaluate {
-        publishing {
-            publications {
-                create<MavenPublication>("release") {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                afterEvaluate {
                     from(components["release"])
                 }
             }

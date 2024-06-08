@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 plugins {
     alias(libs.plugins.matisse.android.application)
     alias(libs.plugins.matisse.android.compose)

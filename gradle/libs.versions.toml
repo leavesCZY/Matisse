@@ -1,7 +1,7 @@
 [versions]
 android-plugin = "8.4.1"
 kotlin-plugin = "2.0.0"
-google-ksp-plugin = "2.0.0-1.0.21"
+google-ksp-plugin = "2.0.0-1.0.22"
 
 androidx-junit = "1.1.5"
 androidx-espresso = "3.5.1"
@@ -40,8 +40,8 @@ matisse-android-library = { id = "matisse.android.library", version = "unspecifi
 matisse-android-compose = { id = "matisse.android.compose", version = "unspecified" }
 
 [libraries]
-android-gradle = { group = "com.android.tools.build", name = "gradle", version.ref = "android-plugin" }
-kotlin-gradle = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin-plugin" }
+android-gradle = { module = "com.android.tools.build:gradle", version.ref = "android-plugin" }
+kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-plugin" }
 
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
 androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
