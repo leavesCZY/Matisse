@@ -93,16 +93,12 @@ data class FileProviderCaptureStrategy(
     }
 
     override suspend fun createImageUri(context: Context): Uri? {
-        return withContext(context = Dispatchers.Default) {
-            try {
-                val tempFile = createTempFile(context = context)
-                if (tempFile != null) {
-                    val uri = FileProvider.getUriForFile(context, authority, tempFile)
-                    uriFileMap[uri] = tempFile
-                    return@withContext uri
-                }
-            } catch (e: Throwable) {
-                e.printStackTrace()
+        return withContext(context = Dispatchers.Main.immediate) {
+            val tempFile = createTempFile(context = context)
+            if (tempFile != null) {
+                val uri = FileProvider.getUriForFile(context, authority, tempFile)
+                uriFileMap[uri] = tempFile
+                return@withContext uri
             }
             return@withContext null
         }
@@ -121,7 +117,7 @@ data class FileProviderCaptureStrategy(
     }
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
-        return withContext(context = Dispatchers.Default) {
+        return withContext(context = Dispatchers.Main.immediate) {
             val imageFile = uriFileMap[imageUri]!!
             uriFileMap.remove(key = imageUri)
             val imageFilePath = imageFile.absolutePath
@@ -139,12 +135,14 @@ data class FileProviderCaptureStrategy(
     }
 
     override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
-        withContext(context = Dispatchers.IO) {
+        withContext(context = Dispatchers.Main.immediate) {
             val imageFile = uriFileMap[imageUri]
-            if (imageFile != null && imageFile.exists()) {
-                imageFile.delete()
-            }
             uriFileMap.remove(key = imageUri)
+            withContext(context = Dispatchers.IO) {
+                if (imageFile != null && imageFile.exists()) {
+                    imageFile.delete()
+                }
+            }
         }
     }
 
