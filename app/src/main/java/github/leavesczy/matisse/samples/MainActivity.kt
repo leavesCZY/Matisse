@@ -184,6 +184,17 @@ private fun MainPage(
                 }
             }
             OptionDivider()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Title(text = "fastSelect")
+                Checkbox(
+                    checked = mainPageViewState.fastSelect,
+                    onCheckedChange = mainPageViewState.onFastSelectChanged
+                )
+            }
+            OptionDivider()
             Title(text = "ImageEngine")
             FlowRow(
                 maxItemsInEachRow = 2

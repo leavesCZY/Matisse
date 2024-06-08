@@ -35,6 +35,7 @@ class MainViewModel : ViewModel() {
     var mainPageViewState by mutableStateOf(
         value = MainPageViewState(
             maxSelectable = 3,
+            fastSelect = false,
             singleMediaType = false,
             includeGif = true,
             imageEngine = MediaImageEngine.Glide,
@@ -43,6 +44,7 @@ class MainViewModel : ViewModel() {
             capturePreferencesCustom = false,
             mediaList = emptyList(),
             onMaxSelectableChanged = ::onMaxSelectableChanged,
+            onFastSelectChanged = ::onFastSelectChanged,
             onSingleMediaTypeChanged = ::onSingleMediaTypeChanged,
             onIncludeGifChanged = ::onIncludeGifChanged,
             onImageEngineChanged = ::onImageEngineChanged,
@@ -55,7 +57,27 @@ class MainViewModel : ViewModel() {
         private set
 
     private fun onMaxSelectableChanged(maxSelectable: Int) {
-        mainPageViewState = mainPageViewState.copy(maxSelectable = maxSelectable)
+        val fastSelect = if (mainPageViewState.fastSelect) {
+            maxSelectable == 1
+        } else {
+            false
+        }
+        mainPageViewState = mainPageViewState.copy(
+            maxSelectable = maxSelectable,
+            fastSelect = fastSelect
+        )
+    }
+
+    private fun onFastSelectChanged(fastSelect: Boolean) {
+        val maxSelectable = if (fastSelect) {
+            1
+        } else {
+            mainPageViewState.maxSelectable
+        }
+        mainPageViewState = mainPageViewState.copy(
+            maxSelectable = maxSelectable,
+            fastSelect = fastSelect
+        )
     }
 
     private fun onSingleMediaTypeChanged(singleType: Boolean) {
@@ -176,6 +198,7 @@ class MainViewModel : ViewModel() {
         )
         return Matisse(
             maxSelectable = mainPageViewState.maxSelectable,
+            fastSelect = mainPageViewState.fastSelect,
             mediaType = mediaType,
             mediaFilter = mediaFilter,
             imageEngine = imageEngine,

@@ -35,6 +35,9 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     val maxSelectable: Int
         get() = matisse.maxSelectable
 
+    val fastSelect: Boolean
+        get() = matisse.fastSelect
+
     private val imageEngine: ImageEngine
         get() = matisse.imageEngine
 
@@ -131,7 +134,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                     mediaBuckets = allBucket
                 )
                 val mMediaFilter = mediaFilter
-                val defaultSelected = if (mMediaFilter == null) {
+                val defaultSelected = if (mMediaFilter == null || fastSelect) {
                     emptyList()
                 } else {
                     allResources.filter {

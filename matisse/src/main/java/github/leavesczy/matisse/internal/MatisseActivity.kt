@@ -68,7 +68,8 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 MatissePage(
                     matisseViewModel = matisseViewModel,
                     onRequestTakePicture = ::requestTakePicture,
-                    onClickSure = ::onClickSure
+                    onClickSure = ::onClickSure,
+                    selectMediaInFastSelectMode = ::selectMediaInFastSelectMode
                 )
                 MatissePreviewPage(
                     pageViewState = matisseViewModel.matissePreviewPageViewState,
@@ -199,6 +200,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
             }
         }
         onSure(selected = selectedResources)
+    }
+
+    private fun selectMediaInFastSelectMode(mediaResource: MediaResource) {
+        onSure(selected = listOf(element = mediaResource))
     }
 
     private fun onSure(selected: List<MediaResource>) {

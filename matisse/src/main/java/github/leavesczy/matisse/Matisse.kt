@@ -13,6 +13,7 @@ import kotlinx.parcelize.Parcelize
 /**
  * @param maxSelectable 用于设置最多能选择几个媒体资源
  * @param imageEngine 用于自定义图片加载框架
+ * @param fastSelect 用于设置是否移除预览和确认选中的过程。值为 true 时 maxSelectable 必须为 1
  * @param mediaType 用于设置要加载的媒体资源类型。默认仅图片
  * @param singleMediaType 用于设置是否允许同时选择图片和视频。默认允许
  * @param mediaFilter 用于设置媒体资源的筛选规则。默认不进行筛选
@@ -23,6 +24,7 @@ import kotlinx.parcelize.Parcelize
 data class Matisse(
     val maxSelectable: Int,
     val imageEngine: ImageEngine,
+    val fastSelect: Boolean = false,
     val mediaType: MediaType = MediaType.ImageOnly,
     val singleMediaType: Boolean = false,
     val mediaFilter: MediaFilter? = null,
@@ -30,7 +32,12 @@ data class Matisse(
 ) : Parcelable {
 
     init {
-        assert(value = maxSelectable >= 1)
+        if (maxSelectable < 1) {
+            throw IllegalArgumentException("maxSelectable must be greater than or equal to 1")
+        }
+        if (maxSelectable > 1 && fastSelect) {
+            throw IllegalArgumentException("fastSelect must be false")
+        }
     }
 
 }
@@ -57,7 +64,9 @@ sealed interface MediaType : Parcelable {
     data class MultipleMimeType(val mimeTypes: Set<String>) : MediaType {
 
         init {
-            assert(value = mimeTypes.isNotEmpty())
+            if (mimeTypes.isEmpty()) {
+                throw IllegalArgumentException("mimeTypes cannot be empty")
+            }
         }
 
     }
