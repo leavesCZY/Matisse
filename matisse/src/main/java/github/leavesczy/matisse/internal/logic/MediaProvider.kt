@@ -93,7 +93,11 @@ internal object MediaProvider {
                     while (cursor.moveToNext()) {
                         val id = cursor.getLong(idColumn, Long.MAX_VALUE)
                         val data = cursor.getString(dataColumn, "")
-                        if (id == Long.MAX_VALUE || data.isBlank() || !File(data).exists()) {
+                        if (id == Long.MAX_VALUE || data.isBlank()) {
+                            continue
+                        }
+                        val file = File(data)
+                        if (!file.exists() || !file.isFile || file.length() <= 0) {
                             continue
                         }
                         val name = cursor.getString(displayNameColumn, "")
