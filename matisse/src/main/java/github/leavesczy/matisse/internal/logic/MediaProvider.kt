@@ -65,6 +65,7 @@ internal object MediaProvider {
         return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID
             val dataColumn = MediaStore.MediaColumns.DATA
+            val sizeColumn = MediaStore.MediaColumns.SIZE
             val displayNameColumn = MediaStore.MediaColumns.DISPLAY_NAME
             val mineTypeColumn = MediaStore.MediaColumns.MIME_TYPE
             val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
@@ -73,6 +74,7 @@ internal object MediaProvider {
             val projection = arrayOf(
                 idColumn,
                 dataColumn,
+                sizeColumn,
                 displayNameColumn,
                 mineTypeColumn,
                 bucketIdColumn,
@@ -93,11 +95,12 @@ internal object MediaProvider {
                     while (cursor.moveToNext()) {
                         val id = cursor.getLong(idColumn, Long.MAX_VALUE)
                         val data = cursor.getString(dataColumn, "")
-                        if (id == Long.MAX_VALUE || data.isBlank()) {
+                        val size = cursor.getLong(sizeColumn, 0)
+                        if (id == Long.MAX_VALUE || data.isBlank() || size <= 0) {
                             continue
                         }
                         val file = File(data)
-                        if (!file.exists() || !file.isFile || file.length() <= 0) {
+                        if (!file.exists() || !file.isFile) {
                             continue
                         }
                         val name = cursor.getString(displayNameColumn, "")
