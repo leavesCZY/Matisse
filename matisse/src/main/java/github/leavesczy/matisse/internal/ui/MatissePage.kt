@@ -1,7 +1,6 @@
 package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.unit.dp
@@ -129,7 +130,7 @@ private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
-            .background(color = colorResource(id = R.color.matisse_image_item_background_color))
+            .background(color = colorResource(id = R.color.matisse_media_item_background_color))
             .clickable(onClick = onClick)
     ) {
         Icon(
@@ -164,28 +165,40 @@ private fun LazyGridItemScope.MediaItem(
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
-            .background(color = colorResource(id = R.color.matisse_image_item_background_color))
-            .then(
-                other = if (mediaPlacement.isSelected) {
-                    Modifier.border(
-                        width = 3.dp,
-                        color = colorResource(id = R.color.matisse_image_item_border_color_when_selected),
-                        shape = RoundedCornerShape(size = 4.dp)
-                    )
-                } else {
-                    Modifier
-                }
-            )
+            .background(color = colorResource(id = R.color.matisse_media_item_background_color))
             .clickable {
                 onClickMedia(mediaResource)
             },
         contentAlignment = Alignment.Center
     ) {
-        imageEngine.Thumbnail(mediaResource = mediaResource)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(
+                    other = if (mediaPlacement.isSelected) {
+                        Modifier.scrim(color = colorResource(id = R.color.matisse_media_item_scrim_color_when_selected))
+                    } else {
+                        Modifier
+                    }
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            imageEngine.Thumbnail(mediaResource = mediaResource)
+            if (mediaResource.isVideo) {
+                Icon(
+                    modifier = Modifier
+                        .align(alignment = Alignment.Center)
+                        .size(size = 32.dp),
+                    imageVector = Icons.Filled.PlayCircleOutline,
+                    tint = colorResource(id = R.color.matisse_video_icon_color),
+                    contentDescription = mediaResource.name
+                )
+            }
+        }
         MatisseCheckbox(
             modifier = Modifier
                 .align(alignment = Alignment.TopEnd)
-                .padding(all = 4.dp),
+                .padding(all = 5.dp),
             text = mediaPlacement.position,
             checked = mediaPlacement.isSelected,
             enabled = mediaPlacement.enabled,
@@ -193,15 +206,12 @@ private fun LazyGridItemScope.MediaItem(
                 onClickCheckBox(mediaResource)
             }
         )
-        if (mediaResource.isVideo) {
-            Icon(
-                modifier = Modifier
-                    .align(alignment = Alignment.Center)
-                    .size(size = 32.dp),
-                imageVector = Icons.Filled.PlayCircleOutline,
-                tint = colorResource(id = R.color.matisse_video_icon_color),
-                contentDescription = mediaResource.name
-            )
-        }
+    }
+}
+
+private fun Modifier.scrim(color: Color): Modifier {
+    return drawWithContent {
+        drawContent()
+        drawRect(color = color)
     }
 }

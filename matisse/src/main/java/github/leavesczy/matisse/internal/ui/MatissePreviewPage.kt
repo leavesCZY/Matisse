@@ -230,7 +230,8 @@ private fun BoxScope.BottomController(
             color = colorResource(id = R.color.matisse_back_text_color)
         )
         MatisseCheckbox(
-            modifier = Modifier.align(alignment = Alignment.Center),
+            modifier = Modifier
+                .align(alignment = Alignment.Center),
             text = if (imagePosition > -1) {
                 (imagePosition + 1).toString()
             } else {
