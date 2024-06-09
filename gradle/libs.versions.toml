@@ -12,8 +12,8 @@ androidx-compose-bom = "2024.05.00"
 
 junit = "4.13.2"
 
-matisse-remote = "2.0.1"
-matisse-publishing = "2.0.1"
+matisse-remote = "2.1.0"
+matisse-publishing = "2.1.0"
 
 coil = "2.6.0"
 

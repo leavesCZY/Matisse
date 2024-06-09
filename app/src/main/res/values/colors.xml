@@ -23,8 +23,8 @@
     <color name="matisse_preview_page_background_color">#FF22202A</color>
     <color name="matisse_preview_page_bottom_navigation_bar_background_color">#FF2B2A34</color>
     <color name="matisse_preview_page_back_text_color">#FFFFFFFF</color>
-    <color name="matisse_preview_page_sure_text_color">#EF5350</color>
-    <color name="matisse_preview_page_sure_text_color_if_disable">#FFEE58</color>
+    <color name="matisse_preview_page_sure_text_color">#FF03A9F4</color>
+    <color name="matisse_preview_page_sure_text_color_if_disable">#6003A9F4</color>
     <color name="matisse_check_box_circle_color">#FFFFFFFF</color>
     <color name="matisse_check_box_circle_color_if_disable">#60FFFFFF</color>
     <color name="matisse_check_box_circle_fill_color">#FF03A9F4</color>
