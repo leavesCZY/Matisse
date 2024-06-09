@@ -4,7 +4,3 @@ local.properties
 .idea
 .kotlin
 /build
-/app/release/
-/app/mapping.txt
-/app/seeds.txt
-/app/usage.txt

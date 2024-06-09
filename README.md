@@ -15,4 +15,4 @@
 
 |                                              日间主题                                              |                                              夜间主题                                              |                                             自定义主题                                              |
 |:----------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------:|
-| ![](https://github.com/leavesCZY/Matisse/assets/30774063/4cc36e0f-3cdd-4833-ab14-0ff3f6a8603d) | ![](https://github.com/leavesCZY/Matisse/assets/30774063/80f43542-9bea-4bd0-9a16-52af2ac20b25) | ![](https://github.com/leavesCZY/Matisse/assets/30774063/3281f345-1f61-4f9d-9c7d-bbbe43545aca) |
+| ![](https://github.com/leavesCZY/Matisse/assets/30774063/4cc36e0f-3cdd-4833-ab14-0ff3f6a8603d) | ![](https://github.com/leavesCZY/Matisse/assets/30774063/80f43542-9bea-4bd0-9a16-52af2ac20b25) | ![](https://github.com/leavesCZY/Matisse/assets/30774063/b187f39a-07e5-44a6-ab4f-6622b28553d6) |

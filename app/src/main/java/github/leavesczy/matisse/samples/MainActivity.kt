@@ -51,7 +51,7 @@ import github.leavesczy.matisse.samples.logic.MainViewModel
 import github.leavesczy.matisse.samples.logic.MediaCaptureStrategy
 import github.leavesczy.matisse.samples.logic.MediaFilterStrategy
 import github.leavesczy.matisse.samples.logic.MediaImageEngine
-import github.leavesczy.matisse.samples.ui.theme.MatisseTheme
+import github.leavesczy.matisse.samples.theme.MatisseTheme
 
 /**
  * @Author: leavesCZY

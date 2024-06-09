@@ -1,7 +1,6 @@
 [versions]
 android-plugin = "8.4.1"
 kotlin-plugin = "2.0.0"
-google-ksp-plugin = "2.0.0-1.0.22"
 
 androidx-junit = "1.1.5"
 androidx-espresso = "3.5.1"
@@ -32,8 +31,6 @@ android-library = { id = "com.android.library", version.ref = "android-plugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-plugin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-plugin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-plugin" }
-
-google-ksp = { id = "com.google.devtools.ksp", version.ref = "google-ksp-plugin" }
 
 matisse-android-application = { id = "matisse.android.application", version = "unspecified" }
 matisse-android-library = { id = "matisse.android.library", version = "unspecified" }

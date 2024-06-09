@@ -1,14 +1,13 @@
 <resources>
     <string name="app_name">Matisse</string>
     <!-- 自定义文本 -->
-    <string name="matisse_default_bucket_name">全部</string>
+    <string name="matisse_default_bucket_name">所有图片</string>
     <string name="matisse_read_media_permission_denied">请授予相册访问权限后重试 ~</string>
     <string name="matisse_write_external_storage_permission_denied">请授予存储写入权限后重试 ~</string>
     <string name="matisse_camera_permission_denied">请授予拍照权限后重试 ~</string>
     <string name="matisse_limit_the_number_of_media">最多只能选择 %d 个图片或视频 ~</string>
-    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">不能同时选择图片和视频 ~</string>
     <string name="matisse_no_apps_support_take_picture">没有可用于拍照的应用 ~</string>
-    <string name="matisse_preview">预览</string>
+    <string name="matisse_preview">点击预览</string>
     <string name="matisse_sure">确定(%d/%d)</string>
     <string name="matisse_back">返回</string>
 </resources>

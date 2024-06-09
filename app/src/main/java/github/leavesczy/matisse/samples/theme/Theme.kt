@@ -1,4 +1,4 @@
-package github.leavesczy.matisse.samples.ui.theme
+package github.leavesczy.matisse.samples.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

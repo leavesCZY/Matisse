@@ -21,9 +21,3 @@
 #-renamesourcefileattribute SourceFile
 
 -optimizationpasses 10
--packageobfuscationdictionary dictionary.txt
--classobfuscationdictionary dictionary.txt
--obfuscationdictionary dictionary.txt
--printseeds seeds.txt
--printusage usage.txt
--printmapping mapping.txt

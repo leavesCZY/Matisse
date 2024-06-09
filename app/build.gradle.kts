@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.matisse.android.application)
     alias(libs.plugins.matisse.android.compose)
-    alias(libs.plugins.google.ksp)
 }
 
 android {
@@ -20,9 +19,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
 
-    implementation(libs.glide)
     implementation(libs.glide.compose)
-    ksp(libs.glide.ksp)
 
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
