@@ -143,7 +143,7 @@ private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
-            .background(color = colorResource(id = R.color.matisse_media_item_background_color))
+            .background(color = colorResource(id = R.color.matisse_capture_item_background_color))
             .clickable(onClick = onClick)
     ) {
         Icon(
@@ -151,7 +151,7 @@ private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
                 .fillMaxSize(fraction = 0.5f)
                 .align(alignment = Alignment.Center),
             imageVector = Icons.Filled.PhotoCamera,
-            tint = colorResource(id = R.color.matisse_capture_icon_color),
+            tint = colorResource(id = R.color.matisse_capture_item_icon_color),
             contentDescription = "Capture"
         )
     }

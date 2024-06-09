@@ -6,11 +6,10 @@
     <color name="matisse_status_bar_color">#FF2B2A34</color>
     <color name="matisse_navigation_bar_color">#FF2B2A34</color>
     <color name="matisse_main_page_background_color">#FF22202A</color>
-    <color name="matisse_preview_page_background_color">#FF22202A</color>
-    <color name="matisse_preview_page_controller_background_color">#FF2B2A34</color>
     <color name="matisse_media_item_background_color">#CCFFFFFF</color>
     <color name="matisse_media_item_scrim_color_when_selected">#80000000</color>
-    <color name="matisse_capture_icon_color">#FFFFFFFF</color>
+    <color name="matisse_capture_item_background_color">#CCFFFFFF</color>
+    <color name="matisse_capture_item_icon_color">#FFFFFFFF</color>
     <color name="matisse_top_bar_background_color">#FF2B2A34</color>
     <color name="matisse_top_bar_icon_color">#FFFFFFFF</color>
     <color name="matisse_top_bar_text_color">#FFFFFFFF</color>
@@ -21,7 +20,11 @@
     <color name="matisse_preview_text_color_if_disable">#99FFFFFF</color>
     <color name="matisse_sure_text_color">#FFFFFFFF</color>
     <color name="matisse_sure_text_color_if_disable">#99FFFFFF</color>
-    <color name="matisse_back_text_color">#FFFFFFFF</color>
+    <color name="matisse_preview_page_background_color">#FF22202A</color>
+    <color name="matisse_preview_page_bottom_navigation_bar_background_color">#FF2B2A34</color>
+    <color name="matisse_preview_page_back_text_color">#FFFFFFFF</color>
+    <color name="matisse_preview_page_sure_text_color">#FFFFFFFF</color>
+    <color name="matisse_preview_page_sure_text_color_if_disable">#99FFFFFF</color>
     <color name="matisse_check_box_circle_color">#FFFFFFFF</color>
     <color name="matisse_check_box_circle_color_if_disable">#80FFFFFF</color>
     <color name="matisse_check_box_circle_fill_color">#FF009688</color>

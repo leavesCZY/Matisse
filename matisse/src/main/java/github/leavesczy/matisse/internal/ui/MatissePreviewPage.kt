@@ -212,7 +212,7 @@ private fun BoxScope.BottomController(
     Box(
         modifier = Modifier
             .align(alignment = Alignment.BottomCenter)
-            .background(color = colorResource(id = R.color.matisse_preview_page_controller_background_color))
+            .background(color = colorResource(id = R.color.matisse_preview_page_bottom_navigation_bar_background_color))
             .navigationBarsPadding()
             .fillMaxWidth()
             .height(height = bottomControllerHeight)
@@ -225,9 +225,9 @@ private fun BoxScope.BottomController(
                 .padding(horizontal = 24.dp)
                 .wrapContentSize(align = Alignment.Center),
             text = stringResource(id = R.string.matisse_back),
+            color = colorResource(id = R.color.matisse_preview_page_back_text_color),
             textAlign = TextAlign.Center,
-            fontSize = 16.sp,
-            color = colorResource(id = R.color.matisse_back_text_color)
+            fontSize = 16.sp
         )
         MatisseCheckbox(
             modifier = Modifier
@@ -257,15 +257,15 @@ private fun BoxScope.BottomController(
                 .padding(horizontal = 24.dp)
                 .wrapContentSize(align = Alignment.Center),
             text = pageViewState.sureButtonText,
-            textAlign = TextAlign.Center,
-            fontSize = 16.sp,
             color = colorResource(
                 id = if (pageViewState.sureButtonClickable) {
-                    R.color.matisse_sure_text_color
+                    R.color.matisse_preview_page_sure_text_color
                 } else {
-                    R.color.matisse_sure_text_color_if_disable
+                    R.color.matisse_preview_page_sure_text_color_if_disable
                 }
-            )
+            ),
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp
         )
     }
 }

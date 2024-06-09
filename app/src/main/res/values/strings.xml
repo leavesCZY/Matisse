@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Matisse</string>
-    <!-- 自定义文本 -->
     <string name="matisse_default_bucket_name">所有图片</string>
     <string name="matisse_read_media_permission_denied">请授予相册访问权限后重试 ~</string>
     <string name="matisse_write_external_storage_permission_denied">请授予存储写入权限后重试 ~</string>
