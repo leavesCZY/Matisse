@@ -9,8 +9,8 @@ androidx-activity-compose = "1.9.0"
 androidx-lifecycle-runtime = "2.8.2"
 androidx-compose-bom = "2024.06.00"
 
-matisse-remote = "2.1.0"
-matisse-publishing = "2.1.0"
+matisse-remote = "0.0.1"
+matisse-publishing = "0.0.1"
 
 junit = "4.13.2"
 coil = "2.6.0"
