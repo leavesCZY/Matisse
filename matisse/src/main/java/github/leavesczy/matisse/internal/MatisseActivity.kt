@@ -6,10 +6,14 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -22,11 +26,20 @@ import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.VideoMimeTypePrefix
+import github.leavesczy.matisse.internal.custom.PermissionAbout
+import github.leavesczy.matisse.internal.custom.SettingsActivityResultContract
+import github.leavesczy.matisse.internal.custom.checkPermissionCustom
+import github.leavesczy.matisse.internal.custom.checkPermissionResultCustom
+import github.leavesczy.matisse.internal.custom.requestReadMediaPermissionCustom
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.ui.MatisseTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 
 /**
  * @Author: leavesCZY
@@ -34,6 +47,19 @@ import github.leavesczy.matisse.internal.ui.MatisseTheme
  * @Desc:
  */
 internal class MatisseActivity : BaseCaptureActivity() {
+
+    private val showPermissionDialog: MutableState<Boolean> = mutableStateOf(false)
+    private val permissionState: MutableState<String> = mutableStateOf("")
+    private var scope = CoroutineScope(Dispatchers.Default)
+    private val requestReadMediaPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+            if (scope.isActive) {
+                scope.cancel()
+            }
+            showPermissionDialog.value = false
+            matisseViewModel.requestReadMediaPermissionResult(granted = result.any { it.value })
+            permissionState.value = checkPermissionCustom(this)
+        }
 
     override val captureStrategy: CaptureStrategy
         get() = requireCaptureStrategy()
@@ -50,14 +76,22 @@ internal class MatisseActivity : BaseCaptureActivity() {
         }
     })
 
-    private val requestReadMediaPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
-            matisseViewModel.requestReadMediaPermissionResult(granted = result.all { it.value })
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val context = LocalContext.current
+            // 13,14,12 denied
+            // 使用契约启动设置界面并处理结果
+            val launcher = rememberLauncherForActivityResult(
+                contract = SettingsActivityResultContract(),
+                onResult = { result ->
+                    // 用户已从设置界面返回
+                    // 在这里处理返回事件
+                    permissionState.value = checkPermissionCustom(context)
+                    requestReadMediaPermissionCustom()
+                }
+            )
+
             DisposableEffect(key1 = matisseViewModel.matissePreviewPageViewState.visible) {
                 setSystemBarUi(previewPageVisible = matisseViewModel.matissePreviewPageViewState.visible)
                 onDispose {
@@ -69,7 +103,21 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     matisseViewModel = matisseViewModel,
                     onRequestTakePicture = ::requestTakePicture,
                     onClickSure = ::onClickSure,
-                    selectMediaInFastSelectMode = ::selectMediaInFastSelectMode
+                    selectMediaInFastSelectMode = ::selectMediaInFastSelectMode,
+                    customContent = {innerPadding->
+                        PermissionAbout(
+                            innerPadding=innerPadding,
+                            requestPermission = ::requestReadMediaPermissionCustom,
+                            showPermissionDialog = showPermissionDialog.value,
+                            permissionState = permissionState.value,
+                            onClick = {
+                                launcher.launch(null)
+                            },
+                            onDismissPermissionDialog = {
+                                showPermissionDialog.value = false
+                            }
+                        )
+                    }
                 )
                 MatissePreviewPage(
                     pageViewState = matisseViewModel.matissePreviewPageViewState,
@@ -79,7 +127,30 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 MatisseLoadingDialog(visible = matisseViewModel.loadingDialogVisible)
             }
         }
-        requestReadMediaPermission()
+    }
+
+    private fun requestReadMediaPermissionCustom() {
+        requestReadMediaPermissionCustom(
+            matisseViewModel.mediaType,
+            applicationInfo = applicationInfo,
+            checkPermissionResult = { permissions: Array<String> ->
+                checkPermissionResultCustom(
+                    context = this,
+                    requestReadMediaPermissionLauncher = requestReadMediaPermissionLauncher,
+                    onPermissionAllow = {
+                        matisseViewModel.requestReadMediaPermissionResult(
+                            true
+                        )
+                    },
+                    scope = scope,
+                    onScopeIsNotActive = { scope = CoroutineScope(Dispatchers.Default) },
+                    permissions = permissions,
+                    onRequestDenied = {
+                        showPermissionDialog.value = true
+                    }
+                )
+            }
+        )
     }
 
     private fun requestReadMediaPermission() {

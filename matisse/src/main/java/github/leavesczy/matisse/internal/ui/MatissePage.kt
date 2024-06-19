@@ -47,8 +47,10 @@ internal fun MatissePage(
     matisseViewModel: MatisseViewModel,
     onRequestTakePicture: () -> Unit,
     onClickSure: () -> Unit,
-    selectMediaInFastSelectMode: (MediaResource) -> Unit
+    selectMediaInFastSelectMode: (MediaResource) -> Unit,
+    customContent: @Composable  (PaddingValues)  -> Unit
 ) {
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -132,7 +134,11 @@ internal fun MatissePage(
                 }
             )
         }
+
+        customContent(innerPadding)
     }
+
+
 }
 
 @Composable
