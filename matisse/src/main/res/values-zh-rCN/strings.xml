@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dialog_permission_photo_storage">照片存储权限</string>
+    <string name="dialog_permission_above_12">%s想要访问您的照片，以便将照片保存并上传到应用。此应用不会自动将您的任何照片或视频上传到云端，也不会访问您未选择的内容。如果您拒绝照片权限，您将无法选择照片进行编辑。</string>
+    <string name="permission_bottom_button">更新权限</string>
+    <string name="permission_bottom_14">%s目前被允许访问选定的照片。要获得完整功能，请考虑允许访问所有照片。</string>
+    <string name="permission_bottom_denied">请允许%s访问和选择您的照片以增强您的用户体验。</string>
+    <string name="matisse_default_bucket_name">全部</string>
+    <string name="matisse_read_media_permission_denied">请授予相册访问权限后重试</string>
+    <string name="matisse_write_external_storage_permission_denied">请授予存储写入权限后重试</string>
+    <string name="matisse_camera_permission_denied">请授予拍照权限后重试</string>
+    <string name="matisse_limit_the_number_of_media">最多只能选择 %d 个图片或视频</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">不能同时选择图片和视频</string>
+    <string name="matisse_no_apps_support_take_picture">没有可用于拍照的应用</string>
+    <string name="matisse_preview">预览</string>
+    <string name="matisse_sure">确定</string>
+    <string name="matisse_back">返回</string>
+</resources>

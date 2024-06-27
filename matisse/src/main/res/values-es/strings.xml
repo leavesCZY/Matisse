@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">XXX</string>
+    <string name="dialog_permission_photo_storage">Permisos de almacenamiento de fotos</string>
+    <string name="dialog_permission_above_12">A %s le gustaría acceder a tus fotos para poder guardarlas y cargarlas en la aplicación. Esta aplicación no cargará automáticamente ninguna de tus fotos o videos en la nube, ni accederá al contenido que no hayas seleccionado. Si niega los permisos para fotografías, no podrá seleccionar fotografías para editarlas.</string>
+    <string name="permission_bottom_button">Actualizar permisos</string>
+    <string name="permission_bottom_14">Actualmente, %s tiene permitido el acceso a fotos seleccionadas. Para una funcionalidad completa, considere permitir el acceso a todas las fotos.</string>
+    <string name="permission_bottom_denied">Por favor permita %s accede y selecciona tus fotos para mejorar tu experiencia de usuario.</string>
+    <string name="matisse_default_bucket_name">Todos</string>
+    <string name="matisse_read_media_permission_denied">Vuelva a intentarlo después de conceder acceso al álbum</string>
+    <string name="matisse_write_external_storage_permission_denied">Reintentar después de conceder permiso de escritura en memoria</string>
+    <string name="matisse_camera_permission_denied">Por favor, conceda permiso para tomar fotos y vuelva a intentarlo</string>
+    <string name="matisse_limit_the_number_of_media">Sólo se pueden seleccionar %d imágenes o vídeos</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">No se pueden seleccionar fotos y vídeos al mismo tiempo</string>
+    <string name="matisse_no_apps_support_take_picture">No hay aplicación para hacer fotos</string>
+    <string name="matisse_preview">Vista previa</string>
+    <string name="matisse_sure">Seguro</string>
+    <string name="matisse_back">Atrás</string>
+</resources>

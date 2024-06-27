@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dialog_permission_photo_storage">照片儲存權限</string>
+    <string name="dialog_permission_above_12">%s想要存取您的照片，以便將照片儲存並上傳到應用程式。此應用程式不會自動將您的任何照片或影片上傳到雲端，也不會存取您未選擇的內容。如果您拒絕照片權限，您將無法選擇照片進行編輯。</string>
+    <string name="permission_bottom_button">更新權限</string>
+    <string name="permission_bottom_14">%s目前被允許存取選定的照片。要獲得完整功能，請考慮允許存取所有照片。</string>
+    <string name="permission_bottom_denied">請允許%s存取和選擇您的照片以增強您的用戶體驗。</string>
+    <string name="matisse_default_bucket_name">全部</string>
+    <string name="matisse_read_media_permission_denied">請授予相簿存取權限後重試</string>
+    <string name="matisse_write_external_storage_permission_denied">請授予儲存寫入權限後重試</string>
+    <string name="matisse_camera_permission_denied">請授予拍照權限後重試</string>
+    <string name="matisse_limit_the_number_of_media">最多只能選擇 %d 個圖片或視頻</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">不能同時選擇圖片和視頻</string>
+    <string name="matisse_no_apps_support_take_picture">沒有可用於拍照的應用</string>
+    <string name="matisse_preview">預覽</string>
+    <string name="matisse_sure">確定</string>
+    <string name="matisse_back">返回</string>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">XXX</string>
+    <string name="dialog_permission_photo_storage">Autorisations de stockage de photos</string>
+    <string name="dialog_permission_above_12">%s souhaite accéder à vos photos afin qu\'elles puissent être enregistrées et téléchargées sur l\'application. Cette application ne téléchargera automatiquement aucune de vos photos ou vidéos sur le cloud et n\'accédera pas non plus au contenu que vous n\'avez pas sélectionné. Si vous refusez les autorisations de photo, vous ne pourrez pas sélectionner de photos à modifier.</string>
+    <string name="permission_bottom_button">Mettre à jour les autorisations</string>
+    <string name="permission_bottom_14">%s est actuellement autorisé à accéder aux photos sélectionnées. Pour bénéficier de toutes les fonctionnalités, envisagez d\'autoriser l\'accès à toutes les photos.</string>
+    <string name="permission_bottom_denied">Merci d\'autoriser %s accédez et sélectionnez vos photos pour améliorer votre expérience utilisateur.</string>
+    <string name="matisse_default_bucket_name">Tous</string>
+    <string name="matisse_read_media_permission_denied">Réessayer après avoir accordé l\'accès à l\'album</string>
+    <string name="matisse_write_external_storage_permission_denied">Réessayer après avoir accordé l\'autorisation d\'écrire dans la mémoire</string>
+    <string name="matisse_camera_permission_denied">Veuillez accorder l\'autorisation de prendre des photos et réessayer</string>
+    <string name="matisse_limit_the_number_of_media">Seules %d images ou vidéos peuvent être sélectionnées</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">Impossible de sélectionner des photos et des vidéos en même temps</string>
+    <string name="matisse_no_apps_support_take_picture">Il n\'y a pas d\'application pour prendre des photos</string>
+    <string name="matisse_preview">Aperçu</string>
+    <string name="matisse_sure">Confirmer</string>
+    <string name="matisse_back">Retour</string>
+</resources>

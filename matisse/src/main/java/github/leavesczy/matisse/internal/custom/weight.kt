@@ -1,13 +1,6 @@
 package github.leavesczy.matisse.internal.custom
 
-import android.Manifest.permission.READ_EXTERNAL_STORAGE
-import android.Manifest.permission.READ_MEDIA_IMAGES
-import android.Manifest.permission.READ_MEDIA_VIDEO
-import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,12 +19,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.content.ContextCompat
+import github.leavesczy.matisse.R
 
 
 @Composable
@@ -61,7 +55,7 @@ private fun PermissionBottom(text: String, onClick: () -> Unit) {
             modifier = Modifier.align(Alignment.End),
         ) {
             Text(
-                text = "Update Permission",
+                text = stringResource(R.string.permission_bottom_button),
                 fontSize = 10.sp,
                 color = LocalContentColor.current
             )
@@ -91,14 +85,20 @@ fun PermissionAbout(
         when (permissionState) {
             "14" -> {
                 PermissionBottom(
-                    text = "\"BotaniQ\" is currently allowed to access selected photos. For full functionality, consider allowing access to all photos.",
+                    text = String.format(
+                        stringResource(R.string.permission_bottom_14),
+                        stringResource(id = R.string.app_name)
+                    ),
                     onClick
                 )
             }
 
             "denied" -> {
                 PermissionBottom(
-                    text = "Please allow \"BotaniQ\" to access and select your photos to enhance your user experience.",
+                    text = String.format(
+                        stringResource(R.string.permission_bottom_denied),
+                        stringResource(id = R.string.app_name)
+                    ),
                     onClick
                 )
             }
@@ -124,13 +124,16 @@ fun PermissionAbout(
                         .padding(12.dp)
                 ) {
                     Text(
-                        text = "Photo Storage Permission",
+                        text = stringResource(R.string.dialog_permission_photo_storage),
                         color = Color.Black,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "\"BotaniQ\" would like to access your Photos for saving and uploading photos to the app. This app will not automatically upload any of your photos or videos to the cloud, nor will it access content you have not selected. You won't be able to select photos for editing if you deny Photos permission.",
+                        text = String.format(
+                            stringResource(R.string.dialog_permission_above_12),
+                            stringResource(id = R.string.app_name)
+                        ),
                         color = Color.Black,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
@@ -139,43 +142,6 @@ fun PermissionAbout(
                 }
             }
         }
-    }
-}
-
-fun checkPermission(
-    context: Context,
-    api14Permission: String = "14",
-    api13Permission: String = "13",
-    api12Permission: String = "12",
-    apiDenied: String = "denied",
-): String {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-        && (ContextCompat.checkSelfPermission(context, READ_MEDIA_IMAGES) == PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(
-            context, READ_MEDIA_VIDEO
-        ) == PERMISSION_GRANTED)
-    ) {
-        // Android 13及以上完整照片和视频访问权限
-        return api13Permission
-    } else if (
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-        ContextCompat.checkSelfPermission(
-            context,
-            READ_MEDIA_VISUAL_USER_SELECTED
-        ) == PERMISSION_GRANTED
-    ) {
-        // Android 14及以上部分照片和视频访问权限
-        return api14Permission
-    } else if (ContextCompat.checkSelfPermission(
-            context,
-            READ_EXTERNAL_STORAGE
-        ) == PERMISSION_GRANTED
-    ) {
-        // Android 12及以下完整本地读写访问权限
-        return api12Permission
-    } else {
-        // 无本地读写访问权限
-        return apiDenied
     }
 }
 

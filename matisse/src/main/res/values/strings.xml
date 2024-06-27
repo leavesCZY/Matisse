@@ -1,13 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="matisse_default_bucket_name">全部</string>
-    <string name="matisse_read_media_permission_denied">请授予相册访问权限后重试</string>
-    <string name="matisse_write_external_storage_permission_denied">请授予存储写入权限后重试</string>
-    <string name="matisse_camera_permission_denied">请授予拍照权限后重试</string>
-    <string name="matisse_limit_the_number_of_media">最多只能选择 %d 个图片或视频</string>
-    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">不能同时选择图片和视频</string>
-    <string name="matisse_no_apps_support_take_picture">没有可用于拍照的应用</string>
-    <string name="matisse_preview">预览</string>
-    <string name="matisse_sure">确定(%d/%d)</string>
-    <string name="matisse_back">返回</string>
+    <string name="app_name" translatable="false">XXX</string>
+    <string name="dialog_permission_photo_storage">Photo Storage Permission</string>
+    <string name="dialog_permission_above_12">%s would like to access your Photos for saving and uploading photos to the app. This app will not automatically upload any of your photos or videos to the cloud, nor will it access content you have not selected. You won\'t be able to select photos for editing if you deny Photos permission.</string>
+    <string name="permission_bottom_button">Update Permission</string>
+    <string name="permission_bottom_14">%s is currently allowed to access selected photos. For full functionality, consider allowing access to all photos.</string>
+    <string name="permission_bottom_denied">Please allow %s access and select your photos to enhance your user experience.</string>
+    <string name="matisse_default_bucket_name">All</string>
+    <string name="matisse_read_media_permission_denied">Please grant album access permission and try again.</string>
+    <string name="matisse_write_external_storage_permission_denied">Please grant storage permission to save and edit files, and try again.</string>
+    <string name="matisse_camera_permission_denied">Please grant camera permission and try again.</string>
+    <string name="matisse_limit_the_number_of_media">You can select up to %d photos or videos.</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">You cannot select photos and videos at the same time.</string>
+    <string name="matisse_no_apps_support_take_picture">No app available to take photos.</string>
+    <string name="matisse_preview">Preview</string>
+    <string name="matisse_sure">Confirm</string>
+    <string name="matisse_back">Back</string>
 </resources>

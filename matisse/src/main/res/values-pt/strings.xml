@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">XXX</string>
+    <string name="dialog_permission_photo_storage">Permissões de armazenamento de fotos</string>
+    <string name="dialog_permission_above_12">%s gostaria de acessar suas fotos para que possam ser salvas e carregadas no aplicativo. Este aplicativo não enviará automaticamente nenhuma de suas fotos ou vídeos para a nuvem, nem acessará conteúdo que você não selecionou. Se você negar permissões para fotos, não poderá selecionar fotos para edição.</string>
+    <string name="permission_bottom_button">Atualizar permissões</string>
+    <string name="permission_bottom_14">Atualmente,%s tem acesso permitido às fotos selecionadas. Para funcionalidade completa, considere permitir acesso a todas as fotos.</string>
+    <string name="permission_bottom_denied">Por favor permita %s acesse e selecione suas fotos para aprimorar sua experiência de usuário.</string>
+    <string name="matisse_default_bucket_name">Todos</string>
+    <string name="matisse_read_media_permission_denied">Tentar novamente depois de conceder acesso ao álbum</string>
+    <string name="matisse_write_external_storage_permission_denied">Tentar novamente depois de conceder permissão de escrita na memória</string>
+    <string name="matisse_camera_permission_denied">Conceder permissão para tirar fotografias e tentar novamente</string>
+    <string name="matisse_limit_the_number_of_media">Só podem ser seleccionadas %d imagens ou vídeos</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">Não é possível selecionar imagens e vídeos ao mesmo tempo</string>
+    <string name="matisse_no_apps_support_take_picture">Não existe uma aplicação para tirar fotografias</string>
+    <string name="matisse_preview">Pré-visualizar</string>
+    <string name="matisse_sure">Claro</string>
+    <string name="matisse_back">Voltar</string>
+</resources>

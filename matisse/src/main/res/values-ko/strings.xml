@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dialog_permission_photo_storage">사진 저장 권한</string>
+    <string name="dialog_permission_above_12">%s님이 사진을 저장하고 앱에 업로드할 수 있도록 사진에 액세스하려고 합니다. 이 앱은 사진이나 비디오를 클라우드에 자동으로 업로드하지 않으며, 선택하지 않은 콘텐츠에도 액세스하지 않습니다. 사진 권한을 거부하면 편집할 사진을 선택할 수 없습니다.</string>
+    <string name="permission_bottom_button">권한 업데이트</string>
+    <string name="permission_bottom_14">%s은 현재 선택한 사진에 액세스할 수 있습니다. 전체 기능을 사용하려면 모든 사진에 대한 액세스를 허용하는 것이 좋습니다.</string>
+    <string name="permission_bottom_denied">허락 해주세요 %s 사용자 경험을 향상하려면 사진에 액세스하고 선택하세요.</string>
+    <string name="matisse_default_bucket_name">모두</string>
+    <string name="matisse_read_media_permission_denied">앨범 액세스 권한을 부여한 후 다시 시도하세요.</string>
+    <string name="matisse_write_external_storage_permission_denied">메모리 쓰기 권한을 부여한 후 다시 시도하세요.</string>
+    <string name="matisse_camera_permission_denied">사진 촬영 권한을 부여하고 다시 시도하십시오.</string>
+    <string name="matisse_limit_the_number_of_media">D개의 사진 또는 동영상만 선택할 수 있습니다.</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">사진과 동영상을 동시에 선택할 수 없습니다.</string>
+    <string name="matisse_no_apps_support_take_picture">사진 촬영용 앱이 없습니다.</string>
+    <string name="matisse_preview">미리보기</string>
+    <string name="matisse_sure">확인</string>
+    <string name="matisse_back">뒤로</string>
+</resources>
