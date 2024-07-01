@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dialog_permission_photo_storage">Berechtigungen zur Fotospeicherung</string>
+    <string name="dialog_permission_above_12">%s möchte auf Ihre Fotos zugreifen, damit diese gespeichert und in die App hochgeladen werden können. Diese App lädt Ihre Fotos oder Videos nicht automatisch in die Cloud hoch und greift auch nicht auf Inhalte zu, die Sie nicht ausgewählt haben. Wenn Sie die Fotoberechtigungen verweigern, können Sie keine Fotos zur Bearbeitung auswählen.</string>
+    <string name="permission_bottom_button">Berechtigungen aktualisieren</string>
+    <string name="permission_bottom_14">%s hat derzeit Zugriff auf ausgewählte Fotos. Um die volle Funktionalität zu gewährleisten, sollten Sie erwägen, den Zugriff auf alle Fotos zuzulassen.</string>
+    <string name="permission_bottom_denied">Bitte erlauben %s Greifen Sie auf Ihre Fotos zu und wählen Sie sie aus, um Ihr Benutzererlebnis zu verbessern.</string>
+    <string name="matisse_default_bucket_name">Alle</string>
+    <string name="matisse_read_media_permission_denied">Bitte versuchen Sie es erneut, nachdem Sie den Zugriff auf das Album gewährt haben</string>
+    <string name="matisse_write_external_storage_permission_denied">Wiederholung nach Erteilung der Schreibberechtigung für den Speicher</string>
+    <string name="matisse_camera_permission_denied">Bitte gewähren Sie die Erlaubnis, Bilder aufzunehmen und versuchen Sie es erneut</string>
+    <string name="matisse_limit_the_number_of_media">Es können nur %d Bilder oder Videos ausgewählt werden</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">Es können nicht gleichzeitig Bilder und Videos ausgewählt werden</string>
+    <string name="matisse_no_apps_support_take_picture">Es gibt keine App für die Aufnahme von Fotos</string>
+    <string name="matisse_preview">Vorschau</string>
+    <string name="matisse_sure">Sicher</string>
+    <string name="matisse_back">Zurück</string>
+</resources>

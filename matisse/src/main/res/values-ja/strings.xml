@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">XXX</string>
     <string name="dialog_permission_photo_storage">写真保存権限</string>
     <string name="dialog_permission_above_12">%s は写真を保存したり、アプリにアップロードするために、写真へのアクセスを希望します。このアプリは、写真やビデオを自動的にクラウドにアップロードしたり、選択されていないコンテンツにアクセスすることはありません。写真を拒否すると、編集する写真を選択できなくなります。</string>
     <string name="permission_bottom_button">更新権限</string>

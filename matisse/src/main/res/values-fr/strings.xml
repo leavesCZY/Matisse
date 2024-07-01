@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">XXX</string>
     <string name="dialog_permission_photo_storage">Autorisations de stockage de photos</string>
     <string name="dialog_permission_above_12">%s souhaite accéder à vos photos afin qu\'elles puissent être enregistrées et téléchargées sur l\'application. Cette application ne téléchargera automatiquement aucune de vos photos ou vidéos sur le cloud et n\'accédera pas non plus au contenu que vous n\'avez pas sélectionné. Si vous refusez les autorisations de photo, vous ne pourrez pas sélectionner de photos à modifier.</string>
     <string name="permission_bottom_button">Mettre à jour les autorisations</string>

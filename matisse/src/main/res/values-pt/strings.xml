@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">XXX</string>
     <string name="dialog_permission_photo_storage">Permissões de armazenamento de fotos</string>
     <string name="dialog_permission_above_12">%s gostaria de acessar suas fotos para que possam ser salvas e carregadas no aplicativo. Este aplicativo não enviará automaticamente nenhuma de suas fotos ou vídeos para a nuvem, nem acessará conteúdo que você não selecionou. Se você negar permissões para fotos, não poderá selecionar fotos para edição.</string>
     <string name="permission_bottom_button">Atualizar permissões</string>
