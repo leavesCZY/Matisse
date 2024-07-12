@@ -13,6 +13,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import github.leavesczy.matisse.internal.logic.MediaProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
@@ -180,6 +181,11 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
     }
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
+        val resource = MediaProvider.loadResources(context = context, uri = imageUri)
+        if (resource != null) {
+            return resource
+        }
+        delay(timeMillis = 250)
         return MediaProvider.loadResources(context = context, uri = imageUri)
     }
 
