@@ -89,7 +89,8 @@ internal fun MatissePreviewPage(
             previewResources.size
         }
         Scaffold(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             contentWindowInsets = WindowInsets(
                 left = 0.dp,
                 right = 0.dp,
@@ -152,20 +153,15 @@ private fun PreviewPage(
                 .graphicsLayer {
                     val pageOffset =
                         ((pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction).absoluteValue
-                    val fraction = 1f - pageOffset.coerceIn(0f, 1f)
                     lerp(
-                        start = 0.84f,
+                        start = 0.80f,
                         stop = 1f,
-                        fraction = fraction
-                    ).also { scale ->
-                        scaleX = scale
-                        scaleY = scale
+                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    ).also { fraction ->
+                        scaleX = fraction
+                        scaleY = fraction
+                        alpha = fraction
                     }
-                    alpha = lerp(
-                        start = 0.5f,
-                        stop = 1f,
-                        fraction = fraction
-                    )
                 },
             contentAlignment = Alignment.Center
         ) {

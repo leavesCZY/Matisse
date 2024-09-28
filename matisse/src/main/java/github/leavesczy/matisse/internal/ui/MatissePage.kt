@@ -107,7 +107,7 @@ internal fun MatissePage(
                             derivedStateOf {
                                 val index = matisseViewModel.selectedResources.indexOf(element = it)
                                 val isSelected = index > -1
-                                val enabled =
+                                val isEnabled =
                                     isSelected || matisseViewModel.selectedResources.size < matisseViewModel.maxSelectable
                                 val position = if (isSelected) {
                                     (index + 1).toString()
@@ -116,7 +116,7 @@ internal fun MatissePage(
                                 }
                                 MediaPlacement(
                                     isSelected = isSelected,
-                                    enabled = enabled,
+                                    isEnabled = isEnabled,
                                     position = position
                                 )
                             }
@@ -160,7 +160,7 @@ private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
 @Stable
 private data class MediaPlacement(
     val isSelected: Boolean,
-    val enabled: Boolean,
+    val isEnabled: Boolean,
     val position: String
 )
 
@@ -238,7 +238,7 @@ private fun LazyGridItemScope.MediaItem(
                 .padding(all = 5.dp),
             text = mediaPlacement.position,
             checked = mediaPlacement.isSelected,
-            enabled = mediaPlacement.enabled,
+            enabled = mediaPlacement.isEnabled,
             onClick = {
                 onClickCheckBox(mediaResource)
             }

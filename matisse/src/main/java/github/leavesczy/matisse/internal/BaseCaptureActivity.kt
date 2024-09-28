@@ -170,8 +170,8 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 if (!permissions.isNullOrEmpty()) {
                     return@withContext permissions.contains(permission)
                 }
-            } catch (e: PackageManager.NameNotFoundException) {
-                e.printStackTrace()
+            } catch (exception: PackageManager.NameNotFoundException) {
+                exception.printStackTrace()
             }
             return@withContext false
         }

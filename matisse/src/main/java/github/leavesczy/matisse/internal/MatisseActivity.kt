@@ -188,12 +188,8 @@ internal class MatisseActivity : BaseCaptureActivity() {
             return
         }
         if (matisseViewModel.singleMediaType) {
-            val hasImage = selectedResources.any {
-                it.isImage
-            }
-            val hasVideo = selectedResources.any {
-                it.isVideo
-            }
+            val hasImage = selectedResources.any { it.isImage }
+            val hasVideo = selectedResources.any { it.isVideo }
             if (hasImage && hasVideo) {
                 showToast(id = R.string.matisse_cannot_select_both_picture_and_video_at_the_same_time)
                 return

@@ -39,8 +39,8 @@ internal object MediaProvider {
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 }
                 context.contentResolver.insert(imageCollection, contentValues)
-            } catch (e: Throwable) {
-                e.printStackTrace()
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
                 null
             }
         }
@@ -50,8 +50,8 @@ internal object MediaProvider {
         withContext(context = Dispatchers.Default) {
             try {
                 context.contentResolver.delete(uri, null, null)
-            } catch (e: Throwable) {
-                e.printStackTrace()
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
             }
         }
     }
@@ -93,14 +93,15 @@ internal object MediaProvider {
                 ) ?: return@withContext null
                 mediaCursor.use { cursor ->
                     while (cursor.moveToNext()) {
-                        val id = cursor.getLong(idColumn, Long.MAX_VALUE)
+                        val defaultId = Long.MAX_VALUE
+                        val id = cursor.getLong(idColumn, defaultId)
                         val data = cursor.getString(dataColumn, "")
                         val size = cursor.getLong(sizeColumn, 0)
-                        if (id == Long.MAX_VALUE || data.isBlank() || size <= 0) {
+                        if (id == defaultId || data.isBlank() || size <= 0) {
                             continue
                         }
                         val file = File(data)
-                        if (!file.exists() || !file.isFile) {
+                        if (!file.isFile || !file.exists()) {
                             continue
                         }
                         val name = cursor.getString(displayNameColumn, "")
@@ -123,8 +124,8 @@ internal object MediaProvider {
                         mediaResourceList.add(element = mediaResource)
                     }
                 }
-            } catch (e: Throwable) {
-                e.printStackTrace()
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
             }
             return@withContext mediaResourceList
         }
@@ -209,8 +210,8 @@ private fun Cursor.getLong(columnName: String, default: Long): Long {
     return try {
         val columnIndex = getColumnIndexOrThrow(columnName)
         getLong(columnIndex)
-    } catch (e: Throwable) {
-        e.printStackTrace()
+    } catch (throwable: IllegalArgumentException) {
+        throwable.printStackTrace()
         default
     }
 }
@@ -219,8 +220,8 @@ private fun Cursor.getString(columnName: String, default: String): String {
     return try {
         val columnIndex = getColumnIndexOrThrow(columnName)
         getString(columnIndex) ?: default
-    } catch (e: Throwable) {
-        e.printStackTrace()
+    } catch (throwable: IllegalArgumentException) {
+        throwable.printStackTrace()
         default
     }
 }

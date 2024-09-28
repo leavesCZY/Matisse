@@ -1,13 +1,13 @@
 [versions]
-android-plugin = "8.6.0"
+android-plugin = "8.6.1"
 kotlin-plugin = "2.0.0"
 
 androidx-junit = "1.2.1"
 androidx-espresso = "3.6.1"
 androidx-appcompat = "1.7.0"
 androidx-activity = "1.9.2"
-androidx-lifecycle = "2.8.5"
-androidx-compose-bom = "2024.09.01"
+androidx-lifecycle = "2.8.6"
+androidx-compose-bom = "2024.09.02"
 
 matisse-remote = "2.1.1"
 matisse-publishing = "2.1.1"
@@ -17,7 +17,7 @@ coil = "2.7.0"
 glide = "5.0.0-rc01"
 glide-compose = "1.0.0-beta01"
 zoom-image = "1.0.2"
-zoomable-image = "0.12.1"
+zoomable-image = "0.13.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }

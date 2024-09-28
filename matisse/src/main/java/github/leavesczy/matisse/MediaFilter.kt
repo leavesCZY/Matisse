@@ -37,9 +37,8 @@ class DefaultMediaFilter(
 ) : MediaFilter {
 
     override fun ignoreMedia(mediaResource: MediaResource): Boolean {
-        return ignoredMimeType.contains(element = mediaResource.mimeType) || ignoredResourceUri.contains(
-            element = mediaResource.uri
-        )
+        return ignoredMimeType.contains(element = mediaResource.mimeType) ||
+                ignoredResourceUri.contains(element = mediaResource.uri)
     }
 
     override fun selectMedia(mediaResource: MediaResource): Boolean {

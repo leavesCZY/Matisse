@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  */
 internal fun Project.configureAndroidLibrary(commonExtension: LibraryExtension) {
     commonExtension.apply {
-        compileSdk = 34
+        compileSdk = 35
         defaultConfig {
             minSdk = 21
         }
