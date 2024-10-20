@@ -1,13 +1,13 @@
 [versions]
-android-plugin = "8.6.1"
-kotlin-plugin = "2.0.20"
+android-plugin = "8.7.1"
+kotlin-plugin = "2.0.21"
 
 androidx-junit = "1.2.1"
 androidx-espresso = "3.6.1"
 androidx-appcompat = "1.7.0"
-androidx-activity = "1.9.2"
+androidx-activity = "1.9.3"
 androidx-lifecycle = "2.8.6"
-androidx-compose-bom = "2024.09.02"
+androidx-compose-bom = "2024.10.00"
 
 matisse-remote = "2.1.2"
 matisse-publishing = "2.1.2"
