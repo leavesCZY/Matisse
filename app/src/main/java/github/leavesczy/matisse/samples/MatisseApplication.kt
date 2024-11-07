@@ -2,14 +2,10 @@ package github.leavesczy.matisse.samples
 
 import android.app.Application
 import android.content.Context
-import android.graphics.Bitmap
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import coil.Coil
-import coil.ImageLoader
-import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
-import coil.decode.VideoFrameDecoder
+import coil3.request.allowHardware
+import coil3.request.crossfade
 
 /**
  * @Author: leavesCZY
@@ -22,23 +18,41 @@ class MatisseApplication : Application() {
         super.onCreate()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         initCoil(context = this)
+        initCoil3()
     }
 
     private fun initCoil(context: Context) {
-        val imageLoader = ImageLoader.Builder(context = context)
+        val imageLoader = coil.ImageLoader.Builder(context = context)
             .crossfade(enable = false)
             .allowHardware(enable = true)
-            .bitmapConfig(bitmapConfig = Bitmap.Config.RGB_565)
             .components {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    add(ImageDecoderDecoder.Factory())
+                    add(coil.decode.ImageDecoderDecoder.Factory())
                 } else {
-                    add(GifDecoder.Factory())
+                    add(coil.decode.GifDecoder.Factory())
                 }
-                add(VideoFrameDecoder.Factory())
+                add(coil.decode.VideoFrameDecoder.Factory())
             }
             .build()
-        Coil.setImageLoader(imageLoader)
+        coil.Coil.setImageLoader(imageLoader)
+    }
+
+    private fun initCoil3() {
+        coil3.SingletonImageLoader.setSafe(factory = { context ->
+            coil3.ImageLoader
+                .Builder(context = context)
+                .crossfade(enable = false)
+                .allowHardware(enable = true)
+                .components {
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        add(coil3.gif.AnimatedImageDecoder.Factory())
+                    } else {
+                        add(coil3.gif.GifDecoder.Factory())
+                    }
+                    add(coil3.video.VideoFrameDecoder.Factory())
+                }
+                .build()
+        })
     }
 
 }

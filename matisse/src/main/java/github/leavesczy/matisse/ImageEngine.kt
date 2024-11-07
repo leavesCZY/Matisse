@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import coil.compose.AsyncImage
 import com.bumptech.glide.integration.compose.GlideImage
 import kotlinx.parcelize.Parcelize
 
@@ -55,7 +54,7 @@ class GlideImageEngine : ImageEngine {
                 modifier = Modifier
                     .fillMaxWidth(),
                 model = mediaResource.uri,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.FillWidth,
                 contentDescription = mediaResource.name
             )
         } else {
@@ -64,7 +63,7 @@ class GlideImageEngine : ImageEngine {
                     .fillMaxWidth()
                     .verticalScroll(state = rememberScrollState()),
                 model = mediaResource.uri,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.FillWidth,
                 contentDescription = mediaResource.name
             )
         }
@@ -77,7 +76,7 @@ class CoilImageEngine : ImageEngine {
 
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
-        AsyncImage(
+        coil.compose.AsyncImage(
             modifier = Modifier
                 .fillMaxSize(),
             model = mediaResource.uri,
@@ -89,7 +88,7 @@ class CoilImageEngine : ImageEngine {
     @Composable
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
-            AsyncImage(
+            coil.compose.AsyncImage(
                 modifier = Modifier
                     .fillMaxWidth(),
                 model = mediaResource.uri,
@@ -97,7 +96,45 @@ class CoilImageEngine : ImageEngine {
                 contentDescription = mediaResource.name
             )
         } else {
-            AsyncImage(
+            coil.compose.AsyncImage(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(state = rememberScrollState()),
+                model = mediaResource.uri,
+                contentScale = ContentScale.FillWidth,
+                contentDescription = mediaResource.name
+            )
+        }
+    }
+
+}
+
+@Parcelize
+class Coil3ImageEngine : ImageEngine {
+
+    @Composable
+    override fun Thumbnail(mediaResource: MediaResource) {
+        coil3.compose.AsyncImage(
+            modifier = Modifier
+                .fillMaxSize(),
+            model = mediaResource.uri,
+            contentScale = ContentScale.Crop,
+            contentDescription = mediaResource.name
+        )
+    }
+
+    @Composable
+    override fun Image(mediaResource: MediaResource) {
+        if (mediaResource.isVideo) {
+            coil3.compose.AsyncImage(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                model = mediaResource.uri,
+                contentScale = ContentScale.FillWidth,
+                contentDescription = mediaResource.name
+            )
+        } else {
+            coil3.compose.AsyncImage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(state = rememberScrollState()),

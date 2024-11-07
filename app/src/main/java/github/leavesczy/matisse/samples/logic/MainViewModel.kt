@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import github.leavesczy.matisse.CaptureStrategy
+import github.leavesczy.matisse.Coil3ImageEngine
 import github.leavesczy.matisse.CoilImageEngine
 import github.leavesczy.matisse.DefaultMediaFilter
 import github.leavesczy.matisse.FileProviderCaptureStrategy
@@ -18,10 +19,6 @@ import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaStoreCaptureStrategy
 import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.SmartCaptureStrategy
-import github.leavesczy.matisse.samples.logic.engine.coil.CoilZoomImageEngine
-import github.leavesczy.matisse.samples.logic.engine.coil.CoilZoomableImageEngine
-import github.leavesczy.matisse.samples.logic.engine.glide.GlideZoomImageEngine
-import github.leavesczy.matisse.samples.logic.engine.glide.GlideZoomableImageEngine
 
 /**
  * @Author: leavesCZY
@@ -152,20 +149,8 @@ class MainViewModel : ViewModel() {
                 CoilImageEngine()
             }
 
-            MediaImageEngine.GlideZoomable -> {
-                GlideZoomableImageEngine()
-            }
-
-            MediaImageEngine.CoilZoomable -> {
-                CoilZoomableImageEngine()
-            }
-
-            MediaImageEngine.GlideZoom -> {
-                GlideZoomImageEngine()
-            }
-
-            MediaImageEngine.CoilZoom -> {
-                CoilZoomImageEngine()
+            MediaImageEngine.Coil3 -> {
+                Coil3ImageEngine()
             }
         }
         val ignoredMimeType = if (mainPageViewState.includeGif) {

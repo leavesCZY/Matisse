@@ -25,11 +25,9 @@ dependencies {
     implementation(libs.coil.gif)
     implementation(libs.coil.video)
 
-    implementation(libs.zoom.image.glide)
-    implementation(libs.zoom.image.coil)
-
-    implementation(libs.zoomable.image.glide)
-    implementation(libs.zoomable.image.coil)
+    implementation(libs.coil3.compose)
+    implementation(libs.coil3.gif)
+    implementation(libs.coil3.video)
 
     implementation(project(":matisse"))
 //    implementation(libs.matisse)
