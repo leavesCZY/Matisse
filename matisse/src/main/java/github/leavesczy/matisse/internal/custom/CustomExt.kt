@@ -30,7 +30,6 @@ fun requestReadMediaPermissionCustom(
         ) {
             buildList {
                 add(READ_MEDIA_VISUAL_USER_SELECTED)
-                val mediaType = mediaType
                 if (mediaType.hasImage) {
                     add(element = READ_MEDIA_IMAGES)
                 }
@@ -42,7 +41,6 @@ fun requestReadMediaPermissionCustom(
             && applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
         ) {
             buildList {
-                val mediaType = mediaType
                 if (mediaType.hasImage) {
                     add(element = READ_MEDIA_IMAGES)
                 }

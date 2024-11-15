@@ -17,10 +17,7 @@ enum class MediaCaptureStrategy {
 enum class MediaImageEngine {
     Glide,
     Coil,
-    GlideZoomable,
-    CoilZoomable,
-    GlideZoom,
-    CoilZoom
+    Coil3
 }
 
 enum class MediaFilterStrategy {

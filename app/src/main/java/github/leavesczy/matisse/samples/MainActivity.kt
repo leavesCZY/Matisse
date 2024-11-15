@@ -79,16 +79,12 @@ class MainActivity : AppCompatActivity() {
                     mainPageViewState = mainViewModel.mainPageViewState,
                     imageAndVideo = {
                         mediaPickerLauncher.launch(
-                            mainViewModel.buildMatisse(
-                                mediaType = MediaType.ImageAndVideo
-                            )
+                            mainViewModel.buildMatisse(mediaType = MediaType.ImageAndVideo)
                         )
                     },
                     imageOnly = {
                         mediaPickerLauncher.launch(
-                            mainViewModel.buildMatisse(
-                                mediaType = MediaType.ImageOnly
-                            )
+                            mainViewModel.buildMatisse(mediaType = MediaType.ImageOnly)
                         )
                     },
                     videoOnly = {
@@ -185,7 +181,8 @@ private fun MainPage(
             }
             OptionDivider()
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Title(text = "fastSelect")
@@ -197,6 +194,7 @@ private fun MainPage(
             OptionDivider()
             Title(text = "ImageEngine")
             FlowRow(
+                modifier = Modifier,
                 maxItemsInEachRow = 2
             ) {
                 for (engine in MediaImageEngine.entries) {
@@ -211,7 +209,8 @@ private fun MainPage(
             }
             OptionDivider()
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Title(text = "singleMediaType")
@@ -234,7 +233,8 @@ private fun MainPage(
                 }
             }
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Title(text = "includeGif")
@@ -260,7 +260,8 @@ private fun MainPage(
                 }
             }
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Title(text = "CapturePreferencesCustom")
@@ -389,7 +390,8 @@ private fun MediaResourceItem(mediaResource: MediaResource) {
                 contentDescription = stringResource(id = R.string.app_name)
             )
             Text(
-                modifier = Modifier.padding(start = 10.dp),
+                modifier = Modifier
+                    .padding(start = 10.dp),
                 text = mediaResource.uri.toString() + "\n\n" +
                         mediaResource.path + "\n\n" +
                         mediaResource.name + "\n\n" +
