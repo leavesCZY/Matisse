@@ -229,20 +229,23 @@ private fun BoxScope.BottomController(
             textAlign = TextAlign.Center,
             fontSize = 16.sp
         )
-        MatisseCheckbox(
-            modifier = Modifier
-                .align(alignment = Alignment.Center),
-            text = if (imagePosition > -1) {
-                (imagePosition + 1).toString()
-            } else {
-                ""
-            },
-            checked = imagePosition > -1,
-            enabled = checkboxEnabled,
-            onClick = {
-                pageViewState.onMediaCheckChanged(previewResources[currentPageIndex])
-            }
-        )
+        if (maxSelectable!=1){
+            MatisseCheckbox(
+                modifier = Modifier
+                    .align(alignment = Alignment.Center),
+                text = if (imagePosition > -1) {
+                    (imagePosition + 1).toString()
+                } else {
+                    ""
+                },
+                enabled = checkboxEnabled,
+                checked = imagePosition > -1,
+                onClick = {
+                    pageViewState.onMediaCheckChanged(previewResources[currentPageIndex])
+                },
+            )
+        }
+
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterEnd)

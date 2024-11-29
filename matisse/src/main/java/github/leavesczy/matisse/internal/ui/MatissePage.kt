@@ -48,7 +48,7 @@ internal fun MatissePage(
     onRequestTakePicture: () -> Unit,
     onClickSure: () -> Unit,
     selectMediaInFastSelectMode: (MediaResource) -> Unit,
-    customContent: @Composable  (PaddingValues)  -> Unit
+    customContent: @Composable (PaddingValues) -> Unit
 ) {
 
     Scaffold(
@@ -128,7 +128,8 @@ internal fun MatissePage(
                             mediaPlacement = mediaPlacement,
                             imageEngine = matisseViewModel.matissePageViewState.imageEngine,
                             onClickMedia = matisseViewModel.matissePageViewState.onClickMedia,
-                            onClickCheckBox = matisseViewModel.matissePageViewState.onMediaCheckChanged
+                            onClickCheckBox = matisseViewModel.matissePageViewState.onMediaCheckChanged,
+                            maxSelectable = matisseViewModel.maxSelectable
                         )
                     }
                 }
@@ -215,7 +216,8 @@ private fun LazyGridItemScope.MediaItem(
     mediaPlacement: MediaPlacement,
     imageEngine: ImageEngine,
     onClickMedia: (MediaResource) -> Unit,
-    onClickCheckBox: (MediaResource) -> Unit
+    onClickCheckBox: (MediaResource) -> Unit,
+    maxSelectable: Int
 ) {
     MediaItemWrap(
         mediaResource = mediaResource,
@@ -238,17 +240,31 @@ private fun LazyGridItemScope.MediaItem(
                 imageEngine = imageEngine
             )
         }
-        MatisseCheckbox(
-            modifier = Modifier
-                .align(alignment = Alignment.TopEnd)
-                .padding(all = 5.dp),
-            text = mediaPlacement.position,
-            checked = mediaPlacement.isSelected,
-            enabled = mediaPlacement.enabled,
-            onClick = {
-                onClickCheckBox(mediaResource)
-            }
-        )
+        if (maxSelectable == 1) {
+            MatisseMax1Checkbox(
+                modifier = Modifier
+                    .align(alignment = Alignment.TopEnd)
+                    .padding(all = 5.dp),
+                checked = mediaPlacement.isSelected,
+                enabled = mediaPlacement.enabled,
+                onClick = {
+                    onClickCheckBox(mediaResource)
+                }
+            )
+        } else {
+            MatisseCheckbox(
+                modifier = Modifier
+                    .align(alignment = Alignment.TopEnd)
+                    .padding(all = 5.dp),
+                text = mediaPlacement.position,
+                checked = mediaPlacement.isSelected,
+                enabled = mediaPlacement.enabled,
+                onClick = {
+                    onClickCheckBox(mediaResource)
+                }
+            )
+        }
+
     }
 }
 

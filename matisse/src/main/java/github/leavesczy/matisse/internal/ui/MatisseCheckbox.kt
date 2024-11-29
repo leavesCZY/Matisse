@@ -1,11 +1,12 @@
 package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -15,6 +16,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -35,7 +37,7 @@ internal fun MatisseCheckbox(
     text: String,
     enabled: Boolean,
     checked: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val circleColor = colorResource(
         id = if (enabled) {
@@ -96,6 +98,69 @@ internal fun MatisseCheckbox(
                     y = (checkboxSide - textLayoutResult.size.height) / 2
                 )
             )
+        }
+    }
+}
+
+/**
+ * @Author: leavesCZY
+ * @Date: 2022/5/31 14:27
+ * @Desc:
+ */
+@Composable
+internal fun MatisseMax1Checkbox(
+    modifier: Modifier,
+    enabled: Boolean,
+    checked: Boolean,
+    onClick: () -> Unit,
+) {
+    val circleColor = colorResource(
+        id = if (enabled) {
+            R.color.matisse_check_box_circle_color
+        } else {
+            R.color.matisse_check_box_circle_color_if_disable
+        }
+    )
+    val checkboxSize = 24.dp
+    Box(
+        modifier = modifier
+            .selectable(
+                selected = checked,
+                onClick = onClick,
+                enabled = true,
+                role = Role.Checkbox,
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple(
+                    bounded = false,
+                    radius = checkboxSize / 2
+                )
+            )
+            .wrapContentSize(align = Alignment.Center)
+            .requiredSize(size = checkboxSize),
+    ) {
+        if (checked) {
+            Image(
+                painter = painterResource(R.mipmap.ic_item_select_max_1),
+                modifier = Modifier
+                    .wrapContentSize(align = Alignment.Center)
+                    .requiredSize(size = checkboxSize),
+                contentDescription = null
+            )
+        } else {
+            Canvas(
+                modifier = Modifier
+                    .wrapContentSize(align = Alignment.Center)
+                    .requiredSize(size = checkboxSize),
+            ) {
+                val checkboxSide = size.width
+                val checkboxRadius = checkboxSide / 2f
+                val strokeWidth = checkboxSide / 11f
+                drawCircle(
+                    color = circleColor,
+                    radius = checkboxRadius - strokeWidth / 2f,
+                    style = Stroke(width = strokeWidth)
+                )
+            }
         }
     }
 }
