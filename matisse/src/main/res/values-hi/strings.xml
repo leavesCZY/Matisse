@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="dialog_permission_photo_storage">फोटो संग्रहण अनुमति</string>
+<string name="dialog_permission_above_12">%s ऐप में फ़ोटो सहेजने और अपलोड करने के लिए आपके फ़ोटो तक पहुँचना चाहेंगे। यह ऐप आपके किसी भी फ़ोटो या वीडियो को स्वचालित रूप से क्लाउड पर अपलोड नहीं करेगा, न ही यह आपके द्वारा चयनित न की गई सामग्री तक पहुँचेगा। यदि आप फ़ोटो की अनुमति अस्वीकार करते हैं, तो आप संपादन के लिए फ़ोटो का चयन नहीं कर पाएँगे।</string>
+<string name="permission_bottom_button">अनुमति अपडेट करें</string>
+<string name="permission_bottom_14">%s को वर्तमान में चयनित फ़ोटो तक पहुंच की अनुमति है। पूर्ण कार्यक्षमता के लिए, सभी फ़ोटो तक पहुंच की अनुमति देने पर विचार करें।</string>
+<string name="permission_bottom_denied">कृपया %s को पहुंच की अनुमति दें और अपने उपयोगकर्ता अनुभव को बेहतर बनाने के लिए अपनी फ़ोटो चुनें।</string>
+<string name="matisse_default_bucket_name">सभी</string>
+<string name="matisse_read_media_permission_denied">कृपया एल्बम तक पहुंच की अनुमति दें और पुनः प्रयास करें.</string>
+<string name="matisse_write_external_storage_permission_denied">कृपया फ़ाइलें सहेजने और संपादित करने के लिए संग्रहण अनुमति प्रदान करें, और पुनः प्रयास करें.</string>
+<string name="matisse_camera_permission_denied">कृपया कैमरे की अनुमति दें और पुनः प्रयास करें.</string>
+<string name="matisse_limit_the_number_of_media">आप अधिकतम %d फ़ोटो या वीडियो चुन सकते हैं.</string>
+<string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">आप एक ही समय में फ़ोटो और वीडियो का चयन नहीं कर सकते.</string>
+<string name="matisse_no_apps_support_take_picture">फ़ोटो लेने के लिए कोई ऐप उपलब्ध नहीं है.</string>
+<string name="matisse_preview">पूर्व दर्शन</string>
+<string name="matisse_sure">पुष्टि करना</string>
+<string name="matisse_back">पीछे</string>
+</resources>

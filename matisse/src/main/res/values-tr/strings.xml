@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="dialog_permission_photo_storage">Fotoğraf Depolama İzni</string>
+<string name="dialog_permission_above_12">%s, fotoğraflarınızı kaydetmek ve uygulamaya yüklemek için Fotoğraflarınıza erişmek istiyor. Bu uygulama, fotoğraflarınızın veya videolarınızın hiçbirini otomatik olarak buluta yüklemeyecek veya seçmediğiniz içeriklere erişmeyecektir. Fotoğraflar iznini reddederseniz, düzenleme için fotoğraf seçemezsiniz.</string>
+<string name="permission_bottom_button">İzin Güncelleme</string>
+<string name="permission_bottom_14">%s şu anda seçili fotoğraflara erişim iznine sahip. Tam işlevsellik için tüm fotoğraflara erişim izni vermeyi düşünün.</string>
+<string name="permission_bottom_denied">Lütfen %s erişimine izin verin ve kullanıcı deneyiminizi geliştirmek için fotoğraflarınızı seçin.</string>
+<string name="matisse_default_bucket_name">Tüm</string>
+<string name="matisse_read_media_permission_denied">Lütfen albüme erişim izni verin ve tekrar deneyin.</string>
+<string name="matisse_write_external_storage_permission_denied">Lütfen dosyaları kaydetmek ve düzenlemek için depolama izni verin ve tekrar deneyin.</string>
+<string name="matisse_camera_permission_denied">Lütfen kameraya izin verin ve tekrar deneyin.</string>
+<string name="matisse_limit_the_number_of_media">En fazla %d fotoğraf veya video seçebilirsiniz.</string>
+<string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">Fotoğraf ve videoları aynı anda seçemezsiniz.</string>
+<string name="matisse_no_apps_support_take_picture">Fotoğraf çekmek için bir uygulama yok.</string>
+<string name="matisse_preview">Önizleme</string>
+<string name="matisse_sure">Onaylamak</string>
+<string name="matisse_back">Geri</string>
+</resources>

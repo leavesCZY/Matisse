@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="dialog_permission_photo_storage">Izin Penyimpanan Foto</string>
+<string name="dialog_permission_above_12">%s ingin mengakses Foto Anda untuk menyimpan dan mengunggah foto ke aplikasi. Aplikasi ini tidak akan secara otomatis mengunggah foto atau video Anda ke awan, dan tidak akan mengakses konten yang belum Anda pilih. Anda tidak akan dapat memilih foto untuk diedit jika Anda menolak izin Foto.</string>
+<string name="permission_bottom_button">Perbarui Izin</string>
+<string name="permission_bottom_14">%s saat ini diizinkan untuk mengakses foto-foto terpilih. Untuk fungsionalitas penuh, pertimbangkan untuk mengizinkan akses ke semua foto.</string>
+<string name="permission_bottom_denied">Harap izinkan %s mengakses dan memilih foto Anda untuk meningkatkan pengalaman pengguna Anda.</string>
+<string name="matisse_default_bucket_name">Semua</string>
+<string name="matisse_read_media_permission_denied">Harap berikan izin akses album dan coba lagi.</string>
+<string name="matisse_write_external_storage_permission_denied">Harap berikan izin penyimpanan untuk menyimpan dan mengedit file, lalu coba lagi.</string>
+<string name="matisse_camera_permission_denied">Harap berikan izin kamera dan coba lagi.</string>
+<string name="matisse_limit_the_number_of_media">Anda dapat memilih hingga %d foto atau video.</string>
+<string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">Anda tidak dapat memilih foto dan video secara bersamaan.</string>
+<string name="matisse_no_apps_support_take_picture">Tidak ada aplikasi yang tersedia untuk mengambil foto.</string>
+<string name="matisse_preview">Pratinjau</string>
+<string name="matisse_sure">Mengonfirmasi</string>
+<string name="matisse_back">Kembali</string>
+</resources>

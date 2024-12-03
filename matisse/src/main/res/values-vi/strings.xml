@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="dialog_permission_photo_storage">Quyền lưu trữ ảnh</string>
+<string name="dialog_permission_above_12">%s muốn truy cập Ảnh của bạn để lưu và tải ảnh lên ứng dụng. Ứng dụng này sẽ không tự động tải bất kỳ ảnh hoặc video nào của bạn lên đám mây, cũng như không truy cập nội dung bạn chưa chọn. Bạn sẽ không thể chọn ảnh để chỉnh sửa nếu bạn từ chối quyền Ảnh.</string>
+<string name="permission_bottom_button">Cập nhật quyền</string>
+<string name="permission_bottom_14">%s hiện được phép truy cập vào các ảnh đã chọn. Để có đầy đủ chức năng, hãy cân nhắc cho phép truy cập vào tất cả các ảnh.</string>
+<string name="permission_bottom_denied">Vui lòng cho phép %s truy cập và chọn ảnh của bạn để nâng cao trải nghiệm người dùng.</string>
+<string name="matisse_default_bucket_name">Tất cả</string>
+<string name="matisse_read_media_permission_denied">Vui lòng cấp quyền truy cập album và thử lại.</string>
+<string name="matisse_write_external_storage_permission_denied">Vui lòng cấp quyền lưu trữ để lưu và chỉnh sửa tệp, sau đó thử lại.</string>
+<string name="matisse_camera_permission_denied">Vui lòng cấp quyền cho máy ảnh và thử lại.</string>
+<string name="matisse_limit_the_number_of_media">Bạn có thể chọn tối đa %d ảnh hoặc video.</string>
+<string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">Bạn không thể chọn ảnh và video cùng lúc.</string>
+<string name="matisse_no_apps_support_take_picture">Không có ứng dụng nào có thể chụp ảnh.</string>
+<string name="matisse_preview">Xem trước</string>
+<string name="matisse_sure">Xác nhận</string>
+<string name="matisse_back">Mặt sau</string>
+</resources>

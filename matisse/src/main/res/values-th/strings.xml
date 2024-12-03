@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="dialog_permission_photo_storage">การอนุญาตจัดเก็บภาพถ่าย</string>
+<string name="dialog_permission_above_12">%s ต้องการเข้าถึงรูปภาพของคุณเพื่อบันทึกและอัปโหลดรูปภาพไปยังแอป แอปนี้จะไม่อัปโหลดรูปภาพหรือวิดีโอของคุณไปยังคลาวด์โดยอัตโนมัติ และจะไม่เข้าถึงเนื้อหาที่คุณไม่ได้เลือก คุณจะไม่สามารถเลือกรูปภาพสำหรับการแก้ไขได้หากคุณปฏิเสธสิทธิ์ของรูปภาพ</string>
+<string name="permission_bottom_button">อัพเดทการอนุญาต</string>
+<string name="permission_bottom_14">ขณะนี้ %s ได้รับอนุญาตให้เข้าถึงรูปภาพที่เลือก หากต้องการใช้งานเต็มรูปแบบ โปรดพิจารณาอนุญาตให้เข้าถึงรูปภาพทั้งหมด</string>
+<string name="permission_bottom_denied">กรุณาอนุญาตให้ %s เข้าถึงและเลือกภาพถ่ายของคุณเพื่อปรับปรุงประสบการณ์ผู้ใช้ของคุณ</string>
+<string name="matisse_default_bucket_name">ทั้งหมด</string>
+<string name="matisse_read_media_permission_denied">กรุณาให้สิทธิ์การเข้าถึงอัลบั้มแล้วลองอีกครั้ง</string>
+<string name="matisse_write_external_storage_permission_denied">กรุณาให้สิทธิ์ในการเก็บข้อมูลเพื่อบันทึกและแก้ไขไฟล์และลองอีกครั้ง</string>
+<string name="matisse_camera_permission_denied">กรุณาอนุญาติให้ใช้งานกล้องแล้วลองอีกครั้ง</string>
+<string name="matisse_limit_the_number_of_media">คุณสามารถเลือกภาพถ่ายหรือวิดีโอได้สูงสุด %d รายการ</string>
+<string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">คุณไม่สามารถเลือกภาพถ่ายและวิดีโอในเวลาเดียวกันได้</string>
+<string name="matisse_no_apps_support_take_picture">ไม่มีแอปที่สามารถถ่ายภาพได้</string>
+<string name="matisse_preview">ตัวอย่าง</string>
+<string name="matisse_sure">ยืนยัน</string>
+<string name="matisse_back">กลับ</string>
+</resources>
