@@ -1,21 +1,20 @@
 [versions]
-android-plugin = "8.7.2"
-kotlin-plugin = "2.0.21"
+android-plugin = "8.7.3"
+kotlin-plugin = "2.1.0"
 
 androidx-junit = "1.2.1"
 androidx-espresso = "3.6.1"
 androidx-appcompat = "1.7.0"
 androidx-activity = "1.9.3"
 androidx-lifecycle = "2.8.7"
-androidx-compose-bom = "2024.10.01"
+androidx-compose-bom = "2024.11.00"
 
 matisse-remote = "2.1.2"
 matisse-publishing = "2.1.2"
 
 junit = "4.13.2"
 coil = "2.7.0"
-coil3 = "3.0.1"
-glide = "5.0.0-rc01"
+coil3 = "3.0.4"
 glide-compose = "1.0.0-beta01"
 
 [plugins]
@@ -58,6 +57,4 @@ coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3
 coil3-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil3" }
 coil3-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil3" }
 
-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
-glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glide" }
 glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glide-compose" }
