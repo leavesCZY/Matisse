@@ -29,7 +29,7 @@
             android:configChanges="orientation"
             android:exported="false"
             android:launchMode="singleTop"
-            android:screenOrientation="sensor"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Matisse.VideoView"
             tools:ignore="DiscouragedApi" />
     </application>
