@@ -1,6 +1,7 @@
 package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -13,10 +14,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.PlayCircleOutline
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -192,13 +194,33 @@ private fun BoxScope.MediaThumbnail(
 ) {
     imageEngine.Thumbnail(mediaResource = mediaResource)
     if (mediaResource.isVideo) {
-        Icon(
+        VideoIcon(
             modifier = Modifier
                 .align(alignment = Alignment.Center)
-                .size(size = 32.dp),
-            imageVector = Icons.Filled.PlayCircleOutline,
-            tint = colorResource(id = R.color.matisse_video_icon_color),
-            contentDescription = mediaResource.name
+                .size(size = 30.dp)
+        )
+    }
+}
+
+@Composable
+internal fun VideoIcon(modifier: Modifier) {
+    Box(
+        modifier = modifier
+            .clip(shape = CircleShape)
+            .background(color = colorResource(id = R.color.matisse_video_icon_color))
+            .border(
+                width = 0.2.dp,
+                color = Color.LightGray,
+                shape = CircleShape
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            modifier = Modifier
+                .fillMaxSize(fraction = 0.55f),
+            imageVector = Icons.Filled.PlayArrow,
+            tint = Color.Black,
+            contentDescription = null
         )
     }
 }

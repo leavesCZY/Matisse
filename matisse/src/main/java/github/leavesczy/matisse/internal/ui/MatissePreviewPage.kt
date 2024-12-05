@@ -23,9 +23,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayCircleOutline
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -167,17 +164,14 @@ private fun PreviewPage(
         ) {
             imageEngine.Image(mediaResource = mediaResource)
             if (mediaResource.isVideo) {
-                Icon(
+                VideoIcon(
                     modifier = Modifier
                         .clip(shape = CircleShape)
                         .clickable {
                             requestOpenVideo(mediaResource)
                         }
                         .padding(all = 10.dp)
-                        .size(size = 48.dp),
-                    imageVector = Icons.Filled.PlayCircleOutline,
-                    tint = colorResource(id = R.color.matisse_video_icon_color),
-                    contentDescription = mediaResource.name
+                        .size(size = 50.dp)
                 )
             }
         }

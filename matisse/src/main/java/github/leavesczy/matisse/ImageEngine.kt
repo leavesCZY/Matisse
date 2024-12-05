@@ -63,7 +63,7 @@ class GlideImageEngine : ImageEngine {
                     .fillMaxWidth()
                     .verticalScroll(state = rememberScrollState()),
                 model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth,
+                contentScale = ContentScale.Fit,
                 contentDescription = mediaResource.name
             )
         }
