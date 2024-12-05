@@ -59,7 +59,7 @@ internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleE
         signingConfigs {
             create("release") {
                 storeFile =
-                    File(rootDir.absolutePath + File.separator + "doc" + File.separator + "key.jks")
+                    File(rootDir.absolutePath + File.separator + "key.jks")
                 keyAlias = "leavesCZY"
                 keyPassword = "123456"
                 storePassword = "123456"

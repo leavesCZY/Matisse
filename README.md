@@ -2,7 +2,6 @@
 
 一个用 Jetpack Compose 实现的 Android 图片视频选择框架
 
-- 适配到 Android 14
 - 解决了多个系统兼容性问题
 - 按需索取权限，遵循最佳用户实践
 - 完全用 Kotlin & Jetpack Compose 实现

@@ -34,6 +34,7 @@ val signingSecretKeyRingFile = properties["signing.secretKeyRingFile"]?.toString
 val mavenCentralUserName = properties["mavenCentral.username"]?.toString()
 val mavenCentralPassword = properties["mavenCentral.password"]?.toString()
 val mavenCentralEmail = properties["mavenCentral.email"]?.toString()
+val matisseVersion = "2.1.2"
 
 if (signingKeyId != null
     && signingPassword != null
@@ -47,13 +48,14 @@ if (signingKeyId != null
             create<MavenPublication>("release") {
                 groupId = "io.github.leavesczy"
                 artifactId = "matisse"
-                version = libs.versions.matisse.publishing.get()
+                version = matisseVersion
                 afterEvaluate {
                     from(components["release"])
                 }
                 pom {
                     name = "Matisse"
-                    description = "A Image/Video Selector Implemented with Jetpack Compose"
+                    description =
+                        "An Android Image and Video Selection Framework Implemented with Jetpack Compose"
                     url = "https://github.com/leavesCZY/Matisse"
                     licenses {
                         license {

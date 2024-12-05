@@ -36,7 +36,7 @@ data class Matisse(
             throw IllegalArgumentException("maxSelectable must be greater than or equal to 1")
         }
         if (maxSelectable > 1 && fastSelect) {
-            throw IllegalArgumentException("fastSelect must be false")
+            throw IllegalArgumentException("when maxSelectable is greater than 1, fastSelect must be false")
         }
     }
 
