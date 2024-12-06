@@ -15,7 +15,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:layout_weight="12" />
+        android:layout_weight="14" />
 
     <Space
         android:layout_width="0dp"
