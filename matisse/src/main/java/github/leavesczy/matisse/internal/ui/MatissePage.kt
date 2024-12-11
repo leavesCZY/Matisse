@@ -127,7 +127,8 @@ internal fun MatissePage(
                             mediaResource = it,
                             mediaPlacement = mediaPlacement,
                             imageEngine = matisseViewModel.matissePageViewState.imageEngine,
-                            onClickMedia = matisseViewModel.matissePageViewState.onClickMedia,
+//                            onClickMedia = matisseViewModel.matissePageViewState.onClickMedia,
+                            onClickMedia = matisseViewModel.matissePageViewState.onMediaCheckChanged,
                             onClickCheckBox = matisseViewModel.matissePageViewState.onMediaCheckChanged,
                             maxSelectable = matisseViewModel.maxSelectable
                         )

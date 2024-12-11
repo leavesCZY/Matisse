@@ -1,6 +1,7 @@
 package github.leavesczy.matisse.internal
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
@@ -245,6 +246,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         return captureStrategy
     }
 
+    @SuppressLint("StringFormatInvalid")
     private fun onClickSure() {
         val maxSelectable = matisseViewModel.maxSelectable
         val selectedResources = matisseViewModel.selectedResources
