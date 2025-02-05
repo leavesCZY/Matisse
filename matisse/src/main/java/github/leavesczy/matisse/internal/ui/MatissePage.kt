@@ -1,7 +1,7 @@
 package github.leavesczy.matisse.internal.ui
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -29,7 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.integerResource
@@ -188,44 +188,6 @@ private fun LazyGridItemScope.MediaItemWrap(
 }
 
 @Composable
-private fun BoxScope.MediaThumbnail(
-    mediaResource: MediaResource,
-    imageEngine: ImageEngine
-) {
-    imageEngine.Thumbnail(mediaResource = mediaResource)
-    if (mediaResource.isVideo) {
-        VideoIcon(
-            modifier = Modifier
-                .align(alignment = Alignment.Center)
-                .size(size = 30.dp)
-        )
-    }
-}
-
-@Composable
-internal fun VideoIcon(modifier: Modifier) {
-    Box(
-        modifier = modifier
-            .clip(shape = CircleShape)
-            .background(color = colorResource(id = R.color.matisse_video_icon_color))
-            .border(
-                width = 0.2.dp,
-                color = Color.LightGray,
-                shape = CircleShape
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            modifier = Modifier
-                .fillMaxSize(fraction = 0.55f),
-            imageVector = Icons.Filled.PlayArrow,
-            tint = Color.Black,
-            contentDescription = null
-        )
-    }
-}
-
-@Composable
 private fun LazyGridItemScope.MediaItem(
     mediaResource: MediaResource,
     mediaPlacement: MediaPlacement,
@@ -239,19 +201,27 @@ private fun LazyGridItemScope.MediaItem(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .then(
-                    other = if (mediaPlacement.isSelected) {
-                        Modifier.scrim(color = colorResource(id = R.color.matisse_media_item_scrim_color_when_selected))
-                    } else {
-                        Modifier
-                    }
-                ),
+                .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            MediaThumbnail(
-                mediaResource = mediaResource,
-                imageEngine = imageEngine
+            imageEngine.Thumbnail(mediaResource = mediaResource)
+            if (mediaResource.isVideo) {
+                VideoIcon(
+                    modifier = Modifier
+                        .size(size = 30.dp)
+                )
+            }
+            val scrimColor by animateColorAsState(
+                targetValue = if (mediaPlacement.isSelected) {
+                    colorResource(id = R.color.matisse_media_item_scrim_color_when_selected)
+                } else {
+                    colorResource(id = R.color.matisse_media_item_scrim_color_when_unselected)
+                }
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = scrimColor)
             )
         }
         MatisseCheckbox(
@@ -278,16 +248,32 @@ private fun LazyGridItemScope.MediaItemFastSelect(
         mediaResource = mediaResource,
         onClickMedia = onClickMedia
     ) {
-        MediaThumbnail(
-            mediaResource = mediaResource,
-            imageEngine = imageEngine
-        )
+        imageEngine.Thumbnail(mediaResource = mediaResource)
+        if (mediaResource.isVideo) {
+            VideoIcon(
+                modifier = Modifier
+                    .align(alignment = Alignment.Center)
+                    .size(size = 30.dp)
+            )
+        }
     }
 }
 
-private fun Modifier.scrim(color: Color): Modifier {
-    return drawWithContent {
-        drawContent()
-        drawRect(color = color)
+@Composable
+internal fun VideoIcon(modifier: Modifier) {
+    Box(
+        modifier = modifier
+            .shadow(elevation = 1.dp, shape = CircleShape)
+            .clip(shape = CircleShape)
+            .background(color = colorResource(id = R.color.matisse_video_icon_color)),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            modifier = Modifier
+                .fillMaxSize(fraction = 0.60f),
+            imageVector = Icons.Filled.PlayArrow,
+            tint = Color.Black,
+            contentDescription = null
+        )
     }
 }

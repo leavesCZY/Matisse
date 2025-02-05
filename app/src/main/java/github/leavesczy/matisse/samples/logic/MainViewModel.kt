@@ -35,7 +35,7 @@ class MainViewModel : ViewModel() {
             fastSelect = false,
             singleMediaType = false,
             includeGif = true,
-            imageEngine = MediaImageEngine.Glide,
+            imageEngine = MediaImageEngine.Coil3,
             filterStrategy = MediaFilterStrategy.Nothing,
             captureStrategy = MediaCaptureStrategy.Smart,
             capturePreferencesCustom = false,
@@ -140,11 +140,8 @@ class MainViewModel : ViewModel() {
     }
 
     fun buildMatisse(mediaType: MediaType): Matisse {
-        val imageEngine = when (mainPageViewState.imageEngine) {
-            MediaImageEngine.Glide -> {
-                GlideImageEngine()
-            }
-
+        val viewState = mainPageViewState
+        val imageEngine = when (viewState.imageEngine) {
             MediaImageEngine.Coil -> {
                 CoilImageEngine()
             }
@@ -152,28 +149,32 @@ class MainViewModel : ViewModel() {
             MediaImageEngine.Coil3 -> {
                 Coil3ImageEngine()
             }
+
+            MediaImageEngine.Glide -> {
+                GlideImageEngine()
+            }
         }
-        val ignoredMimeType = if (mainPageViewState.includeGif) {
+        val ignoredMimeType = if (viewState.includeGif) {
             emptySet()
         } else {
             setOf(element = "image/gif")
         }
         val ignoredResourceUri: Set<Uri>
         val selectedResourceUri: Set<Uri>
-        when (mainPageViewState.filterStrategy) {
+        when (viewState.filterStrategy) {
             MediaFilterStrategy.Nothing -> {
                 ignoredResourceUri = emptySet()
                 selectedResourceUri = emptySet()
             }
 
             MediaFilterStrategy.IgnoreSelected -> {
-                ignoredResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
+                ignoredResourceUri = viewState.mediaList.map { it.uri }.toSet()
                 selectedResourceUri = emptySet()
             }
 
             MediaFilterStrategy.AttachSelected -> {
                 ignoredResourceUri = emptySet()
-                selectedResourceUri = mainPageViewState.mediaList.map { it.uri }.toSet()
+                selectedResourceUri = viewState.mediaList.map { it.uri }.toSet()
             }
         }
         val mediaFilter = DefaultMediaFilter(
@@ -182,12 +183,12 @@ class MainViewModel : ViewModel() {
             selectedResourceUri = selectedResourceUri
         )
         return Matisse(
-            maxSelectable = mainPageViewState.maxSelectable,
-            fastSelect = mainPageViewState.fastSelect,
+            maxSelectable = viewState.maxSelectable,
+            fastSelect = viewState.fastSelect,
             mediaType = mediaType,
             mediaFilter = mediaFilter,
             imageEngine = imageEngine,
-            singleMediaType = mainPageViewState.singleMediaType,
+            singleMediaType = viewState.singleMediaType,
             captureStrategy = getMediaCaptureStrategy()
         )
     }

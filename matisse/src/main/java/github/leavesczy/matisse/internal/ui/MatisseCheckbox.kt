@@ -3,12 +3,10 @@ package github.leavesczy.matisse.internal.ui
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -57,7 +55,6 @@ internal fun MatisseCheckbox(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(bounded = false, radius = checkboxSize / 2)
             )
-            .wrapContentSize(align = Alignment.Center)
             .requiredSize(size = checkboxSize)
     ) {
         val checkboxSide = size.width
