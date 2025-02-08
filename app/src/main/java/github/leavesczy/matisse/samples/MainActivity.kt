@@ -1,10 +1,8 @@
 package github.leavesczy.matisse.samples
 
 import android.os.Bundle
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
@@ -13,12 +11,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -41,6 +38,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import coil.compose.AsyncImage
 import github.leavesczy.matisse.MatisseCaptureContract
 import github.leavesczy.matisse.MatisseContract
@@ -111,16 +110,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSystemBarUi() {
-        val statusBarColor = android.graphics.Color.TRANSPARENT
-        val navigationBarColor = android.graphics.Color.TRANSPARENT
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(
-                scrim = statusBarColor
-            ),
-            navigationBarStyle = SystemBarStyle.dark(
-                scrim = navigationBarColor
-            )
-        )
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
+        }
     }
 
 }
@@ -136,20 +130,21 @@ private fun MainPage(
 ) {
     Scaffold(
         modifier = Modifier
-            .fillMaxSize(),
-        contentWindowInsets = WindowInsets.navigationBars,
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background),
+        contentWindowInsets = WindowInsets(left = 0.dp, right = 0.dp, top = 0.dp, bottom = 0.dp),
         topBar = {
             Box(
                 modifier = Modifier
                     .background(color = MaterialTheme.colorScheme.primary)
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .height(height = 60.dp)
+                    .height(height = 55.dp)
             ) {
                 Text(
                     modifier = Modifier
                         .align(alignment = Alignment.CenterStart)
-                        .padding(horizontal = 20.dp),
+                        .padding(horizontal = 10.dp),
                     text = stringResource(id = R.string.app_name),
                     fontSize = 22.sp,
                     color = Color.White
@@ -160,21 +155,23 @@ private fun MainPage(
         Column(
             modifier = Modifier
                 .padding(paddingValues = innerPadding)
+                .navigationBarsPadding()
                 .verticalScroll(state = rememberScrollState())
-                .padding(
-                    start = 16.dp, top = 10.dp,
-                    end = 16.dp, bottom = 60.dp
-                ),
+                .padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 30.dp),
             horizontalAlignment = Alignment.Start,
         ) {
             Title(text = "maxSelectable")
-            Row {
-                for (i in 1..3) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                for (maxSelectable in 1..4) {
                     RadioButton(
-                        tips = i.toString(),
-                        selected = mainPageViewState.maxSelectable == i,
+                        tips = maxSelectable.toString(),
+                        selected = mainPageViewState.maxSelectable == maxSelectable,
                         onClick = {
-                            mainPageViewState.onMaxSelectableChanged(i)
+                            mainPageViewState.onMaxSelectableChanged(maxSelectable)
                         }
                     )
                 }
@@ -194,8 +191,8 @@ private fun MainPage(
             OptionDivider()
             Title(text = "ImageEngine")
             FlowRow(
-                modifier = Modifier,
-                maxItemsInEachRow = 2
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
                 for (engine in MediaImageEngine.entries) {
                     RadioButton(
@@ -221,7 +218,10 @@ private fun MainPage(
             }
             OptionDivider()
             Title(text = "mediaFilter")
-            FlowRow {
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
                 for (strategy in MediaFilterStrategy.entries) {
                     RadioButton(
                         tips = strategy.name,
@@ -246,7 +246,8 @@ private fun MainPage(
             OptionDivider()
             Title(text = "CaptureStrategy")
             FlowRow(
-                maxItemsInEachRow = 2,
+                modifier = Modifier
+                    .fillMaxWidth(),
                 verticalArrangement = Arrangement.Center
             ) {
                 for (strategy in MediaCaptureStrategy.entries) {
@@ -259,6 +260,7 @@ private fun MainPage(
                     )
                 }
             }
+            OptionDivider()
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -296,11 +298,6 @@ private fun MainPage(
                 text = "切换主题",
                 onClick = mainPageViewState.switchTheme
             )
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height = 16.dp)
-            )
             for (mediaResource in mainPageViewState.mediaList) {
                 MediaResourceItem(mediaResource = mediaResource)
             }
@@ -311,8 +308,10 @@ private fun MainPage(
 @Composable
 private fun OptionDivider() {
     HorizontalDivider(
-        modifier = Modifier.padding(bottom = 8.dp),
-        thickness = 0.6.dp
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 6.dp),
+        thickness = 0.5.dp
     )
 }
 
@@ -373,7 +372,7 @@ private fun MediaResourceItem(mediaResource: MediaResource) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 6.dp),
         shape = RoundedCornerShape(size = 12.dp)
     ) {
         Row(
@@ -384,17 +383,16 @@ private fun MediaResourceItem(mediaResource: MediaResource) {
         ) {
             AsyncImage(
                 modifier = Modifier
-                    .size(size = 100.dp),
+                    .size(size = 80.dp),
                 model = mediaResource.uri,
                 contentScale = ContentScale.Crop,
-                contentDescription = stringResource(id = R.string.app_name)
+                contentDescription = null
             )
             Text(
                 modifier = Modifier
                     .padding(start = 10.dp),
                 text = mediaResource.uri.toString() + "\n\n" +
                         mediaResource.path + "\n\n" +
-                        mediaResource.name + "\n\n" +
                         mediaResource.mimeType,
                 fontSize = 14.sp,
                 lineHeight = 16.sp

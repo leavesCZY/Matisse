@@ -4,10 +4,12 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -43,10 +45,11 @@ internal fun MatisseCheckbox(
     )
     val fillColor = colorResource(id = R.color.matisse_check_box_circle_fill_color)
     val textColor = colorResource(id = R.color.matisse_check_box_text_color)
-    val checkboxSize = 24.dp
+    val checkboxSize = 22.dp
     val textMeasurer = rememberTextMeasurer()
     Canvas(
         modifier = modifier
+            .shadow(elevation = 0.6.dp, shape = CircleShape)
             .selectable(
                 selected = checked,
                 onClick = onClick,

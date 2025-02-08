@@ -3,6 +3,7 @@ package github.leavesczy.matisse.internal.ui
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,6 +27,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,7 +39,9 @@ import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatisseViewModel
+import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
+import github.leavesczy.matisse.internal.logic.MatissePageViewState
+import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
 
 /**
  * @Author: leavesCZY
@@ -46,71 +50,72 @@ import github.leavesczy.matisse.internal.logic.MatisseViewModel
  */
 @Composable
 internal fun MatissePage(
-    matisseViewModel: MatisseViewModel,
+    pageViewState: MatissePageViewState,
+    topBarViewState: MatisseTopBarViewState,
+    bottomBarViewState: MatisseBottomBarViewState,
+    selectedResources: List<MediaResource>,
     onRequestTakePicture: () -> Unit,
     onClickSure: () -> Unit,
     selectMediaInFastSelectMode: (MediaResource) -> Unit
 ) {
+    val mSelectedResources by rememberUpdatedState(newValue = selectedResources)
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
         containerColor = colorResource(id = R.color.matisse_main_page_background_color),
         topBar = {
-            MatisseTopBar(topBarViewState = matisseViewModel.matisseTopBarViewState)
+            MatisseTopBar(topBarViewState = topBarViewState)
         },
         bottomBar = {
-            if (!matisseViewModel.fastSelect) {
+            if (!pageViewState.fastSelect) {
                 MatisseBottomBar(
-                    bottomBarViewState = matisseViewModel.matisseBottomBarViewState,
+                    bottomBarViewState = bottomBarViewState,
                     onClickSure = onClickSure
                 )
             }
         }
     ) { innerPadding ->
-        val captureStrategy by remember {
-            derivedStateOf {
-                matisseViewModel.matissePageViewState.selectedBucket.captureStrategy
-            }
-        }
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
-            state = matisseViewModel.matissePageViewState.lazyGridState,
+            state = pageViewState.lazyGridState,
             columns = GridCells.Fixed(count = integerResource(id = R.integer.matisse_image_span_count)),
-            contentPadding = PaddingValues(bottom = 60.dp)
+            horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 1.dp),
+            contentPadding = PaddingValues(bottom = 15.dp)
         ) {
-            if (captureStrategy != null) {
+            if (pageViewState.selectedBucket.captureStrategy != null) {
                 item(
-                    key = "Capture",
-                    contentType = "Capture",
+                    key = "CaptureItem",
+                    contentType = "CaptureItem",
                     content = {
                         CaptureItem(onClick = onRequestTakePicture)
                     }
                 )
             }
             items(
-                items = matisseViewModel.matissePageViewState.selectedBucket.resources,
+                items = pageViewState.selectedBucket.resources,
                 key = {
                     it.id
                 },
                 contentType = {
-                    "Media"
+                    "MediaItem"
                 },
                 itemContent = {
-                    if (matisseViewModel.fastSelect) {
+                    if (pageViewState.fastSelect) {
                         MediaItemFastSelect(
                             mediaResource = it,
-                            imageEngine = matisseViewModel.matissePageViewState.imageEngine,
+                            imageEngine = pageViewState.imageEngine,
                             onClickMedia = selectMediaInFastSelectMode
                         )
                     } else {
                         val mediaPlacement by remember {
                             derivedStateOf {
-                                val index = matisseViewModel.selectedResources.indexOf(element = it)
+                                val index = mSelectedResources.indexOf(element = it)
                                 val isSelected = index > -1
                                 val isEnabled =
-                                    isSelected || matisseViewModel.selectedResources.size < matisseViewModel.maxSelectable
+                                    isSelected || mSelectedResources.size < pageViewState.maxSelectable
                                 val position = if (isSelected) {
                                     (index + 1).toString()
                                 } else {
@@ -126,9 +131,9 @@ internal fun MatissePage(
                         MediaItem(
                             mediaResource = it,
                             mediaPlacement = mediaPlacement,
-                            imageEngine = matisseViewModel.matissePageViewState.imageEngine,
-                            onClickMedia = matisseViewModel.matissePageViewState.onClickMedia,
-                            onClickCheckBox = matisseViewModel.matissePageViewState.onMediaCheckChanged
+                            imageEngine = pageViewState.imageEngine,
+                            onClickMedia = pageViewState.onClickMedia,
+                            onClickCheckBox = pageViewState.onMediaCheckChanged
                         )
                     }
                 }
@@ -142,7 +147,6 @@ private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .animateItem()
-            .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_capture_item_background_color))
@@ -175,7 +179,6 @@ private fun LazyGridItemScope.MediaItemWrap(
     Box(
         modifier = Modifier
             .animateItem()
-            .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_media_item_background_color))

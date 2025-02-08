@@ -31,7 +31,7 @@ class MainViewModel : ViewModel() {
 
     var mainPageViewState by mutableStateOf(
         value = MainPageViewState(
-            maxSelectable = 3,
+            maxSelectable = 4,
             fastSelect = false,
             singleMediaType = false,
             includeGif = true,
@@ -142,12 +142,12 @@ class MainViewModel : ViewModel() {
     fun buildMatisse(mediaType: MediaType): Matisse {
         val viewState = mainPageViewState
         val imageEngine = when (viewState.imageEngine) {
-            MediaImageEngine.Coil -> {
-                CoilImageEngine()
-            }
-
             MediaImageEngine.Coil3 -> {
                 Coil3ImageEngine()
+            }
+
+            MediaImageEngine.Coil2 -> {
+                CoilImageEngine()
             }
 
             MediaImageEngine.Glide -> {

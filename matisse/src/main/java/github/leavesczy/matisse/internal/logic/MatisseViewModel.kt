@@ -35,7 +35,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     val maxSelectable: Int
         get() = matisse.maxSelectable
 
-    val fastSelect: Boolean
+    private val fastSelect: Boolean
         get() = matisse.fastSelect
 
     private val imageEngine: ImageEngine
@@ -56,6 +56,8 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     private val defaultBucketId = "&__matisseDefaultBucketId__&"
 
     private val nothingMatissePageViewState = MatissePageViewState(
+        maxSelectable = maxSelectable,
+        fastSelect = fastSelect,
         lazyGridState = LazyGridState(),
         selectedBucket = MediaBucket(
             id = defaultBucketId,

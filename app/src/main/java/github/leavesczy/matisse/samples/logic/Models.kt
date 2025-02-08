@@ -15,8 +15,8 @@ enum class MediaCaptureStrategy {
 }
 
 enum class MediaImageEngine {
-    Coil,
     Coil3,
+    Coil2,
     Glide
 }
 

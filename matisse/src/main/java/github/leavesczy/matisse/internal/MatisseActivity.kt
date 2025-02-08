@@ -66,7 +66,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
             }
             MatisseTheme {
                 MatissePage(
-                    matisseViewModel = matisseViewModel,
+                    pageViewState = matisseViewModel.matissePageViewState,
+                    topBarViewState = matisseViewModel.matisseTopBarViewState,
+                    bottomBarViewState = matisseViewModel.matisseBottomBarViewState,
+                    selectedResources = matisseViewModel.selectedResources,
                     onRequestTakePicture = ::requestTakePicture,
                     onClickSure = ::onClickSure,
                     selectMediaInFastSelectMode = ::selectMediaInFastSelectMode

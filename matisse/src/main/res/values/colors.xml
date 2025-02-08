@@ -7,7 +7,7 @@
     <color name="matisse_navigation_bar_color">#FFFFFFFF</color>
     <color name="matisse_main_page_background_color">#FFFFFFFF</color>
     <color name="matisse_media_item_background_color">#66CCCCCC</color>
-    <color name="matisse_media_item_scrim_color_when_unselected">#14000000</color>
+    <color name="matisse_media_item_scrim_color_when_unselected">#0F000000</color>
     <color name="matisse_media_item_scrim_color_when_selected">#80000000</color>
     <color name="matisse_capture_item_background_color">#66CCCCCC</color>
     <color name="matisse_capture_item_icon_color">#FFFFFFFF</color>
