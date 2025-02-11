@@ -105,9 +105,9 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     onRequestTakePicture = ::requestTakePicture,
                     onClickSure = ::onClickSure,
                     selectMediaInFastSelectMode = ::selectMediaInFastSelectMode,
-                    customContent = {innerPadding->
+                    customContent = { innerPadding ->
                         PermissionAbout(
-                            innerPadding=innerPadding,
+                            innerPadding = innerPadding,
                             requestPermission = ::requestReadMediaPermissionCustom,
                             showPermissionDialog = showPermissionDialog.value,
                             permissionState = permissionState.value,
@@ -135,7 +135,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
             matisseViewModel.mediaType,
             applicationInfo = applicationInfo,
             checkPermissionResult = { permissions: Array<String> ->
-                checkPermissionResultCustom(
+                permissionState.value = checkPermissionResultCustom(
                     context = this,
                     requestReadMediaPermissionLauncher = requestReadMediaPermissionLauncher,
                     onPermissionAllow = {

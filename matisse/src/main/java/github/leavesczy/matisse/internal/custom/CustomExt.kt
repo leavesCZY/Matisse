@@ -56,13 +56,17 @@ fun requestReadMediaPermissionCustom(
 
 fun checkPermissionResultCustom(
     context: Context,
+    api14Permission: String = "14",
+    api13Permission: String = "13",
+    api12Permission: String = "12",
+    apiDenied: String = "denied",
     scope: CoroutineScope,
     onScopeIsNotActive: () -> Unit,
     requestReadMediaPermissionLauncher: ActivityResultLauncher<Array<String>>,
     onPermissionAllow: () -> Unit,
     permissions: Array<String>,
     onRequestDenied: () -> Unit
-) {
+) : String {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
         && (ContextCompat.checkSelfPermission(context, READ_MEDIA_IMAGES) == PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(
@@ -72,6 +76,7 @@ fun checkPermissionResultCustom(
     ) {
         // Android 13及以上完整照片和视频访问权限
         onPermissionAllow.invoke()
+        return api13Permission
     } else if (
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
         ContextCompat.checkSelfPermission(
@@ -81,6 +86,7 @@ fun checkPermissionResultCustom(
     ) {
         // Android 14及以上部分照片和视频访问权限
         onPermissionAllow.invoke()
+        return api14Permission
     } else if (ContextCompat.checkSelfPermission(
             context,
             READ_EXTERNAL_STORAGE
@@ -88,6 +94,7 @@ fun checkPermissionResultCustom(
     ) {
         // Android 12及以下完整本地读写访问权限
         onPermissionAllow.invoke()
+        return api12Permission
     } else {
         // 无本地读写访问权限
         requestReadMediaPermissionLauncher.launch(permissions)
@@ -97,6 +104,7 @@ fun checkPermissionResultCustom(
             delay(300)
             onRequestDenied.invoke()
         }.start()
+        return apiDenied
     }
 }
 
