@@ -13,12 +13,10 @@ import androidx.compose.ui.Modifier
  */
 @Composable
 internal fun Modifier.clickableNoRipple(onClick: () -> Unit): Modifier {
-    return then(
-        other = Modifier.clickable(
-            onClickLabel = null,
-            indication = null,
-            interactionSource = remember { MutableInteractionSource() },
-            onClick = onClick
-        )
+    return clickable(
+        onClickLabel = null,
+        indication = null,
+        interactionSource = remember { MutableInteractionSource() },
+        onClick = onClick
     )
 }

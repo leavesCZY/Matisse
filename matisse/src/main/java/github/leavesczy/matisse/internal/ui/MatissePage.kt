@@ -83,7 +83,7 @@ internal fun MatissePage(
             columns = GridCells.Fixed(count = integerResource(id = R.integer.matisse_image_span_count)),
             horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
             verticalArrangement = Arrangement.spacedBy(space = 1.dp),
-            contentPadding = PaddingValues(bottom = 15.dp)
+            contentPadding = PaddingValues(start = 1.dp, top = 1.dp, end = 1.dp, bottom = 15.dp)
         ) {
             if (pageViewState.selectedBucket.captureStrategy != null) {
                 item(
@@ -266,7 +266,7 @@ private fun LazyGridItemScope.MediaItemFastSelect(
 internal fun VideoIcon(modifier: Modifier) {
     Box(
         modifier = modifier
-            .shadow(elevation = 1.dp, shape = CircleShape)
+            .shadow(elevation = 0.6.dp, shape = CircleShape)
             .clip(shape = CircleShape)
             .background(color = colorResource(id = R.color.matisse_video_icon_color)),
         contentAlignment = Alignment.Center

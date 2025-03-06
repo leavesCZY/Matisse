@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.DisposableEffect
+import androidx.core.content.IntentCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -35,16 +36,17 @@ import github.leavesczy.matisse.internal.ui.MatisseTheme
  */
 internal class MatisseActivity : BaseCaptureActivity() {
 
-    override val captureStrategy: CaptureStrategy
-        get() = requireCaptureStrategy()
-
     private val matisseViewModel by viewModels<MatisseViewModel>(factoryProducer = {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return MatisseViewModel(
                     application = application,
-                    matisse = intent.getParcelableExtra(Matisse::class.java.name)!!
+                    matisse = IntentCompat.getParcelableExtra(
+                        intent,
+                        Matisse::class.java.name,
+                        Matisse::class.java
+                    )!!
                 ) as T
             }
         }
@@ -54,6 +56,9 @@ internal class MatisseActivity : BaseCaptureActivity() {
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
             matisseViewModel.requestReadMediaPermissionResult(granted = result.all { it.value })
         }
+
+    override val captureStrategy: CaptureStrategy
+        get() = requireNotNull(value = matisseViewModel.captureStrategy)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -148,7 +153,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
 
     private fun requestOpenVideo(mediaResource: MediaResource) {
         val intent = Intent(this, MatisseVideoViewActivity::class.java)
-        intent.putExtra(MediaResource::class.java.simpleName, mediaResource)
+        intent.putExtra(MediaResource::class.java.name, mediaResource)
         startActivity(intent)
     }
 
@@ -169,12 +174,6 @@ internal class MatisseActivity : BaseCaptureActivity() {
 
     override fun takePictureCancelled() {
 
-    }
-
-    private fun requireCaptureStrategy(): CaptureStrategy {
-        val captureStrategy = matisseViewModel.captureStrategy
-        checkNotNull(captureStrategy)
-        return captureStrategy
     }
 
     private fun onClickSure() {

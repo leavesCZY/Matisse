@@ -49,7 +49,7 @@ internal fun MatisseCheckbox(
     val textMeasurer = rememberTextMeasurer()
     Canvas(
         modifier = modifier
-            .shadow(elevation = 0.6.dp, shape = CircleShape)
+            .shadow(elevation = 0.2.dp, shape = CircleShape)
             .selectable(
                 selected = checked,
                 onClick = onClick,

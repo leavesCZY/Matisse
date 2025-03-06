@@ -6,6 +6,7 @@ import android.widget.MediaController
 import android.widget.VideoView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.IntentCompat
 import androidx.core.view.WindowCompat
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
@@ -18,7 +19,11 @@ import github.leavesczy.matisse.R
 internal class MatisseVideoViewActivity : AppCompatActivity() {
 
     private val mediaResource by lazy(mode = LazyThreadSafetyMode.NONE) {
-        intent.getParcelableExtra<MediaResource>(MediaResource::class.java.simpleName)!!
+        IntentCompat.getParcelableExtra(
+            intent,
+            MediaResource::class.java.name,
+            MediaResource::class.java
+        )!!
     }
 
     private val videoView by lazy(mode = LazyThreadSafetyMode.NONE) {

@@ -21,9 +21,7 @@ internal fun MatisseLoadingDialog(visible: Boolean) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clickableNoRipple {
-
-                },
+                .clickableNoRipple {},
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(

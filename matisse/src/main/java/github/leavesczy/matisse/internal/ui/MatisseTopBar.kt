@@ -1,6 +1,6 @@
 package github.leavesczy.matisse.internal.ui
 
-import android.app.Activity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -72,11 +71,11 @@ internal fun MatisseTopBar(topBarViewState: MatisseTopBarViewState) {
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val context = LocalContext.current
+            val localActivity = LocalActivity.current
             Icon(
                 modifier = Modifier
                     .clickableNoRipple {
-                        (context as Activity).finish()
+                        localActivity?.finish()
                     }
                     .padding(start = 18.dp, end = 12.dp)
                     .fillMaxHeight()

@@ -204,24 +204,24 @@ internal object MediaProvider {
         }
     }
 
-}
-
-private fun Cursor.getLong(columnName: String, default: Long): Long {
-    return try {
-        val columnIndex = getColumnIndexOrThrow(columnName)
-        getLong(columnIndex)
-    } catch (throwable: IllegalArgumentException) {
-        throwable.printStackTrace()
-        default
+    private fun Cursor.getLong(columnName: String, default: Long): Long {
+        return try {
+            val columnIndex = getColumnIndexOrThrow(columnName)
+            getLong(columnIndex)
+        } catch (throwable: IllegalArgumentException) {
+            throwable.printStackTrace()
+            default
+        }
     }
-}
 
-private fun Cursor.getString(columnName: String, default: String): String {
-    return try {
-        val columnIndex = getColumnIndexOrThrow(columnName)
-        getString(columnIndex) ?: default
-    } catch (throwable: IllegalArgumentException) {
-        throwable.printStackTrace()
-        default
+    private fun Cursor.getString(columnName: String, default: String): String {
+        return try {
+            val columnIndex = getColumnIndexOrThrow(columnName)
+            getString(columnIndex) ?: default
+        } catch (throwable: IllegalArgumentException) {
+            throwable.printStackTrace()
+            default
+        }
     }
+
 }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.core.content.IntentCompat
 import github.leavesczy.matisse.internal.MatisseActivity
 
 /**
@@ -21,7 +22,11 @@ class MatisseContract : ActivityResultContract<Matisse, List<MediaResource>?>() 
 
     override fun parseResult(resultCode: Int, intent: Intent?): List<MediaResource>? {
         val result = if (resultCode == Activity.RESULT_OK && intent != null) {
-            intent.getParcelableArrayListExtra<MediaResource>(MediaResource::class.java.name)
+            IntentCompat.getParcelableArrayListExtra(
+                intent,
+                MediaResource::class.java.name,
+                MediaResource::class.java
+            )
         } else {
             null
         }

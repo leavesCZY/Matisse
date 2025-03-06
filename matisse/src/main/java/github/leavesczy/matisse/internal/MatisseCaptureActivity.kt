@@ -3,6 +3,7 @@ package github.leavesczy.matisse.internal
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.content.IntentCompat
 import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MatisseCapture
 import github.leavesczy.matisse.MediaResource
@@ -15,7 +16,11 @@ import github.leavesczy.matisse.MediaResource
 internal class MatisseCaptureActivity : BaseCaptureActivity() {
 
     private val matisseCapture by lazy(mode = LazyThreadSafetyMode.NONE) {
-        intent.getParcelableExtra<MatisseCapture>(MatisseCapture::class.java.name)!!
+        IntentCompat.getParcelableExtra(
+            intent,
+            MatisseCapture::class.java.name,
+            MatisseCapture::class.java
+        )!!
     }
 
     override val captureStrategy: CaptureStrategy

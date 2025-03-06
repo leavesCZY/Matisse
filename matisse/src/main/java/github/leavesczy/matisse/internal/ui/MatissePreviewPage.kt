@@ -11,14 +11,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -210,14 +208,13 @@ private fun BoxScope.BottomController(
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterStart)
+                .clip(shape = CircleShape)
                 .clickable(onClick = pageViewState.onDismissRequest)
-                .fillMaxHeight()
-                .padding(horizontal = 24.dp)
-                .wrapContentSize(align = Alignment.Center),
+                .padding(horizontal = 24.dp, vertical = 8.dp),
             text = stringResource(id = R.string.matisse_back),
-            color = colorResource(id = R.color.matisse_preview_page_back_text_color),
+            fontSize = 16.sp,
             textAlign = TextAlign.Center,
-            fontSize = 16.sp
+            color = colorResource(id = R.color.matisse_preview_page_back_text_color)
         )
         MatisseCheckbox(
             modifier = Modifier
@@ -238,24 +235,24 @@ private fun BoxScope.BottomController(
                 .align(alignment = Alignment.CenterEnd)
                 .then(
                     other = if (pageViewState.sureButtonClickable) {
-                        Modifier.clickable(onClick = onClickSure)
+                        Modifier
+                            .clip(shape = CircleShape)
+                            .clickable(onClick = onClickSure)
                     } else {
                         Modifier
                     }
                 )
-                .fillMaxHeight()
-                .padding(horizontal = 24.dp)
-                .wrapContentSize(align = Alignment.Center),
+                .padding(horizontal = 24.dp, vertical = 8.dp),
             text = pageViewState.sureButtonText,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center,
             color = colorResource(
                 id = if (pageViewState.sureButtonClickable) {
                     R.color.matisse_preview_page_sure_text_color
                 } else {
                     R.color.matisse_preview_page_sure_text_color_if_disable
                 }
-            ),
-            textAlign = TextAlign.Center,
-            fontSize = 16.sp
+            )
         )
     }
 }

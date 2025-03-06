@@ -157,7 +157,7 @@ private fun MainPage(
                 .padding(paddingValues = innerPadding)
                 .navigationBarsPadding()
                 .verticalScroll(state = rememberScrollState())
-                .padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 30.dp),
+                .padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 50.dp),
             horizontalAlignment = Alignment.Start,
         ) {
             Title(text = "maxSelectable")
