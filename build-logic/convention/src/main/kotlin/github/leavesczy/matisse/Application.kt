@@ -22,7 +22,7 @@ import java.util.TimeZone
 internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleExtension) {
     commonExtension.apply {
         compileSdk = 35
-        buildToolsVersion = "35.0.0"
+        buildToolsVersion = "35.0.1"
         defaultConfig {
             applicationId = "github.leavesczy.matisse.samples"
             minSdk = 23
@@ -64,6 +64,8 @@ internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleE
                 storePassword = "123456"
                 enableV1Signing = true
                 enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
             }
         }
         buildTypes {
@@ -108,7 +110,7 @@ internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleE
     }
 }
 
-fun getApkBuildTime(): String {
+private fun getApkBuildTime(): String {
     val simpleDateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
     simpleDateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
     val time = Calendar.getInstance().time
