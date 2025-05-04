@@ -22,7 +22,7 @@ import java.util.TimeZone
 internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleExtension) {
     commonExtension.apply {
         compileSdk = 35
-        buildToolsVersion = "35.0.1"
+        buildToolsVersion = "36.0.0"
         defaultConfig {
             applicationId = "github.leavesczy.matisse.samples"
             minSdk = 23

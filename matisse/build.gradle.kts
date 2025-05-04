@@ -24,7 +24,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.material3)
     compileOnly(libs.glide.compose)
-    compileOnly(libs.coil.compose)
+    compileOnly(libs.coil2.compose)
     compileOnly(libs.coil3.compose)
 }
 
