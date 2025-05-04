@@ -11,7 +11,6 @@ import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.Coil3ImageEngine
 import github.leavesczy.matisse.CoilImageEngine
 import github.leavesczy.matisse.DefaultMediaFilter
-import github.leavesczy.matisse.FileProviderCaptureStrategy
 import github.leavesczy.matisse.GlideImageEngine
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MatisseCapture
@@ -126,7 +125,10 @@ class MainViewModel : ViewModel() {
             }
 
             MediaCaptureStrategy.FileProvider -> {
-                FileProviderCaptureStrategy(authority = fileProviderAuthority, extra = captureExtra)
+                CustomFileProviderCaptureStrategy(
+                    authority = fileProviderAuthority,
+                    extra = captureExtra
+                )
             }
 
             MediaCaptureStrategy.MediaStore -> {

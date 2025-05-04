@@ -81,7 +81,7 @@ private const val JPG_MIME_TYPE = "image/jpeg"
  *  此策略无需申请任何权限，所拍的照片不会保存在系统相册里
  */
 @Parcelize
-data class FileProviderCaptureStrategy(
+open class FileProviderCaptureStrategy(
     private val authority: String,
     private val extra: Bundle = Bundle.EMPTY
 ) : CaptureStrategy {
@@ -89,11 +89,11 @@ data class FileProviderCaptureStrategy(
     @IgnoredOnParcel
     private val uriFileMap = mutableMapOf<Uri, File>()
 
-    override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
+    final override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
         return false
     }
 
-    override suspend fun createImageUri(context: Context): Uri? {
+    final override suspend fun createImageUri(context: Context): Uri? {
         return withContext(context = Dispatchers.Main.immediate) {
             val tempFile = createTempFile(context = context)
             if (tempFile != null) {
@@ -108,8 +108,8 @@ data class FileProviderCaptureStrategy(
 
     private suspend fun createTempFile(context: Context): File? {
         return withContext(context = Dispatchers.IO) {
-            val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val file = File(storageDir, createImageName(context = context))
+            val picturesDirectory = getPicturesDirectory(context = context)
+            val file = File(picturesDirectory, createImageName(context = context))
             if (file.createNewFile()) {
                 file
             } else {
@@ -118,7 +118,11 @@ data class FileProviderCaptureStrategy(
         }
     }
 
-    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
+    protected open fun getPicturesDirectory(context: Context): File {
+        return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
+    }
+
+    final override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
         return withContext(context = Dispatchers.Main.immediate) {
             val imageFile = uriFileMap[imageUri]!!
             uriFileMap.remove(key = imageUri)
@@ -134,7 +138,7 @@ data class FileProviderCaptureStrategy(
         }
     }
 
-    override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
+    final override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
         withContext(context = Dispatchers.Main.immediate) {
             val imageFile = uriFileMap[imageUri]
             uriFileMap.remove(key = imageUri)
@@ -146,7 +150,7 @@ data class FileProviderCaptureStrategy(
         }
     }
 
-    override fun getCaptureExtra(): Bundle {
+    final override fun getCaptureExtra(): Bundle {
         return extra
     }
 
