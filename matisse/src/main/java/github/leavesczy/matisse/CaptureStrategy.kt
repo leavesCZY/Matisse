@@ -99,9 +99,10 @@ data class FileProviderCaptureStrategy(
             if (tempFile != null) {
                 val uri = FileProvider.getUriForFile(context, authority, tempFile)
                 uriFileMap[uri] = tempFile
-                return@withContext uri
+                uri
+            } else {
+                null
             }
-            return@withContext null
         }
     }
 
@@ -121,15 +122,13 @@ data class FileProviderCaptureStrategy(
         return withContext(context = Dispatchers.Main.immediate) {
             val imageFile = uriFileMap[imageUri]!!
             uriFileMap.remove(key = imageUri)
-            val imageFilePath = imageFile.absolutePath
-            val displayName = imageFile.name
-            return@withContext MediaResource(
+            MediaResource(
                 id = 0,
                 bucketId = "",
                 bucketName = "",
                 uri = imageUri,
-                path = imageFilePath,
-                name = displayName,
+                path = imageFile.absolutePath,
+                name = imageFile.name,
                 mimeType = JPG_MIME_TYPE
             )
         }

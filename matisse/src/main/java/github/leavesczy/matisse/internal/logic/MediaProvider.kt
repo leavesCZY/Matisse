@@ -64,7 +64,7 @@ internal object MediaProvider {
     ): List<MediaResource>? {
         return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID
-            val dataColumn = MediaStore.MediaColumns.DATA
+            val pathColumn = MediaStore.MediaColumns.DATA
             val sizeColumn = MediaStore.MediaColumns.SIZE
             val displayNameColumn = MediaStore.MediaColumns.DISPLAY_NAME
             val mineTypeColumn = MediaStore.MediaColumns.MIME_TYPE
@@ -73,7 +73,7 @@ internal object MediaProvider {
             val dateModifiedColumn = MediaStore.MediaColumns.DATE_MODIFIED
             val projection = arrayOf(
                 idColumn,
-                dataColumn,
+                pathColumn,
                 sizeColumn,
                 displayNameColumn,
                 mineTypeColumn,
@@ -95,12 +95,12 @@ internal object MediaProvider {
                     while (cursor.moveToNext()) {
                         val defaultId = Long.MAX_VALUE
                         val id = cursor.getLong(idColumn, defaultId)
-                        val data = cursor.getString(dataColumn, "")
+                        val path = cursor.getString(pathColumn, "")
                         val size = cursor.getLong(sizeColumn, 0)
-                        if (id == defaultId || data.isBlank() || size <= 0) {
+                        if (id == defaultId || path.isBlank() || size <= 0) {
                             continue
                         }
-                        val file = File(data)
+                        val file = File(path)
                         if (!file.isFile || !file.exists()) {
                             continue
                         }
@@ -111,12 +111,12 @@ internal object MediaProvider {
                         val uri = ContentUris.withAppendedId(contentUri, id)
                         val mediaResource = MediaResource(
                             id = id,
-                            path = data,
+                            bucketId = bucketId,
+                            bucketName = bucketName,
+                            path = path,
                             uri = uri,
                             name = name,
-                            mimeType = mimeType,
-                            bucketId = bucketId,
-                            bucketName = bucketName
+                            mimeType = mimeType
                         )
                         if (ignoreMedia != null && ignoreMedia(mediaResource)) {
                             continue
@@ -127,7 +127,7 @@ internal object MediaProvider {
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
             }
-            return@withContext mediaResourceList
+            mediaResourceList
         }
     }
 
@@ -142,7 +142,7 @@ internal object MediaProvider {
                 selection = generateSqlSelection(mediaType = mediaType),
                 selectionArgs = null,
                 ignoreMedia = {
-                    mediaFilter?.ignoreMedia(mediaResource = it) ?: false
+                    mediaFilter?.ignoreMedia(mediaResource = it) == true
                 }
             ) ?: emptyList()
         }
@@ -198,9 +198,10 @@ internal object MediaProvider {
                 ignoreMedia = null
             )
             if (resources.isNullOrEmpty() || resources.size != 1) {
-                return@withContext null
+                null
+            } else {
+                resources[0]
             }
-            return@withContext resources[0]
         }
     }
 

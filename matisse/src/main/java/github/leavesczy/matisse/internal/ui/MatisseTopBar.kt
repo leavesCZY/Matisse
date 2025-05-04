@@ -49,9 +49,12 @@ import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
  * @Desc:
  */
 @Composable
-internal fun MatisseTopBar(topBarViewState: MatisseTopBarViewState) {
+internal fun MatisseTopBar(
+    modifier: Modifier,
+    topBarViewState: MatisseTopBarViewState
+) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .shadow(elevation = 4.dp)
             .background(color = colorResource(id = R.color.matisse_status_bar_color))
             .windowInsetsPadding(insets = WindowInsets.statusBarsIgnoringVisibility)
@@ -88,10 +91,10 @@ internal fun MatisseTopBar(topBarViewState: MatisseTopBarViewState) {
                 modifier = Modifier
                     .weight(weight = 1f, fill = false),
                 text = topBarViewState.title,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start,
                 fontSize = 20.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 color = colorResource(id = R.color.matisse_top_bar_text_color)
             )
             Icon(
@@ -103,6 +106,7 @@ internal fun MatisseTopBar(topBarViewState: MatisseTopBarViewState) {
             )
         }
         BucketDropdownMenu(
+            modifier = Modifier,
             topBarViewState = topBarViewState,
             menuExpanded = menuExpanded,
             onDismissRequest = {
@@ -114,17 +118,18 @@ internal fun MatisseTopBar(topBarViewState: MatisseTopBarViewState) {
 
 @Composable
 private fun BucketDropdownMenu(
+    modifier: Modifier,
     topBarViewState: MatisseTopBarViewState,
     menuExpanded: Boolean,
     onDismissRequest: () -> Unit
 ) {
     DropdownMenu(
-        modifier = Modifier
+        modifier = modifier
             .background(color = colorResource(id = R.color.matisse_dropdown_menu_background_color))
             .widthIn(min = 200.dp)
             .heightIn(max = 400.dp),
         expanded = menuExpanded,
-        offset = DpOffset(x = 10.dp, y = (-10).dp),
+        offset = DpOffset(x = 10.dp, y = (-15).dp),
         onDismissRequest = onDismissRequest
     ) {
         for (bucket in topBarViewState.mediaBuckets) {
@@ -154,9 +159,9 @@ private fun BucketDropdownMenu(
                                 .weight(weight = 1f, fill = false)
                                 .padding(start = 10.dp),
                             text = bucket.name,
+                            fontSize = 15.sp,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
-                            fontSize = 15.sp,
                             fontStyle = FontStyle.Normal,
                             fontWeight = FontWeight.Normal,
                             color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
@@ -165,8 +170,9 @@ private fun BucketDropdownMenu(
                             modifier = Modifier
                                 .padding(start = 6.dp, end = 6.dp),
                             text = "(${bucket.resources.size})",
-                            maxLines = 1,
                             fontSize = 15.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             fontStyle = FontStyle.Normal,
                             fontWeight = FontWeight.Normal,
                             color = colorResource(id = R.color.matisse_dropdown_menu_text_color)

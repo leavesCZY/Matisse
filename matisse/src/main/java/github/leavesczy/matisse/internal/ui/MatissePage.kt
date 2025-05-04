@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
@@ -64,11 +63,15 @@ internal fun MatissePage(
             .fillMaxSize(),
         containerColor = colorResource(id = R.color.matisse_main_page_background_color),
         topBar = {
-            MatisseTopBar(topBarViewState = topBarViewState)
+            MatisseTopBar(
+                modifier = Modifier,
+                topBarViewState = topBarViewState
+            )
         },
         bottomBar = {
             if (!pageViewState.fastSelect) {
                 MatisseBottomBar(
+                    modifier = Modifier,
                     bottomBarViewState = bottomBarViewState,
                     onClickSure = onClickSure
                 )
@@ -85,77 +88,86 @@ internal fun MatissePage(
             verticalArrangement = Arrangement.spacedBy(space = 1.dp),
             contentPadding = PaddingValues(start = 1.dp, top = 1.dp, end = 1.dp, bottom = 15.dp)
         ) {
-            if (pageViewState.selectedBucket.captureStrategy != null) {
+            val selectedBucket = pageViewState.selectedBucket
+            if (selectedBucket.supportCapture && pageViewState.captureStrategy != null) {
                 item(
                     key = "CaptureItem",
-                    contentType = "CaptureItem",
-                    content = {
-                        CaptureItem(onClick = onRequestTakePicture)
-                    }
-                )
+                    contentType = "CaptureItem"
+                ) {
+                    CaptureItem(
+                        modifier = Modifier
+                            .animateItem(),
+                        onClick = onRequestTakePicture
+                    )
+                }
             }
             items(
-                items = pageViewState.selectedBucket.resources,
+                items = selectedBucket.resources,
                 key = {
                     it.id
                 },
                 contentType = {
                     "MediaItem"
-                },
-                itemContent = {
-                    if (pageViewState.fastSelect) {
-                        MediaItemFastSelect(
-                            mediaResource = it,
-                            imageEngine = pageViewState.imageEngine,
-                            onClickMedia = selectMediaInFastSelectMode
-                        )
-                    } else {
-                        val mediaPlacement by remember {
-                            derivedStateOf {
-                                val index = mSelectedResources.indexOf(element = it)
-                                val isSelected = index > -1
-                                val isEnabled =
-                                    isSelected || mSelectedResources.size < pageViewState.maxSelectable
-                                val position = if (isSelected) {
-                                    (index + 1).toString()
-                                } else {
-                                    ""
-                                }
-                                MediaPlacement(
-                                    isSelected = isSelected,
-                                    isEnabled = isEnabled,
-                                    position = position
-                                )
-                            }
-                        }
-                        MediaItem(
-                            mediaResource = it,
-                            mediaPlacement = mediaPlacement,
-                            imageEngine = pageViewState.imageEngine,
-                            onClickMedia = pageViewState.onClickMedia,
-                            onClickCheckBox = pageViewState.onMediaCheckChanged
-                        )
-                    }
                 }
-            )
+            ) {
+                if (pageViewState.fastSelect) {
+                    MediaItemFastSelect(
+                        modifier = Modifier
+                            .animateItem(),
+                        mediaResource = it,
+                        imageEngine = pageViewState.imageEngine,
+                        onClickMedia = selectMediaInFastSelectMode
+                    )
+                } else {
+                    val mediaPlacement by remember {
+                        derivedStateOf {
+                            val index = mSelectedResources.indexOf(element = it)
+                            val isSelected = index > -1
+                            val isEnabled =
+                                isSelected || mSelectedResources.size < pageViewState.maxSelectable
+                            val position = if (isSelected) {
+                                (index + 1).toString()
+                            } else {
+                                ""
+                            }
+                            MediaPlacement(
+                                isSelected = isSelected,
+                                isEnabled = isEnabled,
+                                position = position
+                            )
+                        }
+                    }
+                    MediaItem(
+                        modifier = Modifier
+                            .animateItem(),
+                        mediaResource = it,
+                        mediaPlacement = mediaPlacement,
+                        imageEngine = pageViewState.imageEngine,
+                        onClickMedia = pageViewState.onClickMedia,
+                        onClickCheckBox = pageViewState.onMediaCheckChanged
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
+private fun CaptureItem(
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
     Box(
-        modifier = Modifier
-            .animateItem()
+        modifier = modifier
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_capture_item_background_color))
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             modifier = Modifier
-                .fillMaxSize(fraction = 0.5f)
-                .align(alignment = Alignment.Center),
+                .fillMaxSize(fraction = 0.5f),
             imageVector = Icons.Filled.PhotoCamera,
             tint = colorResource(id = R.color.matisse_capture_item_icon_color),
             contentDescription = "Capture"
@@ -171,14 +183,14 @@ private data class MediaPlacement(
 )
 
 @Composable
-private fun LazyGridItemScope.MediaItemWrap(
+private fun MediaItemWrap(
+    modifier: Modifier,
     mediaResource: MediaResource,
     onClickMedia: (MediaResource) -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
-        modifier = Modifier
-            .animateItem()
+        modifier = modifier
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_media_item_background_color))
@@ -191,7 +203,8 @@ private fun LazyGridItemScope.MediaItemWrap(
 }
 
 @Composable
-private fun LazyGridItemScope.MediaItem(
+private fun MediaItem(
+    modifier: Modifier,
     mediaResource: MediaResource,
     mediaPlacement: MediaPlacement,
     imageEngine: ImageEngine,
@@ -199,6 +212,7 @@ private fun LazyGridItemScope.MediaItem(
     onClickCheckBox: (MediaResource) -> Unit
 ) {
     MediaItemWrap(
+        modifier = modifier,
         mediaResource = mediaResource,
         onClickMedia = onClickMedia
     ) {
@@ -242,12 +256,14 @@ private fun LazyGridItemScope.MediaItem(
 }
 
 @Composable
-private fun LazyGridItemScope.MediaItemFastSelect(
+private fun MediaItemFastSelect(
+    modifier: Modifier,
     mediaResource: MediaResource,
     imageEngine: ImageEngine,
     onClickMedia: (MediaResource) -> Unit
 ) {
     MediaItemWrap(
+        modifier = modifier,
         mediaResource = mediaResource,
         onClickMedia = onClickMedia
     ) {

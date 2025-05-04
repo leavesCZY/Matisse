@@ -1,6 +1,5 @@
 package github.leavesczy.matisse.internal
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.content.IntentCompat
@@ -34,12 +33,12 @@ internal class MatisseCaptureActivity : BaseCaptureActivity() {
     override fun dispatchTakePictureResult(mediaResource: MediaResource) {
         val intent = Intent()
         intent.putExtra(MediaResource::class.java.name, mediaResource)
-        setResult(Activity.RESULT_OK, intent)
+        setResult(RESULT_OK, intent)
         finish()
     }
 
     override fun takePictureCancelled() {
-        setResult(Activity.RESULT_CANCELED)
+        setResult(RESULT_CANCELED)
         finish()
     }
 

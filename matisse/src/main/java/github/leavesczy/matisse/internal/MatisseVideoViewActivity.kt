@@ -7,7 +7,6 @@ import android.widget.VideoView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.IntentCompat
-import androidx.core.view.WindowCompat
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 
@@ -34,16 +33,15 @@ internal class MatisseVideoViewActivity : AppCompatActivity() {
         MediaController(this)
     }
 
-    private var lastPosition = -1
-
     private val onPreparedListener = MediaPlayer.OnPreparedListener {
         mediaController.setAnchorView(videoView)
         mediaController.setMediaPlayer(videoView)
         videoView.setMediaController(mediaController)
     }
 
+    private var lastPosition = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_matisse_video_view)
         addOnBackPressedObserver()

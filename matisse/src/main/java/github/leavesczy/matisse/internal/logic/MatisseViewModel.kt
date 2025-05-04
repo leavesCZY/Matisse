@@ -59,11 +59,12 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         maxSelectable = maxSelectable,
         fastSelect = fastSelect,
         lazyGridState = LazyGridState(),
+        captureStrategy = captureStrategy,
         selectedBucket = MediaBucket(
             id = defaultBucketId,
             name = getString(R.string.matisse_default_bucket_name),
-            resources = emptyList(),
-            captureStrategy = captureStrategy
+            supportCapture = true,
+            resources = emptyList()
         ),
         imageEngine = imageEngine,
         onClickMedia = ::onClickMedia,
@@ -126,15 +127,9 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                     mediaType = mediaType,
                     mediaFilter = mediaFilter
                 )
-                val allBucket = groupByBucket(
-                    resources = allResources
-                )
-                matissePageViewState = matissePageViewState.copy(
-                    selectedBucket = allBucket[0]
-                )
-                matisseTopBarViewState = matisseTopBarViewState.copy(
-                    mediaBuckets = allBucket
-                )
+                val allBucket = groupByBucket(resources = allResources)
+                matissePageViewState = matissePageViewState.copy(selectedBucket = allBucket[0])
+                matisseTopBarViewState = matisseTopBarViewState.copy(mediaBuckets = allBucket)
                 val mMediaFilter = mediaFilter
                 val defaultSelected = if (mMediaFilter == null || fastSelect) {
                     emptyList()
@@ -182,7 +177,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                         id = defaultBucketId,
                         name = getString(R.string.matisse_default_bucket_name),
                         resources = resources,
-                        captureStrategy = captureStrategy
+                        supportCapture = true
                     )
                 )
                 resourcesMap.forEach {
@@ -194,7 +189,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                             id = bucketId,
                             name = bucketName,
                             resources = resourceList,
-                            captureStrategy = null
+                            supportCapture = false
                         )
                     )
                 }
@@ -216,8 +211,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                 selectedResourcesMutable.size >= maxSelectable -> {
                     showToast(
                         message = String.format(
-                            getString(R.string.matisse_limit_the_number_of_media),
-                            maxSelectable
+                            getString(R.string.matisse_limit_the_number_of_media), maxSelectable
                         )
                     )
                     return

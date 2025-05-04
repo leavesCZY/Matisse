@@ -17,7 +17,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
@@ -30,11 +29,12 @@ import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
  */
 @Composable
 internal fun MatisseBottomBar(
+    modifier: Modifier,
     bottomBarViewState: MatisseBottomBarViewState,
     onClickSure: () -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .shadow(elevation = 4.dp)
             .background(color = colorResource(id = R.color.matisse_navigation_bar_color))
             .navigationBarsPadding()
@@ -58,7 +58,6 @@ internal fun MatisseBottomBar(
                 .padding(horizontal = 24.dp, vertical = 8.dp),
             text = bottomBarViewState.previewButtonText,
             fontSize = 17.sp,
-            textAlign = TextAlign.Center,
             fontWeight = FontWeight.Normal,
             color = if (bottomBarViewState.previewButtonClickable) {
                 colorResource(id = R.color.matisse_preview_text_color)
@@ -80,7 +79,6 @@ internal fun MatisseBottomBar(
                 .padding(horizontal = 24.dp, vertical = 8.dp),
             text = bottomBarViewState.sureButtonText,
             fontSize = 17.sp,
-            textAlign = TextAlign.Center,
             fontWeight = FontWeight.Normal,
             color = colorResource(
                 id = if (bottomBarViewState.sureButtonClickable) {

@@ -18,6 +18,7 @@ internal data class MatissePageViewState(
     val maxSelectable: Int,
     val fastSelect: Boolean,
     val lazyGridState: LazyGridState,
+    val captureStrategy: CaptureStrategy?,
     val selectedBucket: MediaBucket,
     val imageEngine: ImageEngine,
     val onClickMedia: (MediaResource) -> Unit,
@@ -28,8 +29,8 @@ internal data class MatissePageViewState(
 internal data class MediaBucket(
     val id: String,
     val name: String,
-    val resources: List<MediaResource>,
-    val captureStrategy: CaptureStrategy?
+    val supportCapture: Boolean,
+    val resources: List<MediaResource>
 )
 
 @Stable

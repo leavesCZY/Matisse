@@ -1,7 +1,6 @@
 package github.leavesczy.matisse.internal
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -9,7 +8,8 @@ import android.os.Parcelable
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.core.content.IntentCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -28,6 +28,7 @@ import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.ui.MatisseTheme
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * @Author: leavesCZY
@@ -54,7 +55,11 @@ internal class MatisseActivity : BaseCaptureActivity() {
 
     private val requestReadMediaPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
-            matisseViewModel.requestReadMediaPermissionResult(granted = result.all { it.value })
+            matisseViewModel.requestReadMediaPermissionResult(
+                granted = result.all {
+                    it.value
+                }
+            )
         }
 
     override val captureStrategy: CaptureStrategy
@@ -63,10 +68,11 @@ internal class MatisseActivity : BaseCaptureActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DisposableEffect(key1 = matisseViewModel.matissePreviewPageViewState.visible) {
-                setSystemBarUi(previewPageVisible = matisseViewModel.matissePreviewPageViewState.visible)
-                onDispose {
-
+            LaunchedEffect(key1 = Unit) {
+                snapshotFlow {
+                    matisseViewModel.matissePreviewPageViewState.visible
+                }.collectLatest {
+                    setSystemBarUi(previewPageVisible = it)
                 }
             }
             MatisseTheme {
@@ -81,8 +87,8 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 )
                 MatissePreviewPage(
                     pageViewState = matisseViewModel.matissePreviewPageViewState,
-                    onClickSure = ::onClickSure,
-                    requestOpenVideo = ::requestOpenVideo
+                    requestOpenVideo = ::requestOpenVideo,
+                    onClickSure = ::onClickSure
                 )
                 MatisseLoadingDialog(visible = matisseViewModel.loadingDialogVisible)
             }
@@ -206,14 +212,14 @@ internal class MatisseActivity : BaseCaptureActivity() {
 
     private fun onSure(selected: List<MediaResource>) {
         if (selected.isEmpty()) {
-            setResult(Activity.RESULT_CANCELED)
+            setResult(RESULT_CANCELED)
         } else {
             val data = Intent()
             val resources = arrayListOf<Parcelable>().apply {
                 addAll(selected)
             }
             data.putParcelableArrayListExtra(MediaResource::class.java.name, resources)
-            setResult(Activity.RESULT_OK, data)
+            setResult(RESULT_OK, data)
         }
         finish()
     }
