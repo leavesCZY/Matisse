@@ -173,11 +173,12 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     }
 
     private suspend fun onClickBucket(mediaBucketInfo: MatisseMediaBucketInfo) {
-        matisseTopBarViewState = matisseTopBarViewState.copy(title = mediaBucketInfo.name)
-        matissePageViewState = matissePageViewState.copy(selectedBucket = mediaBuckets.first {
+        val selectedBucket = mediaBuckets.find {
             it.id == mediaBucketInfo.id
-        })
-        delay(timeMillis = 20)
+        } ?: defaultBucket
+        matisseTopBarViewState = matisseTopBarViewState.copy(title = selectedBucket.name)
+        matissePageViewState = matissePageViewState.copy(selectedBucket = selectedBucket)
+        delay(timeMillis = 80)
         matissePageViewState.lazyGridState.animateScrollToItem(index = 0)
     }
 

@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.R
+import github.leavesczy.matisse.internal.logic.MatisseMediaBucketInfo
 import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
 import kotlinx.coroutines.launch
 
@@ -70,6 +71,7 @@ internal fun MatisseTopBar(
         var menuExpanded by remember {
             mutableStateOf(value = false)
         }
+        val coroutineScope = rememberCoroutineScope()
         Row(
             modifier = Modifier
                 .padding(end = 30.dp)
@@ -111,9 +113,15 @@ internal fun MatisseTopBar(
         }
         BucketDropdownMenu(
             modifier = Modifier,
-            viewState = viewState,
-            imageEngine = imageEngine,
             menuExpanded = menuExpanded,
+            mediaBuckets = viewState.mediaBuckets,
+            imageEngine = imageEngine,
+            onClickBucket = {
+                menuExpanded = false
+                coroutineScope.launch {
+                    viewState.onClickBucket(it)
+                }
+            },
             onDismissRequest = {
                 menuExpanded = false
             }
@@ -124,12 +132,12 @@ internal fun MatisseTopBar(
 @Composable
 private fun BucketDropdownMenu(
     modifier: Modifier,
-    viewState: MatisseTopBarViewState,
-    imageEngine: ImageEngine,
     menuExpanded: Boolean,
+    mediaBuckets: List<MatisseMediaBucketInfo>,
+    imageEngine: ImageEngine,
+    onClickBucket: (MatisseMediaBucketInfo) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
     DropdownMenu(
         modifier = modifier
             .background(color = colorResource(id = R.color.matisse_dropdown_menu_background_color))
@@ -139,7 +147,7 @@ private fun BucketDropdownMenu(
         offset = DpOffset(x = 10.dp, y = (-15).dp),
         onDismissRequest = onDismissRequest
     ) {
-        for (bucket in viewState.mediaBuckets) {
+        for (bucket in mediaBuckets) {
             DropdownMenuItem(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -187,10 +195,7 @@ private fun BucketDropdownMenu(
                     }
                 },
                 onClick = {
-                    coroutineScope.launch {
-                        viewState.onClickBucket(bucket)
-                        onDismissRequest()
-                    }
+                    onClickBucket(bucket)
                 }
             )
         }

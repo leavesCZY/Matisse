@@ -1,5 +1,6 @@
 package github.leavesczy.matisse.samples.logic
 
+import androidx.compose.runtime.Stable
 import github.leavesczy.matisse.MediaResource
 
 /**
@@ -7,25 +8,7 @@ import github.leavesczy.matisse.MediaResource
  * @Date: 2024/2/21 12:01
  * @Desc:
  */
-enum class MediaCaptureStrategy {
-    Smart,
-    FileProvider,
-    MediaStore,
-    Close
-}
-
-enum class MediaImageEngine {
-    Coil3,
-    Coil2,
-    Glide
-}
-
-enum class MediaFilterStrategy {
-    Nothing,
-    IgnoreSelected,
-    AttachSelected
-}
-
+@Stable
 data class MainPageViewState(
     val maxSelectable: Int,
     val fastSelect: Boolean,
@@ -46,3 +29,22 @@ data class MainPageViewState(
     val onCapturePreferencesCustomChanged: (Boolean) -> Unit,
     val switchTheme: () -> Unit
 )
+
+enum class MediaCaptureStrategy {
+    Smart,
+    FileProvider,
+    MediaStore,
+    Close
+}
+
+enum class MediaImageEngine {
+    Coil3,
+    Coil2,
+    Glide
+}
+
+enum class MediaFilterStrategy {
+    Nothing,
+    IgnoreSelected,
+    AttachSelected
+}

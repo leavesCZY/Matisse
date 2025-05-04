@@ -1,6 +1,9 @@
 package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
@@ -34,6 +38,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.integerResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
@@ -97,7 +102,7 @@ internal fun MatissePage(
                 ) {
                     CaptureItem(
                         modifier = Modifier
-                            .animateItem(),
+                            .customAnimateItem(scope = this),
                         onClick = onRequestTakePicture
                     )
                 }
@@ -114,7 +119,7 @@ internal fun MatissePage(
                 if (pageViewState.fastSelect) {
                     MediaItemFastSelect(
                         modifier = Modifier
-                            .animateItem(),
+                            .customAnimateItem(scope = this),
                         mediaResource = it,
                         imageEngine = pageViewState.imageEngine,
                         onClickMedia = selectMediaInFastSelectMode
@@ -140,7 +145,7 @@ internal fun MatissePage(
                     }
                     MediaItem(
                         modifier = Modifier
-                            .animateItem(),
+                            .customAnimateItem(scope = this),
                         mediaResource = it,
                         mediaPlacement = mediaPlacement,
                         imageEngine = pageViewState.imageEngine,
@@ -150,6 +155,19 @@ internal fun MatissePage(
                 }
             }
         }
+    }
+}
+
+private fun Modifier.customAnimateItem(scope: LazyGridItemScope): Modifier {
+    return with(scope) {
+        animateItem(
+            fadeInSpec = spring(stiffness = Spring.StiffnessMedium),
+            fadeOutSpec = spring(stiffness = Spring.StiffnessMedium),
+            placementSpec = spring(
+                stiffness = 800f,
+                visibilityThreshold = IntOffset.VisibilityThreshold
+            )
+        )
     }
 }
 
