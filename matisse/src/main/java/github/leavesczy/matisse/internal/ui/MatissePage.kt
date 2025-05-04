@@ -65,7 +65,8 @@ internal fun MatissePage(
         topBar = {
             MatisseTopBar(
                 modifier = Modifier,
-                topBarViewState = topBarViewState
+                imageEngine = pageViewState.imageEngine,
+                viewState = topBarViewState
             )
         },
         bottomBar = {

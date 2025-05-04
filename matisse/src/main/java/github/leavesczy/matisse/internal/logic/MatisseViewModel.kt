@@ -13,11 +13,11 @@ import androidx.lifecycle.viewModelScope
 import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.Matisse
-import github.leavesczy.matisse.MediaFilter
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.R
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -47,36 +47,26 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     val singleMediaType: Boolean
         get() = matisse.singleMediaType
 
-    private val mediaFilter: MediaFilter?
-        get() = matisse.mediaFilter
-
     val captureStrategy: CaptureStrategy?
         get() = matisse.captureStrategy
 
     private val defaultBucketId = "&__matisseDefaultBucketId__&"
 
-    private val nothingMatissePageViewState = MatissePageViewState(
-        maxSelectable = maxSelectable,
-        fastSelect = fastSelect,
-        lazyGridState = LazyGridState(),
-        captureStrategy = captureStrategy,
-        selectedBucket = MediaBucket(
-            id = defaultBucketId,
-            name = getString(R.string.matisse_default_bucket_name),
-            supportCapture = true,
-            resources = emptyList()
-        ),
-        imageEngine = imageEngine,
-        onClickMedia = ::onClickMedia,
-        onMediaCheckChanged = ::onMediaCheckChanged
+    private val defaultBucket = MatisseMediaBucket(
+        id = defaultBucketId,
+        name = getString(R.string.matisse_default_bucket_name),
+        supportCapture = true,
+        resources = emptyList()
     )
 
-    private val nothingMatisseTopBarViewState = MatisseTopBarViewState(
-        title = nothingMatissePageViewState.selectedBucket.name,
-        imageEngine = imageEngine,
-        mediaBuckets = listOf(element = nothingMatissePageViewState.selectedBucket),
-        onClickBucket = ::onClickBucket
+    private val defaultBucketInfo = MatisseMediaBucketInfo(
+        id = defaultBucket.id,
+        name = defaultBucket.name,
+        bucketSize = defaultBucket.resources.size,
+        firstMedia = defaultBucket.resources.firstOrNull(),
     )
+
+    private val mediaBuckets = mutableListOf<MatisseMediaBucket>()
 
     var selectedResources by mutableStateOf(
         value = emptyList<MediaResource>()
@@ -84,12 +74,25 @@ internal class MatisseViewModel(application: Application, private val matisse: M
         private set
 
     var matissePageViewState by mutableStateOf(
-        value = nothingMatissePageViewState
+        value = MatissePageViewState(
+            maxSelectable = maxSelectable,
+            fastSelect = fastSelect,
+            lazyGridState = LazyGridState(),
+            captureStrategy = captureStrategy,
+            selectedBucket = defaultBucket,
+            imageEngine = imageEngine,
+            onClickMedia = ::onClickMedia,
+            onMediaCheckChanged = ::onMediaCheckChanged
+        )
     )
         private set
 
     var matisseTopBarViewState by mutableStateOf(
-        value = nothingMatisseTopBarViewState
+        value = MatisseTopBarViewState(
+            title = defaultBucket.name,
+            mediaBuckets = listOf(element = defaultBucketInfo),
+            onClickBucket = ::onClickBucket
+        )
     )
         private set
 
@@ -103,7 +106,6 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             visible = false,
             initialPage = 0,
             maxSelectable = maxSelectable,
-            imageEngine = imageEngine,
             sureButtonText = "",
             sureButtonClickable = false,
             selectedResources = emptyList(),
@@ -119,45 +121,67 @@ internal class MatisseViewModel(application: Application, private val matisse: M
 
     fun requestReadMediaPermissionResult(granted: Boolean) {
         viewModelScope.launch(context = Dispatchers.Main.immediate) {
+            showLoadingDialog()
             dismissPreviewPage()
+            mediaBuckets.clear()
+            val mediaFilter = matisse.mediaFilter
             if (granted) {
-                showLoadingDialog()
                 val allResources = MediaProvider.loadResources(
                     context = context,
                     mediaType = mediaType,
                     mediaFilter = mediaFilter
                 )
                 val allBucket = groupByBucket(resources = allResources)
-                matissePageViewState = matissePageViewState.copy(selectedBucket = allBucket[0])
-                matisseTopBarViewState = matisseTopBarViewState.copy(mediaBuckets = allBucket)
-                val mMediaFilter = mediaFilter
-                val defaultSelected = if (mMediaFilter == null || fastSelect) {
+                mediaBuckets.addAll(elements = allBucket)
+                val firstBucket = allBucket[0]
+                matissePageViewState = matissePageViewState.copy(selectedBucket = firstBucket)
+                matisseTopBarViewState = matisseTopBarViewState.copy(
+                    title = firstBucket.name,
+                    mediaBuckets = allBucket.map {
+                        MatisseMediaBucketInfo(
+                            id = it.id,
+                            name = it.name,
+                            bucketSize = it.resources.size,
+                            firstMedia = it.resources.first()
+                        )
+                    }
+                )
+                val defaultSelected = if (mediaFilter == null || fastSelect) {
                     emptyList()
                 } else {
                     allResources.filter {
-                        mMediaFilter.selectMedia(mediaResource = it)
+                        mediaFilter.selectMedia(mediaResource = it)
                     }
                 }
                 selectedResources = defaultSelected
             } else {
-                selectedResources = emptyList()
-                matissePageViewState = nothingMatissePageViewState
-                matisseTopBarViewState = nothingMatisseTopBarViewState
+                resetViewStateIfNeeded()
                 showToast(message = getString(R.string.matisse_read_media_permission_denied))
             }
-            dismissLoadingDialog()
             matisseBottomBarViewState = buildMatisseBottomBarViewState()
+            dismissLoadingDialog()
         }
     }
 
-    private fun onClickBucket(mediaBucket: MediaBucket) {
-        if (matissePageViewState.selectedBucket != mediaBucket) {
-            matisseTopBarViewState = matisseTopBarViewState.copy(title = mediaBucket.name)
-            matissePageViewState = matissePageViewState.copy(selectedBucket = mediaBucket)
-        }
+    private fun resetViewStateIfNeeded() {
+        selectedResources = emptyList()
+        matissePageViewState = matissePageViewState.copy(selectedBucket = defaultBucket)
+        matisseTopBarViewState = matisseTopBarViewState.copy(
+            title = defaultBucketInfo.name,
+            mediaBuckets = listOf(element = defaultBucketInfo),
+        )
     }
 
-    private suspend fun groupByBucket(resources: List<MediaResource>): List<MediaBucket> {
+    private suspend fun onClickBucket(mediaBucketInfo: MatisseMediaBucketInfo) {
+        matisseTopBarViewState = matisseTopBarViewState.copy(title = mediaBucketInfo.name)
+        matissePageViewState = matissePageViewState.copy(selectedBucket = mediaBuckets.first {
+            it.id == mediaBucketInfo.id
+        })
+        delay(timeMillis = 20)
+        matissePageViewState.lazyGridState.animateScrollToItem(index = 0)
+    }
+
+    private suspend fun groupByBucket(resources: List<MediaResource>): List<MatisseMediaBucket> {
         return withContext(context = Dispatchers.Default) {
             val resourcesMap = linkedMapOf<String, MutableList<MediaResource>>()
             resources.forEach { res ->
@@ -173,7 +197,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             }
             buildList {
                 add(
-                    element = MediaBucket(
+                    element = MatisseMediaBucket(
                         id = defaultBucketId,
                         name = getString(R.string.matisse_default_bucket_name),
                         resources = resources,
@@ -185,7 +209,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                     val resourceList = it.value
                     val bucketName = resourceList[0].bucketName
                     add(
-                        element = MediaBucket(
+                        element = MatisseMediaBucket(
                             id = bucketId,
                             name = bucketName,
                             resources = resourceList,

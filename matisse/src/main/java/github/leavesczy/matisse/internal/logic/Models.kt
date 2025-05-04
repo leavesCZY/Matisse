@@ -19,14 +19,14 @@ internal data class MatissePageViewState(
     val fastSelect: Boolean,
     val lazyGridState: LazyGridState,
     val captureStrategy: CaptureStrategy?,
-    val selectedBucket: MediaBucket,
+    val selectedBucket: MatisseMediaBucket,
     val imageEngine: ImageEngine,
     val onClickMedia: (MediaResource) -> Unit,
     val onMediaCheckChanged: (MediaResource) -> Unit
 )
 
 @Stable
-internal data class MediaBucket(
+internal data class MatisseMediaBucket(
     val id: String,
     val name: String,
     val supportCapture: Boolean,
@@ -36,9 +36,16 @@ internal data class MediaBucket(
 @Stable
 internal data class MatisseTopBarViewState(
     val title: String,
-    val imageEngine: ImageEngine,
-    val mediaBuckets: List<MediaBucket>,
-    val onClickBucket: (MediaBucket) -> Unit
+    val mediaBuckets: List<MatisseMediaBucketInfo>,
+    val onClickBucket: suspend (MatisseMediaBucketInfo) -> Unit
+)
+
+@Stable
+internal data class MatisseMediaBucketInfo(
+    val id: String,
+    val name: String,
+    val bucketSize: Int,
+    val firstMedia: MediaResource?
 )
 
 @Stable
@@ -55,7 +62,6 @@ internal data class MatissePreviewPageViewState(
     val visible: Boolean,
     val initialPage: Int,
     val maxSelectable: Int,
-    val imageEngine: ImageEngine,
     val sureButtonText: String,
     val sureButtonClickable: Boolean,
     val previewResources: List<MediaResource>,

@@ -8,8 +8,7 @@ import android.os.Parcelable
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.DisposableEffect
 import androidx.core.content.IntentCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -28,7 +27,6 @@ import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.ui.MatisseTheme
-import kotlinx.coroutines.flow.collectLatest
 
 /**
  * @Author: leavesCZY
@@ -68,11 +66,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LaunchedEffect(key1 = Unit) {
-                snapshotFlow {
-                    matisseViewModel.matissePreviewPageViewState.visible
-                }.collectLatest {
-                    setSystemBarUi(previewPageVisible = it)
+            DisposableEffect(key1 = matisseViewModel.matissePreviewPageViewState.visible) {
+                setSystemBarUi(previewPageVisible = matisseViewModel.matissePreviewPageViewState.visible)
+                onDispose {
+
                 }
             }
             MatisseTheme {
@@ -87,6 +84,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 )
                 MatissePreviewPage(
                     pageViewState = matisseViewModel.matissePreviewPageViewState,
+                    imageEngine = matisseViewModel.matissePageViewState.imageEngine,
                     requestOpenVideo = ::requestOpenVideo,
                     onClickSure = ::onClickSure
                 )

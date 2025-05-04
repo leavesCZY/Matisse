@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,8 +41,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
+import kotlinx.coroutines.launch
 
 /**
  * @Author: leavesCZY
@@ -51,7 +54,8 @@ import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
 @Composable
 internal fun MatisseTopBar(
     modifier: Modifier,
-    topBarViewState: MatisseTopBarViewState
+    viewState: MatisseTopBarViewState,
+    imageEngine: ImageEngine
 ) {
     Row(
         modifier = modifier
@@ -90,7 +94,7 @@ internal fun MatisseTopBar(
             Text(
                 modifier = Modifier
                     .weight(weight = 1f, fill = false),
-                text = topBarViewState.title,
+                text = viewState.title,
                 textAlign = TextAlign.Start,
                 fontSize = 20.sp,
                 maxLines = 1,
@@ -107,7 +111,8 @@ internal fun MatisseTopBar(
         }
         BucketDropdownMenu(
             modifier = Modifier,
-            topBarViewState = topBarViewState,
+            viewState = viewState,
+            imageEngine = imageEngine,
             menuExpanded = menuExpanded,
             onDismissRequest = {
                 menuExpanded = false
@@ -119,10 +124,12 @@ internal fun MatisseTopBar(
 @Composable
 private fun BucketDropdownMenu(
     modifier: Modifier,
-    topBarViewState: MatisseTopBarViewState,
+    viewState: MatisseTopBarViewState,
+    imageEngine: ImageEngine,
     menuExpanded: Boolean,
     onDismissRequest: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
     DropdownMenu(
         modifier = modifier
             .background(color = colorResource(id = R.color.matisse_dropdown_menu_background_color))
@@ -132,7 +139,7 @@ private fun BucketDropdownMenu(
         offset = DpOffset(x = 10.dp, y = (-15).dp),
         onDismissRequest = onDismissRequest
     ) {
-        for (bucket in topBarViewState.mediaBuckets) {
+        for (bucket in viewState.mediaBuckets) {
             DropdownMenuItem(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -149,9 +156,9 @@ private fun BucketDropdownMenu(
                                 .background(color = colorResource(id = R.color.matisse_media_item_background_color)),
                             contentAlignment = Alignment.Center
                         ) {
-                            val firstResource = bucket.resources.firstOrNull()
-                            if (firstResource != null) {
-                                topBarViewState.imageEngine.Thumbnail(mediaResource = firstResource)
+                            val firstMedia = bucket.firstMedia
+                            if (firstMedia != null) {
+                                imageEngine.Thumbnail(mediaResource = firstMedia)
                             }
                         }
                         Text(
@@ -169,7 +176,7 @@ private fun BucketDropdownMenu(
                         Text(
                             modifier = Modifier
                                 .padding(start = 6.dp, end = 6.dp),
-                            text = "(${bucket.resources.size})",
+                            text = "(${bucket.bucketSize})",
                             fontSize = 15.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -180,8 +187,10 @@ private fun BucketDropdownMenu(
                     }
                 },
                 onClick = {
-                    onDismissRequest()
-                    topBarViewState.onClickBucket(bucket)
+                    coroutineScope.launch {
+                        viewState.onClickBucket(bucket)
+                        onDismissRequest()
+                    }
                 }
             )
         }

@@ -51,6 +51,7 @@ import kotlin.math.absoluteValue
 @Composable
 internal fun MatissePreviewPage(
     pageViewState: MatissePreviewPageViewState,
+    imageEngine: ImageEngine,
     requestOpenVideo: (MediaResource) -> Unit,
     onClickSure: () -> Unit
 ) {
@@ -112,7 +113,7 @@ internal fun MatissePreviewPage(
                         modifier = Modifier,
                         pagerState = pagerState,
                         pageIndex = pageIndex,
-                        imageEngine = pageViewState.imageEngine,
+                        imageEngine = imageEngine,
                         mediaResource = previewResources[pageIndex],
                         requestOpenVideo = requestOpenVideo
                     )
