@@ -218,7 +218,8 @@ private fun BottomController(
         )
         MatisseCheckbox(
             modifier = Modifier
-                .align(alignment = Alignment.Center),
+                .align(alignment = Alignment.Center)
+                .size(size = 24.dp),
             text = if (imagePosition > -1) {
                 (imagePosition + 1).toString()
             } else {

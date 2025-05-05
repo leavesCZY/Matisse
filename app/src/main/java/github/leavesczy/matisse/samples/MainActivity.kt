@@ -161,12 +161,12 @@ private fun MainPage(
             horizontalAlignment = Alignment.Start,
         ) {
             Title(text = "gridColumns")
-            Row(
+            FlowRow(
                 modifier = Modifier
                     .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalArrangement = Arrangement.Center
             ) {
-                for (gridColumns in 3..5) {
+                for (gridColumns in 2..6) {
                     RadioButton(
                         tips = gridColumns.toString(),
                         selected = mainPageViewState.gridColumns == gridColumns,
@@ -177,10 +177,10 @@ private fun MainPage(
                 }
             }
             Title(text = "maxSelectable")
-            Row(
+            FlowRow(
                 modifier = Modifier
                     .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalArrangement = Arrangement.Center
             ) {
                 for (maxSelectable in 1..4) {
                     RadioButton(

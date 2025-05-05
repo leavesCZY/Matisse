@@ -262,7 +262,8 @@ private fun MediaItem(
         MatisseCheckbox(
             modifier = Modifier
                 .align(alignment = Alignment.TopEnd)
-                .padding(all = 5.dp),
+                .padding(all = 5.dp)
+                .fillMaxSize(fraction = 0.24f),
             text = mediaPlacement.position,
             checked = mediaPlacement.isSelected,
             enabled = mediaPlacement.isEnabled,

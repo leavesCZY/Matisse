@@ -1,24 +1,21 @@
 package github.leavesczy.matisse.internal.ui
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ripple
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
@@ -36,60 +33,52 @@ internal fun MatisseCheckbox(
     checked: Boolean,
     onClick: () -> Unit
 ) {
-    val circleColor = colorResource(
-        id = if (enabled) {
-            R.color.matisse_check_box_circle_color
-        } else {
-            R.color.matisse_check_box_circle_color_if_disable
-        }
-    )
-    val fillColor = colorResource(id = R.color.matisse_check_box_circle_fill_color)
-    val textColor = colorResource(id = R.color.matisse_check_box_text_color)
-    val checkboxSize = 22.dp
-    val textMeasurer = rememberTextMeasurer()
-    Canvas(
+    Box(
         modifier = modifier
-            .shadow(elevation = 0.2.dp, shape = CircleShape)
-            .selectable(
-                selected = checked,
-                onClick = onClick,
-                enabled = true,
-                role = Role.Checkbox,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(bounded = false, radius = checkboxSize / 2)
-            )
-            .requiredSize(size = checkboxSize)
+            .clickableNoRipple(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
-        val checkboxSide = size.width
-        val checkboxRadius = checkboxSide / 2f
-        val strokeWidth = checkboxSide / 11f
         if (checked) {
-            drawCircle(
-                color = fillColor,
-                radius = checkboxRadius,
-                style = Fill
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(shape = CircleShape)
+                    .background(color = colorResource(id = R.color.matisse_check_box_circle_fill_color))
             )
         } else {
-            drawCircle(
-                color = circleColor,
-                radius = checkboxRadius - strokeWidth / 2f,
-                style = Stroke(width = strokeWidth)
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .border(
+                        width = 1.4.dp,
+                        shape = CircleShape,
+                        color = colorResource(
+                            id = if (enabled) {
+                                R.color.matisse_check_box_circle_color
+                            } else {
+                                R.color.matisse_check_box_circle_color_if_disable
+                            }
+                        ),
+                    )
             )
         }
         if (text.isNotBlank()) {
-            val textLayoutResult = textMeasurer.measure(
+            BasicText(
+                modifier = Modifier,
                 text = text,
+                maxLines = 1,
+                overflow = TextOverflow.Clip,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 8.sp,
+                    maxFontSize = 112.sp,
+                    stepSize = 0.25.sp
+                ),
                 style = TextStyle(
-                    color = textColor,
-                    fontSize = 14.sp,
+                    color = colorResource(id = R.color.matisse_check_box_text_color),
+                    fontSize = 13.sp,
+                    fontStyle = FontStyle.Normal,
+                    fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center
-                )
-            )
-            drawText(
-                textLayoutResult = textLayoutResult,
-                topLeft = Offset(
-                    x = (checkboxSide - textLayoutResult.size.width) / 2,
-                    y = (checkboxSide - textLayoutResult.size.height) / 2
                 )
             )
         }
