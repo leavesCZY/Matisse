@@ -8,7 +8,9 @@ import android.os.Parcelable
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
 import androidx.core.content.IntentCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -27,6 +29,7 @@ import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.ui.MatisseTheme
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * @Author: leavesCZY
@@ -64,12 +67,14 @@ internal class MatisseActivity : BaseCaptureActivity() {
         get() = requireNotNull(value = matisseViewModel.captureStrategy)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setSystemBarUi(previewPageVisible = false)
         super.onCreate(savedInstanceState)
         setContent {
-            DisposableEffect(key1 = matisseViewModel.matissePreviewPageViewState.visible) {
-                setSystemBarUi(previewPageVisible = matisseViewModel.matissePreviewPageViewState.visible)
-                onDispose {
-
+            LaunchedEffect(key1 = Unit) {
+                snapshotFlow {
+                    matisseViewModel.matissePreviewPageViewState.visible
+                }.collectLatest {
+                    setSystemBarUi(previewPageVisible = it)
                 }
             }
             MatisseTheme {
@@ -88,7 +93,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     requestOpenVideo = ::requestOpenVideo,
                     onClickSure = ::onClickSure
                 )
-                MatisseLoadingDialog(visible = matisseViewModel.loadingDialogVisible)
+                MatisseLoadingDialog(
+                    modifier = Modifier,
+                    visible = matisseViewModel.loadingDialogVisible
+                )
             }
         }
         requestReadMediaPermission()
@@ -100,10 +108,40 @@ internal class MatisseActivity : BaseCaptureActivity() {
         ) {
             buildList {
                 val mediaType = matisseViewModel.mediaType
-                if (mediaType.hasImage) {
+                val hasImage = when (mediaType) {
+                    MediaType.ImageOnly, MediaType.ImageAndVideo -> {
+                        true
+                    }
+
+                    MediaType.VideoOnly -> {
+                        false
+                    }
+
+                    is MediaType.MultipleMimeType -> {
+                        mediaType.mimeTypes.any {
+                            it.startsWith(prefix = ImageMimeTypePrefix)
+                        }
+                    }
+                }
+                val hasVideo = when (mediaType) {
+                    MediaType.ImageOnly -> {
+                        false
+                    }
+
+                    MediaType.VideoOnly, MediaType.ImageAndVideo -> {
+                        true
+                    }
+
+                    is MediaType.MultipleMimeType -> {
+                        mediaType.mimeTypes.any {
+                            it.startsWith(prefix = VideoMimeTypePrefix)
+                        }
+                    }
+                }
+                if (hasImage) {
                     add(element = Manifest.permission.READ_MEDIA_IMAGES)
                 }
-                if (mediaType.hasVideo) {
+                if (hasVideo) {
                     add(element = Manifest.permission.READ_MEDIA_VIDEO)
                 }
             }.toTypedArray()
@@ -116,44 +154,6 @@ internal class MatisseActivity : BaseCaptureActivity() {
             requestReadMediaPermissionLauncher.launch(permissions)
         }
     }
-
-    private val MediaType.hasImage: Boolean
-        get() {
-            return when (this) {
-                MediaType.ImageOnly, MediaType.ImageAndVideo -> {
-                    true
-                }
-
-                MediaType.VideoOnly -> {
-                    false
-                }
-
-                is MediaType.MultipleMimeType -> {
-                    mimeTypes.any {
-                        it.startsWith(prefix = ImageMimeTypePrefix)
-                    }
-                }
-            }
-        }
-
-    private val MediaType.hasVideo: Boolean
-        get() {
-            return when (this) {
-                MediaType.VideoOnly, MediaType.ImageAndVideo -> {
-                    true
-                }
-
-                MediaType.ImageOnly -> {
-                    false
-                }
-
-                is MediaType.MultipleMimeType -> {
-                    mimeTypes.any {
-                        it.startsWith(prefix = VideoMimeTypePrefix)
-                    }
-                }
-            }
-        }
 
     private fun requestOpenVideo(mediaResource: MediaResource) {
         val intent = Intent(this, MatisseVideoViewActivity::class.java)
@@ -218,16 +218,6 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     private fun setSystemBarUi(previewPageVisible: Boolean) {
-        val statusBarDarkIcons = if (previewPageVisible) {
-            false
-        } else {
-            resources.getBoolean(R.bool.matisse_status_bar_dark_icons)
-        }
-        val navigationBarDarkIcons = if (previewPageVisible) {
-            false
-        } else {
-            resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
-        }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowInsetsControllerCompat(window, window.decorView).apply {
             if (previewPageVisible) {
@@ -236,6 +226,16 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 show(WindowInsetsCompat.Type.statusBars())
             }
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+            val statusBarDarkIcons = if (previewPageVisible) {
+                false
+            } else {
+                resources.getBoolean(R.bool.matisse_status_bar_dark_icons)
+            }
+            val navigationBarDarkIcons = if (previewPageVisible) {
+                false
+            } else {
+                resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
+            }
             isAppearanceLightStatusBars = statusBarDarkIcons
             isAppearanceLightNavigationBars = navigationBarDarkIcons
         }

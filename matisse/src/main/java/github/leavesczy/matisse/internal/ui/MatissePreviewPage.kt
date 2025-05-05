@@ -61,14 +61,14 @@ internal fun MatissePreviewPage(
         visible = viewState.visible,
         enter = slideInHorizontally(
             animationSpec = tween(
-                durationMillis = 400,
+                durationMillis = 350,
                 easing = FastOutSlowInEasing
             ),
             initialOffsetX = { it }
         ),
         exit = slideOutHorizontally(
             animationSpec = tween(
-                durationMillis = 400,
+                durationMillis = 350,
                 easing = FastOutSlowInEasing
             ),
             targetOffsetX = { it }
@@ -78,12 +78,8 @@ internal fun MatissePreviewPage(
             enabled = viewState.visible,
             onBack = viewState.onDismissRequest
         )
-        val previewResources = viewState.previewResources
-        val pagerState = rememberPagerState(
-            initialPage = viewState.initialPage,
-            initialPageOffsetFraction = 0f
-        ) {
-            previewResources.size
+        val pagerState = rememberPagerState(initialPage = viewState.initialPage) {
+            viewState.previewResources.size
         }
         Scaffold(
             modifier = Modifier
@@ -108,15 +104,16 @@ internal fun MatissePreviewPage(
                     state = pagerState,
                     verticalAlignment = Alignment.CenterVertically,
                     key = { index ->
-                        previewResources[index].id
+                        viewState.previewResources[index].id
                     }
                 ) { pageIndex ->
                     PreviewPage(
-                        modifier = Modifier,
+                        modifier = Modifier
+                            .fillMaxSize(),
                         pagerState = pagerState,
                         pageIndex = pageIndex,
                         imageEngine = imageEngine,
-                        mediaResource = previewResources[pageIndex],
+                        mediaResource = viewState.previewResources[pageIndex],
                         requestOpenVideo = requestOpenVideo
                     )
                 }
@@ -141,25 +138,28 @@ private fun PreviewPage(
     mediaResource: MediaResource,
     requestOpenVideo: (MediaResource) -> Unit
 ) {
+    val fraction by remember {
+        derivedStateOf {
+            val pageOffset =
+                (pagerState.currentPage - pageIndex + pagerState.currentPageOffsetFraction).absoluteValue
+            val progress = 1f - pageOffset.coerceIn(0f, 1f)
+            lerp(
+                start = 0.80f,
+                stop = 1f,
+                fraction = progress
+            )
+        }
+    }
     Box(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
                 .graphicsLayer {
-                    val pageOffset =
-                        ((pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction).absoluteValue
-                    lerp(
-                        start = 0.80f,
-                        stop = 1f,
-                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                    ).also { fraction ->
-                        scaleX = fraction
-                        scaleY = fraction
-                        alpha = fraction
-                    }
+                    scaleX = fraction
+                    scaleY = fraction
+                    alpha = fraction
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -227,14 +227,14 @@ private fun BottomController(
             checked = imagePosition > -1,
             enabled = checkboxEnabled,
             onClick = {
-                pageViewState.onMediaCheckChanged(mPageViewState.previewResources[pagerState.currentPage])
+                mPageViewState.onMediaCheckChanged(mPageViewState.previewResources[pagerState.currentPage])
             }
         )
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterEnd)
                 .then(
-                    other = if (pageViewState.sureButtonClickable) {
+                    other = if (mPageViewState.sureButtonClickable) {
                         Modifier
                             .clip(shape = CircleShape)
                             .clickable(onClick = onClickSure)
@@ -243,12 +243,12 @@ private fun BottomController(
                     }
                 )
                 .padding(horizontal = 20.dp, vertical = 6.dp),
-            text = pageViewState.sureButtonText,
+            text = mPageViewState.sureButtonText,
             fontSize = 16.sp,
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
             color = colorResource(
-                id = if (pageViewState.sureButtonClickable) {
+                id = if (mPageViewState.sureButtonClickable) {
                     R.color.matisse_preview_page_sure_text_color
                 } else {
                     R.color.matisse_preview_page_sure_text_color_if_disable

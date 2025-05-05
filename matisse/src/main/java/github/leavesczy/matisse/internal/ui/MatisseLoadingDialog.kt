@@ -16,10 +16,13 @@ import github.leavesczy.matisse.R
  * @Desc:
  */
 @Composable
-internal fun MatisseLoadingDialog(visible: Boolean) {
+internal fun MatisseLoadingDialog(
+    modifier: Modifier,
+    visible: Boolean
+) {
     if (visible) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .clickableNoRipple {},
             contentAlignment = Alignment.Center
