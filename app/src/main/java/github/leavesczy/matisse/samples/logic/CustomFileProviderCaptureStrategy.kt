@@ -21,7 +21,7 @@ data class CustomFileProviderCaptureStrategy(
     extra = extra
 ) {
 
-    override fun getPicturesDirectory(context: Context): File {
+    override fun getAuthorityDirectory(context: Context): File {
         return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
     }
 

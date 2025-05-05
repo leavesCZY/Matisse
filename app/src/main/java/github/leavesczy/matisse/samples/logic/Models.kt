@@ -30,6 +30,7 @@ data class MainPageViewState(
     val switchTheme: () -> Unit
 )
 
+@Stable
 enum class MediaCaptureStrategy {
     Smart,
     FileProvider,
@@ -37,12 +38,14 @@ enum class MediaCaptureStrategy {
     Close
 }
 
+@Stable
 enum class MediaImageEngine {
     Coil3,
     Coil2,
     Glide
 }
 
+@Stable
 enum class MediaFilterStrategy {
     Nothing,
     IgnoreSelected,

@@ -121,7 +121,13 @@ class MainViewModel : ViewModel() {
         }
         return when (mainPageViewState.captureStrategy) {
             MediaCaptureStrategy.Smart -> {
-                SmartCaptureStrategy(authority = fileProviderAuthority, extra = captureExtra)
+                SmartCaptureStrategy(
+                    fileProviderCaptureStrategy = CustomFileProviderCaptureStrategy(
+                        authority = fileProviderAuthority,
+                        extra = captureExtra
+                    ),
+                    extra = captureExtra
+                )
             }
 
             MediaCaptureStrategy.FileProvider -> {

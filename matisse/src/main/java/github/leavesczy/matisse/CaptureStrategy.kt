@@ -108,7 +108,7 @@ open class FileProviderCaptureStrategy(
 
     private suspend fun createTempFile(context: Context): File? {
         return withContext(context = Dispatchers.IO) {
-            val picturesDirectory = getPicturesDirectory(context = context)
+            val picturesDirectory = getAuthorityDirectory(context = context)
             val file = File(picturesDirectory, createImageName(context = context))
             if (file.createNewFile()) {
                 file
@@ -118,7 +118,7 @@ open class FileProviderCaptureStrategy(
         }
     }
 
-    protected open fun getPicturesDirectory(context: Context): File {
+    protected open fun getAuthorityDirectory(context: Context): File {
         return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
     }
 
@@ -210,7 +210,7 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
  */
 @Parcelize
 data class SmartCaptureStrategy(
-    private val authority: String,
+    private val fileProviderCaptureStrategy: FileProviderCaptureStrategy,
     private val extra: Bundle = Bundle.EMPTY
 ) : CaptureStrategy {
 
@@ -218,7 +218,7 @@ data class SmartCaptureStrategy(
     private val proxy = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         MediaStoreCaptureStrategy(extra = extra)
     } else {
-        FileProviderCaptureStrategy(authority = authority, extra = extra)
+        fileProviderCaptureStrategy
     }
 
     override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {

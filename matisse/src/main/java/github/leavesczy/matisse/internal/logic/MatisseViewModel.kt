@@ -134,7 +134,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                             id = it.id,
                             name = it.name,
                             size = it.resources.size,
-                            firstMedia = it.resources.first()
+                            firstMedia = it.resources.firstOrNull()
                         )
                     }
                 )
