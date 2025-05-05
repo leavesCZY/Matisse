@@ -37,7 +37,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.ImageEngine
@@ -89,7 +88,7 @@ internal fun MatissePage(
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
             state = pageViewState.lazyGridState,
-            columns = GridCells.Fixed(count = integerResource(id = R.integer.matisse_image_span_count)),
+            columns = GridCells.Fixed(count = pageViewState.gridColumns),
             horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
             verticalArrangement = Arrangement.spacedBy(space = 1.dp),
             contentPadding = PaddingValues(start = 1.dp, top = 1.dp, end = 1.dp, bottom = 15.dp)

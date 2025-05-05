@@ -111,7 +111,7 @@ internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleE
 }
 
 private fun getApkBuildTime(): String {
-    val simpleDateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
+    val simpleDateFormat = SimpleDateFormat("yyyyMMddHHmmss", Locale.US)
     simpleDateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
     val time = Calendar.getInstance().time
     return simpleDateFormat.format(time)

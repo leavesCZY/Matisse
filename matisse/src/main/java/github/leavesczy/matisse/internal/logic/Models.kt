@@ -17,10 +17,11 @@ import github.leavesczy.matisse.MediaResource
 internal data class MatissePageViewState(
     val maxSelectable: Int,
     val fastSelect: Boolean,
-    val lazyGridState: LazyGridState,
+    val gridColumns: Int,
+    val imageEngine: ImageEngine,
     val captureStrategy: CaptureStrategy?,
     val selectedBucket: MatisseMediaBucket,
-    val imageEngine: ImageEngine,
+    val lazyGridState: LazyGridState,
     val onClickMedia: (MediaResource) -> Unit,
     val onMediaCheckChanged: (MediaResource) -> Unit
 )

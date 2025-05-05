@@ -33,6 +33,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val imageEngine = matisse.imageEngine
 
+    private val gridColumns = matisse.gridColumns
+
     private val fastSelect = matisse.fastSelect
 
     val mediaType = matisse.mediaType
@@ -70,10 +72,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         value = MatissePageViewState(
             maxSelectable = maxSelectable,
             fastSelect = fastSelect,
-            lazyGridState = LazyGridState(),
+            gridColumns = gridColumns,
+            imageEngine = imageEngine,
             captureStrategy = captureStrategy,
             selectedBucket = defaultBucket,
-            imageEngine = imageEngine,
+            lazyGridState = LazyGridState(),
             onClickMedia = ::onClickMedia,
             onMediaCheckChanged = ::onMediaCheckChanged
         )
@@ -138,14 +141,14 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                         )
                     }
                 )
-                val defaultSelected = if (mediaFilter == null || fastSelect) {
+                val defaultSelectedResources = if (mediaFilter == null || fastSelect) {
                     emptyList()
                 } else {
                     allResources.filter {
                         mediaFilter.selectMedia(mediaResource = it)
                     }
                 }
-                selectedResources = defaultSelected
+                selectedResources = defaultSelectedResources
             } else {
                 resetViewState()
                 showToast(id = R.string.matisse_read_media_permission_denied)

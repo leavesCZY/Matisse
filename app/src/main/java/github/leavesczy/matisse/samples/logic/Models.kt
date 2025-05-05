@@ -10,6 +10,7 @@ import github.leavesczy.matisse.MediaResource
  */
 @Stable
 data class MainPageViewState(
+    val gridColumns: Int,
     val maxSelectable: Int,
     val fastSelect: Boolean,
     val singleMediaType: Boolean,
@@ -19,6 +20,7 @@ data class MainPageViewState(
     val captureStrategy: MediaCaptureStrategy,
     val capturePreferencesCustom: Boolean,
     val mediaList: List<MediaResource>,
+    val onGridColumnsChanged: (Int) -> Unit,
     val onMaxSelectableChanged: (Int) -> Unit,
     val onFastSelectChanged: (Boolean) -> Unit,
     val onSingleMediaTypeChanged: (Boolean) -> Unit,

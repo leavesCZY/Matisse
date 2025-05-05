@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="matisse_image_span_count">3</integer>
     <bool name="matisse_status_bar_dark_icons">true</bool>
     <bool name="matisse_navigation_bar_dark_icons">true</bool>
     <color name="matisse_status_bar_color">#FFFFFFFF</color>

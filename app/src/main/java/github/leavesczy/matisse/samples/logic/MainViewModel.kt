@@ -30,6 +30,7 @@ class MainViewModel : ViewModel() {
 
     var mainPageViewState by mutableStateOf(
         value = MainPageViewState(
+            gridColumns = 4,
             maxSelectable = 4,
             fastSelect = false,
             singleMediaType = false,
@@ -39,6 +40,7 @@ class MainViewModel : ViewModel() {
             captureStrategy = MediaCaptureStrategy.Smart,
             capturePreferencesCustom = false,
             mediaList = emptyList(),
+            onGridColumnsChanged = ::onGridColumnsChanged,
             onMaxSelectableChanged = ::onMaxSelectableChanged,
             onFastSelectChanged = ::onFastSelectChanged,
             onSingleMediaTypeChanged = ::onSingleMediaTypeChanged,
@@ -51,6 +53,10 @@ class MainViewModel : ViewModel() {
         )
     )
         private set
+
+    private fun onGridColumnsChanged(gridColumns: Int) {
+        mainPageViewState = mainPageViewState.copy(gridColumns = gridColumns)
+    }
 
     private fun onMaxSelectableChanged(maxSelectable: Int) {
         val fastSelect = if (mainPageViewState.fastSelect) {
@@ -191,6 +197,7 @@ class MainViewModel : ViewModel() {
             selectedResourceUri = selectedResourceUri
         )
         return Matisse(
+            gridColumns = viewState.gridColumns,
             maxSelectable = viewState.maxSelectable,
             fastSelect = viewState.fastSelect,
             mediaType = mediaType,

@@ -160,6 +160,22 @@ private fun MainPage(
                 .padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 50.dp),
             horizontalAlignment = Alignment.Start,
         ) {
+            Title(text = "gridColumns")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                for (gridColumns in 3..5) {
+                    RadioButton(
+                        tips = gridColumns.toString(),
+                        selected = mainPageViewState.gridColumns == gridColumns,
+                        onClick = {
+                            mainPageViewState.onGridColumnsChanged(gridColumns)
+                        }
+                    )
+                }
+            }
             Title(text = "maxSelectable")
             Row(
                 modifier = Modifier

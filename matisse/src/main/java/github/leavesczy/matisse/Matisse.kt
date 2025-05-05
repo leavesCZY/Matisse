@@ -13,7 +13,8 @@ import kotlinx.parcelize.Parcelize
 /**
  * @param maxSelectable 用于设置最多能选择几个媒体资源
  * @param imageEngine 用于自定义图片加载框架
- * @param fastSelect 用于设置是否免去预览图片和确认选择的流程。值为 true 时 maxSelectable 必须为 1
+ * @param gridColumns 用于定义一行要显示几个媒体资源，默认值为 4
+ * @param fastSelect 用于设置是否免去预览图片和确认选择的流程，值为 true 时 maxSelectable 必须为 1。默认值为 true
  * @param mediaType 用于设置要加载的媒体资源类型。默认仅图片
  * @param singleMediaType 用于设置是否允许同时选择图片和视频。默认允许
  * @param mediaFilter 用于设置媒体资源的筛选规则。默认不进行筛选
@@ -24,6 +25,7 @@ import kotlinx.parcelize.Parcelize
 data class Matisse(
     val maxSelectable: Int,
     val imageEngine: ImageEngine,
+    val gridColumns: Int = 4,
     val fastSelect: Boolean = false,
     val mediaType: MediaType = MediaType.ImageOnly,
     val singleMediaType: Boolean = false,
