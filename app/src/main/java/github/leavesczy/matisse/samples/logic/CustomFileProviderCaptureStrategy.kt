@@ -14,8 +14,8 @@ import java.io.File
  */
 @Parcelize
 data class CustomFileProviderCaptureStrategy(
-    val authority: String,
-    val extra: Bundle
+    private val authority: String,
+    private val extra: Bundle
 ) : FileProviderCaptureStrategy(
     authority = authority,
     extra = extra

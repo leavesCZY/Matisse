@@ -135,16 +135,6 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     protected abstract fun takePictureCancelled()
 
-    protected fun showToast(@StringRes id: Int) {
-        showToast(message = getString(id))
-    }
-
-    protected fun showToast(message: String) {
-        if (message.isNotBlank()) {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        }
-    }
-
     protected fun permissionGranted(context: Context, permissions: Array<String>): Boolean {
         return permissions.all {
             permissionGranted(context = context, permission = it)
@@ -174,6 +164,16 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 exception.printStackTrace()
             }
             return@withContext false
+        }
+    }
+
+    protected fun showToast(@StringRes id: Int) {
+        showToast(text = getString(id))
+    }
+
+    protected fun showToast(text: String) {
+        if (text.isNotBlank()) {
+            Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
         }
     }
 

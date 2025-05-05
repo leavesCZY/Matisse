@@ -185,12 +185,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         val selectedResources = matisseViewModel.selectedResources
         val selectedResourcesSize = selectedResources.size
         if (selectedResourcesSize > maxSelectable) {
-            showToast(
-                message = String.format(
-                    getString(R.string.matisse_limit_the_number_of_media),
-                    maxSelectable
-                )
-            )
+            showToast(text = getString(R.string.matisse_limit_the_number_of_media, maxSelectable))
             return
         }
         if (matisseViewModel.singleMediaType) {

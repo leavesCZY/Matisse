@@ -34,18 +34,18 @@ internal data class MatisseMediaBucket(
 )
 
 @Stable
-internal data class MatisseTopBarViewState(
-    val title: String,
-    val mediaBuckets: List<MatisseMediaBucketInfo>,
-    val onClickBucket: suspend (MatisseMediaBucketInfo) -> Unit
-)
-
-@Stable
 internal data class MatisseMediaBucketInfo(
     val id: String,
     val name: String,
-    val bucketSize: Int,
+    val size: Int,
     val firstMedia: MediaResource?
+)
+
+@Stable
+internal data class MatisseTopBarViewState(
+    val title: String,
+    val mediaBuckets: List<MatisseMediaBucketInfo>,
+    val onClickBucket: suspend (String) -> Unit
 )
 
 @Stable

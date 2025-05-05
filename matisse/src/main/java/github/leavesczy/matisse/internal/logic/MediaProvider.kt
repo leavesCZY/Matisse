@@ -158,17 +158,6 @@ internal object MediaProvider {
         val queryVideoSelection =
             "$mediaTypeColumn = $mediaTypeVideoColumn and $mimeTypeColumn like 'video/%'"
         return when (mediaType) {
-            is MediaType.MultipleMimeType -> {
-                mediaType.mimeTypes.joinToString(
-                    prefix = "$mimeTypeColumn in (",
-                    postfix = ")",
-                    separator = ",",
-                    transform = {
-                        "'${it}'"
-                    }
-                )
-            }
-
             is MediaType.ImageOnly -> {
                 queryImageSelection
             }
@@ -183,6 +172,17 @@ internal object MediaProvider {
                     append(" or ")
                     append(queryVideoSelection)
                 }
+            }
+
+            is MediaType.MultipleMimeType -> {
+                mediaType.mimeTypes.joinToString(
+                    prefix = "$mimeTypeColumn in (",
+                    postfix = ")",
+                    separator = ",",
+                    transform = {
+                        "'${it}'"
+                    }
+                )
             }
         }
     }

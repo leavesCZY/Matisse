@@ -46,7 +46,9 @@ data class Matisse(
  * @param captureStrategy 拍照策略
  */
 @Parcelize
-data class MatisseCapture(val captureStrategy: CaptureStrategy) : Parcelable
+data class MatisseCapture(
+    val captureStrategy: CaptureStrategy
+) : Parcelable
 
 @Parcelize
 sealed interface MediaType : Parcelable {

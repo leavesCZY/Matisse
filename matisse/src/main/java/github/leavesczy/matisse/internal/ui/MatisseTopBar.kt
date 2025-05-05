@@ -119,7 +119,7 @@ internal fun MatisseTopBar(
             onClickBucket = {
                 menuExpanded = false
                 coroutineScope.launch {
-                    viewState.onClickBucket(it)
+                    viewState.onClickBucket(it.id)
                 }
             },
             onDismissRequest = {
@@ -144,7 +144,7 @@ private fun BucketDropdownMenu(
             .widthIn(min = 200.dp)
             .heightIn(max = 400.dp),
         expanded = menuExpanded,
-        offset = DpOffset(x = 10.dp, y = (-15).dp),
+        offset = DpOffset(x = 10.dp, y = (-10).dp),
         onDismissRequest = onDismissRequest
     ) {
         for (bucket in mediaBuckets) {
@@ -184,7 +184,7 @@ private fun BucketDropdownMenu(
                         Text(
                             modifier = Modifier
                                 .padding(start = 6.dp, end = 6.dp),
-                            text = "(${bucket.bucketSize})",
+                            text = "(${bucket.size})",
                             fontSize = 15.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
