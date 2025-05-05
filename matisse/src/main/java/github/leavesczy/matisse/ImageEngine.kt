@@ -44,7 +44,7 @@ class GlideImageEngine : ImageEngine {
                 .fillMaxSize(),
             model = mediaResource.uri,
             contentScale = ContentScale.Crop,
-            contentDescription = mediaResource.name
+            contentDescription = null
         )
     }
 
@@ -56,7 +56,7 @@ class GlideImageEngine : ImageEngine {
                     .fillMaxWidth(),
                 model = mediaResource.uri,
                 contentScale = ContentScale.FillWidth,
-                contentDescription = mediaResource.name
+                contentDescription = null
             )
         } else {
             GlideImage(
@@ -65,7 +65,7 @@ class GlideImageEngine : ImageEngine {
                     .verticalScroll(state = rememberScrollState()),
                 model = mediaResource.uri,
                 contentScale = ContentScale.Fit,
-                contentDescription = mediaResource.name
+                contentDescription = null
             )
         }
     }
@@ -82,7 +82,7 @@ class CoilImageEngine : ImageEngine {
                 .fillMaxSize(),
             model = mediaResource.uri,
             contentScale = ContentScale.Crop,
-            contentDescription = mediaResource.name
+            contentDescription = null
         )
     }
 
@@ -94,7 +94,7 @@ class CoilImageEngine : ImageEngine {
                     .fillMaxWidth(),
                 model = mediaResource.uri,
                 contentScale = ContentScale.FillWidth,
-                contentDescription = mediaResource.name
+                contentDescription = null
             )
         } else {
             coil.compose.AsyncImage(
@@ -103,7 +103,7 @@ class CoilImageEngine : ImageEngine {
                     .verticalScroll(state = rememberScrollState()),
                 model = mediaResource.uri,
                 contentScale = ContentScale.FillWidth,
-                contentDescription = mediaResource.name
+                contentDescription = null
             )
         }
     }
@@ -120,7 +120,7 @@ class Coil3ImageEngine : ImageEngine {
                 .fillMaxSize(),
             model = mediaResource.uri,
             contentScale = ContentScale.Crop,
-            contentDescription = mediaResource.name
+            contentDescription = null
         )
     }
 
@@ -132,7 +132,7 @@ class Coil3ImageEngine : ImageEngine {
                     .fillMaxWidth(),
                 model = mediaResource.uri,
                 contentScale = ContentScale.FillWidth,
-                contentDescription = mediaResource.name
+                contentDescription = null
             )
         } else {
             coil3.compose.AsyncImage(
@@ -141,7 +141,7 @@ class Coil3ImageEngine : ImageEngine {
                     .verticalScroll(state = rememberScrollState()),
                 model = mediaResource.uri,
                 contentScale = ContentScale.FillWidth,
-                contentDescription = mediaResource.name
+                contentDescription = null
             )
         }
     }

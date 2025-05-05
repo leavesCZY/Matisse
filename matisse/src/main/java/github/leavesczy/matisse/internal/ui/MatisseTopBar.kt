@@ -101,6 +101,8 @@ internal fun MatisseTopBar(
                 fontSize = 20.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                fontStyle = FontStyle.Normal,
+                fontWeight = FontWeight.Normal,
                 color = colorResource(id = R.color.matisse_top_bar_text_color)
             )
             Icon(
@@ -151,7 +153,7 @@ private fun BucketDropdownMenu(
             DropdownMenuItem(
                 modifier = Modifier
                     .fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 3.dp),
                 text = {
                     Row(
                         modifier = Modifier,

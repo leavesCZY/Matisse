@@ -83,7 +83,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     selectMediaInFastSelectMode = ::selectMediaInFastSelectMode
                 )
                 MatissePreviewPage(
-                    pageViewState = matisseViewModel.matissePreviewPageViewState,
+                    viewState = matisseViewModel.matissePreviewPageViewState,
                     imageEngine = matisseViewModel.matissePageViewState.imageEngine,
                     requestOpenVideo = ::requestOpenVideo,
                     onClickSure = ::onClickSure

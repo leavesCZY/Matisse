@@ -34,6 +34,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
@@ -50,13 +52,13 @@ import kotlin.math.absoluteValue
  */
 @Composable
 internal fun MatissePreviewPage(
-    pageViewState: MatissePreviewPageViewState,
+    viewState: MatissePreviewPageViewState,
     imageEngine: ImageEngine,
     requestOpenVideo: (MediaResource) -> Unit,
     onClickSure: () -> Unit
 ) {
     AnimatedVisibility(
-        visible = pageViewState.visible,
+        visible = viewState.visible,
         enter = slideInHorizontally(
             animationSpec = tween(
                 durationMillis = 400,
@@ -73,12 +75,12 @@ internal fun MatissePreviewPage(
         )
     ) {
         BackHandler(
-            enabled = pageViewState.visible,
-            onBack = pageViewState.onDismissRequest
+            enabled = viewState.visible,
+            onBack = viewState.onDismissRequest
         )
-        val previewResources = pageViewState.previewResources
+        val previewResources = viewState.previewResources
         val pagerState = rememberPagerState(
-            initialPage = pageViewState.initialPage,
+            initialPage = viewState.initialPage,
             initialPageOffsetFraction = 0f
         ) {
             previewResources.size
@@ -121,7 +123,7 @@ internal fun MatissePreviewPage(
                 BottomController(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    pageViewState = pageViewState,
+                    pageViewState = viewState,
                     pagerState = pagerState,
                     onClickSure = onClickSure
                 )
@@ -207,9 +209,11 @@ private fun BottomController(
                 .align(alignment = Alignment.CenterStart)
                 .clip(shape = CircleShape)
                 .clickable(onClick = mPageViewState.onDismissRequest)
-                .padding(horizontal = 24.dp, vertical = 8.dp),
+                .padding(horizontal = 20.dp, vertical = 6.dp),
             text = stringResource(id = R.string.matisse_back),
             fontSize = 16.sp,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Normal,
             color = colorResource(id = R.color.matisse_preview_page_back_text_color)
         )
         MatisseCheckbox(
@@ -238,9 +242,11 @@ private fun BottomController(
                         Modifier
                     }
                 )
-                .padding(horizontal = 24.dp, vertical = 8.dp),
+                .padding(horizontal = 20.dp, vertical = 6.dp),
             text = pageViewState.sureButtonText,
             fontSize = 16.sp,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Normal,
             color = colorResource(
                 id = if (pageViewState.sureButtonClickable) {
                     R.color.matisse_preview_page_sure_text_color

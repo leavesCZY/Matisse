@@ -78,7 +78,7 @@ internal fun MatissePage(
             if (!pageViewState.fastSelect) {
                 MatisseBottomBar(
                     modifier = Modifier,
-                    bottomBarViewState = bottomBarViewState,
+                    viewState = bottomBarViewState,
                     onClickSure = onClickSure
                 )
             }

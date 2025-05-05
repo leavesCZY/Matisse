@@ -16,21 +16,21 @@
             android:name=".internal.MatisseActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Matisse"
+            android:theme="@style/Matisse.Theme"
             tools:ignore="DiscouragedApi" />
         <activity
             android:name=".internal.MatisseCaptureActivity"
             android:configChanges="orientation"
             android:exported="false"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.Matisse.Capture" />
+            android:theme="@style/Matisse.Theme.Capture" />
         <activity
             android:name=".internal.MatisseVideoViewActivity"
             android:configChanges="orientation"
             android:exported="false"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Matisse.VideoView"
+            android:theme="@style/Matisse.Theme.VideoView"
             tools:ignore="DiscouragedApi" />
     </application>
 </manifest>

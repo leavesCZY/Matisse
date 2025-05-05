@@ -10,10 +10,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
-import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -25,23 +23,25 @@ import kotlinx.coroutines.withContext
  * @Date: 2022/6/1 19:19
  * @Desc:
  */
-internal class MatisseViewModel(application: Application, private val matisse: Matisse) :
+internal class MatisseViewModel(application: Application, matisse: Matisse) :
     AndroidViewModel(application) {
 
     private val context: Context
         get() = getApplication()
 
-    val maxSelectable: Int
-        get() = matisse.maxSelectable
+    val maxSelectable = matisse.maxSelectable
 
-    val mediaType: MediaType
-        get() = matisse.mediaType
+    private val imageEngine = matisse.imageEngine
 
-    val singleMediaType: Boolean
-        get() = matisse.singleMediaType
+    private val fastSelect = matisse.fastSelect
 
-    val captureStrategy: CaptureStrategy?
-        get() = matisse.captureStrategy
+    val mediaType = matisse.mediaType
+
+    val singleMediaType = matisse.singleMediaType
+
+    val captureStrategy = matisse.captureStrategy
+
+    private val mediaFilter = matisse.mediaFilter
 
     private val defaultBucketId = "&__matisseDefaultBucketId__&"
 
@@ -69,11 +69,11 @@ internal class MatisseViewModel(application: Application, private val matisse: M
     var matissePageViewState by mutableStateOf(
         value = MatissePageViewState(
             maxSelectable = maxSelectable,
-            fastSelect = matisse.fastSelect,
+            fastSelect = fastSelect,
             lazyGridState = LazyGridState(),
             captureStrategy = captureStrategy,
             selectedBucket = defaultBucket,
-            imageEngine = matisse.imageEngine,
+            imageEngine = imageEngine,
             onClickMedia = ::onClickMedia,
             onMediaCheckChanged = ::onMediaCheckChanged
         )
@@ -118,7 +118,6 @@ internal class MatisseViewModel(application: Application, private val matisse: M
             dismissPreviewPage()
             allMediaBuckets.clear()
             if (granted) {
-                val mediaFilter = matisse.mediaFilter
                 val allResources = MediaProvider.loadResources(
                     context = context,
                     mediaType = mediaType,
@@ -139,7 +138,7 @@ internal class MatisseViewModel(application: Application, private val matisse: M
                         )
                     }
                 )
-                val defaultSelected = if (mediaFilter == null || matisse.fastSelect) {
+                val defaultSelected = if (mediaFilter == null || fastSelect) {
                     emptyList()
                 } else {
                     allResources.filter {

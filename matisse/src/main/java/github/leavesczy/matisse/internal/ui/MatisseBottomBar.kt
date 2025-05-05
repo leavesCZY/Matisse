@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,7 +31,7 @@ import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 @Composable
 internal fun MatisseBottomBar(
     modifier: Modifier,
-    bottomBarViewState: MatisseBottomBarViewState,
+    viewState: MatisseBottomBarViewState,
     onClickSure: () -> Unit
 ) {
     Row(
@@ -47,19 +48,20 @@ internal fun MatisseBottomBar(
         Text(
             modifier = Modifier
                 .then(
-                    other = if (bottomBarViewState.previewButtonClickable) {
+                    other = if (viewState.previewButtonClickable) {
                         Modifier
                             .clip(shape = CircleShape)
-                            .clickable(onClick = bottomBarViewState.onClickPreviewButton)
+                            .clickable(onClick = viewState.onClickPreviewButton)
                     } else {
                         Modifier
                     }
                 )
-                .padding(horizontal = 24.dp, vertical = 8.dp),
-            text = bottomBarViewState.previewButtonText,
-            fontSize = 17.sp,
+                .padding(horizontal = 20.dp, vertical = 6.dp),
+            text = viewState.previewButtonText,
+            fontSize = 16.sp,
+            fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
-            color = if (bottomBarViewState.previewButtonClickable) {
+            color = if (viewState.previewButtonClickable) {
                 colorResource(id = R.color.matisse_preview_text_color)
             } else {
                 colorResource(id = R.color.matisse_preview_text_color_if_disable)
@@ -68,7 +70,7 @@ internal fun MatisseBottomBar(
         Text(
             modifier = Modifier
                 .then(
-                    other = if (bottomBarViewState.sureButtonClickable) {
+                    other = if (viewState.sureButtonClickable) {
                         Modifier
                             .clip(shape = CircleShape)
                             .clickable(onClick = onClickSure)
@@ -76,12 +78,13 @@ internal fun MatisseBottomBar(
                         Modifier
                     }
                 )
-                .padding(horizontal = 24.dp, vertical = 8.dp),
-            text = bottomBarViewState.sureButtonText,
-            fontSize = 17.sp,
+                .padding(horizontal = 20.dp, vertical = 6.dp),
+            text = viewState.sureButtonText,
+            fontSize = 16.sp,
+            fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
             color = colorResource(
-                id = if (bottomBarViewState.sureButtonClickable) {
+                id = if (viewState.sureButtonClickable) {
                     R.color.matisse_sure_text_color
                 } else {
                     R.color.matisse_sure_text_color_if_disable
