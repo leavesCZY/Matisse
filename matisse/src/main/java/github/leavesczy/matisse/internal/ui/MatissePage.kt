@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -91,10 +90,9 @@ internal fun MatissePage(
             columns = GridCells.Fixed(count = pageViewState.gridColumns),
             horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
             verticalArrangement = Arrangement.spacedBy(space = 1.dp),
-            contentPadding = PaddingValues(start = 1.dp, top = 1.dp, end = 1.dp, bottom = 15.dp)
+            contentPadding = PaddingValues(top = 1.dp, bottom = 1.dp)
         ) {
-            val selectedBucket = pageViewState.selectedBucket
-            if (selectedBucket.supportCapture && pageViewState.captureStrategy != null) {
+            if (pageViewState.selectedBucket.supportCapture) {
                 item(
                     key = "CaptureItem",
                     contentType = "CaptureItem"
@@ -107,7 +105,7 @@ internal fun MatissePage(
                 }
             }
             items(
-                items = selectedBucket.resources,
+                items = pageViewState.selectedBucket.resources,
                 key = {
                     it.id
                 },
@@ -160,8 +158,8 @@ internal fun MatissePage(
 private fun Modifier.customAnimateItem(scope: LazyGridItemScope): Modifier {
     return with(scope) {
         animateItem(
-            fadeInSpec = spring(stiffness = Spring.StiffnessMedium),
-            fadeOutSpec = spring(stiffness = Spring.StiffnessMedium),
+            fadeInSpec = spring(stiffness = Spring.StiffnessHigh),
+            fadeOutSpec = spring(stiffness = Spring.StiffnessHigh),
             placementSpec = spring(
                 stiffness = 800f,
                 visibilityThreshold = IntOffset.VisibilityThreshold
@@ -201,26 +199,6 @@ private data class MediaPlacement(
 )
 
 @Composable
-private fun MediaItemWrap(
-    modifier: Modifier,
-    mediaResource: MediaResource,
-    onClickMedia: (MediaResource) -> Unit,
-    content: @Composable BoxScope.() -> Unit
-) {
-    Box(
-        modifier = modifier
-            .aspectRatio(ratio = 1f)
-            .clip(shape = RoundedCornerShape(size = 4.dp))
-            .background(color = colorResource(id = R.color.matisse_media_item_background_color))
-            .clickable {
-                onClickMedia(mediaResource)
-            },
-        contentAlignment = Alignment.Center,
-        content = content
-    )
-}
-
-@Composable
 private fun MediaItem(
     modifier: Modifier,
     mediaResource: MediaResource,
@@ -229,14 +207,18 @@ private fun MediaItem(
     onClickMedia: (MediaResource) -> Unit,
     onClickCheckBox: (MediaResource) -> Unit
 ) {
-    MediaItemWrap(
-        modifier = modifier,
-        mediaResource = mediaResource,
-        onClickMedia = onClickMedia
+    Box(
+        modifier = modifier
+            .aspectRatio(ratio = 1f)
+            .background(color = colorResource(id = R.color.matisse_media_item_background_color)),
+        contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .clickable {
+                    onClickMedia(mediaResource)
+                },
             contentAlignment = Alignment.Center
         ) {
             imageEngine.Thumbnail(mediaResource = mediaResource)
@@ -259,18 +241,26 @@ private fun MediaItem(
                     .background(color = scrimColor)
             )
         }
-        MatisseCheckbox(
+        Box(
             modifier = Modifier
                 .align(alignment = Alignment.TopEnd)
-                .padding(all = 5.dp)
-                .fillMaxSize(fraction = 0.24f),
-            text = mediaPlacement.position,
-            checked = mediaPlacement.isSelected,
-            enabled = mediaPlacement.isEnabled,
-            onClick = {
-                onClickCheckBox(mediaResource)
-            }
-        )
+                .fillMaxSize(fraction = 0.32f)
+                .clickableNoRipple {
+                    onClickCheckBox(mediaResource)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            MatisseCheckbox(
+                modifier = Modifier
+                    .fillMaxSize(fraction = 0.82f),
+                text = mediaPlacement.position,
+                checked = mediaPlacement.isSelected,
+                enabled = mediaPlacement.isEnabled,
+                onClick = {
+                    onClickCheckBox(mediaResource)
+                }
+            )
+        }
     }
 }
 
@@ -281,10 +271,14 @@ private fun MediaItemFastSelect(
     imageEngine: ImageEngine,
     onClickMedia: (MediaResource) -> Unit
 ) {
-    MediaItemWrap(
-        modifier = modifier,
-        mediaResource = mediaResource,
-        onClickMedia = onClickMedia
+    Box(
+        modifier = modifier
+            .aspectRatio(ratio = 1f)
+            .background(color = colorResource(id = R.color.matisse_media_item_background_color))
+            .clickable {
+                onClickMedia(mediaResource)
+            },
+        contentAlignment = Alignment.Center
     ) {
         imageEngine.Thumbnail(mediaResource = mediaResource)
         if (mediaResource.isVideo) {

@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -49,6 +50,15 @@ internal fun MatisseCheckbox(
             Box(
                 modifier = Modifier
                     .matchParentSize()
+                    .clip(shape = CircleShape)
+                    .then(
+                        other = if (enabled) {
+                            Modifier
+                                .background(color = Color(0x26000000))
+                        } else {
+                            Modifier
+                        }
+                    )
                     .border(
                         width = 1.4.dp,
                         shape = CircleShape,
@@ -70,12 +80,11 @@ internal fun MatisseCheckbox(
                 overflow = TextOverflow.Clip,
                 autoSize = TextAutoSize.StepBased(
                     minFontSize = 8.sp,
-                    maxFontSize = 112.sp,
+                    maxFontSize = 25.sp,
                     stepSize = 0.25.sp
                 ),
                 style = TextStyle(
                     color = colorResource(id = R.color.matisse_check_box_text_color),
-                    fontSize = 13.sp,
                     fontStyle = FontStyle.Normal,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center

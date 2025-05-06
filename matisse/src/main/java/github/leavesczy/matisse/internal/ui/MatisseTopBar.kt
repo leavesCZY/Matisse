@@ -162,7 +162,7 @@ private fun BucketDropdownMenu(
                         Box(
                             modifier = Modifier
                                 .size(size = 52.dp)
-                                .clip(shape = RoundedCornerShape(size = 4.dp))
+                                .clip(shape = RoundedCornerShape(size = 2.dp))
                                 .background(color = colorResource(id = R.color.matisse_media_item_background_color)),
                             contentAlignment = Alignment.Center
                         ) {

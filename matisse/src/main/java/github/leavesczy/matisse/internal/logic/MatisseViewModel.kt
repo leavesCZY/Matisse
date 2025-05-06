@@ -50,7 +50,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     private val defaultBucket = MatisseMediaBucket(
         id = defaultBucketId,
         name = getString(id = R.string.matisse_default_bucket_name),
-        supportCapture = true,
+        supportCapture = captureStrategy != null,
         resources = emptyList()
     )
 
@@ -178,7 +178,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                         id = defaultBucketId,
                         name = getString(id = R.string.matisse_default_bucket_name),
                         resources = resources,
-                        supportCapture = true
+                        supportCapture = captureStrategy != null
                     )
                 )
                 addAll(
