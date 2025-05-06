@@ -42,8 +42,7 @@ enum class MediaCaptureStrategy {
 
 @Stable
 enum class MediaImageEngine {
-    Coil3,
-    Coil2,
+    Coil,
     Glide
 }
 

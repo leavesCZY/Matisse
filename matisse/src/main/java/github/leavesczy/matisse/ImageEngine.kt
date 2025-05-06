@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 import com.bumptech.glide.integration.compose.GlideImage
 import kotlinx.parcelize.Parcelize
 
@@ -77,7 +78,7 @@ class CoilImageEngine : ImageEngine {
 
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
-        coil.compose.AsyncImage(
+        AsyncImage(
             modifier = Modifier
                 .fillMaxSize(),
             model = mediaResource.uri,
@@ -89,7 +90,7 @@ class CoilImageEngine : ImageEngine {
     @Composable
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
-            coil.compose.AsyncImage(
+            AsyncImage(
                 modifier = Modifier
                     .fillMaxWidth(),
                 model = mediaResource.uri,
@@ -97,45 +98,7 @@ class CoilImageEngine : ImageEngine {
                 contentDescription = null
             )
         } else {
-            coil.compose.AsyncImage(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(state = rememberScrollState()),
-                model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth,
-                contentDescription = null
-            )
-        }
-    }
-
-}
-
-@Parcelize
-class Coil3ImageEngine : ImageEngine {
-
-    @Composable
-    override fun Thumbnail(mediaResource: MediaResource) {
-        coil3.compose.AsyncImage(
-            modifier = Modifier
-                .fillMaxSize(),
-            model = mediaResource.uri,
-            contentScale = ContentScale.Crop,
-            contentDescription = null
-        )
-    }
-
-    @Composable
-    override fun Image(mediaResource: MediaResource) {
-        if (mediaResource.isVideo) {
-            coil3.compose.AsyncImage(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth,
-                contentDescription = null
-            )
-        } else {
-            coil3.compose.AsyncImage(
+            AsyncImage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(state = rememberScrollState()),

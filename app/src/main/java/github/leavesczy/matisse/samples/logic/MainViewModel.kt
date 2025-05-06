@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import github.leavesczy.matisse.CaptureStrategy
-import github.leavesczy.matisse.Coil3ImageEngine
 import github.leavesczy.matisse.CoilImageEngine
 import github.leavesczy.matisse.DefaultMediaFilter
 import github.leavesczy.matisse.GlideImageEngine
@@ -35,7 +34,7 @@ class MainViewModel : ViewModel() {
             fastSelect = false,
             singleMediaType = false,
             includeGif = true,
-            imageEngine = MediaImageEngine.Coil3,
+            imageEngine = MediaImageEngine.Coil,
             filterStrategy = MediaFilterStrategy.Nothing,
             captureStrategy = MediaCaptureStrategy.Smart,
             capturePreferencesCustom = false,
@@ -156,11 +155,7 @@ class MainViewModel : ViewModel() {
     fun buildMatisse(mediaType: MediaType): Matisse {
         val viewState = mainPageViewState
         val imageEngine = when (viewState.imageEngine) {
-            MediaImageEngine.Coil3 -> {
-                Coil3ImageEngine()
-            }
-
-            MediaImageEngine.Coil2 -> {
+            MediaImageEngine.Coil -> {
                 CoilImageEngine()
             }
 
