@@ -80,8 +80,8 @@ internal fun MatisseCheckbox(
                 overflow = TextOverflow.Clip,
                 autoSize = TextAutoSize.StepBased(
                     minFontSize = 8.sp,
-                    maxFontSize = 25.sp,
-                    stepSize = 0.25.sp
+                    maxFontSize = 16.sp,
+                    stepSize = 1.sp
                 ),
                 style = TextStyle(
                     color = colorResource(id = R.color.matisse_check_box_text_color),

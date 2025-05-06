@@ -188,7 +188,7 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
         if (resource != null) {
             return resource
         }
-        delay(timeMillis = 250)
+        delay(timeMillis = 100)
         return MediaProvider.loadResources(context = context, uri = imageUri)
     }
 

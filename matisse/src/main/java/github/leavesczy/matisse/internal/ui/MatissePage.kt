@@ -244,7 +244,7 @@ private fun MediaItem(
         Box(
             modifier = Modifier
                 .align(alignment = Alignment.TopEnd)
-                .fillMaxSize(fraction = 0.32f)
+                .fillMaxSize(fraction = 0.30f)
                 .clickableNoRipple {
                     onClickCheckBox(mediaResource)
                 },
@@ -252,7 +252,7 @@ private fun MediaItem(
         ) {
             MatisseCheckbox(
                 modifier = Modifier
-                    .fillMaxSize(fraction = 0.82f),
+                    .fillMaxSize(fraction = 0.65f),
                 text = mediaPlacement.position,
                 checked = mediaPlacement.isSelected,
                 enabled = mediaPlacement.isEnabled,
