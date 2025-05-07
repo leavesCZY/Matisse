@@ -3,6 +3,9 @@ package github.leavesczy.matisse.internal.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
@@ -39,48 +42,49 @@ internal fun MatisseCheckbox(
             .clickableNoRipple(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        if (checked) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(shape = CircleShape)
-                    .background(color = colorResource(id = R.color.matisse_check_box_circle_fill_color))
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(shape = CircleShape)
-                    .then(
-                        other = if (enabled) {
-                            Modifier
-                                .background(color = Color(0x26000000))
-                        } else {
-                            Modifier
-                        }
-                    )
-                    .border(
-                        width = 1.4.dp,
-                        shape = CircleShape,
-                        color = colorResource(
-                            id = if (enabled) {
-                                R.color.matisse_check_box_circle_color
-                            } else {
-                                R.color.matisse_check_box_circle_color_if_disable
-                            }
-                        ),
-                    )
-            )
-        }
+        Spacer(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(shape = CircleShape)
+                .then(
+                    other = if (checked) {
+                        Modifier
+                            .background(color = colorResource(id = R.color.matisse_check_box_circle_fill_color))
+                    } else {
+                        Modifier
+                            .then(
+                                other = if (enabled) {
+                                    Modifier
+                                        .background(color = Color(0x26000000))
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .border(
+                                width = 1.dp,
+                                shape = CircleShape,
+                                color = colorResource(
+                                    id = if (enabled) {
+                                        R.color.matisse_check_box_circle_color
+                                    } else {
+                                        R.color.matisse_check_box_circle_color_if_disable
+                                    }
+                                ),
+                            )
+                    }
+                )
+        )
         if (text.isNotBlank()) {
             BasicText(
-                modifier = Modifier,
+                modifier = Modifier
+                    .matchParentSize()
+                    .wrapContentSize(align = Alignment.Center),
                 text = text,
                 maxLines = 1,
                 overflow = TextOverflow.Clip,
                 autoSize = TextAutoSize.StepBased(
-                    minFontSize = 8.sp,
-                    maxFontSize = 16.sp,
+                    minFontSize = 6.sp,
+                    maxFontSize = 18.sp,
                     stepSize = 1.sp
                 ),
                 style = TextStyle(

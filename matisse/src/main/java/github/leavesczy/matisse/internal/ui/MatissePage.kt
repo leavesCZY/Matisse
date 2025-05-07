@@ -90,7 +90,14 @@ internal fun MatissePage(
             columns = GridCells.Fixed(count = pageViewState.gridColumns),
             horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
             verticalArrangement = Arrangement.spacedBy(space = 1.dp),
-            contentPadding = PaddingValues(top = 1.dp, bottom = 1.dp)
+            contentPadding = PaddingValues(
+                top = 1.dp,
+                bottom = if (pageViewState.fastSelect) {
+                    16.dp
+                } else {
+                    1.dp
+                }
+            )
         ) {
             if (pageViewState.selectedBucket.supportCapture) {
                 item(
@@ -158,10 +165,10 @@ internal fun MatissePage(
 private fun Modifier.customAnimateItem(scope: LazyGridItemScope): Modifier {
     return with(scope) {
         animateItem(
-            fadeInSpec = spring(stiffness = Spring.StiffnessHigh),
-            fadeOutSpec = spring(stiffness = Spring.StiffnessHigh),
+            fadeInSpec = spring(stiffness = Spring.StiffnessMedium),
+            fadeOutSpec = spring(stiffness = Spring.StiffnessMedium),
             placementSpec = spring(
-                stiffness = 800f,
+                stiffness = Spring.StiffnessMediumLow,
                 visibilityThreshold = IntOffset.VisibilityThreshold
             )
         )
@@ -252,7 +259,7 @@ private fun MediaItem(
         ) {
             MatisseCheckbox(
                 modifier = Modifier
-                    .fillMaxSize(fraction = 0.65f),
+                    .fillMaxSize(fraction = 0.68f),
                 text = mediaPlacement.position,
                 checked = mediaPlacement.isSelected,
                 enabled = mediaPlacement.isEnabled,

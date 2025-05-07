@@ -115,7 +115,7 @@ internal fun MatisseTopBar(
         }
         BucketDropdownMenu(
             modifier = Modifier,
-            menuExpanded = menuExpanded,
+            expanded = menuExpanded,
             mediaBuckets = viewState.mediaBuckets,
             imageEngine = imageEngine,
             onClickBucket = {
@@ -134,7 +134,7 @@ internal fun MatisseTopBar(
 @Composable
 private fun BucketDropdownMenu(
     modifier: Modifier,
-    menuExpanded: Boolean,
+    expanded: Boolean,
     mediaBuckets: List<MatisseMediaBucketInfo>,
     imageEngine: ImageEngine,
     onClickBucket: (MatisseMediaBucketInfo) -> Unit,
@@ -145,7 +145,7 @@ private fun BucketDropdownMenu(
             .background(color = colorResource(id = R.color.matisse_dropdown_menu_background_color))
             .widthIn(min = 200.dp)
             .heightIn(max = 400.dp),
-        expanded = menuExpanded,
+        expanded = expanded,
         offset = DpOffset(x = 10.dp, y = (-10).dp),
         onDismissRequest = onDismissRequest
     ) {

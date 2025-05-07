@@ -1,5 +1,5 @@
 [versions]
-android-plugin = "8.9.2"
+android-plugin = "8.10.0"
 kotlin-plugin = "2.1.20"
 
 androidx-junit = "1.2.1"
