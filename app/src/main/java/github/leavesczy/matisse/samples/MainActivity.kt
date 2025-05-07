@@ -166,7 +166,7 @@ private fun MainPage(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.Center
             ) {
-                for (gridColumns in 2..6) {
+                for (gridColumns in 2..5) {
                     RadioButton(
                         tips = gridColumns.toString(),
                         selected = mainPageViewState.gridColumns == gridColumns,

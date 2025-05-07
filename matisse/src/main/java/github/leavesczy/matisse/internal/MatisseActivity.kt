@@ -72,24 +72,22 @@ internal class MatisseActivity : BaseCaptureActivity() {
         setContent {
             LaunchedEffect(key1 = Unit) {
                 snapshotFlow {
-                    matisseViewModel.matissePreviewPageViewState.visible
+                    matisseViewModel.previewPageViewState.visible
                 }.collectLatest {
                     setSystemBarUi(previewPageVisible = it)
                 }
             }
             MatisseTheme {
                 MatissePage(
-                    pageViewState = matisseViewModel.matissePageViewState,
-                    topBarViewState = matisseViewModel.matisseTopBarViewState,
-                    bottomBarViewState = matisseViewModel.matisseBottomBarViewState,
-                    selectedResources = matisseViewModel.selectedResources,
+                    pageViewState = matisseViewModel.pageViewState,
+                    bottomBarViewState = matisseViewModel.bottomBarViewState,
                     onRequestTakePicture = ::requestTakePicture,
                     onClickSure = ::onClickSure,
                     selectMediaInFastSelectMode = ::selectMediaInFastSelectMode
                 )
                 MatissePreviewPage(
-                    viewState = matisseViewModel.matissePreviewPageViewState,
-                    imageEngine = matisseViewModel.matissePageViewState.imageEngine,
+                    viewState = matisseViewModel.previewPageViewState,
+                    imageEngine = matisseViewModel.pageViewState.imageEngine,
                     requestOpenVideo = ::requestOpenVideo,
                     onClickSure = ::onClickSure
                 )
@@ -163,7 +161,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
 
     override fun dispatchTakePictureResult(mediaResource: MediaResource) {
         val maxSelectable = matisseViewModel.maxSelectable
-        val selectedResources = matisseViewModel.selectedResources
+        val selectedResources = matisseViewModel.filterSelectedMedia()
         val illegalMediaType = matisseViewModel.singleMediaType && selectedResources.any {
             it.isVideo
         }
@@ -182,9 +180,8 @@ internal class MatisseActivity : BaseCaptureActivity() {
 
     private fun onClickSure() {
         val maxSelectable = matisseViewModel.maxSelectable
-        val selectedResources = matisseViewModel.selectedResources
-        val selectedResourcesSize = selectedResources.size
-        if (selectedResourcesSize > maxSelectable) {
+        val selectedResources = matisseViewModel.filterSelectedMedia()
+        if (selectedResources.size > maxSelectable) {
             showToast(text = getString(R.string.matisse_limit_the_number_of_media, maxSelectable))
             return
         }

@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -104,7 +103,7 @@ internal fun MatissePreviewPage(
                     state = pagerState,
                     verticalAlignment = Alignment.CenterVertically,
                     key = { index ->
-                        viewState.previewResources[index].id
+                        viewState.previewResources[index].mediaId
                     }
                 ) { pageIndex ->
                     PreviewPage(
@@ -113,7 +112,7 @@ internal fun MatissePreviewPage(
                         pagerState = pagerState,
                         pageIndex = pageIndex,
                         imageEngine = imageEngine,
-                        mediaResource = viewState.previewResources[pageIndex],
+                        mediaResource = viewState.previewResources[pageIndex].media,
                         requestOpenVideo = requestOpenVideo
                     )
                 }
@@ -186,15 +185,9 @@ private fun BottomController(
     pagerState: PagerState,
     onClickSure: () -> Unit
 ) {
-    val mPageViewState by rememberUpdatedState(newValue = pageViewState)
-    val imagePosition by remember(key1 = Unit) {
+    val currentResource by remember {
         derivedStateOf {
-            mPageViewState.selectedResources.indexOf(element = mPageViewState.previewResources[pagerState.currentPage])
-        }
-    }
-    val checkboxEnabled by remember(key1 = Unit) {
-        derivedStateOf {
-            imagePosition > -1 || mPageViewState.selectedResources.size < mPageViewState.maxSelectable
+            pageViewState.previewResources[pagerState.currentPage]
         }
     }
     Box(
@@ -208,7 +201,7 @@ private fun BottomController(
             modifier = Modifier
                 .align(alignment = Alignment.CenterStart)
                 .clip(shape = CircleShape)
-                .clickable(onClick = mPageViewState.onDismissRequest)
+                .clickable(onClick = pageViewState.onDismissRequest)
                 .padding(horizontal = 20.dp, vertical = 6.dp),
             text = stringResource(id = R.string.matisse_back),
             fontSize = 16.sp,
@@ -216,26 +209,23 @@ private fun BottomController(
             fontWeight = FontWeight.Normal,
             color = colorResource(id = R.color.matisse_preview_page_back_text_color)
         )
+        val selectState = currentResource.selectState.value
         MatisseCheckbox(
             modifier = Modifier
                 .align(alignment = Alignment.Center)
                 .size(size = 24.dp),
-            text = if (imagePosition >= 0) {
-                (imagePosition + 1).toString()
-            } else {
-                ""
-            },
-            checked = imagePosition > -1,
-            enabled = checkboxEnabled,
+            text = selectState.positionFormatted,
+            isSelected = selectState.isSelected,
+            isEnabled = selectState.isEnabled,
             onClick = {
-                mPageViewState.onMediaCheckChanged(mPageViewState.previewResources[pagerState.currentPage])
+                pageViewState.onMediaCheckChanged(currentResource)
             }
         )
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterEnd)
                 .then(
-                    other = if (mPageViewState.sureButtonClickable) {
+                    other = if (pageViewState.sureButtonClickable) {
                         Modifier
                             .clip(shape = CircleShape)
                             .clickable(onClick = onClickSure)
@@ -244,12 +234,12 @@ private fun BottomController(
                     }
                 )
                 .padding(horizontal = 20.dp, vertical = 6.dp),
-            text = mPageViewState.sureButtonText,
+            text = pageViewState.sureButtonText,
             fontSize = 16.sp,
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
             color = colorResource(
-                id = if (mPageViewState.sureButtonClickable) {
+                id = if (pageViewState.sureButtonClickable) {
                     R.color.matisse_preview_page_sure_text_color
                 } else {
                     R.color.matisse_preview_page_sure_text_color_if_disable

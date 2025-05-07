@@ -30,7 +30,7 @@ class MainViewModel : ViewModel() {
     var mainPageViewState by mutableStateOf(
         value = MainPageViewState(
             gridColumns = 4,
-            maxSelectable = 4,
+            maxSelectable = 3,
             fastSelect = false,
             singleMediaType = false,
             includeGif = true,

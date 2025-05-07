@@ -32,9 +32,9 @@ import github.leavesczy.matisse.R
 @Composable
 internal fun MatisseCheckbox(
     modifier: Modifier,
-    text: String,
-    enabled: Boolean,
-    checked: Boolean,
+    text: String?,
+    isSelected: Boolean,
+    isEnabled: Boolean,
     onClick: () -> Unit
 ) {
     Box(
@@ -47,13 +47,13 @@ internal fun MatisseCheckbox(
                 .fillMaxSize()
                 .clip(shape = CircleShape)
                 .then(
-                    other = if (checked) {
+                    other = if (isSelected) {
                         Modifier
                             .background(color = colorResource(id = R.color.matisse_check_box_circle_fill_color))
                     } else {
                         Modifier
                             .then(
-                                other = if (enabled) {
+                                other = if (isEnabled) {
                                     Modifier
                                         .background(color = Color(0x26000000))
                                 } else {
@@ -64,7 +64,7 @@ internal fun MatisseCheckbox(
                                 width = 1.dp,
                                 shape = CircleShape,
                                 color = colorResource(
-                                    id = if (enabled) {
+                                    id = if (isEnabled) {
                                         R.color.matisse_check_box_circle_color
                                     } else {
                                         R.color.matisse_check_box_circle_color_if_disable
@@ -74,7 +74,7 @@ internal fun MatisseCheckbox(
                     }
                 )
         )
-        if (text.isNotBlank()) {
+        if (!text.isNullOrBlank()) {
             BasicText(
                 modifier = Modifier
                     .matchParentSize()

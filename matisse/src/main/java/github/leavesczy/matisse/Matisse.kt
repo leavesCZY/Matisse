@@ -84,9 +84,6 @@ internal const val VideoMimeTypePrefix = "video/"
 @Stable
 @Parcelize
 data class MediaResource(
-    internal val id: Long,
-    internal val bucketId: String,
-    internal val bucketName: String,
     val uri: Uri,
     val path: String,
     val name: String,

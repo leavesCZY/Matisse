@@ -25,11 +25,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,8 +38,8 @@ import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
+import github.leavesczy.matisse.internal.logic.MatisseMediaExtend
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
-import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
 
 /**
  * @Author: leavesCZY
@@ -53,14 +49,11 @@ import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
 @Composable
 internal fun MatissePage(
     pageViewState: MatissePageViewState,
-    topBarViewState: MatisseTopBarViewState,
     bottomBarViewState: MatisseBottomBarViewState,
-    selectedResources: List<MediaResource>,
     onRequestTakePicture: () -> Unit,
     onClickSure: () -> Unit,
     selectMediaInFastSelectMode: (MediaResource) -> Unit
 ) {
-    val mSelectedResources by rememberUpdatedState(newValue = selectedResources)
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -68,8 +61,10 @@ internal fun MatissePage(
         topBar = {
             MatisseTopBar(
                 modifier = Modifier,
-                imageEngine = pageViewState.imageEngine,
-                viewState = topBarViewState
+                title = pageViewState.selectedBucket.bucketName,
+                mediaBucketsInfo = pageViewState.mediaBucketsInfo,
+                onClickBucket = pageViewState.onClickBucket,
+                imageEngine = pageViewState.imageEngine
             )
         },
         bottomBar = {
@@ -114,7 +109,7 @@ internal fun MatissePage(
             items(
                 items = pageViewState.selectedBucket.resources,
                 key = {
-                    it.id
+                    it.mediaId
                 },
                 contentType = {
                     "MediaItem"
@@ -124,34 +119,15 @@ internal fun MatissePage(
                     MediaItemFastSelect(
                         modifier = Modifier
                             .customAnimateItem(scope = this),
-                        mediaResource = it,
+                        mediaResource = it.media,
                         imageEngine = pageViewState.imageEngine,
                         onClickMedia = selectMediaInFastSelectMode
                     )
                 } else {
-                    val mediaPlacement by remember {
-                        derivedStateOf {
-                            val index = mSelectedResources.indexOf(element = it)
-                            val isSelected = index > -1
-                            val isEnabled =
-                                isSelected || mSelectedResources.size < pageViewState.maxSelectable
-                            val position = if (isSelected) {
-                                (index + 1).toString()
-                            } else {
-                                ""
-                            }
-                            MediaPlacement(
-                                isSelected = isSelected,
-                                isEnabled = isEnabled,
-                                position = position
-                            )
-                        }
-                    }
                     MediaItem(
                         modifier = Modifier
                             .customAnimateItem(scope = this),
                         mediaResource = it,
-                        mediaPlacement = mediaPlacement,
                         imageEngine = pageViewState.imageEngine,
                         onClickMedia = pageViewState.onClickMedia,
                         onClickCheckBox = pageViewState.onMediaCheckChanged
@@ -198,22 +174,15 @@ private fun CaptureItem(
     }
 }
 
-@Stable
-private data class MediaPlacement(
-    val isSelected: Boolean,
-    val isEnabled: Boolean,
-    val position: String
-)
-
 @Composable
 private fun MediaItem(
     modifier: Modifier,
-    mediaResource: MediaResource,
-    mediaPlacement: MediaPlacement,
+    mediaResource: MatisseMediaExtend,
     imageEngine: ImageEngine,
-    onClickMedia: (MediaResource) -> Unit,
-    onClickCheckBox: (MediaResource) -> Unit
+    onClickMedia: (MatisseMediaExtend) -> Unit,
+    onClickCheckBox: (MatisseMediaExtend) -> Unit
 ) {
+    val selectState = mediaResource.selectState.value
     Box(
         modifier = modifier
             .aspectRatio(ratio = 1f)
@@ -228,15 +197,15 @@ private fun MediaItem(
                 },
             contentAlignment = Alignment.Center
         ) {
-            imageEngine.Thumbnail(mediaResource = mediaResource)
-            if (mediaResource.isVideo) {
+            imageEngine.Thumbnail(mediaResource = mediaResource.media)
+            if (mediaResource.media.isVideo) {
                 VideoIcon(
                     modifier = Modifier
                         .size(size = 30.dp)
                 )
             }
             val scrimColor by animateColorAsState(
-                targetValue = if (mediaPlacement.isSelected) {
+                targetValue = if (selectState.isSelected) {
                     colorResource(id = R.color.matisse_media_item_scrim_color_when_selected)
                 } else {
                     colorResource(id = R.color.matisse_media_item_scrim_color_when_unselected)
@@ -260,9 +229,9 @@ private fun MediaItem(
             MatisseCheckbox(
                 modifier = Modifier
                     .fillMaxSize(fraction = 0.68f),
-                text = mediaPlacement.position,
-                checked = mediaPlacement.isSelected,
-                enabled = mediaPlacement.isEnabled,
+                text = selectState.positionFormatted,
+                isSelected = selectState.isSelected,
+                isEnabled = selectState.isEnabled,
                 onClick = {
                     onClickCheckBox(mediaResource)
                 }

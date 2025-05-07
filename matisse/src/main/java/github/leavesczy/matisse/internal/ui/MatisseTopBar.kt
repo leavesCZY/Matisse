@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseMediaBucketInfo
-import github.leavesczy.matisse.internal.logic.MatisseTopBarViewState
 import kotlinx.coroutines.launch
 
 /**
@@ -55,7 +54,9 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun MatisseTopBar(
     modifier: Modifier,
-    viewState: MatisseTopBarViewState,
+    title: String,
+    mediaBucketsInfo: List<MatisseMediaBucketInfo>,
+    onClickBucket: suspend (String) -> Unit,
     imageEngine: ImageEngine
 ) {
     Row(
@@ -96,7 +97,7 @@ internal fun MatisseTopBar(
             Text(
                 modifier = Modifier
                     .weight(weight = 1f, fill = false),
-                text = viewState.title,
+                text = title,
                 textAlign = TextAlign.Start,
                 fontSize = 20.sp,
                 maxLines = 1,
@@ -116,12 +117,12 @@ internal fun MatisseTopBar(
         BucketDropdownMenu(
             modifier = Modifier,
             expanded = menuExpanded,
-            mediaBuckets = viewState.mediaBuckets,
+            mediaBuckets = mediaBucketsInfo,
             imageEngine = imageEngine,
             onClickBucket = {
                 menuExpanded = false
                 coroutineScope.launch {
-                    viewState.onClickBucket(it.id)
+                    onClickBucket(it.bucketId)
                 }
             },
             onDismissRequest = {
@@ -175,7 +176,7 @@ private fun BucketDropdownMenu(
                             modifier = Modifier
                                 .weight(weight = 1f, fill = false)
                                 .padding(start = 10.dp),
-                            text = bucket.name,
+                            text = bucket.bucketName,
                             fontSize = 15.sp,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,

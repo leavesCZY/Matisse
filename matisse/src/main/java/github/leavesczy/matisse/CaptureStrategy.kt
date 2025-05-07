@@ -127,9 +127,6 @@ open class FileProviderCaptureStrategy(
             val imageFile = uriFileMap[imageUri]!!
             uriFileMap.remove(key = imageUri)
             MediaResource(
-                id = 0,
-                bucketId = "",
-                bucketName = "",
                 uri = imageUri,
                 path = imageFile.absolutePath,
                 name = imageFile.name,
@@ -184,12 +181,23 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
     }
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
-        val resource = MediaProvider.loadResources(context = context, uri = imageUri)
-        if (resource != null) {
-            return resource
+        val task = suspend {
+            val resource = MediaProvider.loadResources(context = context, uri = imageUri)
+            if (resource == null) {
+                null
+            } else {
+                MediaResource(
+                    uri = resource.uri,
+                    path = resource.path,
+                    name = resource.name,
+                    mimeType = resource.mimeType
+                )
+            }
         }
-        delay(timeMillis = 100)
-        return MediaProvider.loadResources(context = context, uri = imageUri)
+        return task() ?: run {
+            delay(timeMillis = 200)
+            task()
+        }
     }
 
     override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
