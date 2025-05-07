@@ -18,12 +18,9 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import github.leavesczy.matisse.CaptureStrategy
-import github.leavesczy.matisse.ImageMimeTypePrefix
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
-import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.VideoMimeTypePrefix
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
@@ -106,40 +103,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
         ) {
             buildList {
                 val mediaType = matisseViewModel.mediaType
-                val hasImage = when (mediaType) {
-                    MediaType.ImageOnly, MediaType.ImageAndVideo -> {
-                        true
-                    }
-
-                    MediaType.VideoOnly -> {
-                        false
-                    }
-
-                    is MediaType.MultipleMimeType -> {
-                        mediaType.mimeTypes.any {
-                            it.startsWith(prefix = ImageMimeTypePrefix)
-                        }
-                    }
-                }
-                val hasVideo = when (mediaType) {
-                    MediaType.ImageOnly -> {
-                        false
-                    }
-
-                    MediaType.VideoOnly, MediaType.ImageAndVideo -> {
-                        true
-                    }
-
-                    is MediaType.MultipleMimeType -> {
-                        mediaType.mimeTypes.any {
-                            it.startsWith(prefix = VideoMimeTypePrefix)
-                        }
-                    }
-                }
-                if (hasImage) {
+                if (mediaType.hasImage) {
                     add(element = Manifest.permission.READ_MEDIA_IMAGES)
                 }
-                if (hasVideo) {
+                if (mediaType.hasVideo) {
                     add(element = Manifest.permission.READ_MEDIA_VIDEO)
                 }
             }.toTypedArray()
@@ -182,7 +149,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         val maxSelectable = matisseViewModel.maxSelectable
         val selectedResources = matisseViewModel.filterSelectedMedia()
         if (selectedResources.size > maxSelectable) {
-            showToast(text = getString(R.string.matisse_limit_the_number_of_media, maxSelectable))
+            showToast(text = matisseViewModel.tipsWhenSelectCountLimited())
             return
         }
         if (matisseViewModel.singleMediaType) {

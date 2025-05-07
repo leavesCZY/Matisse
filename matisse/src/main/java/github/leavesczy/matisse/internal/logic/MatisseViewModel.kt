@@ -279,12 +279,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             } else {
                 val selectedResources = filterSelectedMediaResource()
                 if (selectedResources.size >= maxSelectable) {
-                    showToast(
-                        text = getString(
-                            id = R.string.matisse_limit_the_number_of_media,
-                            maxSelectable
-                        )
-                    )
+                    showToast(text = tipsWhenSelectCountLimited())
                     return
                 } else if (singleMediaType) {
                     val illegalMediaType = selectedResources.any {
@@ -306,7 +301,24 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         rearrangeMediaPosition()
         updatePreviewPageIfNeed()
         bottomBarViewState = buildBottomBarViewState()
+    }
 
+    fun tipsWhenSelectCountLimited(): String {
+        val hasImage = mediaType.hasImage
+        val hasVideo = mediaType.hasVideo
+        val stringId = if (hasImage && hasVideo) {
+            R.string.matisse_limit_the_number_of_media
+        } else if (hasImage) {
+            R.string.matisse_limit_the_number_of_image
+        } else if (hasVideo) {
+            R.string.matisse_limit_the_number_of_video
+        } else {
+            R.string.matisse_limit_the_number_of_media
+        }
+        return getString(
+            id = stringId,
+            maxSelectable
+        )
     }
 
     private fun rearrangeMediaPosition() {

@@ -75,6 +75,40 @@ sealed interface MediaType : Parcelable {
 
     }
 
+    val hasImage: Boolean
+        get() = when (this) {
+            ImageOnly, ImageAndVideo -> {
+                true
+            }
+
+            VideoOnly -> {
+                false
+            }
+
+            is MultipleMimeType -> {
+                mimeTypes.any {
+                    it.startsWith(prefix = ImageMimeTypePrefix)
+                }
+            }
+        }
+
+    val hasVideo: Boolean
+        get() = when (this) {
+            ImageOnly -> {
+                false
+            }
+
+            VideoOnly, ImageAndVideo -> {
+                true
+            }
+
+            is MultipleMimeType -> {
+                mimeTypes.any {
+                    it.startsWith(prefix = VideoMimeTypePrefix)
+                }
+            }
+        }
+
 }
 
 internal const val ImageMimeTypePrefix = "image/"
