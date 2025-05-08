@@ -27,13 +27,12 @@ class MainViewModel : ViewModel() {
 
     private var darkTheme by mutableStateOf(value = false)
 
-    var mainPageViewState by mutableStateOf(
+    var pageViewState by mutableStateOf(
         value = MainPageViewState(
             gridColumns = 4,
             maxSelectable = 3,
             fastSelect = false,
             singleMediaType = false,
-            includeGif = true,
             imageEngine = MediaImageEngine.Coil,
             filterStrategy = MediaFilterStrategy.Nothing,
             captureStrategy = MediaCaptureStrategy.Smart,
@@ -43,7 +42,6 @@ class MainViewModel : ViewModel() {
             onMaxSelectableChanged = ::onMaxSelectableChanged,
             onFastSelectChanged = ::onFastSelectChanged,
             onSingleMediaTypeChanged = ::onSingleMediaTypeChanged,
-            onIncludeGifChanged = ::onIncludeGifChanged,
             onImageEngineChanged = ::onImageEngineChanged,
             onFilterStrategyChanged = ::onFilterStrategyChanged,
             onCaptureStrategyChanged = ::onCaptureStrategyChanged,
@@ -54,16 +52,16 @@ class MainViewModel : ViewModel() {
         private set
 
     private fun onGridColumnsChanged(gridColumns: Int) {
-        mainPageViewState = mainPageViewState.copy(gridColumns = gridColumns)
+        pageViewState = pageViewState.copy(gridColumns = gridColumns)
     }
 
     private fun onMaxSelectableChanged(maxSelectable: Int) {
-        val fastSelect = if (mainPageViewState.fastSelect) {
+        val fastSelect = if (pageViewState.fastSelect) {
             maxSelectable == 1
         } else {
             false
         }
-        mainPageViewState = mainPageViewState.copy(
+        pageViewState = pageViewState.copy(
             maxSelectable = maxSelectable,
             fastSelect = fastSelect
         )
@@ -73,36 +71,32 @@ class MainViewModel : ViewModel() {
         val maxSelectable = if (fastSelect) {
             1
         } else {
-            mainPageViewState.maxSelectable
+            pageViewState.maxSelectable
         }
-        mainPageViewState = mainPageViewState.copy(
+        pageViewState = pageViewState.copy(
             maxSelectable = maxSelectable,
             fastSelect = fastSelect
         )
     }
 
     private fun onSingleMediaTypeChanged(singleType: Boolean) {
-        mainPageViewState = mainPageViewState.copy(singleMediaType = singleType)
-    }
-
-    private fun onIncludeGifChanged(hasGif: Boolean) {
-        mainPageViewState = mainPageViewState.copy(includeGif = hasGif)
+        pageViewState = pageViewState.copy(singleMediaType = singleType)
     }
 
     private fun onImageEngineChanged(imageEngine: MediaImageEngine) {
-        mainPageViewState = mainPageViewState.copy(imageEngine = imageEngine)
+        pageViewState = pageViewState.copy(imageEngine = imageEngine)
     }
 
     private fun onFilterStrategyChanged(filterStrategy: MediaFilterStrategy) {
-        mainPageViewState = mainPageViewState.copy(filterStrategy = filterStrategy)
+        pageViewState = pageViewState.copy(filterStrategy = filterStrategy)
     }
 
     private fun onCaptureStrategyChanged(captureStrategy: MediaCaptureStrategy) {
-        mainPageViewState = mainPageViewState.copy(captureStrategy = captureStrategy)
+        pageViewState = pageViewState.copy(captureStrategy = captureStrategy)
     }
 
     private fun onCapturePreferencesCustomChanged(custom: Boolean) {
-        mainPageViewState = mainPageViewState.copy(capturePreferencesCustom = custom)
+        pageViewState = pageViewState.copy(capturePreferencesCustom = custom)
     }
 
     private fun switchTheme() {
@@ -116,7 +110,7 @@ class MainViewModel : ViewModel() {
 
     private fun getMediaCaptureStrategy(): CaptureStrategy? {
         val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
-        val captureExtra = if (mainPageViewState.capturePreferencesCustom) {
+        val captureExtra = if (pageViewState.capturePreferencesCustom) {
             val bundle = Bundle()
             bundle.putBoolean("android.intent.extra.USE_FRONT_CAMERA", true)
             bundle.putInt("android.intent.extras.CAMERA_FACING", 1)
@@ -124,7 +118,7 @@ class MainViewModel : ViewModel() {
         } else {
             Bundle.EMPTY
         }
-        return when (mainPageViewState.captureStrategy) {
+        return when (pageViewState.captureStrategy) {
             MediaCaptureStrategy.Smart -> {
                 SmartCaptureStrategy(
                     fileProviderCaptureStrategy = CustomFileProviderCaptureStrategy(
@@ -153,7 +147,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun buildMatisse(mediaType: MediaType): Matisse {
-        val viewState = mainPageViewState
+        val viewState = pageViewState
         val imageEngine = when (viewState.imageEngine) {
             MediaImageEngine.Coil -> {
                 CoilImageEngine()
@@ -162,11 +156,6 @@ class MainViewModel : ViewModel() {
             MediaImageEngine.Glide -> {
                 GlideImageEngine()
             }
-        }
-        val ignoredMimeType = if (viewState.includeGif) {
-            emptySet()
-        } else {
-            setOf(element = "image/gif")
         }
         val ignoredResourceUri: Set<Uri>
         val selectedResourceUri: Set<Uri>
@@ -187,7 +176,7 @@ class MainViewModel : ViewModel() {
             }
         }
         val mediaFilter = DefaultMediaFilter(
-            ignoredMimeType = ignoredMimeType,
+            ignoredMimeType = emptySet(),
             ignoredResourceUri = ignoredResourceUri,
             selectedResourceUri = selectedResourceUri
         )
@@ -210,13 +199,13 @@ class MainViewModel : ViewModel() {
 
     fun takePictureResult(result: MediaResource?) {
         if (result != null) {
-            mainPageViewState = mainPageViewState.copy(mediaList = listOf(element = result))
+            pageViewState = pageViewState.copy(mediaList = listOf(element = result))
         }
     }
 
     fun mediaPickerResult(result: List<MediaResource>?) {
         if (!result.isNullOrEmpty()) {
-            mainPageViewState = mainPageViewState.copy(mediaList = result)
+            pageViewState = pageViewState.copy(mediaList = result)
         }
     }
 

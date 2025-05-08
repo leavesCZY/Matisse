@@ -75,7 +75,7 @@ sealed interface MediaType : Parcelable {
 
     }
 
-    val hasImage: Boolean
+    val includeImage: Boolean
         get() = when (this) {
             ImageOnly, ImageAndVideo -> {
                 true
@@ -92,7 +92,7 @@ sealed interface MediaType : Parcelable {
             }
         }
 
-    val hasVideo: Boolean
+    val includeVideo: Boolean
         get() = when (this) {
             ImageOnly -> {
                 false

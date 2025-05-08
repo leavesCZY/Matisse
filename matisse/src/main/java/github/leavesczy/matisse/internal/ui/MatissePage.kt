@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -201,7 +200,7 @@ private fun MediaItem(
             if (mediaResource.media.isVideo) {
                 VideoIcon(
                     modifier = Modifier
-                        .size(size = 30.dp)
+                        .fillMaxSize(fraction = 0.24f)
                 )
             }
             val scrimColor by animateColorAsState(
@@ -220,7 +219,7 @@ private fun MediaItem(
         Box(
             modifier = Modifier
                 .align(alignment = Alignment.TopEnd)
-                .fillMaxSize(fraction = 0.30f)
+                .fillMaxSize(fraction = 0.33f)
                 .clickableNoRipple {
                     onClickCheckBox(mediaResource)
                 },
@@ -260,8 +259,7 @@ private fun MediaItemFastSelect(
         if (mediaResource.isVideo) {
             VideoIcon(
                 modifier = Modifier
-                    .align(alignment = Alignment.Center)
-                    .size(size = 30.dp)
+                    .fillMaxSize(fraction = 0.24f)
             )
         }
     }
@@ -271,7 +269,7 @@ private fun MediaItemFastSelect(
 internal fun VideoIcon(modifier: Modifier) {
     Box(
         modifier = modifier
-            .shadow(elevation = 0.6.dp, shape = CircleShape)
+            .shadow(elevation = 1.dp, shape = CircleShape)
             .clip(shape = CircleShape)
             .background(color = colorResource(id = R.color.matisse_video_icon_color)),
         contentAlignment = Alignment.Center
