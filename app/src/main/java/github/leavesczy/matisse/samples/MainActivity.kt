@@ -66,12 +66,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val takePictureLauncher =
-                rememberLauncherForActivityResult(contract = MatisseCaptureContract()) { result ->
-                    mainViewModel.takePictureResult(result = result)
+                rememberLauncherForActivityResult(contract = MatisseCaptureContract()) {
+                    mainViewModel.takePictureResult(result = it)
                 }
             val mediaPickerLauncher =
-                rememberLauncherForActivityResult(contract = MatisseContract()) { result ->
-                    mainViewModel.mediaPickerResult(result = result)
+                rememberLauncherForActivityResult(contract = MatisseContract()) {
+                    mainViewModel.mediaPickerResult(result = it)
                 }
             MatisseTheme {
                 MainPage(
@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     },
                     takePicture = {
-                        val matisseCapture = mainViewModel.buildMatisseCapture()
+                        val matisseCapture = mainViewModel.buildMediaCaptureStrategy()
                         if (matisseCapture != null) {
                             takePictureLauncher.launch(matisseCapture)
                         }

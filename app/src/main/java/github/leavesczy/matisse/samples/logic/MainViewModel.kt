@@ -56,24 +56,26 @@ class MainViewModel : ViewModel() {
     }
 
     private fun onMaxSelectableChanged(maxSelectable: Int) {
-        val fastSelect = if (pageViewState.fastSelect) {
+        val viewState = pageViewState
+        val fastSelect = if (viewState.fastSelect) {
             maxSelectable == 1
         } else {
             false
         }
-        pageViewState = pageViewState.copy(
+        pageViewState = viewState.copy(
             maxSelectable = maxSelectable,
             fastSelect = fastSelect
         )
     }
 
     private fun onFastSelectChanged(fastSelect: Boolean) {
+        val viewState = pageViewState
         val maxSelectable = if (fastSelect) {
             1
         } else {
-            pageViewState.maxSelectable
+            viewState.maxSelectable
         }
-        pageViewState = pageViewState.copy(
+        pageViewState = viewState.copy(
             maxSelectable = maxSelectable,
             fastSelect = fastSelect
         )
@@ -109,8 +111,9 @@ class MainViewModel : ViewModel() {
     }
 
     private fun getMediaCaptureStrategy(): CaptureStrategy? {
+        val viewState = pageViewState
         val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
-        val captureExtra = if (pageViewState.capturePreferencesCustom) {
+        val captureExtra = if (viewState.capturePreferencesCustom) {
             val bundle = Bundle()
             bundle.putBoolean("android.intent.extra.USE_FRONT_CAMERA", true)
             bundle.putInt("android.intent.extras.CAMERA_FACING", 1)
@@ -118,7 +121,7 @@ class MainViewModel : ViewModel() {
         } else {
             Bundle.EMPTY
         }
-        return when (pageViewState.captureStrategy) {
+        return when (viewState.captureStrategy) {
             MediaCaptureStrategy.Smart -> {
                 SmartCaptureStrategy(
                     fileProviderCaptureStrategy = CustomFileProviderCaptureStrategy(
@@ -192,7 +195,7 @@ class MainViewModel : ViewModel() {
         )
     }
 
-    fun buildMatisseCapture(): MatisseCapture? {
+    fun buildMediaCaptureStrategy(): MatisseCapture? {
         val captureStrategy = getMediaCaptureStrategy() ?: return null
         return MatisseCapture(captureStrategy = captureStrategy)
     }

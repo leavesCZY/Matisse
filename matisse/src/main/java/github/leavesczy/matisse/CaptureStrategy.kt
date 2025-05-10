@@ -59,7 +59,7 @@ interface CaptureStrategy : Parcelable {
     suspend fun createImageName(context: Context): String {
         return withContext(context = Dispatchers.Default) {
             val time = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US).format(Date())
-            return@withContext "IMG_$time.jpg"
+            "IMG_$time.jpg"
         }
     }
 

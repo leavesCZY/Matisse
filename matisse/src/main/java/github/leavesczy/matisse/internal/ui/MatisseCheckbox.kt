@@ -52,7 +52,7 @@ internal fun MatisseCheckbox(
                             .background(color = colorResource(id = R.color.matisse_check_box_circle_fill_color))
                     } else {
                         Modifier
-                            .background(color = Color(0x26000000))
+                            .background(color = Color(0x1A000000))
                             .border(
                                 width = 1.dp,
                                 shape = CircleShape,

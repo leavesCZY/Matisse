@@ -36,7 +36,7 @@ internal object MediaProvider {
         relativePath: String
     ): Uri? {
         return withContext(context = Dispatchers.Default) {
-            return@withContext try {
+            try {
                 val contentValues = ContentValues()
                 contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageName)
                 contentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
