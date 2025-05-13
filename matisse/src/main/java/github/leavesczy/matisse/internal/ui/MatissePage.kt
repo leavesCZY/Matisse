@@ -9,10 +9,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -101,7 +102,7 @@ internal fun MatissePage(
                 ) {
                     CaptureItem(
                         modifier = Modifier
-                            .customAnimateItem(scope = this),
+                            .customAnimateItem(lazyGridItemScope = this),
                         onClick = onRequestTakePicture
                     )
                 }
@@ -118,7 +119,7 @@ internal fun MatissePage(
                 if (pageViewState.fastSelect) {
                     MediaItemFastSelect(
                         modifier = Modifier
-                            .customAnimateItem(scope = this),
+                            .customAnimateItem(lazyGridItemScope = this),
                         mediaResource = it.media,
                         imageEngine = pageViewState.imageEngine,
                         onClickMedia = selectMediaInFastSelectMode
@@ -126,7 +127,7 @@ internal fun MatissePage(
                 } else {
                     MediaItem(
                         modifier = Modifier
-                            .customAnimateItem(scope = this),
+                            .customAnimateItem(lazyGridItemScope = this),
                         mediaResource = it,
                         imageEngine = pageViewState.imageEngine,
                         onClickMedia = pageViewState.onClickMedia,
@@ -135,19 +136,6 @@ internal fun MatissePage(
                 }
             }
         }
-    }
-}
-
-private fun Modifier.customAnimateItem(scope: LazyGridItemScope): Modifier {
-    return with(scope) {
-        animateItem(
-            fadeInSpec = spring(stiffness = Spring.StiffnessMedium),
-            fadeOutSpec = spring(stiffness = Spring.StiffnessMedium),
-            placementSpec = spring(
-                stiffness = Spring.StiffnessMediumLow,
-                visibilityThreshold = IntOffset.VisibilityThreshold
-            )
-        )
     }
 }
 
@@ -182,45 +170,38 @@ private fun MediaItem(
     onClickMedia: (MatisseMediaExtend) -> Unit,
     onClickCheckBox: (MatisseMediaExtend) -> Unit
 ) {
-    val selectState = mediaResource.selectState.value
     Box(
         modifier = modifier
             .aspectRatio(ratio = 1f)
-            .background(color = colorResource(id = R.color.matisse_media_item_background_color)),
+            .background(color = colorResource(id = R.color.matisse_media_item_background_color))
+            .clickable {
+                onClickMedia(mediaResource)
+            },
         contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable {
-                    onClickMedia(mediaResource)
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            imageEngine.Thumbnail(mediaResource = mediaResource.media)
-            if (mediaResource.media.isVideo) {
-                VideoIcon(
-                    modifier = Modifier
-                        .size(size = 30.dp)
-                )
-            }
-            val scrimColor by animateColorAsState(
-                targetValue = if (selectState.isSelected) {
-                    colorResource(id = R.color.matisse_media_item_scrim_color_when_selected)
-                } else {
-                    colorResource(id = R.color.matisse_media_item_scrim_color_when_unselected)
-                }
-            )
-            Box(
+        imageEngine.Thumbnail(mediaResource = mediaResource.media)
+        if (mediaResource.media.isVideo) {
+            VideoIcon(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = scrimColor)
+                    .fillMaxSize(fraction = 0.24f)
             )
         }
+        val scrimColor by animateColorAsState(
+            targetValue = if (mediaResource.selectState.value.isSelected) {
+                colorResource(id = R.color.matisse_media_item_scrim_color_when_selected)
+            } else {
+                colorResource(id = R.color.matisse_media_item_scrim_color_when_unselected)
+            }
+        )
+        Spacer(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = scrimColor)
+        )
         Box(
             modifier = Modifier
                 .align(alignment = Alignment.TopEnd)
-                .fillMaxSize(fraction = 0.30f)
+                .fillMaxSize(fraction = 0.33f)
                 .clickableNoRipple {
                     onClickCheckBox(mediaResource)
                 },
@@ -229,9 +210,7 @@ private fun MediaItem(
             MatisseCheckbox(
                 modifier = Modifier
                     .fillMaxSize(fraction = 0.68f),
-                text = selectState.positionFormatted,
-                isSelected = selectState.isSelected,
-                isEnabled = selectState.isEnabled,
+                selectState = mediaResource.selectState.value,
                 onClick = {
                     onClickCheckBox(mediaResource)
                 }
@@ -260,8 +239,7 @@ private fun MediaItemFastSelect(
         if (mediaResource.isVideo) {
             VideoIcon(
                 modifier = Modifier
-                    .align(alignment = Alignment.Center)
-                    .size(size = 30.dp)
+                    .fillMaxSize(fraction = 0.24f)
             )
         }
     }
@@ -271,17 +249,31 @@ private fun MediaItemFastSelect(
 internal fun VideoIcon(modifier: Modifier) {
     Box(
         modifier = modifier
-            .shadow(elevation = 0.6.dp, shape = CircleShape)
+            .shadow(elevation = 1.dp, shape = CircleShape)
             .clip(shape = CircleShape)
             .background(color = colorResource(id = R.color.matisse_video_icon_color)),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             modifier = Modifier
-                .fillMaxSize(fraction = 0.60f),
+                .fillMaxSize(fraction = 0.62f),
             imageVector = Icons.Filled.PlayArrow,
             tint = Color.Black,
             contentDescription = null
+        )
+    }
+}
+
+@Stable
+private fun Modifier.customAnimateItem(lazyGridItemScope: LazyGridItemScope): Modifier {
+    return with(lazyGridItemScope) {
+        animateItem(
+            fadeInSpec = spring(stiffness = Spring.StiffnessMedium),
+            fadeOutSpec = spring(stiffness = Spring.StiffnessMedium),
+            placementSpec = spring(
+                stiffness = Spring.StiffnessMediumLow,
+                visibilityThreshold = IntOffset.VisibilityThreshold
+            )
         )
     }
 }

@@ -40,6 +40,9 @@ data class Matisse(
         if (maxSelectable > 1 && fastSelect) {
             throw IllegalArgumentException("when maxSelectable is greater than 1, fastSelect must be false")
         }
+        if (gridColumns < 1) {
+            throw IllegalArgumentException("gridColumns should be larger than zero")
+        }
     }
 
 }
@@ -75,7 +78,7 @@ sealed interface MediaType : Parcelable {
 
     }
 
-    val hasImage: Boolean
+    val includeImage: Boolean
         get() = when (this) {
             ImageOnly, ImageAndVideo -> {
                 true
@@ -92,7 +95,7 @@ sealed interface MediaType : Parcelable {
             }
         }
 
-    val hasVideo: Boolean
+    val includeVideo: Boolean
         get() = when (this) {
             ImageOnly -> {
                 false

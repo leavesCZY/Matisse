@@ -66,16 +66,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val takePictureLauncher =
-                rememberLauncherForActivityResult(contract = MatisseCaptureContract()) { result ->
-                    mainViewModel.takePictureResult(result = result)
+                rememberLauncherForActivityResult(contract = MatisseCaptureContract()) {
+                    mainViewModel.takePictureResult(result = it)
                 }
             val mediaPickerLauncher =
-                rememberLauncherForActivityResult(contract = MatisseContract()) { result ->
-                    mainViewModel.mediaPickerResult(result = result)
+                rememberLauncherForActivityResult(contract = MatisseContract()) {
+                    mainViewModel.mediaPickerResult(result = it)
                 }
             MatisseTheme {
                 MainPage(
-                    mainPageViewState = mainViewModel.mainPageViewState,
+                    pageViewState = mainViewModel.pageViewState,
                     imageAndVideo = {
                         mediaPickerLauncher.launch(
                             mainViewModel.buildMatisse(mediaType = MediaType.ImageAndVideo)
@@ -89,17 +89,17 @@ class MainActivity : AppCompatActivity() {
                     videoOnly = {
                         mediaPickerLauncher.launch(mainViewModel.buildMatisse(mediaType = MediaType.VideoOnly))
                     },
-                    jpgAndMp4 = {
+                    gifAndMp4 = {
                         mediaPickerLauncher.launch(
                             mainViewModel.buildMatisse(
                                 mediaType = MediaType.MultipleMimeType(
-                                    mimeTypes = setOf("image/jpeg", "video/mp4")
+                                    mimeTypes = setOf("image/gif", "video/mp4")
                                 )
                             )
                         )
                     },
                     takePicture = {
-                        val matisseCapture = mainViewModel.buildMatisseCapture()
+                        val matisseCapture = mainViewModel.buildMediaCaptureStrategy()
                         if (matisseCapture != null) {
                             takePictureLauncher.launch(matisseCapture)
                         }
@@ -121,11 +121,11 @@ class MainActivity : AppCompatActivity() {
 
 @Composable
 private fun MainPage(
-    mainPageViewState: MainPageViewState,
+    pageViewState: MainPageViewState,
     imageAndVideo: () -> Unit,
     imageOnly: () -> Unit,
     videoOnly: () -> Unit,
-    jpgAndMp4: () -> Unit,
+    gifAndMp4: () -> Unit,
     takePicture: () -> Unit
 ) {
     Scaffold(
@@ -169,9 +169,9 @@ private fun MainPage(
                 for (gridColumns in 2..5) {
                     RadioButton(
                         tips = gridColumns.toString(),
-                        selected = mainPageViewState.gridColumns == gridColumns,
+                        selected = pageViewState.gridColumns == gridColumns,
                         onClick = {
-                            mainPageViewState.onGridColumnsChanged(gridColumns)
+                            pageViewState.onGridColumnsChanged(gridColumns)
                         }
                     )
                 }
@@ -185,9 +185,9 @@ private fun MainPage(
                 for (maxSelectable in 1..4) {
                     RadioButton(
                         tips = maxSelectable.toString(),
-                        selected = mainPageViewState.maxSelectable == maxSelectable,
+                        selected = pageViewState.maxSelectable == maxSelectable,
                         onClick = {
-                            mainPageViewState.onMaxSelectableChanged(maxSelectable)
+                            pageViewState.onMaxSelectableChanged(maxSelectable)
                         }
                     )
                 }
@@ -200,8 +200,8 @@ private fun MainPage(
             ) {
                 Title(text = "fastSelect")
                 Checkbox(
-                    checked = mainPageViewState.fastSelect,
-                    onCheckedChange = mainPageViewState.onFastSelectChanged
+                    checked = pageViewState.fastSelect,
+                    onCheckedChange = pageViewState.onFastSelectChanged
                 )
             }
             OptionDivider()
@@ -213,9 +213,9 @@ private fun MainPage(
                 for (engine in MediaImageEngine.entries) {
                     RadioButton(
                         tips = engine.name,
-                        selected = mainPageViewState.imageEngine == engine,
+                        selected = pageViewState.imageEngine == engine,
                         onClick = {
-                            mainPageViewState.onImageEngineChanged(engine)
+                            pageViewState.onImageEngineChanged(engine)
                         }
                     )
                 }
@@ -228,8 +228,8 @@ private fun MainPage(
             ) {
                 Title(text = "singleMediaType")
                 Checkbox(
-                    checked = mainPageViewState.singleMediaType,
-                    onCheckedChange = mainPageViewState.onSingleMediaTypeChanged
+                    checked = pageViewState.singleMediaType,
+                    onCheckedChange = pageViewState.onSingleMediaTypeChanged
                 )
             }
             OptionDivider()
@@ -241,23 +241,12 @@ private fun MainPage(
                 for (strategy in MediaFilterStrategy.entries) {
                     RadioButton(
                         tips = strategy.name,
-                        selected = mainPageViewState.filterStrategy == strategy,
+                        selected = pageViewState.filterStrategy == strategy,
                         onClick = {
-                            mainPageViewState.onFilterStrategyChanged(strategy)
+                            pageViewState.onFilterStrategyChanged(strategy)
                         }
                     )
                 }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Title(text = "includeGif")
-                Checkbox(
-                    checked = mainPageViewState.includeGif,
-                    onCheckedChange = mainPageViewState.onIncludeGifChanged
-                )
             }
             OptionDivider()
             Title(text = "CaptureStrategy")
@@ -269,9 +258,9 @@ private fun MainPage(
                 for (strategy in MediaCaptureStrategy.entries) {
                     RadioButton(
                         tips = strategy.name,
-                        selected = mainPageViewState.captureStrategy == strategy,
+                        selected = pageViewState.captureStrategy == strategy,
                         onClick = {
-                            mainPageViewState.onCaptureStrategyChanged(strategy)
+                            pageViewState.onCaptureStrategyChanged(strategy)
                         }
                     )
                 }
@@ -284,9 +273,9 @@ private fun MainPage(
             ) {
                 Title(text = "CapturePreferencesCustom")
                 Checkbox(
-                    checked = mainPageViewState.capturePreferencesCustom,
-                    enabled = mainPageViewState.captureStrategy != MediaCaptureStrategy.Close,
-                    onCheckedChange = mainPageViewState.onCapturePreferencesCustomChanged
+                    checked = pageViewState.capturePreferencesCustom,
+                    enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Close,
+                    onCheckedChange = pageViewState.onCapturePreferencesCustomChanged
                 )
             }
             Button(
@@ -302,19 +291,19 @@ private fun MainPage(
                 onClick = videoOnly
             )
             Button(
-                text = "jpg + mp4",
-                onClick = jpgAndMp4
+                text = "gif + mp4",
+                onClick = gifAndMp4
             )
             Button(
                 text = "直接拍照",
-                enabled = mainPageViewState.captureStrategy != MediaCaptureStrategy.Close,
+                enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Close,
                 onClick = takePicture
             )
             Button(
                 text = "切换主题",
-                onClick = mainPageViewState.switchTheme
+                onClick = pageViewState.switchTheme
             )
-            for (mediaResource in mainPageViewState.mediaList) {
+            for (mediaResource in pageViewState.mediaList) {
                 MediaResourceItem(mediaResource = mediaResource)
             }
         }

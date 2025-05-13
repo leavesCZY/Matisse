@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
+import github.leavesczy.matisse.internal.logic.MatisseMediaSelectState
 
 /**
  * @Author: leavesCZY
@@ -32,9 +33,7 @@ import github.leavesczy.matisse.R
 @Composable
 internal fun MatisseCheckbox(
     modifier: Modifier,
-    text: String?,
-    isSelected: Boolean,
-    isEnabled: Boolean,
+    selectState: MatisseMediaSelectState,
     onClick: () -> Unit
 ) {
     Box(
@@ -47,17 +46,17 @@ internal fun MatisseCheckbox(
                 .fillMaxSize()
                 .clip(shape = CircleShape)
                 .then(
-                    other = if (isSelected) {
+                    other = if (selectState.isSelected) {
                         Modifier
                             .background(color = colorResource(id = R.color.matisse_check_box_circle_fill_color))
                     } else {
                         Modifier
-                            .background(color = Color(0x26000000))
+                            .background(color = Color(0x1A000000))
                             .border(
                                 width = 1.dp,
                                 shape = CircleShape,
                                 color = colorResource(
-                                    id = if (isEnabled) {
+                                    id = if (selectState.isEnabled) {
                                         R.color.matisse_check_box_circle_color
                                     } else {
                                         R.color.matisse_check_box_circle_color_if_disable
@@ -67,12 +66,13 @@ internal fun MatisseCheckbox(
                     }
                 )
         )
-        if (!text.isNullOrBlank()) {
+        val positionFormatted = selectState.positionFormatted
+        if (!positionFormatted.isNullOrBlank()) {
             BasicText(
                 modifier = Modifier
                     .matchParentSize()
                     .wrapContentSize(align = Alignment.Center),
-                text = text,
+                text = positionFormatted,
                 maxLines = 1,
                 overflow = TextOverflow.Clip,
                 autoSize = TextAutoSize.StepBased(

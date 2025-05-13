@@ -51,13 +51,13 @@ import kotlin.math.absoluteValue
  */
 @Composable
 internal fun MatissePreviewPage(
-    viewState: MatissePreviewPageViewState,
+    pageViewState: MatissePreviewPageViewState,
     imageEngine: ImageEngine,
     requestOpenVideo: (MediaResource) -> Unit,
     onClickSure: () -> Unit
 ) {
     AnimatedVisibility(
-        visible = viewState.visible,
+        visible = pageViewState.visible,
         enter = slideInHorizontally(
             animationSpec = tween(
                 durationMillis = 350,
@@ -74,11 +74,11 @@ internal fun MatissePreviewPage(
         )
     ) {
         BackHandler(
-            enabled = viewState.visible,
-            onBack = viewState.onDismissRequest
+            enabled = pageViewState.visible,
+            onBack = pageViewState.onDismissRequest
         )
-        val pagerState = rememberPagerState(initialPage = viewState.initialPage) {
-            viewState.previewResources.size
+        val pagerState = rememberPagerState(initialPage = pageViewState.initialPage) {
+            pageViewState.previewResources.size
         }
         Scaffold(
             modifier = Modifier
@@ -103,7 +103,7 @@ internal fun MatissePreviewPage(
                     state = pagerState,
                     verticalAlignment = Alignment.CenterVertically,
                     key = { index ->
-                        viewState.previewResources[index].mediaId
+                        pageViewState.previewResources[index].mediaId
                     }
                 ) { pageIndex ->
                     PreviewPage(
@@ -112,14 +112,14 @@ internal fun MatissePreviewPage(
                         pagerState = pagerState,
                         pageIndex = pageIndex,
                         imageEngine = imageEngine,
-                        mediaResource = viewState.previewResources[pageIndex].media,
+                        mediaResource = pageViewState.previewResources[pageIndex].media,
                         requestOpenVideo = requestOpenVideo
                     )
                 }
                 BottomController(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    pageViewState = viewState,
+                    pageViewState = pageViewState,
                     pagerState = pagerState,
                     onClickSure = onClickSure
                 )
@@ -209,14 +209,11 @@ private fun BottomController(
             fontWeight = FontWeight.Normal,
             color = colorResource(id = R.color.matisse_preview_page_back_text_color)
         )
-        val selectState = currentResource.selectState.value
         MatisseCheckbox(
             modifier = Modifier
                 .align(alignment = Alignment.Center)
                 .size(size = 24.dp),
-            text = selectState.positionFormatted,
-            isSelected = selectState.isSelected,
-            isEnabled = selectState.isEnabled,
+            selectState = currentResource.selectState.value,
             onClick = {
                 pageViewState.onMediaCheckChanged(currentResource)
             }

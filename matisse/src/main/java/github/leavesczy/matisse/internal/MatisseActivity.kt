@@ -83,7 +83,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     selectMediaInFastSelectMode = ::selectMediaInFastSelectMode
                 )
                 MatissePreviewPage(
-                    viewState = matisseViewModel.previewPageViewState,
+                    pageViewState = matisseViewModel.previewPageViewState,
                     imageEngine = matisseViewModel.pageViewState.imageEngine,
                     requestOpenVideo = ::requestOpenVideo,
                     onClickSure = ::onClickSure
@@ -103,10 +103,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
         ) {
             buildList {
                 val mediaType = matisseViewModel.mediaType
-                if (mediaType.hasImage) {
+                if (mediaType.includeImage) {
                     add(element = Manifest.permission.READ_MEDIA_IMAGES)
                 }
-                if (mediaType.hasVideo) {
+                if (mediaType.includeVideo) {
                     add(element = Manifest.permission.READ_MEDIA_VIDEO)
                 }
             }.toTypedArray()
@@ -146,16 +146,11 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     private fun onClickSure() {
-        val maxSelectable = matisseViewModel.maxSelectable
         val selectedResources = matisseViewModel.filterSelectedMedia()
-        if (selectedResources.size > maxSelectable) {
-            showToast(text = matisseViewModel.tipsWhenSelectCountLimited())
-            return
-        }
         if (matisseViewModel.singleMediaType) {
-            val hasImage = selectedResources.any { it.isImage }
-            val hasVideo = selectedResources.any { it.isVideo }
-            if (hasImage && hasVideo) {
+            val includeImage = selectedResources.any { it.isImage }
+            val includeVideo = selectedResources.any { it.isVideo }
+            if (includeImage && includeVideo) {
                 showToast(id = R.string.matisse_cannot_select_both_picture_and_video_at_the_same_time)
                 return
             }

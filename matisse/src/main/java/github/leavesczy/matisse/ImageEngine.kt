@@ -7,9 +7,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.bumptech.glide.integration.compose.GlideImage
 import kotlinx.parcelize.Parcelize
 
@@ -78,10 +82,21 @@ class CoilImageEngine : ImageEngine {
 
     @Composable
     override fun Thumbnail(mediaResource: MediaResource) {
+        val context = LocalContext.current
+        val imageRequest = remember(key1 = mediaResource.uri) {
+            val uri = mediaResource.uri
+            val memoryCacheKey = uri.toString()
+            ImageRequest.Builder(context = context)
+                .data(data = uri)
+                .memoryCacheKey(key = memoryCacheKey)
+                .placeholderMemoryCacheKey(key = memoryCacheKey)
+                .crossfade(enable = true)
+                .build()
+        }
         AsyncImage(
             modifier = Modifier
                 .fillMaxSize(),
-            model = mediaResource.uri,
+            model = imageRequest,
             contentScale = ContentScale.Crop,
             contentDescription = null
         )
@@ -89,11 +104,21 @@ class CoilImageEngine : ImageEngine {
 
     @Composable
     override fun Image(mediaResource: MediaResource) {
+        val context = LocalContext.current
+        val imageRequest = remember(key1 = mediaResource.uri) {
+            val uri = mediaResource.uri
+            val memoryCacheKey = uri.toString()
+            ImageRequest.Builder(context = context)
+                .data(data = uri)
+                .memoryCacheKey(key = memoryCacheKey)
+                .placeholderMemoryCacheKey(key = memoryCacheKey)
+                .build()
+        }
         if (mediaResource.isVideo) {
             AsyncImage(
                 modifier = Modifier
                     .fillMaxWidth(),
-                model = mediaResource.uri,
+                model = imageRequest,
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null
             )
@@ -102,7 +127,7 @@ class CoilImageEngine : ImageEngine {
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(state = rememberScrollState()),
-                model = mediaResource.uri,
+                model = imageRequest,
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null
             )
