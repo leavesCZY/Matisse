@@ -16,7 +16,6 @@ import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseTakePictureContract
-import github.leavesczy.matisse.internal.logic.MatisseTakePictureContractParams
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -92,7 +91,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 if (imageUri != null) {
                     tempImageUriForTakePicture = imageUri
                     takePictureLauncher.launch(
-                        MatisseTakePictureContractParams(
+                        MatisseTakePictureContract.MatisseTakePictureContractParams(
                             uri = imageUri,
                             extra = captureStrategy.getCaptureExtra()
                         )

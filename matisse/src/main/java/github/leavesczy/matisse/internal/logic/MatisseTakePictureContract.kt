@@ -3,6 +3,8 @@ package github.leavesczy.matisse.internal.logic
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContract
 
@@ -12,7 +14,12 @@ import androidx.activity.result.contract.ActivityResultContract
  * @Desc:
  */
 internal class MatisseTakePictureContract :
-    ActivityResultContract<MatisseTakePictureContractParams, Boolean>() {
+    ActivityResultContract<MatisseTakePictureContract.MatisseTakePictureContractParams, Boolean>() {
+
+    data class MatisseTakePictureContractParams(
+        val uri: Uri,
+        val extra: Bundle
+    )
 
     override fun createIntent(context: Context, input: MatisseTakePictureContractParams): Intent {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)

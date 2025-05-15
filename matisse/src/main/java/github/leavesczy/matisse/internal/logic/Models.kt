@@ -1,7 +1,5 @@
 package github.leavesczy.matisse.internal.logic
 
-import android.net.Uri
-import android.os.Bundle
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -90,9 +88,4 @@ internal data class MatissePreviewPageViewState(
     val previewResources: List<MatisseMediaExtend>,
     val onMediaCheckChanged: (MatisseMediaExtend) -> Unit,
     val onDismissRequest: () -> Unit
-)
-
-internal data class MatisseTakePictureContractParams(
-    val uri: Uri,
-    val extra: Bundle
 )

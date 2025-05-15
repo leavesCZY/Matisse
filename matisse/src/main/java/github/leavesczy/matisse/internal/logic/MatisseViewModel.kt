@@ -365,9 +365,10 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     }
 
     private fun onClickMedia(mediaResource: MatisseMediaExtend) {
+        val totalResources = pageViewState.selectedBucket.resources
         previewResource(
-            initialMedia = mediaResource,
-            totalResources = pageViewState.selectedBucket.resources,
+            initialPage = totalResources.indexOf(element = mediaResource),
+            totalResources = totalResources,
             selectedResources = filterSelectedMediaResource()
         )
     }
@@ -375,22 +376,17 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     private fun onClickPreviewButton() {
         val selected = filterSelectedMediaResource()
         previewResource(
-            initialMedia = null,
+            initialPage = 0,
             totalResources = selected,
             selectedResources = selected
         )
     }
 
     private fun previewResource(
-        initialMedia: MatisseMediaExtend?,
+        initialPage: Int,
         totalResources: List<MatisseMediaExtend>,
         selectedResources: List<MatisseMediaExtend>
     ) {
-        val initialPage = if (initialMedia == null) {
-            0
-        } else {
-            totalResources.indexOf(element = initialMedia)
-        }
         previewPageViewState = previewPageViewState.copy(
             visible = true,
             initialPage = initialPage,
