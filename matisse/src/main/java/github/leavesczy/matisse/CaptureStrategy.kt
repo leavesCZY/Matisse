@@ -181,22 +181,23 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
     }
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
-        val task = suspend {
-            val resource = MediaProvider.loadResources(context = context, uri = imageUri)
-            if (resource == null) {
-                null
-            } else {
-                MediaResource(
-                    uri = resource.uri,
-                    path = resource.path,
-                    name = resource.name,
-                    mimeType = resource.mimeType
-                )
-            }
-        }
-        return task() ?: run {
+        return loadResources(context = context, uri = imageUri) ?: run {
             delay(timeMillis = 200)
-            task()
+            loadResources(context = context, uri = imageUri)
+        }
+    }
+
+    private suspend fun loadResources(context: Context, uri: Uri): MediaResource? {
+        val resource = MediaProvider.loadResources(context = context, uri = uri)
+        return if (resource == null) {
+            null
+        } else {
+            MediaResource(
+                uri = resource.uri,
+                path = resource.path,
+                name = resource.name,
+                mimeType = resource.mimeType
+            )
         }
     }
 
@@ -218,13 +219,12 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
  */
 @Parcelize
 data class SmartCaptureStrategy(
-    private val fileProviderCaptureStrategy: FileProviderCaptureStrategy,
-    private val extra: Bundle = Bundle.EMPTY
+    private val fileProviderCaptureStrategy: FileProviderCaptureStrategy
 ) : CaptureStrategy {
 
     @IgnoredOnParcel
     private val proxy = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        MediaStoreCaptureStrategy(extra = extra)
+        MediaStoreCaptureStrategy(extra = fileProviderCaptureStrategy.getCaptureExtra())
     } else {
         fileProviderCaptureStrategy
     }

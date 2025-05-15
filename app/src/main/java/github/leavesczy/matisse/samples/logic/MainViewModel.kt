@@ -127,8 +127,7 @@ class MainViewModel : ViewModel() {
                     fileProviderCaptureStrategy = CustomFileProviderCaptureStrategy(
                         authority = fileProviderAuthority,
                         extra = captureExtra
-                    ),
-                    extra = captureExtra
+                    )
                 )
             }
 
