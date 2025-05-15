@@ -33,7 +33,7 @@ val signingSecretKeyRingFile = properties["signing.secretKeyRingFile"]?.toString
 val mavenCentralUserName = properties["mavenCentral.username"]?.toString()
 val mavenCentralPassword = properties["mavenCentral.password"]?.toString()
 val mavenCentralEmail = properties["mavenCentral.email"]?.toString()
-val matisseVersion = "2.1.4"
+val matisseVersion = "2.2.0"
 
 if (signingKeyId != null
     && signingPassword != null
