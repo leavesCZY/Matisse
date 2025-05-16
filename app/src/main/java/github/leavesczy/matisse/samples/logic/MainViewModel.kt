@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.CoilImageEngine
 import github.leavesczy.matisse.DefaultMediaFilter
+import github.leavesczy.matisse.FileProviderCaptureStrategy
 import github.leavesczy.matisse.GlideImageEngine
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MatisseCapture
@@ -124,7 +125,7 @@ class MainViewModel : ViewModel() {
         return when (viewState.captureStrategy) {
             MediaCaptureStrategy.Smart -> {
                 SmartCaptureStrategy(
-                    fileProviderCaptureStrategy = CustomFileProviderCaptureStrategy(
+                    fileProviderCaptureStrategy = FileProviderCaptureStrategy(
                         authority = fileProviderAuthority,
                         extra = captureExtra
                     )
@@ -132,7 +133,7 @@ class MainViewModel : ViewModel() {
             }
 
             MediaCaptureStrategy.FileProvider -> {
-                CustomFileProviderCaptureStrategy(
+                FileProviderCaptureStrategy(
                     authority = fileProviderAuthority,
                     extra = captureExtra
                 )

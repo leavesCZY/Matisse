@@ -32,15 +32,13 @@ internal object MediaProvider {
     suspend fun createImage(
         context: Context,
         imageName: String,
-        mimeType: String,
-        relativePath: String
+        mimeType: String
     ): Uri? {
         return withContext(context = Dispatchers.Default) {
             try {
                 val contentValues = ContentValues()
                 contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageName)
                 contentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
-                contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, relativePath)
                 val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
                 } else {

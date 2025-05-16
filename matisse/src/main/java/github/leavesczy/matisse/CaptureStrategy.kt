@@ -15,6 +15,7 @@ import github.leavesczy.matisse.internal.logic.MediaProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.io.File
@@ -175,15 +176,22 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
         return MediaProvider.createImage(
             context = context,
             imageName = createImageName(context = context),
-            mimeType = JPG_MIME_TYPE,
-            relativePath = "DCIM/Camera"
+            mimeType = JPG_MIME_TYPE
         )
     }
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
-        return loadResources(context = context, uri = imageUri) ?: run {
-            delay(timeMillis = 200)
-            loadResources(context = context, uri = imageUri)
+        return withContext(context = Dispatchers.Default) {
+            withTimeoutOrNull(timeMillis = 500) {
+                while (true) {
+                    val result = loadResources(context = context, uri = imageUri)
+                    if (result != null) {
+                        return@withTimeoutOrNull result
+                    }
+                    delay(timeMillis = 10)
+                }
+                return@withTimeoutOrNull null
+            }
         }
     }
 
