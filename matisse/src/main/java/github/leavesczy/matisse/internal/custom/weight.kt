@@ -56,7 +56,7 @@ private fun PermissionBottom(text: String, onClick: () -> Unit) {
         ) {
             Text(
                 text = stringResource(R.string.permission_bottom_button),
-                fontSize = 10.sp,
+                fontSize = 20.sp,
                 color = LocalContentColor.current
             )
         }

@@ -21,12 +21,12 @@ import java.util.TimeZone
  */
 internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleExtension) {
     commonExtension.apply {
-        compileSdk = 34
-        buildToolsVersion = "34.0.0"
+        compileSdk = 35
+        buildToolsVersion = "35.0.0"
         defaultConfig {
             applicationId = "github.leavesczy.matisse.samples"
-            minSdk = 23
-            targetSdk = 34
+            minSdk = 24
+            targetSdk = 35
             versionCode = 1
             versionName = "1.0.0"
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

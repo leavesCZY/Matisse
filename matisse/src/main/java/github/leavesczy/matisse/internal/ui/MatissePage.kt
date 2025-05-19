@@ -147,7 +147,7 @@ internal fun MatissePage(
 private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .animateItemPlacement()
+            .animateItem()
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
@@ -180,7 +180,7 @@ private fun LazyGridItemScope.MediaItemWrap(
 ) {
     Box(
         modifier = Modifier
-            .animateItemPlacement()
+            .animateItem()
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
