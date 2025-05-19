@@ -13,7 +13,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import github.leavesczy.matisse.internal.logic.MediaProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.io.File
@@ -58,7 +60,7 @@ interface CaptureStrategy : Parcelable {
     suspend fun createImageName(context: Context): String {
         return withContext(context = Dispatchers.Default) {
             val time = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US).format(Date())
-            return@withContext "IMG_$time.jpg"
+            "IMG_$time.jpg"
         }
     }
 
@@ -80,7 +82,7 @@ private const val JPG_MIME_TYPE = "image/jpeg"
  *  此策略无需申请任何权限，所拍的照片不会保存在系统相册里
  */
 @Parcelize
-data class FileProviderCaptureStrategy(
+open class FileProviderCaptureStrategy(
     private val authority: String,
     private val extra: Bundle = Bundle.EMPTY
 ) : CaptureStrategy {
@@ -88,26 +90,27 @@ data class FileProviderCaptureStrategy(
     @IgnoredOnParcel
     private val uriFileMap = mutableMapOf<Uri, File>()
 
-    override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
+    final override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
         return false
     }
 
-    override suspend fun createImageUri(context: Context): Uri? {
+    final override suspend fun createImageUri(context: Context): Uri? {
         return withContext(context = Dispatchers.Main.immediate) {
             val tempFile = createTempFile(context = context)
             if (tempFile != null) {
                 val uri = FileProvider.getUriForFile(context, authority, tempFile)
                 uriFileMap[uri] = tempFile
-                return@withContext uri
+                uri
+            } else {
+                null
             }
-            return@withContext null
         }
     }
 
     private suspend fun createTempFile(context: Context): File? {
         return withContext(context = Dispatchers.IO) {
-            val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val file = File(storageDir, createImageName(context = context))
+            val picturesDirectory = getAuthorityDirectory(context = context)
+            val file = File(picturesDirectory, createImageName(context = context))
             if (file.createNewFile()) {
                 file
             } else {
@@ -116,25 +119,24 @@ data class FileProviderCaptureStrategy(
         }
     }
 
-    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
+    protected open fun getAuthorityDirectory(context: Context): File {
+        return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
+    }
+
+    final override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
         return withContext(context = Dispatchers.Main.immediate) {
             val imageFile = uriFileMap[imageUri]!!
             uriFileMap.remove(key = imageUri)
-            val imageFilePath = imageFile.absolutePath
-            val displayName = imageFile.name
-            return@withContext MediaResource(
-                id = 0,
-                bucketId = "",
-                bucketName = "",
+            MediaResource(
                 uri = imageUri,
-                path = imageFilePath,
-                name = displayName,
+                path = imageFile.absolutePath,
+                name = imageFile.name,
                 mimeType = JPG_MIME_TYPE
             )
         }
     }
 
-    override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
+    final override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
         withContext(context = Dispatchers.Main.immediate) {
             val imageFile = uriFileMap[imageUri]
             uriFileMap.remove(key = imageUri)
@@ -146,7 +148,7 @@ data class FileProviderCaptureStrategy(
         }
     }
 
-    override fun getCaptureExtra(): Bundle {
+    final override fun getCaptureExtra(): Bundle {
         return extra
     }
 
@@ -174,13 +176,37 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
         return MediaProvider.createImage(
             context = context,
             imageName = createImageName(context = context),
-            mimeType = JPG_MIME_TYPE,
-            relativePath = "DCIM/Camera"
+            mimeType = JPG_MIME_TYPE
         )
     }
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
-        return MediaProvider.loadResources(context = context, uri = imageUri)
+        return withContext(context = Dispatchers.Default) {
+            withTimeoutOrNull(timeMillis = 500) {
+                while (true) {
+                    val result = loadResources(context = context, uri = imageUri)
+                    if (result != null) {
+                        return@withTimeoutOrNull result
+                    }
+                    delay(timeMillis = 10)
+                }
+                return@withTimeoutOrNull null
+            }
+        }
+    }
+
+    private suspend fun loadResources(context: Context, uri: Uri): MediaResource? {
+        val resource = MediaProvider.loadResources(context = context, uri = uri)
+        return if (resource == null) {
+            null
+        } else {
+            MediaResource(
+                uri = resource.uri,
+                path = resource.path,
+                name = resource.name,
+                mimeType = resource.mimeType
+            )
+        }
     }
 
     override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
@@ -201,15 +227,14 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
  */
 @Parcelize
 data class SmartCaptureStrategy(
-    private val authority: String,
-    private val extra: Bundle = Bundle.EMPTY
+    private val fileProviderCaptureStrategy: FileProviderCaptureStrategy
 ) : CaptureStrategy {
 
     @IgnoredOnParcel
     private val proxy = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        MediaStoreCaptureStrategy(extra = extra)
+        MediaStoreCaptureStrategy(extra = fileProviderCaptureStrategy.getCaptureExtra())
     } else {
-        FileProviderCaptureStrategy(authority = authority, extra = extra)
+        fileProviderCaptureStrategy
     }
 
     override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {

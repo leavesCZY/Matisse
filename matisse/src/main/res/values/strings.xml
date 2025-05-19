@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">XXX</string>
     <string name="dialog_permission_photo_storage">Photo Storage Permission</string>

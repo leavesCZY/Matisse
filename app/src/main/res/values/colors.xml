@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="matisse_image_span_count">3</integer>
     <bool name="matisse_status_bar_dark_icons">false</bool>
     <bool name="matisse_navigation_bar_dark_icons">true</bool>
     <color name="matisse_status_bar_color">#FF03A9F4</color>
     <color name="matisse_navigation_bar_color">#FFFFFFFF</color>
     <color name="matisse_main_page_background_color">#FFFFFFFF</color>
     <color name="matisse_media_item_background_color">#66CCCCCC</color>
+    <color name="matisse_media_item_scrim_color_when_unselected">#0F000000</color>
     <color name="matisse_media_item_scrim_color_when_selected">#80000000</color>
     <color name="matisse_capture_item_background_color">#66CCCCCC</color>
     <color name="matisse_capture_item_icon_color">#FFFFFFFF</color>

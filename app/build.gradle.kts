@@ -18,9 +18,6 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
-
-    implementation(libs.glide.compose)
-
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
     implementation(libs.coil.video)
@@ -29,5 +26,6 @@ dependencies {
     implementation(libs.coil3.gif)
     implementation(libs.coil3.video)
 
+    implementation(libs.glide.compose)
     implementation(project(":matisse"))
 }

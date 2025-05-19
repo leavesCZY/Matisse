@@ -16,7 +16,6 @@ import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseTakePictureContract
-import github.leavesczy.matisse.internal.logic.MatisseTakePictureContractParams
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -92,7 +91,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 if (imageUri != null) {
                     tempImageUriForTakePicture = imageUri
                     takePictureLauncher.launch(
-                        MatisseTakePictureContractParams(
+                        MatisseTakePictureContract.MatisseTakePictureContractParams(
                             uri = imageUri,
                             extra = captureStrategy.getCaptureExtra()
                         )
@@ -135,16 +134,6 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     protected abstract fun takePictureCancelled()
 
-    protected fun showToast(@StringRes id: Int) {
-        showToast(message = getString(id))
-    }
-
-    protected fun showToast(message: String) {
-        if (message.isNotBlank()) {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        }
-    }
-
     protected fun permissionGranted(context: Context, permissions: Array<String>): Boolean {
         return permissions.all {
             permissionGranted(context = context, permission = it)
@@ -170,10 +159,20 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 if (!permissions.isNullOrEmpty()) {
                     return@withContext permissions.contains(permission)
                 }
-            } catch (e: Throwable) {
-                e.printStackTrace()
+            } catch (exception: PackageManager.NameNotFoundException) {
+                exception.printStackTrace()
             }
             return@withContext false
+        }
+    }
+
+    protected fun showToast(@StringRes id: Int) {
+        showToast(text = getString(id))
+    }
+
+    protected fun showToast(text: String) {
+        if (text.isNotBlank()) {
+            Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
         }
     }
 

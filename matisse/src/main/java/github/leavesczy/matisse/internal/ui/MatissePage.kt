@@ -1,41 +1,47 @@
 package github.leavesczy.matisse.internal.ui
 
+import android.media.browse.MediaBrowser.MediaItem
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.PlayCircleOutline
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.integerResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatisseViewModel
+import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
+import github.leavesczy.matisse.internal.logic.MatisseMediaExtend
+import github.leavesczy.matisse.internal.logic.MatissePageViewState
 
 /**
  * @Author: leavesCZY
@@ -44,120 +50,117 @@ import github.leavesczy.matisse.internal.logic.MatisseViewModel
  */
 @Composable
 internal fun MatissePage(
-    matisseViewModel: MatisseViewModel,
+    pageViewState: MatissePageViewState,
+    bottomBarViewState: MatisseBottomBarViewState,
     onRequestTakePicture: () -> Unit,
     onClickSure: () -> Unit,
     selectMediaInFastSelectMode: (MediaResource) -> Unit,
     customContent: @Composable (PaddingValues) -> Unit
 ) {
-
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
         containerColor = colorResource(id = R.color.matisse_main_page_background_color),
         topBar = {
-            MatisseTopBar(topBarViewState = matisseViewModel.matisseTopBarViewState)
+            MatisseTopBar(
+                modifier = Modifier,
+                title = pageViewState.selectedBucket.bucketName,
+                mediaBucketsInfo = pageViewState.mediaBucketsInfo,
+                onClickBucket = pageViewState.onClickBucket,
+                imageEngine = pageViewState.imageEngine
+            )
         },
         bottomBar = {
-            if (!matisseViewModel.fastSelect) {
+            if (!pageViewState.fastSelect) {
                 MatisseBottomBar(
-                    bottomBarViewState = matisseViewModel.matisseBottomBarViewState,
+                    modifier = Modifier,
+                    viewState = bottomBarViewState,
                     onClickSure = onClickSure
                 )
             }
         }
     ) { innerPadding ->
-        val captureStrategy by remember {
-            derivedStateOf {
-                matisseViewModel.matissePageViewState.selectedBucket.captureStrategy
-            }
-        }
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
-            state = matisseViewModel.matissePageViewState.lazyGridState,
-            columns = GridCells.Fixed(count = integerResource(id = R.integer.matisse_image_span_count)),
-            contentPadding = PaddingValues(bottom = 60.dp)
-        ) {
-            if (captureStrategy != null) {
-                item(
-                    key = "Capture",
-                    contentType = "Capture",
-                    content = {
-                        CaptureItem(onClick = onRequestTakePicture)
-                    }
-                )
-            }
-            items(
-                items = matisseViewModel.matissePageViewState.selectedBucket.resources,
-                key = {
-                    it.id
-                },
-                contentType = {
-                    "Media"
-                },
-                itemContent = {
-                    if (matisseViewModel.fastSelect) {
-                        MediaItemFastSelect(
-                            mediaResource = it,
-                            imageEngine = matisseViewModel.matissePageViewState.imageEngine,
-                            onClickMedia = selectMediaInFastSelectMode
-                        )
-                    } else {
-                        val mediaPlacement by remember {
-                            derivedStateOf {
-                                val index = matisseViewModel.selectedResources.indexOf(element = it)
-                                val isSelected = index > -1
-                                val enabled =
-                                    isSelected || matisseViewModel.selectedResources.size < matisseViewModel.maxSelectable
-                                val position = if (isSelected) {
-                                    (index + 1).toString()
-                                } else {
-                                    ""
-                                }
-                                MediaPlacement(
-                                    isSelected = isSelected,
-                                    enabled = enabled,
-                                    position = position
-                                )
-                            }
-                        }
-                        MediaItem(
-                            mediaResource = it,
-                            mediaPlacement = mediaPlacement,
-                            imageEngine = matisseViewModel.matissePageViewState.imageEngine,
-//                            onClickMedia = matisseViewModel.matissePageViewState.onClickMedia,
-                            onClickMedia = matisseViewModel.matissePageViewState.onMediaCheckChanged,
-                            onClickCheckBox = matisseViewModel.matissePageViewState.onMediaCheckChanged,
-                            maxSelectable = matisseViewModel.maxSelectable
-                        )
-                    }
+            state = pageViewState.lazyGridState,
+            columns = GridCells.Fixed(count = pageViewState.gridColumns),
+            horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 1.dp),
+            contentPadding = PaddingValues(
+                top = 1.dp,
+                bottom = if (pageViewState.fastSelect) {
+                    16.dp
+                } else {
+                    1.dp
                 }
             )
+        ) {
+            if (pageViewState.selectedBucket.supportCapture) {
+                item(
+                    key = "CaptureItem",
+                    contentType = "CaptureItem"
+                ) {
+                    CaptureItem(
+                        modifier = Modifier
+                            .customAnimateItem(lazyGridItemScope = this),
+                        onClick = onRequestTakePicture
+                    )
+                }
+            }
+            items(
+                items = pageViewState.selectedBucket.resources,
+                key = {
+                    it.mediaId
+                },
+                contentType = {
+                    "MediaItem"
+                }
+            ) {
+                if (pageViewState.fastSelect) {
+                    MediaItemFastSelect(
+                        modifier = Modifier
+                            .customAnimateItem(lazyGridItemScope = this),
+                        mediaResource = it.media,
+                        imageEngine = pageViewState.imageEngine,
+                        onClickMedia = selectMediaInFastSelectMode
+                    )
+                } else {
+                    MediaItem(
+                        modifier = Modifier
+                            .customAnimateItem(lazyGridItemScope = this),
+                        mediaResource = it,
+                        imageEngine = pageViewState.imageEngine,
+                        onClickMedia = pageViewState.onClickMedia,
+                        onClickCheckBox = pageViewState.onMediaCheckChanged,
+                        maxSelectable = matisseViewModel.maxSelectable
+                    )
+                }
+            }
         }
 
         customContent(innerPadding)
-    }
-
 
 }
 
 @Composable
-private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
+private fun CaptureItem(
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
     Box(
-        modifier = Modifier
-            .animateItem()
+        modifier = modifier
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_capture_item_background_color))
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             modifier = Modifier
-                .fillMaxSize(fraction = 0.5f)
-                .align(alignment = Alignment.Center),
+                .fillMaxSize(fraction = 0.5f),
             imageVector = Icons.Filled.PhotoCamera,
             tint = colorResource(id = R.color.matisse_capture_item_icon_color),
             contentDescription = "Capture"
@@ -165,130 +168,119 @@ private fun LazyGridItemScope.CaptureItem(onClick: () -> Unit) {
     }
 }
 
-@Stable
-private data class MediaPlacement(
-    val isSelected: Boolean,
-    val enabled: Boolean,
-    val position: String
-)
-
 @Composable
-private fun LazyGridItemScope.MediaItemWrap(
-    mediaResource: MediaResource,
-    onClickMedia: (MediaResource) -> Unit,
-    content: @Composable BoxScope.() -> Unit
+private fun MediaItem(
+    modifier: Modifier,
+    mediaResource: MatisseMediaExtend,
+    imageEngine: ImageEngine,
+    onClickMedia: (MatisseMediaExtend) -> Unit,
+    onClickCheckBox: (MatisseMediaExtend) -> Unit
 ) {
     Box(
-        modifier = Modifier
-            .animateItem()
+        modifier = modifier
             .padding(all = 1.dp)
             .aspectRatio(ratio = 1f)
-            .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_media_item_background_color))
             .clickable {
                 onClickMedia(mediaResource)
             },
-        contentAlignment = Alignment.Center,
-        content = content
-    )
-}
-
-@Composable
-private fun BoxScope.MediaThumbnail(
-    mediaResource: MediaResource,
-    imageEngine: ImageEngine
-) {
-    imageEngine.Thumbnail(mediaResource = mediaResource)
-    if (mediaResource.isVideo) {
-        Icon(
-            modifier = Modifier
-                .align(alignment = Alignment.Center)
-                .size(size = 32.dp),
-            imageVector = Icons.Filled.PlayCircleOutline,
-            tint = colorResource(id = R.color.matisse_video_icon_color),
-            contentDescription = mediaResource.name
-        )
-    }
-}
-
-@Composable
-private fun LazyGridItemScope.MediaItem(
-    mediaResource: MediaResource,
-    mediaPlacement: MediaPlacement,
-    imageEngine: ImageEngine,
-    onClickMedia: (MediaResource) -> Unit,
-    onClickCheckBox: (MediaResource) -> Unit,
-    maxSelectable: Int
-) {
-    MediaItemWrap(
-        mediaResource = mediaResource,
-        onClickMedia = onClickMedia
+        contentAlignment = Alignment.Center
     ) {
-        Box(
+        imageEngine.Thumbnail(mediaResource = mediaResource.media)
+        if (mediaResource.media.isVideo) {
+            VideoIcon(
+                modifier = Modifier
+                    .fillMaxSize(fraction = 0.24f)
+            )
+        }
+        val scrimColor by animateColorAsState(
+            targetValue = if (mediaResource.selectState.value.isSelected) {
+                colorResource(id = R.color.matisse_media_item_scrim_color_when_selected)
+            } else {
+                colorResource(id = R.color.matisse_media_item_scrim_color_when_unselected)
+            }
+        )
+        Spacer(
             modifier = Modifier
                 .fillMaxSize()
-                .then(
-                    other = if (mediaPlacement.isSelected) {
-                        Modifier.scrim(color = colorResource(id = R.color.matisse_media_item_scrim_color_when_selected))
-                    } else {
-                        Modifier
-                    }
-                ),
+                .background(color = scrimColor)
+        )
+        Box(
+            modifier = Modifier
+                .align(alignment = Alignment.TopEnd)
+                .fillMaxSize(fraction = 0.33f)
+                .clickableNoRipple {
+                    onClickCheckBox(mediaResource)
+                },
             contentAlignment = Alignment.Center
         ) {
-            MediaThumbnail(
-                mediaResource = mediaResource,
-                imageEngine = imageEngine
-            )
-        }
-        if (maxSelectable == 1) {
-            MatisseMax1Checkbox(
-                modifier = Modifier
-                    .align(alignment = Alignment.TopEnd)
-                    .padding(all = 5.dp),
-                checked = mediaPlacement.isSelected,
-                enabled = mediaPlacement.enabled,
-                onClick = {
-                    onClickCheckBox(mediaResource)
-                }
-            )
-        } else {
             MatisseCheckbox(
                 modifier = Modifier
-                    .align(alignment = Alignment.TopEnd)
-                    .padding(all = 5.dp),
-                text = mediaPlacement.position,
-                checked = mediaPlacement.isSelected,
-                enabled = mediaPlacement.enabled,
+                    .fillMaxSize(fraction = 0.68f),
+                selectState = mediaResource.selectState.value,
                 onClick = {
                     onClickCheckBox(mediaResource)
                 }
             )
         }
-
     }
 }
 
 @Composable
-private fun LazyGridItemScope.MediaItemFastSelect(
+private fun MediaItemFastSelect(
+    modifier: Modifier,
     mediaResource: MediaResource,
     imageEngine: ImageEngine,
     onClickMedia: (MediaResource) -> Unit
 ) {
-    MediaItemWrap(
-        mediaResource = mediaResource,
-        onClickMedia = onClickMedia
+    Box(
+        modifier = modifier
+            .aspectRatio(ratio = 1f)
+            .background(color = colorResource(id = R.color.matisse_media_item_background_color))
+            .clickable {
+                onClickMedia(mediaResource)
+            },
+        contentAlignment = Alignment.Center
     ) {
-        MediaThumbnail(
-            mediaResource = mediaResource,
-            imageEngine = imageEngine
+        imageEngine.Thumbnail(mediaResource = mediaResource)
+        if (mediaResource.isVideo) {
+            VideoIcon(
+                modifier = Modifier
+                    .fillMaxSize(fraction = 0.24f)
+            )
+        }
+    }
+}
+
+@Composable
+internal fun VideoIcon(modifier: Modifier) {
+    Box(
+        modifier = modifier
+            .shadow(elevation = 1.dp, shape = CircleShape)
+            .clip(shape = CircleShape)
+            .background(color = colorResource(id = R.color.matisse_video_icon_color)),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            modifier = Modifier
+                .fillMaxSize(fraction = 0.62f),
+            imageVector = Icons.Filled.PlayArrow,
+            tint = Color.Black,
+            contentDescription = null
         )
     }
 }
 
-private fun Modifier.scrim(color: Color): Modifier {
-    return drawWithContent {
-        drawContent()
-        drawRect(color = color)
+@Stable
+private fun Modifier.customAnimateItem(lazyGridItemScope: LazyGridItemScope): Modifier {
+    return with(lazyGridItemScope) {
+        animateItem(
+            fadeInSpec = spring(stiffness = Spring.StiffnessMedium),
+            fadeOutSpec = spring(stiffness = Spring.StiffnessMedium),
+            placementSpec = spring(
+                stiffness = Spring.StiffnessMediumLow,
+                visibilityThreshold = IntOffset.VisibilityThreshold
+            )
+        )
     }
 }

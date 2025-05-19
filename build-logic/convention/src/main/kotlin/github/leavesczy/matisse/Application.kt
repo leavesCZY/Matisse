@@ -22,10 +22,10 @@ import java.util.TimeZone
 internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleExtension) {
     commonExtension.apply {
         compileSdk = 35
-        buildToolsVersion = "35.0.0"
+        buildToolsVersion = "36.0.0"
         defaultConfig {
             applicationId = "github.leavesczy.matisse.samples"
-            minSdk = 24
+            minSdk = 23
             targetSdk = 35
             versionCode = 1
             versionName = "1.0.0"
@@ -58,13 +58,14 @@ internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleE
         }
         signingConfigs {
             create("release") {
-                storeFile =
-                    File(rootDir.absolutePath + File.separator + "doc" + File.separator + "key.jks")
+                storeFile = File(rootDir.absolutePath, "key.jks")
                 keyAlias = "leavesCZY"
                 keyPassword = "123456"
                 storePassword = "123456"
                 enableV1Signing = true
                 enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
             }
         }
         buildTypes {
@@ -109,8 +110,8 @@ internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleE
     }
 }
 
-fun getApkBuildTime(): String {
-    val simpleDateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US)
+private fun getApkBuildTime(): String {
+    val simpleDateFormat = SimpleDateFormat("yyyyMMddHHmmss", Locale.US)
     simpleDateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
     val time = Calendar.getInstance().time
     return simpleDateFormat.format(time)

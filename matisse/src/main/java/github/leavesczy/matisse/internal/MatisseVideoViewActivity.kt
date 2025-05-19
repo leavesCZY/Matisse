@@ -4,7 +4,9 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.widget.MediaController
 import android.widget.VideoView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.IntentCompat
 import androidx.core.view.WindowCompat
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
@@ -17,7 +19,11 @@ import github.leavesczy.matisse.R
 internal class MatisseVideoViewActivity : AppCompatActivity() {
 
     private val mediaResource by lazy(mode = LazyThreadSafetyMode.NONE) {
-        intent.getParcelableExtra<MediaResource>(MediaResource::class.java.simpleName)!!
+        IntentCompat.getParcelableExtra(
+            intent,
+            MediaResource::class.java.name,
+            MediaResource::class.java
+        )!!
     }
 
     private val videoView by lazy(mode = LazyThreadSafetyMode.NONE) {
@@ -28,18 +34,19 @@ internal class MatisseVideoViewActivity : AppCompatActivity() {
         MediaController(this)
     }
 
-    private var lastPosition = -1
-
     private val onPreparedListener = MediaPlayer.OnPreparedListener {
         mediaController.setAnchorView(videoView)
         mediaController.setMediaPlayer(videoView)
         videoView.setMediaController(mediaController)
     }
 
+    private var lastPosition = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_matisse_video_view)
+        addOnBackPressedObserver()
         videoView.setOnPreparedListener(onPreparedListener)
         videoView.setVideoURI(mediaResource.uri)
         videoView.start()
@@ -62,6 +69,14 @@ internal class MatisseVideoViewActivity : AppCompatActivity() {
         super.onDestroy()
         videoView.setOnPreparedListener(null)
         videoView.suspend()
+    }
+
+    private fun addOnBackPressedObserver() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finish()
+            }
+        })
     }
 
 }

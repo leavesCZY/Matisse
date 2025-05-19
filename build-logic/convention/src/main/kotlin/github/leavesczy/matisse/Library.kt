@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  */
 internal fun Project.configureAndroidLibrary(commonExtension: LibraryExtension) {
     commonExtension.apply {
-        compileSdk = 34
+        compileSdk = 35
         defaultConfig {
             minSdk = 21
         }
@@ -26,13 +26,13 @@ internal fun Project.configureAndroidLibrary(commonExtension: LibraryExtension) 
             checkDependencies = true
         }
         compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_1_8
-            targetCompatibility = JavaVersion.VERSION_1_8
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
         }
     }
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_1_8
+            jvmTarget = JvmTarget.JVM_11
         }
     }
 }

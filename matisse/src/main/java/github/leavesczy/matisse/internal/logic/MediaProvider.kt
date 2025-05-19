@@ -7,8 +7,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import github.leavesczy.matisse.MediaFilter
-import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,26 +19,34 @@ import java.io.File
  */
 internal object MediaProvider {
 
+    data class MediaInfo(
+        val mediaId: Long,
+        val bucketId: String,
+        val bucketName: String,
+        val uri: Uri,
+        val path: String,
+        val name: String,
+        val mimeType: String
+    )
+
     suspend fun createImage(
         context: Context,
         imageName: String,
-        mimeType: String,
-        relativePath: String
+        mimeType: String
     ): Uri? {
         return withContext(context = Dispatchers.Default) {
-            return@withContext try {
+            try {
                 val contentValues = ContentValues()
                 contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageName)
                 contentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
-                contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, relativePath)
                 val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
                 } else {
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 }
                 context.contentResolver.insert(imageCollection, contentValues)
-            } catch (e: Throwable) {
-                e.printStackTrace()
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
                 null
             }
         }
@@ -50,8 +56,8 @@ internal object MediaProvider {
         withContext(context = Dispatchers.Default) {
             try {
                 context.contentResolver.delete(uri, null, null)
-            } catch (e: Throwable) {
-                e.printStackTrace()
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
             }
         }
     }
@@ -59,12 +65,11 @@ internal object MediaProvider {
     private suspend fun loadResources(
         context: Context,
         selection: String?,
-        selectionArgs: Array<String>?,
-        ignoreMedia: ((MediaResource) -> Boolean)?
-    ): List<MediaResource>? {
+        selectionArgs: Array<String>?
+    ): List<MediaInfo>? {
         return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID
-            val dataColumn = MediaStore.MediaColumns.DATA
+            val pathColumn = MediaStore.MediaColumns.DATA
             val sizeColumn = MediaStore.MediaColumns.SIZE
             val displayNameColumn = MediaStore.MediaColumns.DISPLAY_NAME
             val mineTypeColumn = MediaStore.MediaColumns.MIME_TYPE
@@ -73,7 +78,7 @@ internal object MediaProvider {
             val dateModifiedColumn = MediaStore.MediaColumns.DATE_MODIFIED
             val projection = arrayOf(
                 idColumn,
-                dataColumn,
+                pathColumn,
                 sizeColumn,
                 displayNameColumn,
                 mineTypeColumn,
@@ -82,7 +87,7 @@ internal object MediaProvider {
             )
             val contentUri = MediaStore.Files.getContentUri("external")
             val sortOrder = "$dateModifiedColumn DESC"
-            val mediaResourceList = mutableListOf<MediaResource>()
+            val mediaResourceList = mutableListOf<MediaInfo>()
             try {
                 val mediaCursor = context.contentResolver.query(
                     contentUri,
@@ -93,14 +98,15 @@ internal object MediaProvider {
                 ) ?: return@withContext null
                 mediaCursor.use { cursor ->
                     while (cursor.moveToNext()) {
-                        val id = cursor.getLong(idColumn, Long.MAX_VALUE)
-                        val data = cursor.getString(dataColumn, "")
+                        val defaultId = Long.MAX_VALUE
+                        val id = cursor.getLong(idColumn, defaultId)
+                        val path = cursor.getString(pathColumn, "")
                         val size = cursor.getLong(sizeColumn, 0)
-                        if (id == Long.MAX_VALUE || data.isBlank() || size <= 0) {
+                        if (id == defaultId || path.isBlank() || size <= 0) {
                             continue
                         }
-                        val file = File(data)
-                        if (!file.exists() || !file.isFile) {
+                        val file = File(path)
+                        if (!file.isFile || !file.exists()) {
                             continue
                         }
                         val name = cursor.getString(displayNameColumn, "")
@@ -108,42 +114,36 @@ internal object MediaProvider {
                         val bucketId = cursor.getString(bucketIdColumn, "")
                         val bucketName = cursor.getString(bucketDisplayNameColumn, "")
                         val uri = ContentUris.withAppendedId(contentUri, id)
-                        val mediaResource = MediaResource(
-                            id = id,
-                            path = data,
-                            uri = uri,
-                            name = name,
-                            mimeType = mimeType,
-                            bucketId = bucketId,
-                            bucketName = bucketName
+                        mediaResourceList.add(
+                            element = MediaInfo(
+                                mediaId = id,
+                                bucketId = bucketId,
+                                bucketName = bucketName,
+                                path = path,
+                                uri = uri,
+                                name = name,
+                                mimeType = mimeType
+                            )
                         )
-                        if (ignoreMedia != null && ignoreMedia(mediaResource)) {
-                            continue
-                        }
-                        mediaResourceList.add(element = mediaResource)
                     }
                 }
-            } catch (e: Throwable) {
-                e.printStackTrace()
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
             }
-            return@withContext mediaResourceList
+            mediaResourceList
         }
     }
 
     suspend fun loadResources(
         context: Context,
-        mediaType: MediaType,
-        mediaFilter: MediaFilter?
-    ): List<MediaResource> {
+        mediaType: MediaType
+    ): List<MediaInfo>? {
         return withContext(context = Dispatchers.Default) {
             loadResources(
                 context = context,
                 selection = generateSqlSelection(mediaType = mediaType),
-                selectionArgs = null,
-                ignoreMedia = {
-                    mediaFilter?.ignoreMedia(mediaResource = it) ?: false
-                }
-            ) ?: emptyList()
+                selectionArgs = null
+            )
         }
     }
 
@@ -157,17 +157,6 @@ internal object MediaProvider {
         val queryVideoSelection =
             "$mediaTypeColumn = $mediaTypeVideoColumn and $mimeTypeColumn like 'video/%'"
         return when (mediaType) {
-            is MediaType.MultipleMimeType -> {
-                mediaType.mimeTypes.joinToString(
-                    prefix = "$mimeTypeColumn in (",
-                    postfix = ")",
-                    separator = ",",
-                    transform = {
-                        "'${it}'"
-                    }
-                )
-            }
-
             is MediaType.ImageOnly -> {
                 queryImageSelection
             }
@@ -183,44 +172,55 @@ internal object MediaProvider {
                     append(queryVideoSelection)
                 }
             }
+
+            is MediaType.MultipleMimeType -> {
+                mediaType.mimeTypes.joinToString(
+                    prefix = "$mimeTypeColumn in (",
+                    postfix = ")",
+                    separator = ",",
+                    transform = {
+                        "'${it}'"
+                    }
+                )
+            }
         }
     }
 
-    suspend fun loadResources(context: Context, uri: Uri): MediaResource? {
+    suspend fun loadResources(context: Context, uri: Uri): MediaInfo? {
         return withContext(context = Dispatchers.Default) {
             val id = ContentUris.parseId(uri)
             val selection = MediaStore.MediaColumns._ID + " = " + id
             val resources = loadResources(
                 context = context,
                 selection = selection,
-                selectionArgs = null,
-                ignoreMedia = null
+                selectionArgs = null
             )
             if (resources.isNullOrEmpty() || resources.size != 1) {
-                return@withContext null
+                null
+            } else {
+                resources[0]
             }
-            return@withContext resources[0]
         }
     }
 
-}
-
-private fun Cursor.getLong(columnName: String, default: Long): Long {
-    return try {
-        val columnIndex = getColumnIndexOrThrow(columnName)
-        getLong(columnIndex)
-    } catch (e: Throwable) {
-        e.printStackTrace()
-        default
+    private fun Cursor.getLong(columnName: String, default: Long): Long {
+        return try {
+            val columnIndex = getColumnIndexOrThrow(columnName)
+            getLong(columnIndex)
+        } catch (throwable: IllegalArgumentException) {
+            throwable.printStackTrace()
+            default
+        }
     }
-}
 
-private fun Cursor.getString(columnName: String, default: String): String {
-    return try {
-        val columnIndex = getColumnIndexOrThrow(columnName)
-        getString(columnIndex) ?: default
-    } catch (e: Throwable) {
-        e.printStackTrace()
-        default
+    private fun Cursor.getString(columnName: String, default: String): String {
+        return try {
+            val columnIndex = getColumnIndexOrThrow(columnName)
+            getString(columnIndex) ?: default
+        } catch (throwable: IllegalArgumentException) {
+            throwable.printStackTrace()
+            default
+        }
     }
+
 }

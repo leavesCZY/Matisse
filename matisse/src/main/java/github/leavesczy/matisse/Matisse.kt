@@ -11,12 +11,13 @@ import kotlinx.parcelize.Parcelize
  * @Desc:
  */
 /**
- * @param maxSelectable 用于设置最多能选择几个媒体资源
- * @param imageEngine 用于自定义图片加载框架
- * @param fastSelect 用于设置是否免去预览图片和确认选择的流程。值为 true 时 maxSelectable 必须为 1
- * @param mediaType 用于设置要加载的媒体资源类型。默认仅图片
- * @param singleMediaType 用于设置是否允许同时选择图片和视频。默认允许
- * @param mediaFilter 用于设置媒体资源的筛选规则。默认不进行筛选
+ * @param maxSelectable 最多能选择几个媒体资源
+ * @param imageEngine 图片加载框架
+ * @param gridColumns 一行要显示几个媒体资源。默认值为 4
+ * @param fastSelect 是否要点击媒体资源后立即返回，值为 true 时 maxSelectable 必须为 1。默认不立即返回
+ * @param mediaType 要加载的媒体资源类型。默认仅图片
+ * @param singleMediaType 是否允许同时选择图片和视频。默认允许
+ * @param mediaFilter 媒体资源的筛选规则。默认不进行筛选
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 @Stable
@@ -24,6 +25,7 @@ import kotlinx.parcelize.Parcelize
 data class Matisse(
     val maxSelectable: Int,
     val imageEngine: ImageEngine,
+    val gridColumns: Int = 4,
     val fastSelect: Boolean = false,
     val mediaType: MediaType = MediaType.ImageOnly,
     val singleMediaType: Boolean = false,
@@ -33,10 +35,13 @@ data class Matisse(
 
     init {
         if (maxSelectable < 1) {
-            throw IllegalArgumentException("maxSelectable must be greater than or equal to 1")
+            throw IllegalArgumentException("maxSelectable should be larger than zero")
         }
         if (maxSelectable > 1 && fastSelect) {
-            throw IllegalArgumentException("fastSelect must be false")
+            throw IllegalArgumentException("when maxSelectable is greater than 1, fastSelect must be false")
+        }
+        if (gridColumns < 1) {
+            throw IllegalArgumentException("gridColumns should be larger than zero")
         }
     }
 
@@ -46,7 +51,9 @@ data class Matisse(
  * @param captureStrategy 拍照策略
  */
 @Parcelize
-data class MatisseCapture(val captureStrategy: CaptureStrategy) : Parcelable
+data class MatisseCapture(
+    val captureStrategy: CaptureStrategy
+) : Parcelable
 
 @Parcelize
 sealed interface MediaType : Parcelable {
@@ -71,6 +78,40 @@ sealed interface MediaType : Parcelable {
 
     }
 
+    val includeImage: Boolean
+        get() = when (this) {
+            ImageOnly, ImageAndVideo -> {
+                true
+            }
+
+            VideoOnly -> {
+                false
+            }
+
+            is MultipleMimeType -> {
+                mimeTypes.any {
+                    it.startsWith(prefix = ImageMimeTypePrefix)
+                }
+            }
+        }
+
+    val includeVideo: Boolean
+        get() = when (this) {
+            ImageOnly -> {
+                false
+            }
+
+            VideoOnly, ImageAndVideo -> {
+                true
+            }
+
+            is MultipleMimeType -> {
+                mimeTypes.any {
+                    it.startsWith(prefix = VideoMimeTypePrefix)
+                }
+            }
+        }
+
 }
 
 internal const val ImageMimeTypePrefix = "image/"
@@ -80,13 +121,10 @@ internal const val VideoMimeTypePrefix = "video/"
 @Stable
 @Parcelize
 data class MediaResource(
-    internal val id: Long,
-    internal val bucketId: String,
-    internal val bucketName: String,
     val uri: Uri,
     val path: String,
     val name: String,
-    val mimeType: String,
+    val mimeType: String
 ) : Parcelable {
 
     val isImage: Boolean

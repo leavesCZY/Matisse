@@ -6,6 +6,7 @@ import kotlinx.parcelize.Parcelize
 
 /**
  * @Author: leavesCZY
+ * @Date: 2023/8/21 18:13
  * @Desc:
  */
 interface MediaFilter : Parcelable {
@@ -37,9 +38,8 @@ class DefaultMediaFilter(
 ) : MediaFilter {
 
     override fun ignoreMedia(mediaResource: MediaResource): Boolean {
-        return ignoredMimeType.contains(element = mediaResource.mimeType) || ignoredResourceUri.contains(
-            element = mediaResource.uri
-        )
+        return ignoredMimeType.contains(element = mediaResource.mimeType) ||
+                ignoredResourceUri.contains(element = mediaResource.uri)
     }
 
     override fun selectMedia(mediaResource: MediaResource): Boolean {

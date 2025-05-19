@@ -1,30 +1,30 @@
 [versions]
-android-plugin = "8.7.3"
-kotlin-plugin = "2.1.10"
+android-plugin = "8.10.0"
+kotlin-plugin = "2.1.21"
 
 androidx-junit = "1.2.1"
 androidx-espresso = "3.6.1"
 androidx-appcompat = "1.7.0"
-androidx-activity-compose = "1.10.1"
-androidx-lifecycle-runtime = "2.8.7"
-androidx-compose-bom = "2025.04.01"
+androidx-activity = "1.10.1"
+androidx-lifecycle = "2.9.0"
+androidx-compose-bom = "2025.05.00"
 
 junit = "4.13.2"
-coil = "2.7.0"
-coil3 = "3.1.0"
-glide-compose = "1.0.0-beta01"
+
+coil = "3.2.0"
+glide = "1.0.0-beta01"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
 android-library = { id = "com.android.library", version.ref = "android-plugin" }
 
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-plugin" }
-kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-plugin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-plugin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-plugin" }
 
-matisse-android-application = { id = "matisse.android.application", version = "unspecified" }
-matisse-android-library = { id = "matisse.android.library", version = "unspecified" }
-matisse-android-compose = { id = "matisse.android.compose", version = "unspecified" }
+matisse-android-application = { id = "matisse.android.application" }
+matisse-android-library = { id = "matisse.android.library" }
+matisse-android-compose = { id = "matisse.android.compose" }
 
 [libraries]
 android-gradle = { module = "com.android.tools.build:gradle", version.ref = "android-plugin" }
@@ -33,8 +33,8 @@ kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
 androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
-androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle-runtime" }
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidx-compose-bom" }
 androidx-compose-ui = { module = "androidx.compose.ui:ui" }
@@ -44,12 +44,8 @@ androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 
-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coil" }
-coil-video = { module = "io.coil-kt:coil-video", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
+coil-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil" }
 
-glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glide-compose" }
-
-coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
-coil3-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil3" }
-coil3-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil3" }
+glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glide" }
