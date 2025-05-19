@@ -22,10 +22,6 @@ dependencies {
     implementation(libs.coil.gif)
     implementation(libs.coil.video)
 
-    implementation(libs.coil3.compose)
-    implementation(libs.coil3.gif)
-    implementation(libs.coil3.video)
-
     implementation(libs.glide.compose)
     implementation(project(":matisse"))
 }

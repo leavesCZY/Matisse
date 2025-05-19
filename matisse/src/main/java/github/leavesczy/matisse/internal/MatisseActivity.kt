@@ -102,186 +102,188 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     matisseViewModel.previewPageViewState.visible
                 }.collectLatest {
                     setSystemBarUi(previewPageVisible = it)
-            val context = LocalContext.current
-            // 13,14,12 denied
-            // 使用契约启动设置界面并处理结果
-            val launcher = rememberLauncherForActivityResult(
-                contract = SettingsActivityResultContract(),
-                onResult = { result ->
-                    // 用户已从设置界面返回
-                    // 在这里处理返回事件
-                    permissionState.value = checkPermissionCustom(context)
-                    requestReadMediaPermissionCustom()
-                }
-            )
+                    val context = LocalContext.current
+                    // 13,14,12 denied
+                    // 使用契约启动设置界面并处理结果
+                    val launcher = rememberLauncherForActivityResult(
+                        contract = SettingsActivityResultContract(),
+                        onResult = { result ->
+                            // 用户已从设置界面返回
+                            // 在这里处理返回事件
+                            permissionState.value = checkPermissionCustom(context)
+                            requestReadMediaPermissionCustom()
+                        }
+                    )
 
-            DisposableEffect(key1 = matisseViewModel.matissePreviewPageViewState.visible) {
-                setSystemBarUi(previewPageVisible = matisseViewModel.matissePreviewPageViewState.visible)
-                onDispose {
+                    DisposableEffect(key1 = matisseViewModel.matissePreviewPageViewState.visible) {
+                        setSystemBarUi(previewPageVisible = matisseViewModel.matissePreviewPageViewState.visible)
+                        onDispose {
 
+                        }
+                    }
+                    MatisseTheme {
+                        MatissePage(
+                            pageViewState = matisseViewModel.pageViewState,
+                            bottomBarViewState = matisseViewModel.bottomBarViewState,
+                            onRequestTakePicture = ::requestTakePicture,
+                            onClickSure = ::onClickSure,
+                            selectMediaInFastSelectMode = ::selectMediaInFastSelectMode,
+                            customContent = { innerPadding ->
+                                PermissionAbout(
+                                    innerPadding = innerPadding,
+                                    requestPermission = ::requestReadMediaPermissionCustom,
+                                    showPermissionDialog = showPermissionDialog.value,
+                                    permissionState = permissionState.value,
+                                    onClick = {
+                                        launcher.launch(null)
+                                    },
+                                    onDismissPermissionDialog = {
+                                        showPermissionDialog.value = false
+                                    }
+                                )
+                            }
+                        )
+                        MatissePreviewPage(
+                            pageViewState = matisseViewModel.previewPageViewState,
+                            imageEngine = matisseViewModel.pageViewState.imageEngine,
+                            requestOpenVideo = ::requestOpenVideo,
+                            onClickSure = ::onClickSure
+                        )
+                        MatisseLoadingDialog(
+                            modifier = Modifier,
+                            visible = matisseViewModel.loadingDialogVisible
+                        )
+                    }
                 }
             }
-            MatisseTheme {
-                MatissePage(
-                    pageViewState = matisseViewModel.pageViewState,
-                    bottomBarViewState = matisseViewModel.bottomBarViewState,
-                    onRequestTakePicture = ::requestTakePicture,
-                    onClickSure = ::onClickSure,
-                    selectMediaInFastSelectMode = ::selectMediaInFastSelectMode,
-                    customContent = { innerPadding ->
-                        PermissionAbout(
-                            innerPadding = innerPadding,
-                            requestPermission = ::requestReadMediaPermissionCustom,
-                            showPermissionDialog = showPermissionDialog.value,
-                            permissionState = permissionState.value,
-                            onClick = {
-                                launcher.launch(null)
+
+            private fun requestReadMediaPermissionCustom() {
+                requestReadMediaPermissionCustom(
+                    matisseViewModel.mediaType,
+                    applicationInfo = applicationInfo,
+                    checkPermissionResult = { permissions: Array<String> ->
+                        permissionState.value = checkPermissionResultCustom(
+                            context = this,
+                            requestReadMediaPermissionLauncher = requestReadMediaPermissionLauncher,
+                            onPermissionAllow = {
+                                matisseViewModel.requestReadMediaPermissionResult(
+                                    true
+                                )
                             },
-                            onDismissPermissionDialog = {
-                                showPermissionDialog.value = false
+                            scope = scope,
+                            onScopeIsNotActive = { scope = CoroutineScope(Dispatchers.Default) },
+                            permissions = permissions,
+                            onRequestDenied = {
+                                showPermissionDialog.value = true
                             }
                         )
                     }
                 )
-                MatissePreviewPage(
-                    pageViewState = matisseViewModel.previewPageViewState,
-                    imageEngine = matisseViewModel.pageViewState.imageEngine,
-                    requestOpenVideo = ::requestOpenVideo,
-                    onClickSure = ::onClickSure
-                )
-                MatisseLoadingDialog(
-                    modifier = Modifier,
-                    visible = matisseViewModel.loadingDialogVisible
-                )
             }
-        }
-    }
 
-    private fun requestReadMediaPermissionCustom() {
-        requestReadMediaPermissionCustom(
-            matisseViewModel.mediaType,
-            applicationInfo = applicationInfo,
-            checkPermissionResult = { permissions: Array<String> ->
-                permissionState.value = checkPermissionResultCustom(
-                    context = this,
-                    requestReadMediaPermissionLauncher = requestReadMediaPermissionLauncher,
-                    onPermissionAllow = {
-                        matisseViewModel.requestReadMediaPermissionResult(
-                            true
-                        )
-                    },
-                    scope = scope,
-                    onScopeIsNotActive = { scope = CoroutineScope(Dispatchers.Default) },
-                    permissions = permissions,
-                    onRequestDenied = {
-                        showPermissionDialog.value = true
+            private fun requestReadMediaPermission() {
+                val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                    && applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
+                ) {
+                    buildList {
+                        val mediaType = matisseViewModel.mediaType
+                        if (mediaType.includeImage) {
+                            add(element = Manifest.permission.READ_MEDIA_IMAGES)
+                        }
+                        if (mediaType.includeVideo) {
+                            add(element = Manifest.permission.READ_MEDIA_VIDEO)
+                        }
+                    }.toTypedArray()
+                } else {
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+                if (permissionGranted(context = this, permissions = permissions)) {
+                    matisseViewModel.requestReadMediaPermissionResult(granted = true)
+                } else {
+                    requestReadMediaPermissionLauncher.launch(permissions)
+                }
+            }
+
+            private fun requestOpenVideo(mediaResource: MediaResource) {
+                val intent = Intent(this, MatisseVideoViewActivity::class.java)
+                intent.putExtra(MediaResource::class.java.name, mediaResource)
+                startActivity(intent)
+            }
+
+            override fun dispatchTakePictureResult(mediaResource: MediaResource) {
+                val maxSelectable = matisseViewModel.maxSelectable
+                val selectedResources = matisseViewModel.filterSelectedMedia()
+                val illegalMediaType = matisseViewModel.singleMediaType && selectedResources.any {
+                    it.isVideo
+                }
+                if (maxSelectable > 1 && (selectedResources.size in 1..<maxSelectable) && !illegalMediaType) {
+                    val selectedResourcesMutable = selectedResources.toMutableList()
+                    selectedResourcesMutable.add(element = mediaResource)
+                    onSure(selected = selectedResourcesMutable)
+                } else {
+                    onSure(selected = listOf(element = mediaResource))
+                }
+            }
+
+            override fun takePictureCancelled() {
+
+            }
+
+            private fun onClickSure() {
+                val selectedResources = matisseViewModel.filterSelectedMedia()
+                if (matisseViewModel.singleMediaType) {
+                    val includeImage = selectedResources.any { it.isImage }
+                    val includeVideo = selectedResources.any { it.isVideo }
+                    if (includeImage && includeVideo) {
+                        showToast(id = R.string.matisse_cannot_select_both_picture_and_video_at_the_same_time)
+                        return
                     }
-                )
-            }
-        )
-    }
-
-    private fun requestReadMediaPermission() {
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-            && applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
-        ) {
-            buildList {
-                val mediaType = matisseViewModel.mediaType
-                if (mediaType.includeImage) {
-                    add(element = Manifest.permission.READ_MEDIA_IMAGES)
                 }
-                if (mediaType.includeVideo) {
-                    add(element = Manifest.permission.READ_MEDIA_VIDEO)
+                onSure(selected = selectedResources)
+            }
+
+            private fun selectMediaInFastSelectMode(mediaResource: MediaResource) {
+                onSure(selected = listOf(element = mediaResource))
+            }
+
+            private fun onSure(selected: List<MediaResource>) {
+                if (selected.isEmpty()) {
+                    setResult(RESULT_CANCELED)
+                } else {
+                    val data = Intent()
+                    val resources = arrayListOf<Parcelable>().apply {
+                        addAll(selected)
+                    }
+                    data.putParcelableArrayListExtra(MediaResource::class.java.name, resources)
+                    setResult(RESULT_OK, data)
                 }
-            }.toTypedArray()
-        } else {
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-        if (permissionGranted(context = this, permissions = permissions)) {
-            matisseViewModel.requestReadMediaPermissionResult(granted = true)
-        } else {
-            requestReadMediaPermissionLauncher.launch(permissions)
-        }
-    }
-
-    private fun requestOpenVideo(mediaResource: MediaResource) {
-        val intent = Intent(this, MatisseVideoViewActivity::class.java)
-        intent.putExtra(MediaResource::class.java.name, mediaResource)
-        startActivity(intent)
-    }
-
-    override fun dispatchTakePictureResult(mediaResource: MediaResource) {
-        val maxSelectable = matisseViewModel.maxSelectable
-        val selectedResources = matisseViewModel.filterSelectedMedia()
-        val illegalMediaType = matisseViewModel.singleMediaType && selectedResources.any {
-            it.isVideo
-        }
-        if (maxSelectable > 1 && (selectedResources.size in 1..<maxSelectable) && !illegalMediaType) {
-            val selectedResourcesMutable = selectedResources.toMutableList()
-            selectedResourcesMutable.add(element = mediaResource)
-            onSure(selected = selectedResourcesMutable)
-        } else {
-            onSure(selected = listOf(element = mediaResource))
-        }
-    }
-
-    override fun takePictureCancelled() {
-
-    }
-
-    private fun onClickSure() {
-        val selectedResources = matisseViewModel.filterSelectedMedia()
-        if (matisseViewModel.singleMediaType) {
-            val includeImage = selectedResources.any { it.isImage }
-            val includeVideo = selectedResources.any { it.isVideo }
-            if (includeImage && includeVideo) {
-                showToast(id = R.string.matisse_cannot_select_both_picture_and_video_at_the_same_time)
-                return
+                finish()
             }
-        }
-        onSure(selected = selectedResources)
-    }
 
-    private fun selectMediaInFastSelectMode(mediaResource: MediaResource) {
-        onSure(selected = listOf(element = mediaResource))
-    }
+            private fun setSystemBarUi(previewPageVisible: Boolean) {
+                WindowCompat.setDecorFitsSystemWindows(window, false)
+                WindowInsetsControllerCompat(window, window.decorView).apply {
+                    if (previewPageVisible) {
+                        hide(WindowInsetsCompat.Type.statusBars())
+                    } else {
+                        show(WindowInsetsCompat.Type.statusBars())
+                    }
+                    systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+                    val statusBarDarkIcons = if (previewPageVisible) {
+                        false
+                    } else {
+                        resources.getBoolean(R.bool.matisse_status_bar_dark_icons)
+                    }
+                    val navigationBarDarkIcons = if (previewPageVisible) {
+                        false
+                    } else {
+                        resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
+                    }
+                    isAppearanceLightStatusBars = statusBarDarkIcons
+                    isAppearanceLightNavigationBars = navigationBarDarkIcons
+                }
+            }
 
-    private fun onSure(selected: List<MediaResource>) {
-        if (selected.isEmpty()) {
-            setResult(RESULT_CANCELED)
-        } else {
-            val data = Intent()
-            val resources = arrayListOf<Parcelable>().apply {
-                addAll(selected)
-            }
-            data.putParcelableArrayListExtra(MediaResource::class.java.name, resources)
-            setResult(RESULT_OK, data)
-        }
-        finish()
-    }
-
-    private fun setSystemBarUi(previewPageVisible: Boolean) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            if (previewPageVisible) {
-                hide(WindowInsetsCompat.Type.statusBars())
-            } else {
-                show(WindowInsetsCompat.Type.statusBars())
-            }
-            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
-            val statusBarDarkIcons = if (previewPageVisible) {
-                false
-            } else {
-                resources.getBoolean(R.bool.matisse_status_bar_dark_icons)
-            }
-            val navigationBarDarkIcons = if (previewPageVisible) {
-                false
-            } else {
-                resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
-            }
-            isAppearanceLightStatusBars = statusBarDarkIcons
-            isAppearanceLightNavigationBars = navigationBarDarkIcons
         }
     }
-
 }

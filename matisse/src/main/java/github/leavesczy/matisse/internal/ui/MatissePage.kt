@@ -142,145 +142,146 @@ internal fun MatissePage(
 
         customContent(innerPadding)
 
-}
-
-@Composable
-private fun CaptureItem(
-    modifier: Modifier,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .padding(all = 1.dp)
-            .aspectRatio(ratio = 1f)
-            .clip(shape = RoundedCornerShape(size = 4.dp))
-            .background(color = colorResource(id = R.color.matisse_capture_item_background_color))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            modifier = Modifier
-                .fillMaxSize(fraction = 0.5f),
-            imageVector = Icons.Filled.PhotoCamera,
-            tint = colorResource(id = R.color.matisse_capture_item_icon_color),
-            contentDescription = "Capture"
-        )
     }
-}
 
-@Composable
-private fun MediaItem(
-    modifier: Modifier,
-    mediaResource: MatisseMediaExtend,
-    imageEngine: ImageEngine,
-    onClickMedia: (MatisseMediaExtend) -> Unit,
-    onClickCheckBox: (MatisseMediaExtend) -> Unit
-) {
-    Box(
-        modifier = modifier
-            .padding(all = 1.dp)
-            .aspectRatio(ratio = 1f)
-            .background(color = colorResource(id = R.color.matisse_media_item_background_color))
-            .clickable {
-                onClickMedia(mediaResource)
-            },
-        contentAlignment = Alignment.Center
+    @Composable
+    private fun CaptureItem(
+        modifier: Modifier,
+        onClick: () -> Unit
     ) {
-        imageEngine.Thumbnail(mediaResource = mediaResource.media)
-        if (mediaResource.media.isVideo) {
-            VideoIcon(
+        Box(
+            modifier = modifier
+                .padding(all = 1.dp)
+                .aspectRatio(ratio = 1f)
+                .clip(shape = RoundedCornerShape(size = 4.dp))
+                .background(color = colorResource(id = R.color.matisse_capture_item_background_color))
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
                 modifier = Modifier
-                    .fillMaxSize(fraction = 0.24f)
+                    .fillMaxSize(fraction = 0.5f),
+                imageVector = Icons.Filled.PhotoCamera,
+                tint = colorResource(id = R.color.matisse_capture_item_icon_color),
+                contentDescription = "Capture"
             )
         }
-        val scrimColor by animateColorAsState(
-            targetValue = if (mediaResource.selectState.value.isSelected) {
-                colorResource(id = R.color.matisse_media_item_scrim_color_when_selected)
-            } else {
-                colorResource(id = R.color.matisse_media_item_scrim_color_when_unselected)
-            }
-        )
-        Spacer(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = scrimColor)
-        )
+    }
+
+    @Composable
+    private fun MediaItem(
+        modifier: Modifier,
+        mediaResource: MatisseMediaExtend,
+        imageEngine: ImageEngine,
+        onClickMedia: (MatisseMediaExtend) -> Unit,
+        onClickCheckBox: (MatisseMediaExtend) -> Unit
+    ) {
         Box(
-            modifier = Modifier
-                .align(alignment = Alignment.TopEnd)
-                .fillMaxSize(fraction = 0.33f)
-                .clickableNoRipple {
-                    onClickCheckBox(mediaResource)
+            modifier = modifier
+                .padding(all = 1.dp)
+                .aspectRatio(ratio = 1f)
+                .background(color = colorResource(id = R.color.matisse_media_item_background_color))
+                .clickable {
+                    onClickMedia(mediaResource)
                 },
             contentAlignment = Alignment.Center
         ) {
-            MatisseCheckbox(
-                modifier = Modifier
-                    .fillMaxSize(fraction = 0.68f),
-                selectState = mediaResource.selectState.value,
-                onClick = {
-                    onClickCheckBox(mediaResource)
+            imageEngine.Thumbnail(mediaResource = mediaResource.media)
+            if (mediaResource.media.isVideo) {
+                VideoIcon(
+                    modifier = Modifier
+                        .fillMaxSize(fraction = 0.24f)
+                )
+            }
+            val scrimColor by animateColorAsState(
+                targetValue = if (mediaResource.selectState.value.isSelected) {
+                    colorResource(id = R.color.matisse_media_item_scrim_color_when_selected)
+                } else {
+                    colorResource(id = R.color.matisse_media_item_scrim_color_when_unselected)
                 }
             )
-        }
-    }
-}
-
-@Composable
-private fun MediaItemFastSelect(
-    modifier: Modifier,
-    mediaResource: MediaResource,
-    imageEngine: ImageEngine,
-    onClickMedia: (MediaResource) -> Unit
-) {
-    Box(
-        modifier = modifier
-            .aspectRatio(ratio = 1f)
-            .background(color = colorResource(id = R.color.matisse_media_item_background_color))
-            .clickable {
-                onClickMedia(mediaResource)
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        imageEngine.Thumbnail(mediaResource = mediaResource)
-        if (mediaResource.isVideo) {
-            VideoIcon(
+            Spacer(
                 modifier = Modifier
-                    .fillMaxSize(fraction = 0.24f)
+                    .fillMaxSize()
+                    .background(color = scrimColor)
+            )
+            Box(
+                modifier = Modifier
+                    .align(alignment = Alignment.TopEnd)
+                    .fillMaxSize(fraction = 0.33f)
+                    .clickableNoRipple {
+                        onClickCheckBox(mediaResource)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                MatisseCheckbox(
+                    modifier = Modifier
+                        .fillMaxSize(fraction = 0.68f),
+                    selectState = mediaResource.selectState.value,
+                    onClick = {
+                        onClickCheckBox(mediaResource)
+                    }
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun MediaItemFastSelect(
+        modifier: Modifier,
+        mediaResource: MediaResource,
+        imageEngine: ImageEngine,
+        onClickMedia: (MediaResource) -> Unit
+    ) {
+        Box(
+            modifier = modifier
+                .aspectRatio(ratio = 1f)
+                .background(color = colorResource(id = R.color.matisse_media_item_background_color))
+                .clickable {
+                    onClickMedia(mediaResource)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            imageEngine.Thumbnail(mediaResource = mediaResource)
+            if (mediaResource.isVideo) {
+                VideoIcon(
+                    modifier = Modifier
+                        .fillMaxSize(fraction = 0.24f)
+                )
+            }
+        }
+    }
+
+    @Composable
+    internal fun VideoIcon(modifier: Modifier) {
+        Box(
+            modifier = modifier
+                .shadow(elevation = 1.dp, shape = CircleShape)
+                .clip(shape = CircleShape)
+                .background(color = colorResource(id = R.color.matisse_video_icon_color)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                modifier = Modifier
+                    .fillMaxSize(fraction = 0.62f),
+                imageVector = Icons.Filled.PlayArrow,
+                tint = Color.Black,
+                contentDescription = null
             )
         }
     }
-}
 
-@Composable
-internal fun VideoIcon(modifier: Modifier) {
-    Box(
-        modifier = modifier
-            .shadow(elevation = 1.dp, shape = CircleShape)
-            .clip(shape = CircleShape)
-            .background(color = colorResource(id = R.color.matisse_video_icon_color)),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            modifier = Modifier
-                .fillMaxSize(fraction = 0.62f),
-            imageVector = Icons.Filled.PlayArrow,
-            tint = Color.Black,
-            contentDescription = null
-        )
-    }
-}
-
-@Stable
-private fun Modifier.customAnimateItem(lazyGridItemScope: LazyGridItemScope): Modifier {
-    return with(lazyGridItemScope) {
-        animateItem(
-            fadeInSpec = spring(stiffness = Spring.StiffnessMedium),
-            fadeOutSpec = spring(stiffness = Spring.StiffnessMedium),
-            placementSpec = spring(
-                stiffness = Spring.StiffnessMediumLow,
-                visibilityThreshold = IntOffset.VisibilityThreshold
+    @Stable
+    private fun Modifier.customAnimateItem(lazyGridItemScope: LazyGridItemScope): Modifier {
+        return with(lazyGridItemScope) {
+            animateItem(
+                fadeInSpec = spring(stiffness = Spring.StiffnessMedium),
+                fadeOutSpec = spring(stiffness = Spring.StiffnessMedium),
+                placementSpec = spring(
+                    stiffness = Spring.StiffnessMediumLow,
+                    visibilityThreshold = IntOffset.VisibilityThreshold
+                )
             )
-        )
+        }
     }
 }
