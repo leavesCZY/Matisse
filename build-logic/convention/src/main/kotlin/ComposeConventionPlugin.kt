@@ -3,6 +3,7 @@ import com.android.build.gradle.LibraryExtension
 import github.leavesczy.matisse.configureCompose
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.findByType
 
 /**
@@ -13,10 +14,8 @@ import org.gradle.kotlin.dsl.findByType
 class ComposeConventionPlugin : Plugin<Project> {
 
     override fun apply(target: Project) {
-        with(target) {
-            with(pluginManager) {
-                apply("org.jetbrains.kotlin.plugin.compose")
-            }
+        with(receiver = target) {
+            apply(plugin = "org.jetbrains.kotlin.plugin.compose")
             val applicationExtension = extensions.findByType<ApplicationExtension>()
             if (applicationExtension != null) {
                 configureCompose(commonExtension = applicationExtension)
