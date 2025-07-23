@@ -117,27 +117,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 val allResources = loadMediaResources()
                 allMediaResources.addAll(elements = allResources)
                 val collectBucket = defaultBucket.copy(resources = allResources)
-                val allMediaBuckets = run {
-                    val temp = allResources.groupBy {
-                        it.bucketId
-                    }.mapNotNull {
-                        val bucketId = it.key
-                        val resources = it.value
-                        val firstResource = resources.firstOrNull()
-                        val bucketName = firstResource?.bucketName
-                        if (bucketName.isNullOrBlank()) {
-                            null
-                        } else {
-                            MatisseMediaBucketInfo(
-                                bucketId = bucketId,
-                                bucketName = bucketName,
-                                size = resources.size,
-                                firstMedia = firstResource.media
-                            )
-                        }
-                    }.toMutableList()
-                    temp.add(
-                        index = 0,
+                val allMediaBuckets = buildList {
+                    add(
                         element = MatisseMediaBucketInfo(
                             bucketId = collectBucket.bucketId,
                             bucketName = collectBucket.bucketName,
@@ -145,7 +126,26 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                             firstMedia = collectBucket.resources.firstOrNull()?.media
                         )
                     )
-                    temp
+                    addAll(
+                        elements = allResources.groupBy {
+                            it.bucketId
+                        }.mapNotNull {
+                            val bucketId = it.key
+                            val resources = it.value
+                            val firstResource = resources.firstOrNull()
+                            val bucketName = firstResource?.bucketName
+                            if (bucketName.isNullOrBlank()) {
+                                null
+                            } else {
+                                MatisseMediaBucketInfo(
+                                    bucketId = bucketId,
+                                    bucketName = bucketName,
+                                    size = resources.size,
+                                    firstMedia = firstResource.media
+                                )
+                            }
+                        }
+                    )
                 }
                 pageViewState = pageViewState.copy(
                     mediaBucketsInfo = allMediaBuckets,
