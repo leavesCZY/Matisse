@@ -1,6 +1,7 @@
 [versions]
 android-plugin = "8.11.1"
 kotlin-plugin = "2.2.0"
+maven-publish-plugin = "0.34.0"
 
 androidx-junit = "1.2.1"
 androidx-espresso = "3.6.1"
@@ -22,6 +23,8 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-pl
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-plugin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-plugin" }
 
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish-plugin" }
+
 matisse-android-application = { id = "matisse.android.application" }
 matisse-android-library = { id = "matisse.android.library" }
 matisse-android-compose = { id = "matisse.android.compose" }
@@ -36,7 +39,7 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 
-androidx-compose-bom = { module = "androidx.compose:compose-bom-beta", version.ref = "androidx-compose-bom" }
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidx-compose-bom" }
 androidx-compose-ui = { module = "androidx.compose.ui:ui" }
 androidx-compose-foundation = { module = "androidx.compose.foundation:foundation" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }

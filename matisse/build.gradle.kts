@@ -1,18 +1,13 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+
 plugins {
     alias(libs.plugins.matisse.android.library)
     alias(libs.plugins.matisse.android.compose)
-    id("maven-publish")
-    id("signing")
+    alias(libs.plugins.maven.publish)
 }
 
 android {
     namespace = "github.leavesczy.matisse"
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
 }
 
 dependencies {
@@ -27,78 +22,41 @@ dependencies {
     compileOnly(libs.glide.compose)
 }
 
-val signingKeyId = properties["signing.keyId"]?.toString()
-val signingPassword = properties["signing.password"]?.toString()
-val signingSecretKeyRingFile = properties["signing.secretKeyRingFile"]?.toString()
-val mavenCentralUserName = properties["mavenCentral.username"]?.toString()
-val mavenCentralPassword = properties["mavenCentral.password"]?.toString()
-val mavenCentralEmail = properties["mavenCentral.email"]?.toString()
 val matisseVersion = "2.2.0"
 
-if (signingKeyId != null
-    && signingPassword != null
-    && signingSecretKeyRingFile != null
-    && mavenCentralUserName != null
-    && mavenCentralPassword != null
-    && mavenCentralEmail != null
-) {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                groupId = "io.github.leavesczy"
-                artifactId = "matisse"
-                version = matisseVersion
-                afterEvaluate {
-                    from(components["release"])
-                }
-                pom {
-                    name = "Matisse"
-                    description =
-                        "An Android Image and Video Selection Framework Implemented with Jetpack Compose"
-                    url = "https://github.com/leavesCZY/Matisse"
-                    licenses {
-                        license {
-                            name = "The Apache License, Version 2.0"
-                            url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                            distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = "leavesCZY"
-                            name = "leavesCZY"
-                            email = mavenCentralEmail
-                        }
-                    }
-                    scm {
-                        url = "https://github.com/leavesCZY/Matisse"
-                        connection = "https://github.com/leavesCZY/Matisse"
-                        developerConnection = "https://github.com/leavesCZY/Matisse"
-                    }
-                }
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+    configure(platform = AndroidSingleVariantLibrary())
+    coordinates(
+        groupId = "io.github.leavesczy",
+        artifactId = "matisse",
+        version = matisseVersion
+    )
+    pom {
+        name = "Matisse"
+        description =
+            "An Android Image and Video Selection Framework Implemented with Jetpack Compose"
+        inceptionYear = "2025"
+        url = "https://github.com/leavesCZY/Matisse"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt"
             }
         }
-        repositories {
-            maven {
-                setUrl("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-                credentials {
-                    username = mavenCentralUserName
-                    password = mavenCentralPassword
-                }
+        developers {
+            developer {
+                id = "leavesCZY"
+                name = "leavesCZY"
+                url = "https://github.com/leavesCZY"
             }
         }
-    }
-    signing {
-        sign(publishing.publications["release"])
-    }
-} else {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                afterEvaluate {
-                    from(components["release"])
-                }
-            }
+        scm {
+            url = "https://github.com/leavesCZY/Matisse"
+            connection = "scm:git:git://github.com/leavesCZY/Matisse.git"
+            developerConnection = "scm:git:ssh://git@github.com/leavesCZY/Matisse.git"
         }
     }
 }
