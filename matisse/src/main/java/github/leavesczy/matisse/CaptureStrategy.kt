@@ -15,7 +15,6 @@ import github.leavesczy.matisse.internal.logic.MediaProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.io.File
@@ -182,16 +181,14 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
         return withContext(context = Dispatchers.Default) {
-            withTimeoutOrNull(timeMillis = 500) {
-                while (true) {
-                    val result = loadResources(context = context, uri = imageUri)
-                    if (result != null) {
-                        return@withTimeoutOrNull result
-                    }
-                    delay(timeMillis = 10)
+            repeat(times = 10) {
+                val result = loadResources(context = context, uri = imageUri)
+                if (result != null) {
+                    return@withContext result
                 }
-                return@withTimeoutOrNull null
+                delay(timeMillis = 50L)
             }
+            return@withContext null
         }
     }
 
