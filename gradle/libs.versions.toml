@@ -1,5 +1,5 @@
 [versions]
-android-plugin = "8.12.0"
+android-plugin = "8.13.0"
 kotlin-plugin = "2.2.10"
 maven-publish-plugin = "0.34.0"
 
@@ -7,13 +7,13 @@ androidx-junit = "1.3.0"
 androidx-espresso = "3.7.0"
 androidx-appcompat = "1.7.1"
 androidx-activity = "1.10.1"
-androidx-lifecycle = "2.9.2"
-androidx-compose-bom = "2025.08.00"
+androidx-lifecycle = "2.9.3"
+androidx-compose-bom = "2025.08.01"
 
 junit = "4.13.2"
 
 coil = "3.3.0"
-glide = "1.0.0-beta01"
+glide = "1.0.0-beta07"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
