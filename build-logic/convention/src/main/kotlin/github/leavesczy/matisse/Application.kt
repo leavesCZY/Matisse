@@ -2,12 +2,8 @@ package github.leavesczy.matisse
 
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
-import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.assign
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.kotlin.dsl.configure
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -19,14 +15,11 @@ import java.util.TimeZone
  * @Date: 2024/2/21 17:46
  * @Desc:
  */
-internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleExtension) {
-    commonExtension.apply {
-        compileSdk = 35
-        buildToolsVersion = "36.0.0"
+internal fun Project.configureAndroidApplication() {
+    configure<BaseAppModuleExtension> {
         defaultConfig {
             applicationId = "github.leavesczy.matisse.samples"
-            minSdk = 23
-            targetSdk = 35
+            targetSdk = 36
             versionCode = 1
             versionName = "1.0.0"
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -39,21 +32,6 @@ internal fun Project.configureAndroidApplication(commonExtension: BaseAppModuleE
                         this.outputFileName = "matisse_${getApkBuildTime()}.apk"
                     }
                 }
-            }
-        }
-        buildFeatures {
-            buildConfig = false
-        }
-        lint {
-            checkDependencies = true
-        }
-        compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_11
-            targetCompatibility = JavaVersion.VERSION_11
-        }
-        tasks.withType<KotlinCompile>().configureEach {
-            compilerOptions {
-                jvmTarget = JvmTarget.JVM_11
             }
         }
         signingConfigs {

@@ -44,8 +44,7 @@ class CoilImageEngine : ImageEngine {
                 modifier = Modifier
                     .fillMaxWidth(),
                 model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth,
-                backgroundColor = null
+                contentScale = ContentScale.FillWidth
             )
         } else {
             CoilComposeImage(
@@ -53,8 +52,7 @@ class CoilImageEngine : ImageEngine {
                     .fillMaxWidth()
                     .verticalScroll(state = rememberScrollState()),
                 model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth,
-                backgroundColor = null
+                contentScale = ContentScale.FillWidth
             )
         }
     }
