@@ -1,3 +1,4 @@
+import github.leavesczy.matisse.configureAndroidLibrary
 import github.leavesczy.matisse.configureAndroidProject
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -16,6 +17,7 @@ class LibraryConventionPlugin : Plugin<Project> {
             apply(plugin = "org.jetbrains.kotlin.android")
             apply(plugin = "org.jetbrains.kotlin.plugin.parcelize")
             configureAndroidProject()
+            configureAndroidLibrary()
         }
     }
 

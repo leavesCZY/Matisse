@@ -26,7 +26,7 @@ dependencies {
     compileOnly(libs.glide.compose)
 }
 
-val matisseVersion = "2.2.1"
+val matisseVersion = "2.2.2"
 
 if (signingKeyId == null) {
     publishing {
