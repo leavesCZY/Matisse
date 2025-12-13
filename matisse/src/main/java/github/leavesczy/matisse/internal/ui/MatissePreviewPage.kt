@@ -57,6 +57,8 @@ internal fun MatissePreviewPage(
     onClickSure: () -> Unit
 ) {
     AnimatedVisibility(
+        modifier = Modifier
+            .fillMaxSize(),
         visible = pageViewState.visible,
         enter = slideInHorizontally(
             animationSpec = tween(

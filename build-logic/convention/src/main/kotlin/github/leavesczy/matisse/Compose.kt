@@ -23,7 +23,6 @@ internal fun Project.configureCompose() {
             compilerOptions {
                 optIn.set(
                     setOf(
-                        "androidx.compose.foundation.ExperimentalFoundationApi",
                         "androidx.compose.foundation.layout.ExperimentalLayoutApi",
                         "com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi"
                     )

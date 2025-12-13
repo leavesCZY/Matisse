@@ -179,11 +179,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
     private fun setSystemBarUi(previewPageVisible: Boolean) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowInsetsControllerCompat(window, window.decorView).apply {
-            if (previewPageVisible) {
-                hide(WindowInsetsCompat.Type.statusBars())
-            } else {
-                show(WindowInsetsCompat.Type.statusBars())
-            }
+            show(WindowInsetsCompat.Type.statusBars())
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
             val statusBarDarkIcons = if (previewPageVisible) {
                 false

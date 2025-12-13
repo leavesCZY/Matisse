@@ -61,7 +61,7 @@ internal fun MatisseCheckbox(
                                     } else {
                                         R.color.matisse_check_box_circle_color_if_disable
                                     }
-                                ),
+                                )
                             )
                     }
                 )
