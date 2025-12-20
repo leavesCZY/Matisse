@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="ic_launcher_background">#FF03A9F4</color>
     <bool name="matisse_status_bar_dark_icons">false</bool>
     <bool name="matisse_navigation_bar_dark_icons">true</bool>
     <color name="matisse_status_bar_color">#FF03A9F4</color>
