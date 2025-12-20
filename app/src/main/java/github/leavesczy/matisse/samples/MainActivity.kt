@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -378,27 +379,30 @@ private fun MediaResourceItem(mediaResource: MediaResource) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
-        shape = RoundedCornerShape(size = 14.dp)
+        shape = RoundedCornerShape(size = 12.dp)
     ) {
         Row(
             modifier = Modifier
-                .padding(all = 6.dp)
+                .padding(horizontal = 8.dp, vertical = 10.dp)
                 .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
                 modifier = Modifier
-                    .size(size = 80.dp),
+                    .size(size = 80.dp)
+                    .clip(shape = RoundedCornerShape(size = 12.dp)),
                 model = mediaResource.uri,
                 contentScale = ContentScale.Crop,
                 contentDescription = null
             )
             Text(
                 modifier = Modifier
+                    .weight(weight = 1f)
                     .padding(start = 10.dp),
                 text = mediaResource.toString(),
-                fontSize = 13.sp,
-                lineHeight = 15.sp
+                fontSize = 15.sp,
+                lineHeight = 17.sp
             )
         }
     }
