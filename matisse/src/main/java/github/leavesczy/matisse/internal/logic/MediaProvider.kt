@@ -3,6 +3,7 @@ package github.leavesczy.matisse.internal.logic
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.content.res.AssetFileDescriptor
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -20,13 +21,14 @@ import java.io.File
 internal object MediaProvider {
 
     data class MediaInfo(
+        val uri: Uri,
         val mediaId: Long,
         val bucketId: String,
         val bucketName: String,
-        val uri: Uri,
         val path: String,
         val name: String,
-        val mimeType: String
+        val mimeType: String,
+        val size: Long
     )
 
     suspend fun createImage(
@@ -89,48 +91,76 @@ internal object MediaProvider {
             val sortOrder = "$dateModifiedColumn DESC"
             val mediaResourceList = mutableListOf<MediaInfo>()
             try {
-                val mediaCursor = context.contentResolver.query(
+                val cursor = context.contentResolver.query(
                     contentUri,
                     projection,
                     selection,
                     selectionArgs,
                     sortOrder,
                 ) ?: return@withContext null
-                mediaCursor.use { cursor ->
+                cursor.use { cursor ->
                     while (cursor.moveToNext()) {
-                        val defaultId = Long.MAX_VALUE
-                        val id = cursor.getLong(idColumn, defaultId)
-                        val path = cursor.getString(pathColumn, "")
-                        val size = cursor.getLong(sizeColumn, 0)
-                        if (id == defaultId || path.isBlank() || size <= 0) {
-                            continue
-                        }
-                        val file = File(path)
-                        if (!file.isFile || !file.exists()) {
-                            continue
-                        }
-                        val name = cursor.getString(displayNameColumn, "")
-                        val mimeType = cursor.getString(mineTypeColumn, "")
-                        val bucketId = cursor.getString(bucketIdColumn, "")
-                        val bucketName = cursor.getString(bucketDisplayNameColumn, "")
-                        val uri = ContentUris.withAppendedId(contentUri, id)
-                        mediaResourceList.add(
-                            element = MediaInfo(
+                        try {
+                            val defaultId = Long.MAX_VALUE
+                            val id = cursor.getLong(idColumn, defaultId)
+                            val path = cursor.getString(pathColumn, "")
+                            if (id == defaultId || path.isBlank()) {
+                                continue
+                            }
+                            val file = File(path)
+                            if (!file.isFile || !file.exists()) {
+                                continue
+                            }
+                            val uri = ContentUris.withAppendedId(contentUri, id)
+                            val bucketId = cursor.getString(bucketIdColumn, "")
+                            val bucketName = cursor.getString(bucketDisplayNameColumn, "")
+                            val name = cursor.getString(displayNameColumn, "")
+                            val mimeType = cursor.getString(mineTypeColumn, "")
+                            val size = run {
+                                val size = cursor.getLong(sizeColumn, 0)
+                                if (size <= 0L) {
+                                    getFileRealSize(context = context, uri = uri)
+                                } else {
+                                    null
+                                } ?: 0L
+                            }
+                            val mediaInfo = MediaInfo(
+                                uri = uri,
                                 mediaId = id,
                                 bucketId = bucketId,
                                 bucketName = bucketName,
                                 path = path,
-                                uri = uri,
                                 name = name,
-                                mimeType = mimeType
+                                mimeType = mimeType,
+                                size = size
                             )
-                        )
+                            mediaResourceList.add(element = mediaInfo)
+                        } catch (throwable: Throwable) {
+                            throwable.printStackTrace()
+                        }
                     }
                 }
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
             }
             mediaResourceList
+        }
+    }
+
+    suspend fun getFileRealSize(context: Context, uri: Uri): Long? {
+        return withContext(context = Dispatchers.Default) {
+            try {
+                context.contentResolver.openAssetFileDescriptor(uri, "r")?.use {
+                    if (it.length == AssetFileDescriptor.UNKNOWN_LENGTH) {
+                        null
+                    } else {
+                        it.length
+                    }
+                }
+            } catch (throwable: Exception) {
+                throwable.printStackTrace()
+                null
+            }
         }
     }
 

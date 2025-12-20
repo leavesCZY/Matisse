@@ -161,7 +161,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         }
     }
 
-    private fun defaultSelectedResources(allMediaResources: List<MatisseMediaExtend>) {
+    private suspend fun defaultSelectedResources(allMediaResources: List<MatisseMediaExtend>) {
         val defaultSelectedMediaIds = if (mediaFilter == null || fastSelect) {
             emptyList()
         } else {
@@ -207,7 +207,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                         uri = it.uri,
                         path = it.path,
                         name = it.name,
-                        mimeType = it.mimeType
+                        mimeType = it.mimeType,
+                        size = it.size
                     )
                     if (mediaFilter?.ignoreMedia(mediaResource = media) == true) {
                         null

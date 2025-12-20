@@ -179,17 +179,22 @@ internal class MatisseActivity : BaseCaptureActivity() {
     private fun setSystemBarUi(previewPageVisible: Boolean) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowInsetsControllerCompat(window, window.decorView).apply {
-            show(WindowInsetsCompat.Type.statusBars())
-            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
-            val statusBarDarkIcons = if (previewPageVisible) {
-                false
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            val types = WindowInsetsCompat.Type.statusBars()
+            if (previewPageVisible) {
+                hide(types)
             } else {
-                resources.getBoolean(R.bool.matisse_status_bar_dark_icons)
+                show(types)
             }
-            val navigationBarDarkIcons = if (previewPageVisible) {
-                false
+            val statusBarDarkIcons: Boolean
+            val navigationBarDarkIcons: Boolean
+            if (previewPageVisible) {
+                statusBarDarkIcons = false
+                navigationBarDarkIcons = false
             } else {
-                resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
+                statusBarDarkIcons = resources.getBoolean(R.bool.matisse_status_bar_dark_icons)
+                navigationBarDarkIcons =
+                    resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
             }
             isAppearanceLightStatusBars = statusBarDarkIcons
             isAppearanceLightNavigationBars = navigationBarDarkIcons

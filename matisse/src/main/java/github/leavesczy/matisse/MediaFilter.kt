@@ -15,13 +15,13 @@ interface MediaFilter : Parcelable {
      * 用于控制是否要忽略特定的媒体资源
      * 返回 true 则会被忽略，不会展示给用户
      */
-    fun ignoreMedia(mediaResource: MediaResource): Boolean
+    suspend fun ignoreMedia(mediaResource: MediaResource): Boolean
 
     /**
      * 用于控制是否要默认选中特定的媒体资源
      * 返回 true 则会被默认选中
      */
-    fun selectMedia(mediaResource: MediaResource): Boolean
+    suspend fun selectMedia(mediaResource: MediaResource): Boolean
 
 }
 
@@ -37,12 +37,12 @@ class DefaultMediaFilter(
     private val selectedResourceUri: Set<Uri> = emptySet()
 ) : MediaFilter {
 
-    override fun ignoreMedia(mediaResource: MediaResource): Boolean {
+    override suspend fun ignoreMedia(mediaResource: MediaResource): Boolean {
         return ignoredMimeType.contains(element = mediaResource.mimeType) ||
                 ignoredResourceUri.contains(element = mediaResource.uri)
     }
 
-    override fun selectMedia(mediaResource: MediaResource): Boolean {
+    override suspend fun selectMedia(mediaResource: MediaResource): Boolean {
         return selectedResourceUri.contains(element = mediaResource.uri)
     }
 

@@ -378,7 +378,7 @@ private fun MediaResourceItem(mediaResource: MediaResource) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
-        shape = RoundedCornerShape(size = 12.dp)
+        shape = RoundedCornerShape(size = 14.dp)
     ) {
         Row(
             modifier = Modifier
@@ -396,11 +396,9 @@ private fun MediaResourceItem(mediaResource: MediaResource) {
             Text(
                 modifier = Modifier
                     .padding(start = 10.dp),
-                text = mediaResource.uri.toString() + "\n\n" +
-                        mediaResource.path + "\n\n" +
-                        mediaResource.mimeType,
-                fontSize = 14.sp,
-                lineHeight = 16.sp
+                text = mediaResource.toString(),
+                fontSize = 13.sp,
+                lineHeight = 15.sp
             )
         }
     }

@@ -124,7 +124,8 @@ data class MediaResource(
     val uri: Uri,
     val path: String,
     val name: String,
-    val mimeType: String
+    val mimeType: String,
+    val size: Long
 ) : Parcelable {
 
     val isImage: Boolean

@@ -85,12 +85,7 @@ internal fun MatissePreviewPage(
         Scaffold(
             modifier = Modifier
                 .fillMaxSize(),
-            contentWindowInsets = WindowInsets(
-                left = 0.dp,
-                right = 0.dp,
-                top = 0.dp,
-                bottom = 0.dp
-            ),
+            contentWindowInsets = WindowInsets(),
             containerColor = colorResource(id = R.color.matisse_preview_page_background_color)
         ) { paddingValues ->
             Column(
@@ -103,7 +98,6 @@ internal fun MatissePreviewPage(
                         .fillMaxWidth()
                         .weight(weight = 1f),
                     state = pagerState,
-                    verticalAlignment = Alignment.CenterVertically,
                     key = { index ->
                         pageViewState.previewResources[index].mediaId
                     }
