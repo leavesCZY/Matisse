@@ -2,8 +2,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     `kotlin-dsl`
-    `maven-publish`
-    signing
 }
 
 group = "github.leavesczy.matisse.build.logic"
@@ -20,22 +18,22 @@ kotlin {
 }
 
 dependencies {
-    implementation(libs.android.gradle)
-    implementation(libs.kotlin.gradle)
+    compileOnly(libs.android.gradle)
+    compileOnly(libs.kotlin.gradle)
 }
 
 gradlePlugin {
     plugins {
         register("androidApplication") {
-            id = "matisse.android.application"
+            id = libs.plugins.matisse.android.application.get().pluginId
             implementationClass = "ApplicationConventionPlugin"
         }
         register("androidLibrary") {
-            id = "matisse.android.library"
+            id = libs.plugins.matisse.android.library.get().pluginId
             implementationClass = "LibraryConventionPlugin"
         }
         register("androidCompose") {
-            id = "matisse.android.compose"
+            id = libs.plugins.matisse.android.compose.get().pluginId
             implementationClass = "ComposeConventionPlugin"
         }
     }
