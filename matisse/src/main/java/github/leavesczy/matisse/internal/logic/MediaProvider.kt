@@ -117,12 +117,12 @@ internal object MediaProvider {
                             val name = cursor.getString(displayNameColumn, "")
                             val mimeType = cursor.getString(mineTypeColumn, "")
                             val size = run {
-                                val size = cursor.getLong(sizeColumn, 0)
-                                if (size <= 0L) {
-                                    getFileRealSize(context = context, uri = uri)
+                                val cursorSize = cursor.getLong(sizeColumn, 0L)
+                                if (cursorSize <= 0L) {
+                                    getFileRealSize(context = context, uri = uri) ?: 0L
                                 } else {
-                                    null
-                                } ?: 0L
+                                    cursorSize
+                                }
                             }
                             val mediaInfo = MediaInfo(
                                 uri = uri,
@@ -151,10 +151,11 @@ internal object MediaProvider {
         return withContext(context = Dispatchers.Default) {
             try {
                 context.contentResolver.openAssetFileDescriptor(uri, "r")?.use {
-                    if (it.length == AssetFileDescriptor.UNKNOWN_LENGTH) {
+                    val length = it.length
+                    if (length == AssetFileDescriptor.UNKNOWN_LENGTH) {
                         null
                     } else {
-                        it.length
+                        length
                     }
                 }
             } catch (throwable: Exception) {
