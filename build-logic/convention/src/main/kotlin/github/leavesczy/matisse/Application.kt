@@ -26,7 +26,9 @@ internal fun Project.configureAndroidApplication(commonExtension: ApplicationExt
             }
         }
         val basePluginExtension = project.extensions.getByType(BasePluginExtension::class.java)
-        basePluginExtension.archivesName.set("Matisse_v${defaultConfig.versionName}_${defaultConfig.versionCode}_${getApkBuildTime()}")
+        basePluginExtension.apply {
+            archivesName.set("Matisse_v${defaultConfig.versionName}_${defaultConfig.versionCode}_${getApkBuildTime()}")
+        }
         signingConfigs {
             create("release") {
                 storeFile = File(rootDir.absolutePath, "key.jks")

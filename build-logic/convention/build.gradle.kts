@@ -4,7 +4,7 @@ plugins {
     `kotlin-dsl`
 }
 
-group = "github.leavesczy.matisse.build.logic"
+group = "github.leavesczy.matisse.buildlogic"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11

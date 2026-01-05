@@ -15,15 +15,15 @@ internal fun Project.configureCompose(commonExtension: CommonExtension) {
         buildFeatures.apply {
             compose = true
         }
-        tasks.withType<KotlinCompile>().configureEach {
-            compilerOptions {
-                optIn.set(
-                    setOf(
-                        "androidx.compose.foundation.layout.ExperimentalLayoutApi",
-                        "com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi"
-                    )
+    }
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions {
+            optIn.set(
+                setOf(
+                    "androidx.compose.foundation.layout.ExperimentalLayoutApi",
+                    "com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi"
                 )
-            }
+            )
         }
     }
 }

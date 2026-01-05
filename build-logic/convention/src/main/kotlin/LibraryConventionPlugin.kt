@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.LibraryExtension
 import github.leavesczy.matisse.configureAndroidLibrary
 import github.leavesczy.matisse.configureAndroidProject
 import org.gradle.api.Plugin
@@ -19,7 +20,7 @@ class LibraryConventionPlugin : Plugin<Project> {
             apply(plugin = "org.jetbrains.kotlin.plugin.parcelize")
             val commonExtension = extensions.getByType(type = CommonExtension::class)
             configureAndroidProject(commonExtension = commonExtension)
-            configureAndroidLibrary(commonExtension = commonExtension)
+            configureAndroidLibrary(libraryExtension = commonExtension as LibraryExtension)
         }
     }
 

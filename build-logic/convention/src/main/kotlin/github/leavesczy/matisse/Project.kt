@@ -30,10 +30,10 @@ internal fun Project.configureAndroidProject(commonExtension: CommonExtension) {
             sourceCompatibility = JavaVersion.VERSION_11
             targetCompatibility = JavaVersion.VERSION_11
         }
-        tasks.withType<KotlinCompile>().configureEach {
-            compilerOptions {
-                jvmTarget = JvmTarget.JVM_11
-            }
+    }
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
         }
     }
 }
