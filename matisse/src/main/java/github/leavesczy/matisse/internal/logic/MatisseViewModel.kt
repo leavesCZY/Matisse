@@ -9,6 +9,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import github.leavesczy.matisse.Matisse
@@ -443,11 +444,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     }
 
     private fun getString(@StringRes id: Int): String {
-        return context.getString(id)
+        return ContextCompat.getString(context, id)
     }
 
     private fun getString(@StringRes id: Int, vararg formatArgs: Any): String {
-        return context.getString(id, *formatArgs)
+        return ContextCompat.getString(context, id).format(*formatArgs)
     }
 
     private fun showToast(@StringRes id: Int) {
