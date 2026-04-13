@@ -1,7 +1,9 @@
 package github.leavesczy.matisse
 
-import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -10,7 +12,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  * @Date: 2024/2/21 17:51
  * @Desc:
  */
-internal fun Project.configureCompose(commonExtension: CommonExtension) {
+internal fun Project.configureCompose() {
+    val commonExtension =
+        extensions.findByType<ApplicationExtension>() ?: extensions.findByType<LibraryExtension>()!!
     commonExtension.apply {
         buildFeatures.apply {
             compose = true

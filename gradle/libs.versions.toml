@@ -1,6 +1,6 @@
 [versions]
-android-plugin = "9.1.0"
-kotlin-plugin = "2.3.10"
+android-plugin = "8.13.2"
+kotlin-plugin = "2.0.0"
 maven-publish-plugin = "0.36.0"
 
 androidx-junit = "1.3.0"
@@ -8,25 +8,27 @@ androidx-espresso = "3.7.0"
 androidx-appcompat = "1.7.1"
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.10.0"
-androidx-compose-bom = "2026.03.00"
+androidx-compose-bom = "2026.03.01"
 
 junit = "4.13.2"
 
-coil = "3.4.0"
+coil = "3.0.0"
 glide = "1.0.0-beta08"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
 android-library = { id = "com.android.library", version.ref = "android-plugin" }
 
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-plugin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-plugin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin-plugin" }
 
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish-plugin" }
 
-matisse-android-application = { id = "matisse.android.application" }
-matisse-android-library = { id = "matisse.android.library" }
-matisse-android-compose = { id = "matisse.android.compose" }
+app-android-application = { id = "app.android.application" }
+app-android-library = { id = "app.android.library" }
+app-android-compose = { id = "app.android.compose" }
+app-kotlin-parcelize = { id = "app.kotlin.parcelize" }
 
 [libraries]
 android-gradle = { module = "com.android.tools.build:gradle", version.ref = "android-plugin" }
@@ -36,7 +38,7 @@ androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-j
 androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
-androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "androidx-lifecycle" }
 
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidx-compose-bom" }
 androidx-compose-ui = { module = "androidx.compose.ui:ui" }

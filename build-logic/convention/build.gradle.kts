@@ -25,16 +25,20 @@ dependencies {
 gradlePlugin {
     plugins {
         register("androidApplication") {
-            id = libs.plugins.matisse.android.application.get().pluginId
+            id = libs.plugins.app.android.application.get().pluginId
             implementationClass = "ApplicationConventionPlugin"
         }
         register("androidLibrary") {
-            id = libs.plugins.matisse.android.library.get().pluginId
+            id = libs.plugins.app.android.library.get().pluginId
             implementationClass = "LibraryConventionPlugin"
         }
         register("androidCompose") {
-            id = libs.plugins.matisse.android.compose.get().pluginId
+            id = libs.plugins.app.android.compose.get().pluginId
             implementationClass = "ComposeConventionPlugin"
+        }
+        register("kotlinParcelize") {
+            id = libs.plugins.app.kotlin.parcelize.get().pluginId
+            implementationClass = "ParcelizeConventionPlugin"
         }
     }
 }

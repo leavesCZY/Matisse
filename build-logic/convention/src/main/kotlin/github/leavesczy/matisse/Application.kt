@@ -1,8 +1,9 @@
 package github.leavesczy.matisse
 
-import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
+import org.gradle.kotlin.dsl.configure
 import java.io.File
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -13,8 +14,8 @@ import java.time.format.DateTimeFormatter
  * @Date: 2024/2/21 17:46
  * @Desc:
  */
-internal fun Project.configureAndroidApplication(commonExtension: ApplicationExtension) {
-    commonExtension.apply {
+internal fun Project.configureAndroidApplication() {
+    configure<BaseAppModuleExtension> {
         defaultConfig {
             applicationId = "github.leavesczy.matisse.samples"
             targetSdk = 36

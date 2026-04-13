@@ -1,14 +1,11 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 
 plugins {
-    alias(libs.plugins.matisse.android.library)
-    alias(libs.plugins.matisse.android.compose)
+    alias(libs.plugins.app.android.library)
+    alias(libs.plugins.app.android.compose)
+    alias(libs.plugins.app.kotlin.parcelize)
     alias(libs.plugins.maven.publish)
-    id("maven-publish")
-    id("signing")
 }
-
-val signingKeyId = properties["signing.keyId"]?.toString()
 
 android {
     namespace = "github.leavesczy.matisse"
@@ -28,17 +25,9 @@ dependencies {
 
 val matisseVersion = "2.3.0"
 
-if (signingKeyId == null) {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                afterEvaluate {
-                    from(components["release"])
-                }
-            }
-        }
-    }
-} else {
+val signingKeyId = properties["signing.keyId"]?.toString()
+
+if (signingKeyId != null) {
     mavenPublishing {
         publishToMavenCentral()
         signAllPublications()

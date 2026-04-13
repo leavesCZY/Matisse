@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.matisse.android.application)
-    alias(libs.plugins.matisse.android.compose)
+    alias(libs.plugins.app.android.application)
+    alias(libs.plugins.app.android.compose)
 }
 
 android {
