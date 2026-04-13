@@ -23,7 +23,7 @@ dependencies {
     compileOnly(libs.glide.compose)
 }
 
-val matisseVersion = "2.3.0"
+val matisseVersion = "2.3.1"
 
 val signingKeyId = properties["signing.keyId"]?.toString()
 
