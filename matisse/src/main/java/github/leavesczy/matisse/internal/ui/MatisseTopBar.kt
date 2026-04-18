@@ -55,7 +55,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun MatisseTopBar(
     modifier: Modifier,
-    title: String,
+    bucketName: String,
     mediaBucketsInfo: List<MatisseMediaBucketInfo>,
     onClickBucket: suspend (String) -> Unit,
     imageEngine: ImageEngine
@@ -73,7 +73,7 @@ internal fun MatisseTopBar(
         StatusBar(modifier = Modifier)
         MatisseTopBar(
             modifier = Modifier,
-            title = title,
+            title = bucketName,
             openDropdownMenu = {
                 menuExpanded = true
             }

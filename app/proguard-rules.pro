@@ -20,4 +20,9 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--optimizationpasses 10
+-optimizationpasses 20
+-renamesourcefileattribute ''
+-dontusemixedcaseclassnames
+-packageobfuscationdictionary dictionary.txt
+-classobfuscationdictionary dictionary.txt
+-obfuscationdictionary dictionary.txt

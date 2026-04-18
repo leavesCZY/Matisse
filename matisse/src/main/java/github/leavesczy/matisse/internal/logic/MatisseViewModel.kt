@@ -9,6 +9,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import github.leavesczy.matisse.Matisse
@@ -83,9 +84,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         value = MatissePreviewPageViewState(
             visible = false,
             initialPage = 0,
+            selectedImageSize = 0,
             maxSelectable = maxSelectable,
-            sureButtonText = "",
-            sureButtonClickable = false,
             previewResources = emptyList(),
             onMediaCheckChanged = {},
             onDismissRequest = {}
@@ -242,12 +242,12 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private suspend fun onClickBucket(bucketId: String) {
         val viewState = pageViewState
-        val isDefaultBucketId = bucketId == defaultBucketId
+        val isDefaultBucket = bucketId == defaultBucketId
         val bucketName = viewState.mediaBucketsInfo.first {
             it.bucketId == bucketId
         }.bucketName
-        val supportCapture = isDefaultBucketId && defaultBucket.supportCapture
-        val resources = if (isDefaultBucketId) {
+        val supportCapture = isDefaultBucket && defaultBucket.supportCapture
+        val resources = if (isDefaultBucket) {
             allMediaResources
         } else {
             allMediaResources.filter {
@@ -322,14 +322,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         val viewState = previewPageViewState
         if (viewState.visible) {
             val selectedResources = filterSelectedMediaResource()
-            previewPageViewState = viewState.copy(
-                sureButtonText = getString(
-                    id = R.string.matisse_sure,
-                    selectedResources.size,
-                    maxSelectable
-                ),
-                sureButtonClickable = selectedResources.isNotEmpty() && selectedResources.size <= maxSelectable
-            )
+            previewPageViewState = viewState.copy(selectedImageSize = selectedResources.size)
         }
     }
 
@@ -351,17 +344,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private fun buildBottomBarViewState(): MatisseBottomBarViewState {
         val selected = filterSelectedMediaResource()
-        val selectedResourcesIsNotEmpty = selected.isNotEmpty()
         return MatisseBottomBarViewState(
-            previewButtonText = getString(id = R.string.matisse_preview),
-            previewButtonClickable = selectedResourcesIsNotEmpty,
-            onClickPreviewButton = ::onClickPreviewButton,
-            sureButtonText = getString(
-                id = R.string.matisse_sure,
-                selected.size,
-                maxSelectable
-            ),
-            sureButtonClickable = selectedResourcesIsNotEmpty && selected.size <= maxSelectable
+            selectedImageSize = selected.size,
+            maxSelectable = maxSelectable,
+            previewButtonClickable = selected.isNotEmpty(),
+            onClickPreviewButton = ::onClickPreviewButton
         )
     }
 
@@ -391,12 +378,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         previewPageViewState = previewPageViewState.copy(
             visible = true,
             initialPage = initialPage,
-            sureButtonText = getString(
-                id = R.string.matisse_sure,
-                selectedResources.size,
-                maxSelectable
-            ),
-            sureButtonClickable = selectedResources.isNotEmpty() && selectedResources.size <= maxSelectable,
+            selectedImageSize = selectedResources.size,
             previewResources = totalResources,
             onMediaCheckChanged = ::onMediaCheckChanged,
             onDismissRequest = ::dismissPreviewPage
@@ -442,14 +424,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         loadingDialogVisible = false
     }
 
-    private fun getString(@StringRes id: Int): String {
-        return context.getString(id)
-    }
-
-    private fun getString(@StringRes id: Int, vararg formatArgs: Any): String {
-        return context.getString(id, *formatArgs)
-    }
-
     private fun showToast(@StringRes id: Int) {
         showToast(text = getString(id = id))
     }
@@ -458,6 +432,14 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         if (text.isNotBlank()) {
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun getString(@StringRes id: Int): String {
+        return ContextCompat.getString(context, id)
+    }
+
+    private fun getString(@StringRes id: Int, vararg formatArgs: Any): String {
+        return ContextCompat.getString(context, id).format(*formatArgs)
     }
 
 }

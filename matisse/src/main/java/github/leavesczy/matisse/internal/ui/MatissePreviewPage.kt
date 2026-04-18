@@ -214,11 +214,13 @@ private fun BottomController(
                 pageViewState.onMediaCheckChanged(currentResource)
             }
         )
+        val sureButtonClickable =
+            pageViewState.selectedImageSize > 0 && pageViewState.selectedImageSize <= pageViewState.maxSelectable
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterEnd)
                 .then(
-                    other = if (pageViewState.sureButtonClickable) {
+                    other = if (sureButtonClickable) {
                         Modifier
                             .clip(shape = CircleShape)
                             .clickable(onClick = onClickSure)
@@ -227,12 +229,16 @@ private fun BottomController(
                     }
                 )
                 .padding(horizontal = 20.dp, vertical = 6.dp),
-            text = pageViewState.sureButtonText,
+            text = stringResource(
+                id = R.string.matisse_sure,
+                pageViewState.selectedImageSize,
+                pageViewState.maxSelectable
+            ),
             fontSize = 16.sp,
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
             color = colorResource(
-                id = if (pageViewState.sureButtonClickable) {
+                id = if (sureButtonClickable) {
                     R.color.matisse_preview_page_sure_text_color
                 } else {
                     R.color.matisse_preview_page_sure_text_color_if_disable

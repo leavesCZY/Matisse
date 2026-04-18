@@ -71,20 +71,18 @@ internal data class MatisseMediaBucketInfo(
 
 @Stable
 internal data class MatisseBottomBarViewState(
-    val previewButtonText: String,
+    val selectedImageSize: Int,
+    val maxSelectable: Int,
     val previewButtonClickable: Boolean,
-    val onClickPreviewButton: () -> Unit,
-    val sureButtonText: String,
-    val sureButtonClickable: Boolean
+    val onClickPreviewButton: () -> Unit
 )
 
 @Stable
 internal data class MatissePreviewPageViewState(
     val visible: Boolean,
     val initialPage: Int,
+    val selectedImageSize: Int,
     val maxSelectable: Int,
-    val sureButtonText: String,
-    val sureButtonClickable: Boolean,
     val previewResources: List<MatisseMediaExtend>,
     val onMediaCheckChanged: (MatisseMediaExtend) -> Unit,
     val onDismissRequest: () -> Unit

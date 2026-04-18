@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -57,7 +58,7 @@ internal fun MatisseBottomBar(
                     }
                 )
                 .padding(horizontal = 20.dp, vertical = 6.dp),
-            text = viewState.previewButtonText,
+            text = stringResource(id = R.string.matisse_preview),
             fontSize = 16.sp,
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
@@ -67,10 +68,12 @@ internal fun MatisseBottomBar(
                 colorResource(id = R.color.matisse_preview_text_color_if_disable)
             }
         )
+        val sureButtonClickable =
+            viewState.selectedImageSize > 0 && viewState.selectedImageSize <= viewState.maxSelectable
         Text(
             modifier = Modifier
                 .then(
-                    other = if (viewState.sureButtonClickable) {
+                    other = if (sureButtonClickable) {
                         Modifier
                             .clip(shape = CircleShape)
                             .clickable(onClick = onClickSure)
@@ -79,12 +82,16 @@ internal fun MatisseBottomBar(
                     }
                 )
                 .padding(horizontal = 20.dp, vertical = 6.dp),
-            text = viewState.sureButtonText,
+            text = stringResource(
+                R.string.matisse_sure,
+                viewState.selectedImageSize,
+                viewState.maxSelectable
+            ),
             fontSize = 16.sp,
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
             color = colorResource(
-                id = if (viewState.sureButtonClickable) {
+                id = if (sureButtonClickable) {
                     R.color.matisse_sure_text_color
                 } else {
                     R.color.matisse_sure_text_color_if_disable

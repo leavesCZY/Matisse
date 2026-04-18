@@ -62,7 +62,7 @@ internal fun MatissePage(
         topBar = {
             MatisseTopBar(
                 modifier = Modifier,
-                title = pageViewState.selectedBucket.bucketName,
+                bucketName = pageViewState.selectedBucket.bucketName,
                 mediaBucketsInfo = pageViewState.mediaBucketsInfo,
                 onClickBucket = pageViewState.onClickBucket,
                 imageEngine = pageViewState.imageEngine
