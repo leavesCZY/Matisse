@@ -1,8 +1,6 @@
 package github.leavesczy.matisse
 
-import com.android.build.gradle.LibraryExtension
-import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
+import com.android.build.api.dsl.LibraryExtension
 import java.io.File
 
 /**
@@ -10,9 +8,9 @@ import java.io.File
  * @Date: 2025/9/12 16:20
  * @Desc:
  */
-internal fun Project.configureAndroidLibrary() {
-    extensions.configure<LibraryExtension> {
-        defaultConfig {
+internal fun configureAndroidLibrary(libraryExtension: LibraryExtension) {
+    libraryExtension.apply {
+        defaultConfig.apply {
             consumerProguardFiles.add(File("consumer-rules.pro"))
         }
     }
