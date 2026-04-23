@@ -1,6 +1,6 @@
 # Matisse
 
-中文版 | [English](./README.md)
+中文 | [English](./README.md)
 
 ## 功能
 

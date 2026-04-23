@@ -1,6 +1,6 @@
 # Matisse
 
-[中文版](./README.zh.md) | English
+[中文](./README.zh.md) | English
 
 ## Features
 
