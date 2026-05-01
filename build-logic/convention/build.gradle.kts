@@ -7,19 +7,20 @@ plugins {
 group = "github.leavesczy.matisse.buildlogic"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_11
+        jvmTarget = JvmTarget.JVM_17
     }
 }
 
 dependencies {
     compileOnly(libs.android.gradle)
     compileOnly(libs.kotlin.gradle)
+    compileOnly(libs.maven.publish.gradle)
 }
 
 gradlePlugin {
@@ -39,6 +40,10 @@ gradlePlugin {
         register("kotlinParcelize") {
             id = libs.plugins.app.kotlin.parcelize.get().pluginId
             implementationClass = "ParcelizeConventionPlugin"
+        }
+        register("libraryPublish") {
+            id = libs.plugins.app.library.publish.get().pluginId
+            implementationClass = "AndroidLibraryPublishConventionPlugin"
         }
     }
 }
