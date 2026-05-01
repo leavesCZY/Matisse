@@ -208,7 +208,7 @@ private fun BottomController(
         MatisseCheckbox(
             modifier = Modifier
                 .align(alignment = Alignment.Center)
-                .size(size = 24.dp),
+                .size(size = 27.dp),
             selectState = currentResource.selectState.value,
             onClick = {
                 pageViewState.onMediaCheckChanged(currentResource)

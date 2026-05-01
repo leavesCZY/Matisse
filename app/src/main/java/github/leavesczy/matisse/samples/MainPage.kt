@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -80,10 +79,10 @@ fun MainPage(
         Column(
             modifier = Modifier
                 .padding(paddingValues = innerPadding)
-                .navigationBarsPadding()
                 .verticalScroll(state = rememberScrollState())
-                .padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 50.dp),
+                .padding(start = 20.dp, top = 10.dp, end = 20.dp, bottom = 80.dp),
             horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
         ) {
             Title(text = "gridColumns")
             FlowRow(
@@ -205,31 +204,41 @@ fun MainPage(
                     onCheckedChange = pageViewState.onCapturePreferencesCustomChanged
                 )
             }
-            Button(
-                text = "图片 + 视频",
-                onClick = onClickImageAndVideo
-            )
-            Button(
-                text = "图片",
-                onClick = onClickImageOnly
-            )
-            Button(
-                text = "视频",
-                onClick = onClickVideoOnly
-            )
-            Button(
-                text = "gif + mp4",
-                onClick = onClickGifAndMp4
-            )
-            Button(
-                text = "直接拍照",
-                enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Close,
-                onClick = onClickTakePicture
-            )
-            Button(
-                text = "切换主题",
-                onClick = pageViewState.switchTheme
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(
+                    space = 2.dp,
+                    alignment = Alignment.Top
+                )
+            ) {
+                Button(
+                    text = "图片 + 视频",
+                    onClick = onClickImageAndVideo
+                )
+                Button(
+                    text = "图片",
+                    onClick = onClickImageOnly
+                )
+                Button(
+                    text = "视频",
+                    onClick = onClickVideoOnly
+                )
+                Button(
+                    text = "gif + mp4",
+                    onClick = onClickGifAndMp4
+                )
+                Button(
+                    text = "直接拍照",
+                    enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Close,
+                    onClick = onClickTakePicture
+                )
+                Button(
+                    text = "切换主题",
+                    onClick = pageViewState.switchTheme
+                )
+            }
             for (mediaResource in pageViewState.mediaList) {
                 MediaResourceItem(mediaResource = mediaResource)
             }

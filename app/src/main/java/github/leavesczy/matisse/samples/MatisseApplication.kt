@@ -32,11 +32,11 @@ class MatisseApplication : Application() {
                 .allowHardware(enable = true)
                 .components {
                     if (Build.VERSION.SDK_INT >= 28) {
-                        add(AnimatedImageDecoder.Factory())
+                        add(factory = AnimatedImageDecoder.Factory())
                     } else {
-                        add(GifDecoder.Factory())
+                        add(factory = GifDecoder.Factory())
                     }
-                    add(VideoFrameDecoder.Factory())
+                    add(factory = VideoFrameDecoder.Factory())
                 }
                 .build()
         })

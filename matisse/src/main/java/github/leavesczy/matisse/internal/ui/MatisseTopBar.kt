@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -169,61 +168,48 @@ private fun BucketDropdownMenu(
 ) {
     DropdownMenu(
         modifier = modifier
-            .background(color = colorResource(id = R.color.matisse_dropdown_menu_background_color))
-            .sizeIn(minWidth = 180.dp, maxHeight = 400.dp),
+            .background(color = colorResource(id = R.color.matisse_dropdown_menu_background_color)),
         expanded = expanded,
-        offset = DpOffset(x = 10.dp, y = (-10).dp),
+        offset = DpOffset(x = 20.dp, y = (-10).dp),
         onDismissRequest = onDismissRequest
     ) {
         for (bucket in mediaBuckets) {
             DropdownMenuItem(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentPadding = PaddingValues(
-                    horizontal = 6.dp,
-                    vertical = 4.dp
-                ),
+                modifier = Modifier,
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                 text = {
                     Row(
                         modifier = Modifier,
+                        horizontalArrangement = Arrangement.spacedBy(
+                            space = 10.dp,
+                            alignment = Alignment.Start
+                        ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
                                 .size(size = 52.dp)
-                                .clip(shape = RoundedCornerShape(size = 2.dp)),
+                                .clip(shape = RoundedCornerShape(size = 4.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             val firstMedia = bucket.firstMedia
-                            if (firstMedia != null) {
-                                imageEngine.Thumbnail(mediaResource = firstMedia)
-                            } else {
+                            if (firstMedia == null) {
                                 Spacer(
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .background(color = colorResource(id = R.color.matisse_media_item_background_color))
                                 )
+                            } else {
+                                imageEngine.Thumbnail(mediaResource = firstMedia)
                             }
                         }
                         Text(
                             modifier = Modifier
-                                .weight(weight = 1f, fill = false)
-                                .padding(start = 10.dp),
-                            text = bucket.bucketName,
-                            fontSize = 15.sp,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            fontStyle = FontStyle.Normal,
-                            fontWeight = FontWeight.Normal,
-                            color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
-                        )
-                        Text(
-                            modifier = Modifier
-                                .padding(start = 6.dp, end = 6.dp),
-                            text = "(${bucket.size})",
+                                .weight(weight = 1f, fill = false),
+                            text = bucket.bucketName + "(${bucket.size})",
                             fontSize = 15.sp,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
+                            overflow = TextOverflow.MiddleEllipsis,
                             fontStyle = FontStyle.Normal,
                             fontWeight = FontWeight.Normal,
                             color = colorResource(id = R.color.matisse_dropdown_menu_text_color)

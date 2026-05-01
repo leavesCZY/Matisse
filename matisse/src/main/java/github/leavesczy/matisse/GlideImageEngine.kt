@@ -31,7 +31,8 @@ class GlideImageEngine : ImageEngine {
             modifier = Modifier
                 .fillMaxSize(),
             model = mediaResource.uri,
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            backgroundColor = colorResource(id = R.color.matisse_media_item_background_color)
         )
     }
 
@@ -42,7 +43,8 @@ class GlideImageEngine : ImageEngine {
                 modifier = Modifier
                     .fillMaxWidth(),
                 model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth
+                contentScale = ContentScale.FillWidth,
+                backgroundColor = null
             )
         } else {
             GlideComposeImage(
@@ -50,7 +52,8 @@ class GlideImageEngine : ImageEngine {
                     .fillMaxWidth()
                     .verticalScroll(state = rememberScrollState()),
                 model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth
+                contentScale = ContentScale.FillWidth,
+                backgroundColor = null
             )
         }
     }
@@ -63,26 +66,26 @@ private fun GlideComposeImage(
     model: Uri,
     contentScale: ContentScale = ContentScale.Crop,
     alignment: Alignment = Alignment.Center,
-    backgroundColor: Color? = colorResource(id = R.color.matisse_media_item_background_color)
+    backgroundColor: Color?
 ) {
     GlideImage(
         modifier = modifier,
         model = model,
         contentScale = contentScale,
         alignment = alignment,
-        loading = if (backgroundColor != null) {
+        loading = if (backgroundColor == null) {
+            null
+        } else {
             placeholder {
                 Placeholder(backgroundColor = backgroundColor)
             }
-        } else {
-            null
         },
-        failure = if (backgroundColor != null) {
+        failure = if (backgroundColor == null) {
+            null
+        } else {
             placeholder {
                 Placeholder(backgroundColor = backgroundColor)
             }
-        } else {
-            null
         },
         contentDescription = null
     )

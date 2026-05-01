@@ -43,12 +43,10 @@ internal data class MatisseMediaSelectState(
     val positionIndex: Int
 ) {
 
-    val positionFormatted = run {
-        if (positionIndex >= 0) {
-            (positionIndex + 1).toString()
-        } else {
-            null
-        }
+    val positionFormatted = if (positionIndex >= 0) {
+        (positionIndex + 1).toString()
+    } else {
+        null
     }
 
 }
