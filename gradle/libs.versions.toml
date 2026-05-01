@@ -15,7 +15,7 @@ junit = "4.13.2"
 coil = "3.4.0"
 glide = "1.0.0-beta09"
 
-leavesczy-matisse = "2.3.1"
+leavesczy-matisse = "2.3.2"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
