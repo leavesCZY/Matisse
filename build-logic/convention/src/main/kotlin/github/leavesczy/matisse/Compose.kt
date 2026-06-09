@@ -29,10 +29,6 @@ internal fun Project.configureCompose(commonExtension: CommonExtension) {
             add("debugImplementation", libs.findLibrary("androidx-compose-ui-test-manifest").get())
             add("implementation", libs.findLibrary("androidx-compose-foundation").get())
             add("implementation", libs.findLibrary("androidx-compose-material3").get())
-            add(
-                "implementation",
-                libs.findLibrary("androidx-compose-material-icons-extended").get()
-            )
         }
     }
     tasks.withType<KotlinCompile>().configureEach {

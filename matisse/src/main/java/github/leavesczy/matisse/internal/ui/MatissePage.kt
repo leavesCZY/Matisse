@@ -19,9 +19,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -30,8 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -148,7 +145,7 @@ private fun CaptureItem(
         Icon(
             modifier = Modifier
                 .fillMaxSize(fraction = 0.5f),
-            imageVector = Icons.Filled.PhotoCamera,
+            painter = painterResource(id = R.drawable.ic_matisse_photo_camera),
             tint = colorResource(id = R.color.matisse_capture_item_icon_color),
             contentDescription = stringResource(id = R.string.matisse_capture_icon_content_description)
         )
@@ -247,14 +244,14 @@ internal fun VideoIcon(modifier: Modifier) {
         modifier = modifier
             .shadow(elevation = 1.dp, shape = CircleShape)
             .clip(shape = CircleShape)
-            .background(color = colorResource(id = R.color.matisse_video_icon_color)),
+            .background(color = colorResource(id = R.color.matisse_video_icon_background_color)),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             modifier = Modifier
                 .fillMaxSize(fraction = 0.62f),
-            imageVector = Icons.Filled.PlayArrow,
-            tint = Color.Black,
+            painter = painterResource(id = R.drawable.ic_matisse_play_arrow),
+            tint = colorResource(id = R.color.matisse_video_icon_color),
             contentDescription = stringResource(id = R.string.matisse_play_video_icon_content_description)
         )
     }

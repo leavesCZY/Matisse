@@ -17,9 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -34,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -129,7 +127,7 @@ private fun MatisseTopBar(
                 }
                 .padding(start = 18.dp, end = 14.dp)
                 .size(size = 22.dp),
-            imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
+            painter = painterResource(id = R.drawable.ic_matisse_arrow_back),
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
             contentDescription = stringResource(id = R.string.matisse_back_icon_content_description)
         )
@@ -151,7 +149,7 @@ private fun MatisseTopBar(
                 .clickableNoRipple(onClick = openDropdownMenu)
                 .padding(start = 14.dp)
                 .size(size = 32.dp),
-            imageVector = Icons.Filled.ArrowDropDown,
+            painter = painterResource(id = R.drawable.ic_matisse_arrow_drop_down),
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
             contentDescription = stringResource(id = R.string.matisse_show_albums_icon_content_description)
         )
