@@ -31,7 +31,7 @@ class MatisseApplication : Application() {
                 .crossfade(enable = false)
                 .allowHardware(enable = true)
                 .components {
-                    if (Build.VERSION.SDK_INT >= 28) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         add(factory = AnimatedImageDecoder.Factory())
                     } else {
                         add(factory = GifDecoder.Factory())

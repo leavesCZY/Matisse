@@ -53,4 +53,5 @@ class AndroidLibraryPublishConventionPlugin : Plugin<Project> {
             }
         }
     }
+
 }

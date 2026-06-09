@@ -22,7 +22,7 @@
         tools:ignore="DataExtractionRules">
         <activity
             android:name=".MainActivity"
-            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation|locale|layoutDirection"
+            android:configChanges="orientation|screenSize|screenLayout|layoutDirection|keyboard|keyboardHidden|locale|uiMode"
             android:exported="true"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity">

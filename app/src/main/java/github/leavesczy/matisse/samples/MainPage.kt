@@ -1,18 +1,20 @@
 package github.leavesczy.matisse.samples
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -24,6 +26,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,7 +65,7 @@ fun MainPage(
                 modifier = Modifier
                     .background(color = MaterialTheme.colorScheme.primary)
                     .fillMaxWidth()
-                    .statusBarsPadding()
+                    .windowInsetsPadding(insets = WindowInsets.statusBarsIgnoringVisibility)
                     .height(height = 55.dp)
             ) {
                 Text(
@@ -76,10 +79,13 @@ fun MainPage(
             }
         }
     ) { innerPadding ->
+        val scrollState = rememberSaveable(saver = ScrollState.Saver) {
+            ScrollState(initial = 0)
+        }
         Column(
             modifier = Modifier
                 .padding(paddingValues = innerPadding)
-                .verticalScroll(state = rememberScrollState())
+                .verticalScroll(state = scrollState)
                 .padding(start = 20.dp, top = 10.dp, end = 20.dp, bottom = 80.dp),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top

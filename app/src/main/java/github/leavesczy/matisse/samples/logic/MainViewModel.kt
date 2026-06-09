@@ -26,10 +26,9 @@ import github.leavesczy.matisse.SmartCaptureStrategy
  */
 class MainViewModel : ViewModel() {
 
-    private var darkTheme by mutableStateOf(value = false)
-
     var pageViewState by mutableStateOf(
         value = MainPageViewState(
+            darkTheme = false,
             gridColumns = 4,
             maxSelectable = 3,
             fastSelect = false,
@@ -103,7 +102,9 @@ class MainViewModel : ViewModel() {
     }
 
     private fun switchTheme() {
-        darkTheme = !darkTheme
+        val viewState = pageViewState
+        val darkTheme = !viewState.darkTheme
+        pageViewState = viewState.copy(darkTheme = darkTheme)
         if (darkTheme) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         } else {

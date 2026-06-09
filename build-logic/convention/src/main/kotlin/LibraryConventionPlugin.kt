@@ -1,4 +1,3 @@
-import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.LibraryExtension
 import github.leavesczy.matisse.configureAndroidLibrary
 import github.leavesczy.matisse.configureAndroidProject
@@ -17,9 +16,9 @@ class LibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(receiver = target) {
             apply(plugin = "com.android.library")
-            val commonExtension = extensions.getByType(type = CommonExtension::class)
-            configureAndroidProject(commonExtension = commonExtension)
-            configureAndroidLibrary(libraryExtension = commonExtension as LibraryExtension)
+            val libraryExtension = extensions.getByType<LibraryExtension>()
+            configureAndroidProject(commonExtension = libraryExtension)
+            configureAndroidLibrary(libraryExtension = libraryExtension)
         }
     }
 

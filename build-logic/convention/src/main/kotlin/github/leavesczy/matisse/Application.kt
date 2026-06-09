@@ -3,6 +3,7 @@ package github.leavesczy.matisse
 import com.android.build.api.dsl.ApplicationExtension
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
+import org.gradle.kotlin.dsl.getByType
 import java.io.File
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -13,21 +14,21 @@ import java.time.format.DateTimeFormatter
  * @Date: 2024/2/21 17:46
  * @Desc:
  */
-internal fun Project.configureAndroidApplication(commonExtension: ApplicationExtension) {
-    commonExtension.apply {
+internal fun Project.configureAndroidApplication(applicationExtension: ApplicationExtension) {
+    applicationExtension.apply {
         defaultConfig {
             applicationId = "github.leavesczy.matisse.samples"
             targetSdk {
-                version = release(version = 36)
+                version = release(version = androidTargetSdkVersion())
             }
-            versionCode = 1
-            versionName = "1.0.0"
+            versionCode = appVersionCode()
+            versionName = appVersionName()
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
             vectorDrawables {
                 useSupportLibrary = true
             }
         }
-        val basePluginExtension = project.extensions.getByType(BasePluginExtension::class.java)
+        val basePluginExtension = project.extensions.getByType<BasePluginExtension>()
         basePluginExtension.apply {
             archivesName.set("Matisse_v${defaultConfig.versionName}_${defaultConfig.versionCode}_${getApkBuildTime()}")
         }

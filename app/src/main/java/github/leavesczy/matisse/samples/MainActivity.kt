@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
                 rememberLauncherForActivityResult(contract = MatisseContract()) {
                     mainViewModel.mediaPickerResult(result = it)
                 }
-            MatisseTheme {
+            MatisseTheme(darkTheme = mainViewModel.pageViewState.darkTheme) {
                 MainPage(
                     pageViewState = mainViewModel.pageViewState,
                     onClickImageAndVideo = {

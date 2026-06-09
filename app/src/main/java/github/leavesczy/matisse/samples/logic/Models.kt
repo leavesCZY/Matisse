@@ -10,6 +10,7 @@ import github.leavesczy.matisse.MediaResource
  */
 @Stable
 data class MainPageViewState(
+    val darkTheme: Boolean,
     val gridColumns: Int,
     val maxSelectable: Int,
     val fastSelect: Boolean,

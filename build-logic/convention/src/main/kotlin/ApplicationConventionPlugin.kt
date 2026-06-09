@@ -16,9 +16,9 @@ class ApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(receiver = target) {
             apply(plugin = "com.android.application")
-            val commonExtension = extensions.getByType(type = ApplicationExtension::class)
-            configureAndroidApplication(commonExtension = commonExtension)
-            configureAndroidProject(commonExtension = commonExtension)
+            val applicationExtension = extensions.getByType<ApplicationExtension>()
+            configureAndroidApplication(applicationExtension = applicationExtension)
+            configureAndroidProject(commonExtension = applicationExtension)
         }
     }
 

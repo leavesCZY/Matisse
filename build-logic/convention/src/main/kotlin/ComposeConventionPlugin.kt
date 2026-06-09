@@ -15,7 +15,7 @@ class ComposeConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(receiver = target) {
             apply(plugin = "org.jetbrains.kotlin.plugin.compose")
-            val commonExtension = extensions.getByType(type = CommonExtension::class)
+            val commonExtension = extensions.getByType<CommonExtension>()
             configureCompose(commonExtension = commonExtension)
         }
     }
