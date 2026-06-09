@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import kotlinx.parcelize.Parcelize
@@ -87,7 +88,7 @@ private fun GlideComposeImage(
                 Placeholder(backgroundColor = backgroundColor)
             }
         },
-        contentDescription = null
+        contentDescription = stringResource(id = R.string.matisse_image_engine_content_description)
     )
 }
 

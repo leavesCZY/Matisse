@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -130,7 +131,7 @@ private fun MatisseTopBar(
                 .size(size = 22.dp),
             imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-            contentDescription = null
+            contentDescription = stringResource(id = R.string.matisse_back_icon_content_description)
         )
         Text(
             modifier = Modifier
@@ -152,7 +153,7 @@ private fun MatisseTopBar(
                 .size(size = 32.dp),
             imageVector = Icons.Filled.ArrowDropDown,
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-            contentDescription = null
+            contentDescription = stringResource(id = R.string.matisse_show_albums_icon_content_description)
         )
     }
 }

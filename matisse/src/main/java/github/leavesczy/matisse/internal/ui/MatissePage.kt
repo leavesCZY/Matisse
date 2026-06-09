@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.ImageEngine
@@ -149,7 +150,7 @@ private fun CaptureItem(
                 .fillMaxSize(fraction = 0.5f),
             imageVector = Icons.Filled.PhotoCamera,
             tint = colorResource(id = R.color.matisse_capture_item_icon_color),
-            contentDescription = "Capture"
+            contentDescription = stringResource(id = R.string.matisse_capture_icon_content_description)
         )
     }
 }
@@ -254,7 +255,7 @@ internal fun VideoIcon(modifier: Modifier) {
                 .fillMaxSize(fraction = 0.62f),
             imageVector = Icons.Filled.PlayArrow,
             tint = Color.Black,
-            contentDescription = null
+            contentDescription = stringResource(id = R.string.matisse_play_video_icon_content_description)
         )
     }
 }

@@ -13,6 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +45,9 @@ internal fun MatisseCheckbox(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(shape = CircleShape)
+                .semantics {
+                    role = Role.Checkbox
+                }
                 .then(
                     other = if (selectState.isSelected) {
                         Modifier
