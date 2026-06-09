@@ -81,34 +81,26 @@ private const val JPG_MIME_TYPE = "image/jpeg"
  *  此策略无需申请任何权限，所拍的照片不会保存在系统相册里
  */
 @Parcelize
-open class FileProviderCaptureStrategy(
+class FileProviderCaptureStrategy(
     private val authority: String,
     private val extra: Bundle = Bundle.EMPTY
 ) : CaptureStrategy {
 
-    @IgnoredOnParcel
-    private val uriFileMap = mutableMapOf<Uri, File>()
-
-    final override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
+    override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
         return false
     }
 
-    final override suspend fun createImageUri(context: Context): Uri? {
-        return withContext(context = Dispatchers.Main.immediate) {
-            val tempFile = createTempFile(context = context)
-            if (tempFile != null) {
-                val uri = FileProvider.getUriForFile(context, authority, tempFile)
-                uriFileMap[uri] = tempFile
-                uri
-            } else {
-                null
-            }
+    override suspend fun createImageUri(context: Context): Uri? {
+        return withContext(context = Dispatchers.IO) {
+            val tempFile = createTempFile(context = context) ?: return@withContext null
+            FileProvider.getUriForFile(context, authority, tempFile)
         }
     }
 
     private suspend fun createTempFile(context: Context): File? {
         return withContext(context = Dispatchers.IO) {
-            val picturesDirectory = getAuthorityDirectory(context = context)
+            val picturesDirectory =
+                getAuthorityDirectory(context = context) ?: return@withContext null
             val file = File(picturesDirectory, createImageName(context = context))
             if (file.createNewFile()) {
                 file
@@ -118,14 +110,10 @@ open class FileProviderCaptureStrategy(
         }
     }
 
-    protected open fun getAuthorityDirectory(context: Context): File {
-        return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
-    }
-
-    final override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
-        return withContext(context = Dispatchers.Main.immediate) {
-            val imageFile = uriFileMap[imageUri]!!
-            uriFileMap.remove(key = imageUri)
+    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
+        return withContext(context = Dispatchers.IO) {
+            val imageFile = resolveImageFile(context = context, imageUri = imageUri)
+                ?: return@withContext null
             MediaResource(
                 uri = imageUri,
                 path = imageFile.absolutePath,
@@ -136,19 +124,36 @@ open class FileProviderCaptureStrategy(
         }
     }
 
-    final override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
-        withContext(context = Dispatchers.Main.immediate) {
-            val imageFile = uriFileMap[imageUri]
-            uriFileMap.remove(key = imageUri)
-            withContext(context = Dispatchers.IO) {
-                if (imageFile != null && imageFile.exists()) {
-                    imageFile.delete()
-                }
+    override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
+        withContext(context = Dispatchers.IO) {
+            val imageFile = resolveImageFile(context = context, imageUri = imageUri)
+            if (imageFile != null && imageFile.exists()) {
+                imageFile.delete()
             }
         }
     }
 
-    final override fun getCaptureExtra(): Bundle {
+    private fun getAuthorityDirectory(context: Context): File? {
+        return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+    }
+
+    private suspend fun resolveImageFile(context: Context, imageUri: Uri): File? {
+        return withContext(context = Dispatchers.IO) {
+            val fileName = imageUri.lastPathSegment
+            val directory = getAuthorityDirectory(context = context)
+            if (imageUri.authority != authority || fileName.isNullOrBlank() || directory == null) {
+                return@withContext null
+            }
+            val file = File(directory, fileName)
+            if (file.isFile && file.exists()) {
+                file
+            } else {
+                null
+            }
+        }
+    }
+
+    override fun getCaptureExtra(): Bundle {
         return extra
     }
 
@@ -194,17 +199,20 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
     }
 
     private suspend fun loadResources(context: Context, uri: Uri): MediaResource? {
-        val resource = MediaProvider.loadResources(context = context, uri = uri)
-        return if (resource == null) {
-            null
-        } else {
-            MediaResource(
-                uri = resource.uri,
-                path = resource.path,
-                name = resource.name,
-                mimeType = resource.mimeType,
-                size = MediaProvider.getFileRealSize(context = context, uri = resource.uri) ?: 0L
-            )
+        return withContext(context = Dispatchers.Default) {
+            val resource = MediaProvider.loadResources(context = context, uri = uri)
+            if (resource == null) {
+                null
+            } else {
+                MediaResource(
+                    uri = resource.uri,
+                    path = resource.path,
+                    name = resource.name,
+                    mimeType = resource.mimeType,
+                    size = MediaProvider.getFileRealSize(context = context, uri = resource.uri)
+                        ?: 0L
+                )
+            }
         }
     }
 
