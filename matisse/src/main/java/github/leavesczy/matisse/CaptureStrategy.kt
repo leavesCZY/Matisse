@@ -110,18 +110,11 @@ class FileProviderCaptureStrategy(
         }
     }
 
-    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
-        return withContext(context = Dispatchers.IO) {
-            val imageFile = resolveImageFile(context = context, imageUri = imageUri)
-                ?: return@withContext null
-            MediaResource(
-                uri = imageUri,
-                path = imageFile.absolutePath,
-                name = imageFile.name,
-                mimeType = JPG_MIME_TYPE,
-                size = MediaProvider.getFileRealSize(context = context, uri = imageUri) ?: 0L
-            )
-        }
+    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
+        return MediaResource(
+            uri = imageUri,
+            mimeType = JPG_MIME_TYPE
+        )
     }
 
     override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
@@ -206,11 +199,7 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
             } else {
                 MediaResource(
                     uri = resource.uri,
-                    path = resource.path,
-                    name = resource.name,
-                    mimeType = resource.mimeType,
-                    size = MediaProvider.getFileRealSize(context = context, uri = resource.uri)
-                        ?: 0L
+                    mimeType = resource.mimeType
                 )
             }
         }

@@ -197,10 +197,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 resourcesInfo.mapNotNull {
                     val media = MediaResource(
                         uri = it.uri,
-                        path = it.path,
-                        name = it.name,
-                        mimeType = it.mimeType,
-                        size = it.size
+                        mimeType = it.mimeType
                     )
                     if (mediaFilter?.ignoreMedia(mediaResource = media) == true) {
                         null

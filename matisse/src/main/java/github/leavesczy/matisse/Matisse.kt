@@ -122,10 +122,7 @@ internal const val VideoMimeTypePrefix = "video/"
 @Parcelize
 data class MediaResource(
     val uri: Uri,
-    val path: String,
-    val name: String,
-    val mimeType: String,
-    val size: Long
+    val mimeType: String
 ) : Parcelable {
 
     val isImage: Boolean

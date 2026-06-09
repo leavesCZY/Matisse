@@ -140,13 +140,15 @@ internal class MatisseActivity : BaseCaptureActivity() {
         val illegalMediaType = matisseViewModel.singleMediaType && selectedResources.any {
             it.isVideo
         }
-        if (maxSelectable > 1 && (selectedResources.size in 1..<maxSelectable) && !illegalMediaType) {
-            val selectedResourcesMutable = selectedResources.toMutableList()
-            selectedResourcesMutable.add(element = mediaResource)
-            setResult(result = selectedResourcesMutable)
-        } else {
-            setResult(result = listOf(element = mediaResource))
-        }
+        val result =
+            if (maxSelectable > 1 && (selectedResources.size in 1..<maxSelectable) && !illegalMediaType) {
+                val selectedResourcesMutable = selectedResources.toMutableList()
+                selectedResourcesMutable.add(element = mediaResource)
+                selectedResourcesMutable
+            } else {
+                listOf(element = mediaResource)
+            }
+        setResult(result = result)
     }
 
     override fun takePictureCancelled() {

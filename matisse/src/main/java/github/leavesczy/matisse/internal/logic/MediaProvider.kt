@@ -3,7 +3,6 @@ package github.leavesczy.matisse.internal.logic
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
-import android.content.res.AssetFileDescriptor
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -22,13 +21,10 @@ internal object MediaProvider {
 
     data class MediaInfo(
         val uri: Uri,
+        val mimeType: String,
         val mediaId: Long,
         val bucketId: String,
-        val bucketName: String,
-        val path: String,
-        val name: String,
-        val mimeType: String,
-        val size: Long
+        val bucketName: String
     )
 
     suspend fun createImage(
@@ -114,25 +110,13 @@ internal object MediaProvider {
                             val uri = ContentUris.withAppendedId(contentUri, id)
                             val bucketId = cursor.getString(bucketIdColumn, "")
                             val bucketName = cursor.getString(bucketDisplayNameColumn, "")
-                            val name = cursor.getString(displayNameColumn, "")
                             val mimeType = cursor.getString(mineTypeColumn, "")
-                            val size = run {
-                                val cursorSize = cursor.getLong(sizeColumn, 0L)
-                                if (cursorSize <= 0L) {
-                                    getFileRealSize(context = context, uri = uri) ?: 0L
-                                } else {
-                                    cursorSize
-                                }
-                            }
                             val mediaInfo = MediaInfo(
                                 uri = uri,
+                                mimeType = mimeType,
                                 mediaId = id,
                                 bucketId = bucketId,
-                                bucketName = bucketName,
-                                path = path,
-                                name = name,
-                                mimeType = mimeType,
-                                size = size
+                                bucketName = bucketName
                             )
                             mediaResourceList.add(element = mediaInfo)
                         } catch (throwable: Throwable) {
@@ -144,24 +128,6 @@ internal object MediaProvider {
                 throwable.printStackTrace()
             }
             mediaResourceList
-        }
-    }
-
-    suspend fun getFileRealSize(context: Context, uri: Uri): Long? {
-        return withContext(context = Dispatchers.Default) {
-            try {
-                context.contentResolver.openAssetFileDescriptor(uri, "r")?.use {
-                    val length = it.length
-                    if (length == AssetFileDescriptor.UNKNOWN_LENGTH) {
-                        null
-                    } else {
-                        length
-                    }
-                }
-            } catch (throwable: Exception) {
-                throwable.printStackTrace()
-                null
-            }
         }
     }
 
