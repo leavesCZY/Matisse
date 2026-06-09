@@ -57,8 +57,8 @@ internal fun MatisseBottomBar(
                         Modifier
                     }
                 )
-                .padding(horizontal = 20.dp, vertical = 6.dp),
-            text = stringResource(id = R.string.matisse_preview),
+                .padding(horizontal = 22.dp, vertical = 6.dp),
+            text = stringResource(id = R.string.matisse_action_preview),
             fontSize = 16.sp,
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
@@ -68,8 +68,9 @@ internal fun MatisseBottomBar(
                 colorResource(id = R.color.matisse_preview_text_color_if_disable)
             }
         )
-        val sureButtonClickable =
-            viewState.selectedImageSize > 0 && viewState.selectedImageSize <= viewState.maxSelectable
+        val selectedImageSize = viewState.selectedImageSize
+        val maxSelectable = viewState.maxSelectable
+        val sureButtonClickable = selectedImageSize in 1..maxSelectable
         Text(
             modifier = Modifier
                 .then(
@@ -81,12 +82,16 @@ internal fun MatisseBottomBar(
                         Modifier
                     }
                 )
-                .padding(horizontal = 20.dp, vertical = 6.dp),
-            text = stringResource(
-                R.string.matisse_sure,
-                viewState.selectedImageSize,
-                viewState.maxSelectable
-            ),
+                .padding(horizontal = 22.dp, vertical = 6.dp),
+            text = if (maxSelectable > 1) {
+                stringResource(
+                    id = R.string.matisse_action_confirm_with_count,
+                    selectedImageSize,
+                    maxSelectable
+                )
+            } else {
+                stringResource(id = R.string.matisse_action_confirm)
+            },
             fontSize = 16.sp,
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,

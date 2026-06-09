@@ -68,6 +68,6 @@ private fun CoilComposeImage(
         model = model,
         alignment = alignment,
         contentScale = contentScale,
-        contentDescription = stringResource(id = R.string.matisse_image_engine_content_description)
+        contentDescription = stringResource(id = R.string.matisse_cd_image)
     )
 }

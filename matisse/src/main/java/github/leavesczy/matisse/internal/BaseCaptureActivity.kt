@@ -34,7 +34,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             if (granted) {
                 requestCameraPermissionIfNeed()
             } else {
-                showToast(id = R.string.matisse_write_external_storage_permission_denied)
+                showToast(id = R.string.matisse_error_write_storage_permission)
                 takePictureCancelled()
             }
         }
@@ -44,7 +44,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             if (granted) {
                 takePicture()
             } else {
-                showToast(id = R.string.matisse_camera_permission_denied)
+                showToast(id = R.string.matisse_error_camera_permission)
                 takePictureCancelled()
             }
         }
@@ -99,7 +99,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                     return@launch
                 }
             } else {
-                showToast(id = R.string.matisse_no_apps_support_take_picture)
+                showToast(id = R.string.matisse_error_no_camera_app)
             }
             takePictureCancelled()
         }

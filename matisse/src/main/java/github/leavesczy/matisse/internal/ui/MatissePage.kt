@@ -17,11 +17,13 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +54,10 @@ internal fun MatissePage(
     onClickSure: () -> Unit,
     selectMediaInFastSelectMode: (MediaResource) -> Unit
 ) {
+    val lazyGridState = rememberLazyGridState()
+    LaunchedEffect(key1 = pageViewState.selectedBucket.bucketId) {
+        lazyGridState.animateScrollToItem(index = 0)
+    }
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -77,9 +83,9 @@ internal fun MatissePage(
     ) { innerPadding ->
         LazyVerticalGrid(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues = innerPadding),
-            state = pageViewState.lazyGridState,
+                .padding(paddingValues = innerPadding)
+                .fillMaxSize(),
+            state = lazyGridState,
             columns = GridCells.Fixed(count = pageViewState.matisse.gridColumns),
             horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
             verticalArrangement = Arrangement.spacedBy(space = 1.dp),
@@ -147,7 +153,7 @@ private fun CaptureItem(
                 .fillMaxSize(fraction = 0.5f),
             painter = painterResource(id = R.drawable.ic_matisse_photo_camera),
             tint = colorResource(id = R.color.matisse_capture_item_icon_color),
-            contentDescription = stringResource(id = R.string.matisse_capture_icon_content_description)
+            contentDescription = stringResource(id = R.string.matisse_cd_capture)
         )
     }
 }
@@ -252,7 +258,7 @@ internal fun VideoIcon(modifier: Modifier) {
                 .fillMaxSize(fraction = 0.62f),
             painter = painterResource(id = R.drawable.ic_matisse_play_arrow),
             tint = colorResource(id = R.color.matisse_video_icon_color),
-            contentDescription = stringResource(id = R.string.matisse_play_video_icon_content_description)
+            contentDescription = stringResource(id = R.string.matisse_cd_play_video)
         )
     }
 }

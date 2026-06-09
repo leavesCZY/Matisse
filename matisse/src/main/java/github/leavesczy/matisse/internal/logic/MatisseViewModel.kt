@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,7 +15,6 @@ import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -47,7 +45,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val defaultBucket = MatisseMediaBucket(
         bucketId = defaultBucketId,
-        bucketName = getString(id = R.string.matisse_default_bucket_name),
+        bucketName = getString(id = R.string.matisse_bucket_all),
         supportCapture = captureStrategy != null,
         resources = emptyList()
     )
@@ -57,7 +55,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     var pageViewState by mutableStateOf(
         value = MatissePageViewState(
             matisse = matisse,
-            lazyGridState = LazyGridState(),
             mediaBucketsInfo = emptyList(),
             selectedBucket = defaultBucket,
             onClickBucket = ::onClickBucket,
@@ -146,7 +143,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 defaultSelectedResources(allMediaResources = allResources)
             } else {
                 resetViewState()
-                showToast(id = R.string.matisse_read_media_permission_denied)
+                showToast(id = R.string.matisse_error_read_media_permission)
             }
             bottomBarViewState = buildBottomBarViewState()
             dismissLoadingDialog()
@@ -254,8 +251,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 resources = resources
             )
         )
-        delay(timeMillis = 80)
-        pageViewState.lazyGridState.animateScrollToItem(index = 0)
     }
 
     private fun onMediaCheckChanged(mediaResource: MatisseMediaExtend) {
@@ -275,7 +270,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                         it.media.isImage != mediaResource.media.isImage
                     }
                     if (illegalMediaType) {
-                        showToast(id = R.string.matisse_cannot_select_both_picture_and_video_at_the_same_time)
+                        showToast(id = R.string.matisse_error_mixed_media)
                         return
                     }
                 }
@@ -322,11 +317,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         val includeImage = mediaType.includeImage
         val includeVideo = mediaType.includeVideo
         val stringId = if (includeImage && !includeVideo) {
-            R.string.matisse_limit_the_number_of_image
+            R.string.matisse_error_max_images
         } else if (!includeImage && includeVideo) {
-            R.string.matisse_limit_the_number_of_video
+            R.string.matisse_error_max_videos
         } else {
-            R.string.matisse_limit_the_number_of_media
+            R.string.matisse_error_max_media
         }
         return getString(
             id = stringId,

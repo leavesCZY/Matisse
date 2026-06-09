@@ -88,7 +88,7 @@ private fun GlideComposeImage(
                 Placeholder(backgroundColor = backgroundColor)
             }
         },
-        contentDescription = stringResource(id = R.string.matisse_image_engine_content_description)
+        contentDescription = stringResource(id = R.string.matisse_cd_image)
     )
 }
 

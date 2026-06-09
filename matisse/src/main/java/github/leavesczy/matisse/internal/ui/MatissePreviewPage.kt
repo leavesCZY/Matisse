@@ -198,8 +198,8 @@ private fun BottomController(
                 .align(alignment = Alignment.CenterStart)
                 .clip(shape = CircleShape)
                 .clickable(onClick = pageViewState.onDismissRequest)
-                .padding(horizontal = 20.dp, vertical = 6.dp),
-            text = stringResource(id = R.string.matisse_back),
+                .padding(horizontal = 22.dp, vertical = 6.dp),
+            text = stringResource(id = R.string.matisse_action_back),
             fontSize = 16.sp,
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
@@ -214,8 +214,9 @@ private fun BottomController(
                 pageViewState.onMediaCheckChanged(currentResource)
             }
         )
-        val sureButtonClickable =
-            pageViewState.selectedImageSize > 0 && pageViewState.selectedImageSize <= pageViewState.maxSelectable
+        val selectedImageSize = pageViewState.selectedImageSize
+        val maxSelectable = pageViewState.maxSelectable
+        val sureButtonClickable = selectedImageSize in 1..maxSelectable
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterEnd)
@@ -228,12 +229,16 @@ private fun BottomController(
                         Modifier
                     }
                 )
-                .padding(horizontal = 20.dp, vertical = 6.dp),
-            text = stringResource(
-                id = R.string.matisse_sure,
-                pageViewState.selectedImageSize,
-                pageViewState.maxSelectable
-            ),
+                .padding(horizontal = 22.dp, vertical = 6.dp),
+            text = if (maxSelectable > 1) {
+                stringResource(
+                    id = R.string.matisse_action_confirm_with_count,
+                    selectedImageSize,
+                    maxSelectable
+                )
+            } else {
+                stringResource(id = R.string.matisse_action_confirm)
+            },
             fontSize = 16.sp,
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,

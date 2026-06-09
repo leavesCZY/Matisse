@@ -77,7 +77,7 @@ internal fun MatisseCheckbox(
                 autoSize = TextAutoSize.StepBased(
                     minFontSize = 4.sp,
                     maxFontSize = 36.sp,
-                    stepSize = 0.2.sp
+                    stepSize = 0.4.sp
                 ),
                 style = TextStyle(
                     color = colorResource(id = R.color.matisse_check_box_text_color),

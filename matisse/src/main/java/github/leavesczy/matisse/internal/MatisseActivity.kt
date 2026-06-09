@@ -159,7 +159,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
             val includeImage = selectedResources.any { it.isImage }
             val includeVideo = selectedResources.any { it.isVideo }
             if (includeImage && includeVideo) {
-                showToast(id = R.string.matisse_cannot_select_both_picture_and_video_at_the_same_time)
+                showToast(id = R.string.matisse_error_mixed_media)
                 return
             }
         }
