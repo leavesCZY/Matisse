@@ -35,17 +35,21 @@ import kotlinx.coroutines.flow.collectLatest
  */
 internal class MatisseActivity : BaseCaptureActivity() {
 
+    private val matisse by lazy(mode = LazyThreadSafetyMode.NONE) {
+        IntentCompat.getParcelableExtra(
+            intent,
+            Matisse::class.java.name,
+            Matisse::class.java
+        )
+    }
+
     private val matisseViewModel by viewModels<MatisseViewModel>(factoryProducer = {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return MatisseViewModel(
                     application = application,
-                    matisse = IntentCompat.getParcelableExtra(
-                        intent,
-                        Matisse::class.java.name,
-                        Matisse::class.java
-                    )!!
+                    matisse = matisse!!
                 ) as T
             }
         }
@@ -66,6 +70,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setSystemBarUi(previewPageVisible = false)
         super.onCreate(savedInstanceState)
+        if (matisse == null) {
+            setResultCanceled()
+            return
+        }
         setContent {
             LaunchedEffect(key1 = Unit) {
                 snapshotFlow {
@@ -84,7 +92,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 )
                 MatissePreviewPage(
                     pageViewState = matisseViewModel.previewPageViewState,
-                    imageEngine = matisseViewModel.pageViewState.imageEngine,
+                    imageEngine = matisseViewModel.pageViewState.matisse.imageEngine,
                     requestOpenVideo = ::requestOpenVideo,
                     onClickSure = ::onClickSure
                 )
@@ -135,9 +143,9 @@ internal class MatisseActivity : BaseCaptureActivity() {
         if (maxSelectable > 1 && (selectedResources.size in 1..<maxSelectable) && !illegalMediaType) {
             val selectedResourcesMutable = selectedResources.toMutableList()
             selectedResourcesMutable.add(element = mediaResource)
-            onSure(selected = selectedResourcesMutable)
+            setResult(result = selectedResourcesMutable)
         } else {
-            onSure(selected = listOf(element = mediaResource))
+            setResult(result = listOf(element = mediaResource))
         }
     }
 
@@ -155,24 +163,25 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 return
             }
         }
-        onSure(selected = selectedResources)
+        setResult(result = selectedResources)
     }
 
     private fun selectMediaInFastSelectMode(mediaResource: MediaResource) {
-        onSure(selected = listOf(element = mediaResource))
+        setResult(result = listOf(element = mediaResource))
     }
 
-    private fun onSure(selected: List<MediaResource>) {
-        if (selected.isEmpty()) {
-            setResult(RESULT_CANCELED)
-        } else {
-            val data = Intent()
-            val resources = arrayListOf<Parcelable>().apply {
-                addAll(selected)
-            }
-            data.putParcelableArrayListExtra(MediaResource::class.java.name, resources)
-            setResult(RESULT_OK, data)
+    private fun setResult(result: List<MediaResource>) {
+        val data = Intent()
+        val resources = arrayListOf<Parcelable>().apply {
+            addAll(result)
         }
+        data.putParcelableArrayListExtra(MediaResource::class.java.name, resources)
+        setResult(RESULT_OK, data)
+        finish()
+    }
+
+    private fun setResultCanceled() {
+        setResult(RESULT_CANCELED)
         finish()
     }
 

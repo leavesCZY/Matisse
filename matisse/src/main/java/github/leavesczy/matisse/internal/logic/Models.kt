@@ -3,8 +3,7 @@ package github.leavesczy.matisse.internal.logic
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import github.leavesczy.matisse.CaptureStrategy
-import github.leavesczy.matisse.ImageEngine
+import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 
 /**
@@ -14,14 +13,10 @@ import github.leavesczy.matisse.MediaResource
  */
 @Stable
 internal data class MatissePageViewState(
-    val maxSelectable: Int,
-    val fastSelect: Boolean,
-    val gridColumns: Int,
-    val imageEngine: ImageEngine,
-    val captureStrategy: CaptureStrategy?,
+    val matisse: Matisse,
+    val lazyGridState: LazyGridState,
     val mediaBucketsInfo: List<MatisseMediaBucketInfo>,
     val selectedBucket: MatisseMediaBucket,
-    val lazyGridState: LazyGridState,
     val onClickBucket: suspend (String) -> Unit,
     val onClickMedia: (MatisseMediaExtend) -> Unit,
     val onMediaCheckChanged: (MatisseMediaExtend) -> Unit

@@ -19,14 +19,18 @@ internal class MatisseCaptureActivity : BaseCaptureActivity() {
             intent,
             MatisseCapture::class.java.name,
             MatisseCapture::class.java
-        )!!
+        )
     }
 
     override val captureStrategy: CaptureStrategy
-        get() = matisseCapture.captureStrategy
+        get() = matisseCapture!!.captureStrategy
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (matisseCapture == null) {
+            setResultCanceled()
+            return
+        }
         requestTakePicture()
     }
 
@@ -38,6 +42,10 @@ internal class MatisseCaptureActivity : BaseCaptureActivity() {
     }
 
     override fun takePictureCancelled() {
+        setResultCanceled()
+    }
+
+    private fun setResultCanceled() {
         setResult(RESULT_CANCELED)
         finish()
     }

@@ -33,10 +33,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     val maxSelectable = matisse.maxSelectable
 
-    private val imageEngine = matisse.imageEngine
-
-    private val gridColumns = matisse.gridColumns
-
     private val fastSelect = matisse.fastSelect
 
     val mediaType = matisse.mediaType
@@ -60,15 +56,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     var pageViewState by mutableStateOf(
         value = MatissePageViewState(
-            maxSelectable = maxSelectable,
-            fastSelect = fastSelect,
-            gridColumns = gridColumns,
-            imageEngine = imageEngine,
-            captureStrategy = captureStrategy,
-            selectedBucket = defaultBucket,
-            mediaBucketsInfo = emptyList(),
-            onClickBucket = ::onClickBucket,
+            matisse = matisse,
             lazyGridState = LazyGridState(),
+            mediaBucketsInfo = emptyList(),
+            selectedBucket = defaultBucket,
+            onClickBucket = ::onClickBucket,
             onClickMedia = ::onClickMedia,
             onMediaCheckChanged = ::onMediaCheckChanged
         )
@@ -163,13 +155,13 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private suspend fun defaultSelectedResources(allMediaResources: List<MatisseMediaExtend>) {
         val defaultSelectedMediaIds = if (mediaFilter == null || fastSelect) {
-            emptyList()
+            emptySet()
         } else {
             allMediaResources.filter {
                 mediaFilter.selectMedia(mediaResource = it.media)
             }.map {
                 it.mediaId
-            }
+            }.toSet()
         }
         if (defaultSelectedMediaIds.isNotEmpty()) {
             var positionIndex = 0

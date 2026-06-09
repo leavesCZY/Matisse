@@ -65,11 +65,11 @@ internal fun MatissePage(
                 bucketName = pageViewState.selectedBucket.bucketName,
                 mediaBucketsInfo = pageViewState.mediaBucketsInfo,
                 onClickBucket = pageViewState.onClickBucket,
-                imageEngine = pageViewState.imageEngine
+                imageEngine = pageViewState.matisse.imageEngine
             )
         },
         bottomBar = {
-            if (!pageViewState.fastSelect) {
+            if (!pageViewState.matisse.fastSelect) {
                 MatisseBottomBar(
                     modifier = Modifier,
                     viewState = bottomBarViewState,
@@ -83,7 +83,7 @@ internal fun MatissePage(
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
             state = pageViewState.lazyGridState,
-            columns = GridCells.Fixed(count = pageViewState.gridColumns),
+            columns = GridCells.Fixed(count = pageViewState.matisse.gridColumns),
             horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
             verticalArrangement = Arrangement.spacedBy(space = 1.dp),
             contentPadding = PaddingValues(bottom = 20.dp)
@@ -109,12 +109,12 @@ internal fun MatissePage(
                     "MediaItem"
                 }
             ) {
-                if (pageViewState.fastSelect) {
+                if (pageViewState.matisse.fastSelect) {
                     MediaItemFastSelect(
                         modifier = Modifier
                             .matisseAnimateItem(lazyGridItemScope = this),
                         mediaResource = it.media,
-                        imageEngine = pageViewState.imageEngine,
+                        imageEngine = pageViewState.matisse.imageEngine,
                         onClickMedia = selectMediaInFastSelectMode
                     )
                 } else {
@@ -122,7 +122,7 @@ internal fun MatissePage(
                         modifier = Modifier
                             .matisseAnimateItem(lazyGridItemScope = this),
                         mediaResource = it,
-                        imageEngine = pageViewState.imageEngine,
+                        imageEngine = pageViewState.matisse.imageEngine,
                         onClickMedia = pageViewState.onClickMedia,
                         onClickCheckBox = pageViewState.onMediaCheckChanged
                     )

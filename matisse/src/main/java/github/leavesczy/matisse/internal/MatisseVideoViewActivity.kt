@@ -18,14 +18,6 @@ import github.leavesczy.matisse.R
  */
 internal class MatisseVideoViewActivity : AppCompatActivity() {
 
-    private val mediaResource by lazy(mode = LazyThreadSafetyMode.NONE) {
-        IntentCompat.getParcelableExtra(
-            intent,
-            MediaResource::class.java.name,
-            MediaResource::class.java
-        )!!
-    }
-
     private val videoView by lazy(mode = LazyThreadSafetyMode.NONE) {
         findViewById<VideoView>(R.id.videoView)
     }
@@ -45,6 +37,15 @@ internal class MatisseVideoViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
+        val mediaResource = IntentCompat.getParcelableExtra(
+            intent,
+            MediaResource::class.java.name,
+            MediaResource::class.java
+        )
+        if (mediaResource == null) {
+            finish()
+            return
+        }
         setContentView(R.layout.activity_matisse_video_view)
         addOnBackPressedObserver()
         videoView.setOnPreparedListener(onPreparedListener)
