@@ -41,4 +41,13 @@
     <!-- Loading & video player -->
     <color name="matisse_loading_indicator_color">#FF03A9F4</color>
     <color name="matisse_video_player_background_color">#FF22202A</color>
+    <!-- Empty state -->
+    <color name="matisse_empty_glow_color">#1A03A9F4</color>
+    <color name="matisse_empty_accent_color">#FF03A9F4</color>
+    <color name="matisse_empty_frame_fill_color">#FFF5F7FA</color>
+    <color name="matisse_empty_frame_stroke_color">#FFB0BEC5</color>
+    <color name="matisse_empty_landscape_color">#FFCFD8DC</color>
+    <color name="matisse_empty_shadow_color">#14000000</color>
+    <color name="matisse_empty_title_text_color">#FF37474F</color>
+    <color name="matisse_empty_subtitle_text_color">#FF90A4AE</color>
 </resources>

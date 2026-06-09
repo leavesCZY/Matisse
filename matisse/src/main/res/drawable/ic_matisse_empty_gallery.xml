@@ -1,0 +1,104 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="200dp"
+    android:viewportWidth="240"
+    android:viewportHeight="200">
+
+    <!-- Soft ambient glow -->
+    <path
+        android:fillColor="@color/matisse_empty_glow_color"
+        android:pathData="M120,96m-78,0a78,78 0,1 1,156 0a78,78 0,1 1,-156 0" />
+
+    <!-- Decorative floating frame (back-left) -->
+    <group
+        android:pivotX="52"
+        android:pivotY="58"
+        android:rotation="-14">
+        <path
+            android:fillColor="@color/matisse_empty_frame_fill_color"
+            android:pathData="M28,38h48v56h-48z" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M28,38h48v56h-48z"
+            android:strokeWidth="2"
+            android:strokeColor="@color/matisse_empty_frame_stroke_color" />
+        <path
+            android:fillColor="@color/matisse_empty_landscape_color"
+            android:pathData="M34,58 L52,46 L70,62 L70,82 L34,82 Z" />
+        <path
+            android:fillColor="@color/matisse_empty_accent_color"
+            android:pathData="M58,48m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    </group>
+
+    <!-- Decorative floating frame (back-right) -->
+    <group
+        android:pivotX="188"
+        android:pivotY="62"
+        android:rotation="12">
+        <path
+            android:fillColor="@color/matisse_empty_frame_fill_color"
+            android:pathData="M164,42h48v56h-48z" />
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M164,42h48v56h-48z"
+            android:strokeWidth="2"
+            android:strokeColor="@color/matisse_empty_frame_stroke_color" />
+        <path
+            android:fillColor="@color/matisse_empty_landscape_color"
+            android:pathData="M170,62 L188,50 L206,66 L206,86 L170,86 Z" />
+        <path
+            android:fillColor="@color/matisse_empty_accent_color"
+            android:pathData="M194,52m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    </group>
+
+    <!-- Main photo frame shadow -->
+    <path
+        android:fillColor="@color/matisse_empty_shadow_color"
+        android:pathData="M66,54h108v96c0,4 3,7 7,7h10c4,0 7,-3 7,-7V54c0,-4 -3,-7 -7,-7H73c-4,0 -7,3 -7,7z" />
+
+    <!-- Main photo frame body -->
+    <path
+        android:fillColor="@color/matisse_empty_frame_fill_color"
+        android:pathData="M62,48h108v96c0,4 3,7 7,7h10c4,0 7,-3 7,-7V48c0,-4 -3,-7 -7,-7H69c-4,0 -7,3 -7,7z" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M62,48h108v96c0,4 3,7 7,7h10c4,0 7,-3 7,-7V48c0,-4 -3,-7 -7,-7H69c-4,0 -7,3 -7,7z"
+        android:strokeWidth="2.5"
+        android:strokeColor="@color/matisse_empty_frame_stroke_color" />
+
+    <!-- Inner landscape -->
+    <path
+        android:fillColor="@color/matisse_empty_landscape_color"
+        android:pathData="M74,118 L102,88 L128,104 L154,78 L178,118 Z" />
+    <path
+        android:fillAlpha="0.55"
+        android:fillColor="@color/matisse_empty_landscape_color"
+        android:pathData="M74,118 L178,118 L178,134 L74,134 Z" />
+
+    <!-- Sun / accent orb -->
+    <path
+        android:fillColor="@color/matisse_empty_accent_color"
+        android:pathData="M148,72m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0" />
+
+    <!-- Sparkle dots -->
+    <path
+        android:fillColor="@color/matisse_empty_accent_color"
+        android:pathData="M46,128m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+    <path
+        android:fillAlpha="0.6"
+        android:fillColor="@color/matisse_empty_accent_color"
+        android:pathData="M196,124m-2.5,0a2.5,2.5 0,1 1,5 0a2.5,2.5 0,1 1,-5 0" />
+    <path
+        android:fillAlpha="0.4"
+        android:fillColor="@color/matisse_empty_accent_color"
+        android:pathData="M182,36m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+
+    <!-- Empty indicator dash -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M108,148 L132,148"
+        android:strokeWidth="3"
+        android:strokeColor="@color/matisse_empty_accent_color"
+        android:strokeLineCap="round" />
+
+</vector>

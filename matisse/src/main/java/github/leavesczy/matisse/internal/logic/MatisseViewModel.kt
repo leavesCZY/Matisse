@@ -1,15 +1,10 @@
 package github.leavesczy.matisse.internal.logic
 
 import android.app.Application
-import android.content.Context
-import android.widget.Toast
-import androidx.annotation.StringRes
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
@@ -24,10 +19,7 @@ import kotlinx.coroutines.withContext
  * @Desc:
  */
 internal class MatisseViewModel(application: Application, matisse: Matisse) :
-    AndroidViewModel(application) {
-
-    private val context: Context
-        get() = getApplication()
+    BaseMatisseViewModel(application = application) {
 
     val maxSelectable = matisse.maxSelectable
 
@@ -55,8 +47,9 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     var pageViewState by mutableStateOf(
         value = MatissePageViewState(
             matisse = matisse,
-            mediaBucketsInfo = emptyList(),
             selectedBucket = defaultBucket,
+            mediaBucketsInfo = emptyList(),
+            placeholderState = null,
             onClickBucket = ::onClickBucket,
             onClickMedia = ::onClickMedia,
             onMediaCheckChanged = ::onMediaCheckChanged
@@ -80,9 +73,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             onDismissRequest = {}
         )
     )
-        private set
-
-    var loadingDialogVisible by mutableStateOf(value = false)
         private set
 
     private val unselectedDisabledMediaSelectState = MatisseMediaSelectState(
@@ -137,12 +127,25 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                     )
                 }
                 pageViewState = pageViewState.copy(
+                    selectedBucket = collectBucket,
                     mediaBucketsInfo = allMediaBuckets,
-                    selectedBucket = collectBucket
+                    placeholderState = if (allResources.isEmpty()) {
+                        val includeImage = mediaType.includeImage
+                        val includeVideo = mediaType.includeVideo
+                        if (includeImage && includeVideo) {
+                            MatissePlaceholderState.NoMedia
+                        } else if (includeVideo) {
+                            MatissePlaceholderState.NoVideo
+                        } else {
+                            MatissePlaceholderState.NoImage
+                        }
+                    } else {
+                        null
+                    }
                 )
                 defaultSelectedResources(allMediaResources = allResources)
             } else {
-                resetViewState()
+                setNotReadMediaPermissionViewState()
                 showToast(id = R.string.matisse_error_read_media_permission)
             }
             bottomBarViewState = buildBottomBarViewState()
@@ -215,7 +218,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         }
     }
 
-    private fun resetViewState() {
+    private fun setNotReadMediaPermissionViewState() {
         pageViewState = pageViewState.copy(
             selectedBucket = defaultBucket,
             mediaBucketsInfo = listOf(
@@ -225,7 +228,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                     size = defaultBucket.resources.size,
                     firstMedia = defaultBucket.resources.firstOrNull()?.media,
                 )
-            )
+            ),
+            placeholderState = MatissePlaceholderState.NoPermission
         )
     }
 
@@ -401,32 +405,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         allMediaResources.forEach {
             (it.selectState as MutableState<MatisseMediaSelectState>).value = state
         }
-    }
-
-    private fun showLoadingDialog() {
-        loadingDialogVisible = true
-    }
-
-    private fun dismissLoadingDialog() {
-        loadingDialogVisible = false
-    }
-
-    private fun showToast(@StringRes id: Int) {
-        showToast(text = getString(id = id))
-    }
-
-    private fun showToast(text: String) {
-        if (text.isNotBlank()) {
-            Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun getString(@StringRes id: Int): String {
-        return ContextCompat.getString(context, id)
-    }
-
-    private fun getString(@StringRes id: Int, vararg formatArgs: Any): String {
-        return ContextCompat.getString(context, id).format(*formatArgs)
     }
 
 }

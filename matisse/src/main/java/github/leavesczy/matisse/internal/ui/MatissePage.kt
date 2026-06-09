@@ -54,10 +54,6 @@ internal fun MatissePage(
     onClickSure: () -> Unit,
     selectMediaInFastSelectMode: (MediaResource) -> Unit
 ) {
-    val lazyGridState = rememberLazyGridState()
-    LaunchedEffect(key1 = pageViewState.selectedBucket.bucketId) {
-        lazyGridState.animateScrollToItem(index = 0)
-    }
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -81,55 +77,90 @@ internal fun MatissePage(
             }
         }
     ) { innerPadding ->
-        LazyVerticalGrid(
+        Box(
             modifier = Modifier
                 .padding(paddingValues = innerPadding)
-                .fillMaxSize(),
-            state = lazyGridState,
-            columns = GridCells.Fixed(count = pageViewState.matisse.gridColumns),
-            horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 1.dp),
-            contentPadding = PaddingValues(bottom = 20.dp)
+                .fillMaxSize()
         ) {
-            if (pageViewState.selectedBucket.supportCapture) {
-                item(
-                    key = "CaptureItem",
-                    contentType = "CaptureItem"
-                ) {
-                    CaptureItem(
-                        modifier = Modifier
-                            .matisseAnimateItem(lazyGridItemScope = this),
-                        onClick = onRequestTakePicture
-                    )
-                }
+            MediaList(
+                modifier = Modifier
+                    .fillMaxSize(),
+                pageViewState = pageViewState,
+                onRequestTakePicture = onRequestTakePicture,
+                selectMediaInFastSelectMode = selectMediaInFastSelectMode
+            )
+            val selectedBucket = pageViewState.selectedBucket
+            val placeholderState = pageViewState.placeholderState
+            val showEmptyPlaceholder =
+                selectedBucket.resources.isEmpty() && placeholderState != null
+            if (showEmptyPlaceholder) {
+                MatissePlaceholder(
+                    modifier = Modifier
+                        .align(alignment = Alignment.Center),
+                    placeholderState = placeholderState
+                )
             }
-            items(
-                items = pageViewState.selectedBucket.resources,
-                key = {
-                    it.mediaId
-                },
-                contentType = {
-                    "MediaItem"
-                }
+        }
+    }
+}
+
+@Composable
+private fun MediaList(
+    modifier: Modifier,
+    pageViewState: MatissePageViewState,
+    onRequestTakePicture: () -> Unit,
+    selectMediaInFastSelectMode: (MediaResource) -> Unit
+) {
+    val lazyGridState = rememberLazyGridState()
+    LaunchedEffect(key1 = pageViewState.selectedBucket.bucketId) {
+        lazyGridState.animateScrollToItem(index = 0)
+    }
+    LazyVerticalGrid(
+        modifier = modifier,
+        state = lazyGridState,
+        columns = GridCells.Fixed(count = pageViewState.matisse.gridColumns),
+        horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
+        verticalArrangement = Arrangement.spacedBy(space = 1.dp),
+        contentPadding = PaddingValues(bottom = 20.dp)
+    ) {
+        if (pageViewState.selectedBucket.supportCapture) {
+            item(
+                key = "CaptureItem",
+                contentType = "CaptureItem"
             ) {
-                if (pageViewState.matisse.fastSelect) {
-                    MediaItemFastSelect(
-                        modifier = Modifier
-                            .matisseAnimateItem(lazyGridItemScope = this),
-                        mediaResource = it.media,
-                        imageEngine = pageViewState.matisse.imageEngine,
-                        onClickMedia = selectMediaInFastSelectMode
-                    )
-                } else {
-                    MediaItem(
-                        modifier = Modifier
-                            .matisseAnimateItem(lazyGridItemScope = this),
-                        mediaResource = it,
-                        imageEngine = pageViewState.matisse.imageEngine,
-                        onClickMedia = pageViewState.onClickMedia,
-                        onClickCheckBox = pageViewState.onMediaCheckChanged
-                    )
-                }
+                CaptureItem(
+                    modifier = Modifier
+                        .matisseAnimateItem(lazyGridItemScope = this),
+                    onClick = onRequestTakePicture
+                )
+            }
+        }
+        items(
+            items = pageViewState.selectedBucket.resources,
+            key = {
+                it.mediaId
+            },
+            contentType = {
+                "MediaItem"
+            }
+        ) {
+            if (pageViewState.matisse.fastSelect) {
+                MediaItemFastSelect(
+                    modifier = Modifier
+                        .matisseAnimateItem(lazyGridItemScope = this),
+                    mediaResource = it.media,
+                    imageEngine = pageViewState.matisse.imageEngine,
+                    onClickMedia = selectMediaInFastSelectMode
+                )
+            } else {
+                MediaItem(
+                    modifier = Modifier
+                        .matisseAnimateItem(lazyGridItemScope = this),
+                    mediaResource = it,
+                    imageEngine = pageViewState.matisse.imageEngine,
+                    onClickMedia = pageViewState.onClickMedia,
+                    onClickCheckBox = pageViewState.onMediaCheckChanged
+                )
             }
         }
     }
