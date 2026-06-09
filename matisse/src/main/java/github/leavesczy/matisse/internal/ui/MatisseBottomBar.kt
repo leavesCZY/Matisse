@@ -38,11 +38,11 @@ internal fun MatisseBottomBar(
     Row(
         modifier = modifier
             .shadow(elevation = 4.dp)
-            .background(color = colorResource(id = R.color.matisse_navigation_bar_color))
+            .background(color = colorResource(id = R.color.matisse_navigation_bar_background_color))
             .navigationBarsPadding()
             .fillMaxWidth()
             .height(height = 56.dp)
-            .background(color = colorResource(id = R.color.matisse_bottom_navigation_bar_background_color)),
+            .background(color = colorResource(id = R.color.matisse_bottom_bar_background_color)),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -63,9 +63,9 @@ internal fun MatisseBottomBar(
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
             color = if (viewState.previewButtonClickable) {
-                colorResource(id = R.color.matisse_preview_text_color)
+                colorResource(id = R.color.matisse_bottom_bar_preview_text_color)
             } else {
-                colorResource(id = R.color.matisse_preview_text_color_if_disable)
+                colorResource(id = R.color.matisse_bottom_bar_preview_text_disabled_color)
             }
         )
         val selectedImageSize = viewState.selectedImageSize
@@ -97,9 +97,9 @@ internal fun MatisseBottomBar(
             fontWeight = FontWeight.Normal,
             color = colorResource(
                 id = if (sureButtonClickable) {
-                    R.color.matisse_sure_text_color
+                    R.color.matisse_bottom_bar_confirm_text_color
                 } else {
-                    R.color.matisse_sure_text_color_if_disable
+                    R.color.matisse_bottom_bar_confirm_text_disabled_color
                 }
             )
         )

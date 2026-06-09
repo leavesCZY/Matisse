@@ -33,7 +33,7 @@ internal fun MatisseLoadingDialog(
                 modifier = Modifier
                     .size(size = 42.dp),
                 strokeWidth = 3.dp,
-                color = colorResource(id = R.color.matisse_circular_loading_color),
+                color = colorResource(id = R.color.matisse_loading_indicator_color),
                 trackColor = Color.Transparent,
                 strokeCap = ProgressIndicatorDefaults.CircularIndeterminateStrokeCap
             )

@@ -1,37 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <bool name="matisse_status_bar_dark_icons">true</bool>
-    <bool name="matisse_navigation_bar_dark_icons">true</bool>
-    <color name="matisse_status_bar_color">#FFFFFFFF</color>
-    <color name="matisse_navigation_bar_color">#FFFFFFFF</color>
+    <!-- System bars -->
+    <bool name="matisse_status_bar_icons_dark">true</bool>
+    <bool name="matisse_navigation_bar_icons_dark">true</bool>
+    <color name="matisse_status_bar_background_color">#FFFFFFFF</color>
+    <color name="matisse_navigation_bar_background_color">#FFFFFFFF</color>
+    <!-- Gallery page -->
     <color name="matisse_main_page_background_color">#FFFFFFFF</color>
     <color name="matisse_media_item_background_color">#66CCCCCC</color>
-    <color name="matisse_media_item_scrim_color_when_unselected">#0D000000</color>
-    <color name="matisse_media_item_scrim_color_when_selected">#80000000</color>
-    <color name="matisse_capture_item_background_color">#66CCCCCC</color>
-    <color name="matisse_capture_item_icon_color">#FFFFFFFF</color>
+    <color name="matisse_media_item_scrim_unselected_color">#0D000000</color>
+    <color name="matisse_media_item_scrim_selected_color">#80000000</color>
+    <color name="matisse_capture_background_color">#66CCCCCC</color>
+    <color name="matisse_capture_icon_color">#FFFFFFFF</color>
+    <color name="matisse_media_video_icon_background_color">#FFFFFFFF</color>
+    <color name="matisse_media_video_icon_color">#FF000000</color>
+    <!-- Top bar -->
     <color name="matisse_top_bar_background_color">#FFFFFFFF</color>
     <color name="matisse_top_bar_icon_color">#FF000000</color>
     <color name="matisse_top_bar_text_color">#FF000000</color>
     <color name="matisse_dropdown_menu_background_color">#FFFFFFFF</color>
     <color name="matisse_dropdown_menu_text_color">#FF000000</color>
-    <color name="matisse_bottom_navigation_bar_background_color">#FFFFFFFF</color>
-    <color name="matisse_preview_text_color">#FF000000</color>
-    <color name="matisse_preview_text_color_if_disable">#FFC6CCD2</color>
-    <color name="matisse_sure_text_color">#FF000000</color>
-    <color name="matisse_sure_text_color_if_disable">#FFC6CCD2</color>
+    <!-- Bottom bar -->
+    <color name="matisse_bottom_bar_background_color">#FFFFFFFF</color>
+    <color name="matisse_bottom_bar_preview_text_color">#FF000000</color>
+    <color name="matisse_bottom_bar_preview_text_disabled_color">#FFC6CCD2</color>
+    <color name="matisse_bottom_bar_confirm_text_color">#FF000000</color>
+    <color name="matisse_bottom_bar_confirm_text_disabled_color">#FFC6CCD2</color>
+    <!-- Preview page -->
     <color name="matisse_preview_page_background_color">#FF22202A</color>
-    <color name="matisse_preview_page_bottom_navigation_bar_background_color">#FF2B2A34</color>
+    <color name="matisse_preview_page_bottom_bar_background_color">#FF2B2A34</color>
     <color name="matisse_preview_page_back_text_color">#FFFFFFFF</color>
-    <color name="matisse_preview_page_sure_text_color">#FFFFFFFF</color>
-    <color name="matisse_preview_page_sure_text_color_if_disable">#80FFFFFF</color>
-    <color name="matisse_video_icon_background_color">#FFFFFFFF</color>
-    <color name="matisse_video_icon_color">#FF000000</color>
-    <color name="matisse_check_box_circle_color">#FFFFFFFF</color>
-    <color name="matisse_check_box_circle_color_if_disable">#80FFFFFF</color>
-    <color name="matisse_check_box_circle_fill_color">#FF03A9F4</color>
-    <color name="matisse_check_box_circle_fill_color_if_unselected">#0D000000</color>
-    <color name="matisse_check_box_text_color">#FFFFFFFF</color>
-    <color name="matisse_circular_loading_color">#FF03A9F4</color>
-    <color name="matisse_video_view_page_background_color">#FF22202A</color>
+    <color name="matisse_preview_page_confirm_text_color">#FFFFFFFF</color>
+    <color name="matisse_preview_page_confirm_text_disabled_color">#80FFFFFF</color>
+    <!-- Checkbox -->
+    <color name="matisse_checkbox_circle_stroke_color">#FFFFFFFF</color>
+    <color name="matisse_checkbox_circle_stroke_disabled_color">#80FFFFFF</color>
+    <color name="matisse_checkbox_circle_fill_selected_color">#FF03A9F4</color>
+    <color name="matisse_checkbox_circle_fill_unselected_color">#0D000000</color>
+    <color name="matisse_checkbox_text_color">#FFFFFFFF</color>
+    <!-- Loading & video player -->
+    <color name="matisse_loading_indicator_color">#FF03A9F4</color>
+    <color name="matisse_video_player_background_color">#FF22202A</color>
 </resources>

@@ -201,9 +201,9 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 statusBarDarkIcons = false
                 navigationBarDarkIcons = false
             } else {
-                statusBarDarkIcons = resources.getBoolean(R.bool.matisse_status_bar_dark_icons)
+                statusBarDarkIcons = resources.getBoolean(R.bool.matisse_status_bar_icons_dark)
                 navigationBarDarkIcons =
-                    resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
+                    resources.getBoolean(R.bool.matisse_navigation_bar_icons_dark)
             }
             isAppearanceLightStatusBars = statusBarDarkIcons
             isAppearanceLightNavigationBars = navigationBarDarkIcons

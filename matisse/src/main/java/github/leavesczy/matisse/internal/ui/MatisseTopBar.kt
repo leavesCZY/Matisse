@@ -99,7 +99,7 @@ private fun StatusBar(modifier: Modifier) {
     Spacer(
         modifier = modifier
             .fillMaxWidth()
-            .background(color = colorResource(id = R.color.matisse_status_bar_color))
+            .background(color = colorResource(id = R.color.matisse_status_bar_background_color))
             .windowInsetsPadding(insets = WindowInsets.statusBarsIgnoringVisibility)
     )
 }
@@ -126,7 +126,7 @@ private fun MatisseTopBar(
                     onBackPressedDispatcher?.onBackPressed()
                 }
                 .padding(start = 18.dp, end = 14.dp)
-                .size(size = 22.dp),
+                .size(size = 26.dp),
             painter = painterResource(id = R.drawable.ic_matisse_arrow_back),
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
             contentDescription = stringResource(id = R.string.matisse_cd_back)

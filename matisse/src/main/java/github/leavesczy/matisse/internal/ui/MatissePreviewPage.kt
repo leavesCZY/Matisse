@@ -188,7 +188,7 @@ private fun BottomController(
     }
     Box(
         modifier = modifier
-            .background(color = colorResource(id = R.color.matisse_preview_page_bottom_navigation_bar_background_color))
+            .background(color = colorResource(id = R.color.matisse_preview_page_bottom_bar_background_color))
             .navigationBarsPadding()
             .fillMaxWidth()
             .height(height = 56.dp)
@@ -244,9 +244,9 @@ private fun BottomController(
             fontWeight = FontWeight.Normal,
             color = colorResource(
                 id = if (sureButtonClickable) {
-                    R.color.matisse_preview_page_sure_text_color
+                    R.color.matisse_preview_page_confirm_text_color
                 } else {
-                    R.color.matisse_preview_page_sure_text_color_if_disable
+                    R.color.matisse_preview_page_confirm_text_disabled_color
                 }
             )
         )

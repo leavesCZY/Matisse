@@ -37,7 +37,7 @@ internal fun MatisseVideoViewPage(
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorResource(id = R.color.matisse_video_view_page_background_color)),
+            .background(color = colorResource(id = R.color.matisse_video_player_background_color)),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {

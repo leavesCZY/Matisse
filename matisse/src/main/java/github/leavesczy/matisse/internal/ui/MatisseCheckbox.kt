@@ -51,18 +51,18 @@ internal fun MatisseCheckbox(
                 .then(
                     other = if (selectState.isSelected) {
                         Modifier
-                            .background(color = colorResource(id = R.color.matisse_check_box_circle_fill_color))
+                            .background(color = colorResource(id = R.color.matisse_checkbox_circle_fill_selected_color))
                     } else {
                         Modifier
-                            .background(color = colorResource(id = R.color.matisse_check_box_circle_fill_color_if_unselected))
+                            .background(color = colorResource(id = R.color.matisse_checkbox_circle_fill_unselected_color))
                             .border(
-                                width = 1.dp,
+                                width = 2.dp,
                                 shape = CircleShape,
                                 color = colorResource(
                                     id = if (selectState.isEnabled) {
-                                        R.color.matisse_check_box_circle_color
+                                        R.color.matisse_checkbox_circle_stroke_color
                                     } else {
-                                        R.color.matisse_check_box_circle_color_if_disable
+                                        R.color.matisse_checkbox_circle_stroke_disabled_color
                                     }
                                 )
                             )
@@ -80,7 +80,7 @@ internal fun MatisseCheckbox(
                     stepSize = 0.4.sp
                 ),
                 style = TextStyle(
-                    color = colorResource(id = R.color.matisse_check_box_text_color),
+                    color = colorResource(id = R.color.matisse_checkbox_text_color),
                     fontStyle = FontStyle.Normal,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center

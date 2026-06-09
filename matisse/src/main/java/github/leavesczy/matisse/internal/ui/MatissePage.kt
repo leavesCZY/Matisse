@@ -144,7 +144,7 @@ private fun CaptureItem(
         modifier = modifier
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
-            .background(color = colorResource(id = R.color.matisse_capture_item_background_color))
+            .background(color = colorResource(id = R.color.matisse_capture_background_color))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -152,7 +152,7 @@ private fun CaptureItem(
             modifier = Modifier
                 .fillMaxSize(fraction = 0.5f),
             painter = painterResource(id = R.drawable.ic_matisse_photo_camera),
-            tint = colorResource(id = R.color.matisse_capture_item_icon_color),
+            tint = colorResource(id = R.color.matisse_capture_icon_color),
             contentDescription = stringResource(id = R.string.matisse_cd_capture)
         )
     }
@@ -190,7 +190,7 @@ private fun MediaItem(
                 .align(alignment = Alignment.TopEnd)
                 .fillMaxSize(fraction = 0.28f)
                 .wrapContentSize(align = Alignment.Center)
-                .fillMaxSize(fraction = 0.83f),
+                .fillMaxSize(fraction = 0.80f),
             selectState = mediaResource.selectState.value,
             onClick = {
                 onClickCheckBox(mediaResource)
@@ -210,9 +210,9 @@ private fun MediaItemScrimColor(
             .background(
                 color = colorResource(
                     id = if (isSelected) {
-                        R.color.matisse_media_item_scrim_color_when_selected
+                        R.color.matisse_media_item_scrim_selected_color
                     } else {
-                        R.color.matisse_media_item_scrim_color_when_unselected
+                        R.color.matisse_media_item_scrim_unselected_color
                     }
                 )
             )
@@ -250,14 +250,14 @@ internal fun VideoIcon(modifier: Modifier) {
         modifier = modifier
             .shadow(elevation = 1.dp, shape = CircleShape)
             .clip(shape = CircleShape)
-            .background(color = colorResource(id = R.color.matisse_video_icon_background_color)),
+            .background(color = colorResource(id = R.color.matisse_media_video_icon_background_color)),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             modifier = Modifier
                 .fillMaxSize(fraction = 0.62f),
             painter = painterResource(id = R.drawable.ic_matisse_play_arrow),
-            tint = colorResource(id = R.color.matisse_video_icon_color),
+            tint = colorResource(id = R.color.matisse_media_video_icon_color),
             contentDescription = stringResource(id = R.string.matisse_cd_play_video)
         )
     }
