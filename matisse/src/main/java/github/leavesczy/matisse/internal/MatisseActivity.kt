@@ -24,7 +24,7 @@ import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
-import github.leavesczy.matisse.internal.ui.MatissePreviewPage
+import github.leavesczy.matisse.internal.ui.MatissePreviewImagePage
 import github.leavesczy.matisse.internal.ui.MatisseTheme
 import github.leavesczy.matisse.internal.ui.MatisseVideoPlayerPage
 import kotlinx.coroutines.flow.collectLatest
@@ -78,7 +78,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         setContent {
             LaunchedEffect(key1 = Unit) {
                 snapshotFlow {
-                    matisseViewModel.previewPageViewState.visible
+                    matisseViewModel.previewImagePageViewState.visible
                 }.collectLatest {
                     setSystemBarUi(previewPageVisible = it)
                 }
@@ -88,13 +88,13 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     pageViewState = matisseViewModel.pageViewState,
                     bottomBarViewState = matisseViewModel.bottomBarViewState,
                     onRequestTakePicture = ::requestTakePicture,
-                    onClickSure = ::onClickSure,
+                    onClickConfirm = ::onClickConfirm,
                     selectMediaInFastSelectMode = ::selectMediaInFastSelectMode
                 )
-                MatissePreviewPage(
-                    pageViewState = matisseViewModel.previewPageViewState,
+                MatissePreviewImagePage(
+                    pageViewState = matisseViewModel.previewImagePageViewState,
                     imageEngine = matisseViewModel.pageViewState.matisse.imageEngine,
-                    onClickSure = ::onClickSure
+                    onClickConfirm = ::onClickConfirm
                 )
                 MatisseVideoPlayerPage(
                     pageViewState = matisseViewModel.videoPlayerPageViewState
@@ -148,11 +148,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         setResult(result = result)
     }
 
-    override fun takePictureCancelled() {
-
-    }
-
-    private fun onClickSure() {
+    private fun onClickConfirm() {
         val selectedResources = matisseViewModel.filterSelectedMedia()
         if (matisseViewModel.singleMediaType) {
             val includeImage = selectedResources.any { it.isImage }
@@ -182,6 +178,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
     private fun setResultCanceled() {
         setResult(RESULT_CANCELED)
         finish()
+    }
+
+    override fun takePictureCancelled() {
+
     }
 
     private fun setSystemBarUi(previewPageVisible: Boolean) {

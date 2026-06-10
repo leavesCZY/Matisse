@@ -3,6 +3,7 @@ package github.leavesczy.matisse.internal.logic
 import android.app.Application
 import android.content.Context
 import android.widget.Toast
+import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +24,12 @@ internal abstract class BaseMatisseViewModel(application: Application) :
 
     var loadingDialogVisible by mutableStateOf(value = false)
         private set
+
+    @CallSuper
+    protected abstract fun filterSelectedMediaResource(): List<MatisseMediaExtend>
+
+    @CallSuper
+    protected abstract fun onPreviewImagePageMediaCheckChanged(mediaExtend: MatisseMediaExtend)
 
     protected fun showLoadingDialog() {
         loadingDialogVisible = true

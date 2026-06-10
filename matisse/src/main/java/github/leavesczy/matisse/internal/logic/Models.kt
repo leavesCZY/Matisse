@@ -71,7 +71,7 @@ internal data class MatisseBottomBarViewState(
 )
 
 @Stable
-internal data class MatissePreviewPageViewState(
+internal data class MatissePreviewImagePageViewState(
     val visible: Boolean,
     val maxSelectable: Int,
     val initialPage: Int,

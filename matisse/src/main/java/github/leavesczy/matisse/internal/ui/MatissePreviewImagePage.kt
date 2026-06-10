@@ -41,7 +41,7 @@ import androidx.compose.ui.util.lerp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
+import github.leavesczy.matisse.internal.logic.MatissePreviewImagePageViewState
 import kotlin.math.absoluteValue
 
 /**
@@ -50,10 +50,10 @@ import kotlin.math.absoluteValue
  * @Desc:
  */
 @Composable
-internal fun MatissePreviewPage(
-    pageViewState: MatissePreviewPageViewState,
+internal fun MatissePreviewImagePage(
+    pageViewState: MatissePreviewImagePageViewState,
     imageEngine: ImageEngine,
-    onClickSure: () -> Unit
+    onClickConfirm: () -> Unit
 ) {
     AnimatedVisibility(
         modifier = Modifier
@@ -74,19 +74,19 @@ internal fun MatissePreviewPage(
             targetOffsetX = { it }
         )
     ) {
-        MatissePreviewPageContent(
+        MatissePreviewImagePageContent(
             pageViewState = pageViewState,
             imageEngine = imageEngine,
-            onClickSure = onClickSure
+            onClickConfirm = onClickConfirm
         )
     }
 }
 
 @Composable
-private fun MatissePreviewPageContent(
-    pageViewState: MatissePreviewPageViewState,
+private fun MatissePreviewImagePageContent(
+    pageViewState: MatissePreviewImagePageViewState,
     imageEngine: ImageEngine,
-    onClickSure: () -> Unit
+    onClickConfirm: () -> Unit
 ) {
     BackHandler(
         enabled = pageViewState.visible,
@@ -131,7 +131,7 @@ private fun MatissePreviewPageContent(
                     .fillMaxWidth(),
                 pageViewState = pageViewState,
                 pagerState = pagerState,
-                onClickSure = onClickSure
+                onClickConfirm = onClickConfirm
             )
         }
     }
@@ -190,9 +190,9 @@ private fun PreviewPage(
 @Composable
 private fun BottomController(
     modifier: Modifier,
-    pageViewState: MatissePreviewPageViewState,
+    pageViewState: MatissePreviewImagePageViewState,
     pagerState: PagerState,
-    onClickSure: () -> Unit
+    onClickConfirm: () -> Unit
 ) {
     val currentResource by remember {
         derivedStateOf {
@@ -237,7 +237,7 @@ private fun BottomController(
                     other = if (sureButtonClickable) {
                         Modifier
                             .clip(shape = CircleShape)
-                            .clickable(onClick = onClickSure)
+                            .clickable(onClick = onClickConfirm)
                     } else {
                         Modifier
                     }

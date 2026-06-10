@@ -1,7 +1,6 @@
 package github.leavesczy.matisse.internal.logic
 
 import android.app.Application
-import android.net.Uri
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,7 +19,7 @@ import kotlinx.coroutines.withContext
  * @Desc:
  */
 internal class MatisseViewModel(application: Application, matisse: Matisse) :
-    BaseMatisseViewModel(application = application) {
+    MatissePreviewImageViewModel(application = application, matisse = matisse) {
 
     val maxSelectable = matisse.maxSelectable
 
@@ -63,29 +62,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     )
         private set
 
-    var previewPageViewState by mutableStateOf(
-        value = MatissePreviewPageViewState(
-            visible = false,
-            initialPage = 0,
-            selectedImageSize = 0,
-            maxSelectable = maxSelectable,
-            previewResources = emptyList(),
-            onMediaCheckChanged = {},
-            requestOpenVideo = {},
-            onDismissRequest = {}
-        )
-    )
-        private set
-
-    var videoPlayerPageViewState by mutableStateOf(
-        value = MatisseVideoPlayerPageViewState(
-            visible = false,
-            videoUri = Uri.EMPTY,
-            onDismissRequest = {}
-        )
-    )
-        private set
-
     private val unselectedDisabledMediaSelectState = MatisseMediaSelectState(
         isSelected = false,
         isEnabled = false,
@@ -101,7 +77,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     fun requestReadMediaPermissionResult(granted: Boolean) {
         viewModelScope.launch(context = Dispatchers.Main.immediate) {
             showLoadingDialog()
-            dismissPreviewPage()
+            dismissPreviewImagePage()
+            dismissVideoPlayerPage()
             allMediaResources.clear()
             if (granted) {
                 val allResources = loadMediaResources()
@@ -260,8 +237,12 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         )
     }
 
-    private fun onMediaCheckChanged(mediaResource: MatisseMediaExtend) {
-        val selectState = mediaResource.selectState as MutableState<MatisseMediaSelectState>
+    override fun onPreviewImagePageMediaCheckChanged(mediaExtend: MatisseMediaExtend) {
+        onMediaCheckChanged(mediaExtend = mediaExtend)
+    }
+
+    private fun onMediaCheckChanged(mediaExtend: MatisseMediaExtend) {
+        val selectState = mediaExtend.selectState as MutableState<MatisseMediaSelectState>
         if (selectState.value.isSelected) {
             selectState.value = unselectedEnabledMediaSelectState
         } else {
@@ -274,7 +255,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                     return
                 } else if (singleMediaType) {
                     val illegalMediaType = selectedResources.any {
-                        it.media.isImage != mediaResource.media.isImage
+                        it.media.isImage != mediaExtend.media.isImage
                     }
                     if (illegalMediaType) {
                         showToast(id = R.string.matisse_error_mixed_media)
@@ -289,7 +270,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             )
         }
         rearrangeMediaPosition()
-        updatePreviewPageIfNeed()
+        updatePreviewImagePageIfNeed()
         bottomBarViewState = buildBottomBarViewState()
     }
 
@@ -309,14 +290,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 isEnabled = true,
                 positionIndex = index
             )
-        }
-    }
-
-    private fun updatePreviewPageIfNeed() {
-        val viewState = previewPageViewState
-        if (viewState.visible) {
-            val selectedResources = filterSelectedMediaResource()
-            previewPageViewState = viewState.copy(selectedImageSize = selectedResources.size)
         }
     }
 
@@ -348,7 +321,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private fun onClickMedia(mediaResource: MatisseMediaExtend) {
         val totalResources = pageViewState.selectedBucket.resources
-        showPreviewPage(
+        showPreviewImagePage(
             initialPage = totalResources.indexOf(element = mediaResource),
             totalResources = totalResources,
             selectedResources = filterSelectedMediaResource()
@@ -357,58 +330,10 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private fun onClickPreviewButton() {
         val selected = filterSelectedMediaResource()
-        showPreviewPage(
+        showPreviewImagePage(
             initialPage = 0,
             totalResources = selected,
             selectedResources = selected
-        )
-    }
-
-    private fun showPreviewPage(
-        initialPage: Int,
-        totalResources: List<MatisseMediaExtend>,
-        selectedResources: List<MatisseMediaExtend>
-    ) {
-        previewPageViewState = MatissePreviewPageViewState(
-            visible = true,
-            maxSelectable = maxSelectable,
-            initialPage = initialPage,
-            selectedImageSize = selectedResources.size,
-            previewResources = totalResources,
-            onMediaCheckChanged = ::onMediaCheckChanged,
-            requestOpenVideo = ::requestOpenVideo,
-            onDismissRequest = ::dismissPreviewPage
-        )
-    }
-
-    private fun dismissPreviewPage() {
-        val viewState = previewPageViewState
-        if (viewState.visible) {
-            previewPageViewState = viewState.copy(
-                visible = false,
-                onMediaCheckChanged = {},
-                requestOpenVideo = {},
-                onDismissRequest = {}
-            )
-        }
-    }
-
-    private fun requestOpenVideo(mediaResource: MediaResource) {
-        showVideoPlayerPage(videoUri = mediaResource.uri)
-    }
-
-    private fun showVideoPlayerPage(videoUri: Uri) {
-        videoPlayerPageViewState = MatisseVideoPlayerPageViewState(
-            visible = true,
-            videoUri = videoUri,
-            onDismissRequest = ::dismissVideoPlayerPage
-        )
-    }
-
-    private fun dismissVideoPlayerPage() {
-        videoPlayerPageViewState = videoPlayerPageViewState.copy(
-            visible = false,
-            onDismissRequest = {}
         )
     }
 
@@ -418,7 +343,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         }
     }
 
-    private fun filterSelectedMediaResource(): List<MatisseMediaExtend> {
+    override fun filterSelectedMediaResource(): List<MatisseMediaExtend> {
         return allMediaResources.filter {
             it.selectState.value.isSelected
         }.sortedBy {

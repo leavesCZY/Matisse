@@ -54,7 +54,7 @@ internal fun MatissePage(
     pageViewState: MatissePageViewState,
     bottomBarViewState: MatisseBottomBarViewState,
     onRequestTakePicture: () -> Unit,
-    onClickSure: () -> Unit,
+    onClickConfirm: () -> Unit,
     selectMediaInFastSelectMode: (MediaResource) -> Unit
 ) {
     Scaffold(
@@ -75,7 +75,7 @@ internal fun MatissePage(
                 MatisseBottomBar(
                     modifier = Modifier,
                     viewState = bottomBarViewState,
-                    onClickSure = onClickSure
+                    onClickConfirm = onClickConfirm
                 )
             }
         }

@@ -33,7 +33,7 @@ import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 internal fun MatisseBottomBar(
     modifier: Modifier,
     viewState: MatisseBottomBarViewState,
-    onClickSure: () -> Unit
+    onClickConfirm: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -77,7 +77,7 @@ internal fun MatisseBottomBar(
                     other = if (sureButtonClickable) {
                         Modifier
                             .clip(shape = CircleShape)
-                            .clickable(onClick = onClickSure)
+                            .clickable(onClick = onClickConfirm)
                     } else {
                         Modifier
                     }
