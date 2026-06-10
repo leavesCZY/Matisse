@@ -49,7 +49,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             matisse = matisse,
             selectedBucket = defaultBucket,
             mediaBucketsInfo = emptyList(),
-            placeholderState = null,
+            placeholderState = MatissePlaceholderState.Nothing(hasReadMediaPermission = false),
             onClickBucket = ::onClickBucket,
             onClickMedia = ::onClickMedia,
             onMediaCheckChanged = ::onMediaCheckChanged
@@ -130,17 +130,12 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                     selectedBucket = collectBucket,
                     mediaBucketsInfo = allMediaBuckets,
                     placeholderState = if (allResources.isEmpty()) {
-                        val includeImage = mediaType.includeImage
-                        val includeVideo = mediaType.includeVideo
-                        if (includeImage && includeVideo) {
-                            MatissePlaceholderState.NoMedia
-                        } else if (includeVideo) {
-                            MatissePlaceholderState.NoVideo
-                        } else {
-                            MatissePlaceholderState.NoImage
-                        }
+                        MatissePlaceholderState.NoMedia(
+                            requestImage = mediaType.includeImage,
+                            requestVideo = mediaType.includeVideo
+                        )
                     } else {
-                        null
+                        MatissePlaceholderState.Nothing(hasReadMediaPermission = true)
                     }
                 )
                 defaultSelectedResources(allMediaResources = allResources)

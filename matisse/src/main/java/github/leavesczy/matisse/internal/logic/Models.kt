@@ -4,7 +4,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
-import github.leavesczy.matisse.R
 
 /**
  * @Author: leavesCZY
@@ -16,7 +15,7 @@ internal data class MatissePageViewState(
     val matisse: Matisse,
     val selectedBucket: MatisseMediaBucket,
     val mediaBucketsInfo: List<MatisseMediaBucketInfo>,
-    val placeholderState: MatissePlaceholderState?,
+    val placeholderState: MatissePlaceholderState,
     val onClickBucket: suspend (String) -> Unit,
     val onClickMedia: (MatisseMediaExtend) -> Unit,
     val onMediaCheckChanged: (MatisseMediaExtend) -> Unit
@@ -82,29 +81,18 @@ internal data class MatissePreviewPageViewState(
 )
 
 @Stable
-internal sealed class MatissePlaceholderState(
-    val titleRes: Int,
-    val messageRes: Int
-) {
+internal sealed class MatissePlaceholderState {
 
-    data object NoPermission : MatissePlaceholderState(
-        titleRes = R.string.matisse_empty_no_permission_title,
-        messageRes = R.string.matisse_empty_no_permission_message
-    )
+    @Stable
+    data class Nothing(val hasReadMediaPermission: Boolean) : MatissePlaceholderState()
 
-    data object NoImage : MatissePlaceholderState(
-        titleRes = R.string.matisse_empty_no_image_title,
-        messageRes = R.string.matisse_empty_no_image_message
-    )
+    @Stable
+    data object NoPermission : MatissePlaceholderState()
 
-    data object NoVideo : MatissePlaceholderState(
-        titleRes = R.string.matisse_empty_no_video_title,
-        messageRes = R.string.matisse_empty_no_video_message
-    )
-
-    data object NoMedia : MatissePlaceholderState(
-        titleRes = R.string.matisse_empty_no_media_title,
-        messageRes = R.string.matisse_empty_no_media_message
-    )
+    @Stable
+    data class NoMedia(
+        val requestImage: Boolean,
+        val requestVideo: Boolean
+    ) : MatissePlaceholderState()
 
 }

@@ -25,11 +25,11 @@
     <string name="matisse_cd_empty">空相册插图</string>
     <!-- Empty state -->
     <string name="matisse_empty_no_image_title">暂无图片</string>
-    <string name="matisse_empty_no_image_message">相册中没有可选择的图片</string>
+    <string name="matisse_empty_no_image_subtitle">相册中没有可选择的图片</string>
     <string name="matisse_empty_no_video_title">暂无视频</string>
-    <string name="matisse_empty_no_video_message">相册中没有可选择的视频</string>
+    <string name="matisse_empty_no_video_subtitle">相册中没有可选择的视频</string>
     <string name="matisse_empty_no_media_title">暂无媒体资源</string>
-    <string name="matisse_empty_no_media_message">相册中没有可选择的媒体资源</string>
+    <string name="matisse_empty_no_media_subtitle">相册中没有可选择的媒体资源</string>
     <string name="matisse_empty_no_permission_title">无法访问相册</string>
-    <string name="matisse_empty_no_permission_message">请授予相册访问权限后重试</string>
+    <string name="matisse_empty_no_permission_subtitle">请授予相册访问权限后重试</string>
 </resources>

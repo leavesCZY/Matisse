@@ -8,9 +8,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -40,6 +42,7 @@ import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 import github.leavesczy.matisse.internal.logic.MatisseMediaExtend
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
+import github.leavesczy.matisse.internal.logic.MatissePlaceholderState
 
 /**
  * @Author: leavesCZY
@@ -82,23 +85,41 @@ internal fun MatissePage(
                 .padding(paddingValues = innerPadding)
                 .fillMaxSize()
         ) {
-            MediaList(
-                modifier = Modifier
-                    .fillMaxSize(),
-                pageViewState = pageViewState,
-                onRequestTakePicture = onRequestTakePicture,
-                selectMediaInFastSelectMode = selectMediaInFastSelectMode
-            )
-            val selectedBucket = pageViewState.selectedBucket
-            val placeholderState = pageViewState.placeholderState
-            val showEmptyPlaceholder =
-                selectedBucket.resources.isEmpty() && placeholderState != null
-            if (showEmptyPlaceholder) {
-                MatissePlaceholder(
-                    modifier = Modifier
-                        .align(alignment = Alignment.Center),
-                    placeholderState = placeholderState
-                )
+            when (val placeholderState = pageViewState.placeholderState) {
+                is MatissePlaceholderState.Nothing -> {
+                    if (placeholderState.hasReadMediaPermission) {
+                        MediaList(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            pageViewState = pageViewState,
+                            onRequestTakePicture = onRequestTakePicture,
+                            selectMediaInFastSelectMode = selectMediaInFastSelectMode
+                        )
+                    }
+                }
+
+                is MatissePlaceholderState.NoPermission -> {
+                    MatisseNoPermissionPlaceholder(
+                        modifier = Modifier
+                            .align(alignment = Alignment.Center)
+                    )
+                }
+
+                is MatissePlaceholderState.NoMedia -> {
+                    if (pageViewState.selectedBucket.supportCapture) {
+                        CaptureItem(
+                            modifier = Modifier,
+                            gridColumns = pageViewState.matisse.gridColumns,
+                            onRequestTakePicture = onRequestTakePicture
+                        )
+                    }
+                    MatisseEmptyPlaceholder(
+                        modifier = Modifier
+                            .align(alignment = Alignment.Center),
+                        requestImage = placeholderState.requestImage,
+                        requestVideo = placeholderState.requestVideo
+                    )
+                }
             }
         }
     }
@@ -185,6 +206,30 @@ private fun CaptureItem(
             painter = painterResource(id = R.drawable.ic_matisse_photo_camera),
             tint = colorResource(id = R.color.matisse_capture_icon_color),
             contentDescription = stringResource(id = R.string.matisse_cd_capture)
+        )
+    }
+}
+
+@Composable
+private fun CaptureItem(
+    modifier: Modifier,
+    gridColumns: Int,
+    onRequestTakePicture: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CaptureItem(
+            modifier = Modifier
+                .weight(weight = 1f),
+            onClick = onRequestTakePicture
+        )
+        Spacer(
+            modifier = Modifier
+                .weight(weight = (gridColumns - 1).toFloat())
         )
     }
 }
