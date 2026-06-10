@@ -24,13 +24,5 @@
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Matisse.Theme.Capture" />
-        <activity
-            android:name=".internal.MatisseVideoViewActivity"
-            android:configChanges="orientation"
-            android:exported="false"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait"
-            android:theme="@style/Matisse.Theme.VideoView"
-            tools:ignore="DiscouragedApi" />
     </application>
 </manifest>

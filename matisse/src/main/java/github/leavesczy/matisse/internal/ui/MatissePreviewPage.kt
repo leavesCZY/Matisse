@@ -53,7 +53,6 @@ import kotlin.math.absoluteValue
 internal fun MatissePreviewPage(
     pageViewState: MatissePreviewPageViewState,
     imageEngine: ImageEngine,
-    requestOpenVideo: (MediaResource) -> Unit,
     onClickSure: () -> Unit
 ) {
     AnimatedVisibility(
@@ -75,51 +74,65 @@ internal fun MatissePreviewPage(
             targetOffsetX = { it }
         )
     ) {
-        BackHandler(
-            enabled = pageViewState.visible,
-            onBack = pageViewState.onDismissRequest
+        MatissePreviewPageContent(
+            pageViewState = pageViewState,
+            imageEngine = imageEngine,
+            onClickSure = onClickSure
         )
-        val pagerState = rememberPagerState(initialPage = pageViewState.initialPage) {
-            pageViewState.previewResources.size
-        }
-        Scaffold(
+    }
+}
+
+@Composable
+private fun MatissePreviewPageContent(
+    pageViewState: MatissePreviewPageViewState,
+    imageEngine: ImageEngine,
+    onClickSure: () -> Unit
+) {
+    BackHandler(
+        enabled = pageViewState.visible,
+        onBack = pageViewState.onDismissRequest
+    )
+    val pagerState = rememberPagerState(initialPage = pageViewState.initialPage) {
+        pageViewState.previewResources.size
+    }
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickableNoRipple(onClick = {}),
+        contentWindowInsets = WindowInsets(),
+        containerColor = colorResource(id = R.color.matisse_preview_page_background_color)
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
-                .fillMaxSize(),
-            contentWindowInsets = WindowInsets(),
-            containerColor = colorResource(id = R.color.matisse_preview_page_background_color)
-        ) { paddingValues ->
-            Column(
+                .padding(paddingValues = paddingValues)
+                .fillMaxSize()
+        ) {
+            HorizontalPager(
                 modifier = Modifier
-                    .padding(paddingValues = paddingValues)
-                    .fillMaxSize()
-            ) {
-                HorizontalPager(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(weight = 1f),
-                    state = pagerState,
-                    key = { index ->
-                        pageViewState.previewResources[index].mediaId
-                    }
-                ) { pageIndex ->
-                    PreviewPage(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        pagerState = pagerState,
-                        pageIndex = pageIndex,
-                        imageEngine = imageEngine,
-                        mediaResource = pageViewState.previewResources[pageIndex].media,
-                        requestOpenVideo = requestOpenVideo
-                    )
+                    .fillMaxWidth()
+                    .weight(weight = 1f),
+                state = pagerState,
+                key = { index ->
+                    pageViewState.previewResources[index].mediaId
                 }
-                BottomController(
+            ) { pageIndex ->
+                PreviewPage(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    pageViewState = pageViewState,
+                        .fillMaxSize(),
                     pagerState = pagerState,
-                    onClickSure = onClickSure
+                    pageIndex = pageIndex,
+                    imageEngine = imageEngine,
+                    mediaResource = pageViewState.previewResources[pageIndex].media,
+                    requestOpenVideo = pageViewState.requestOpenVideo
                 )
             }
+            BottomController(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                pageViewState = pageViewState,
+                pagerState = pagerState,
+                onClickSure = onClickSure
+            )
         }
     }
 }

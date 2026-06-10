@@ -1,5 +1,6 @@
 package github.leavesczy.matisse.internal.logic
 
+import android.net.Uri
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import github.leavesczy.matisse.Matisse
@@ -72,11 +73,19 @@ internal data class MatisseBottomBarViewState(
 @Stable
 internal data class MatissePreviewPageViewState(
     val visible: Boolean,
+    val maxSelectable: Int,
     val initialPage: Int,
     val selectedImageSize: Int,
-    val maxSelectable: Int,
     val previewResources: List<MatisseMediaExtend>,
     val onMediaCheckChanged: (MatisseMediaExtend) -> Unit,
+    val requestOpenVideo: (MediaResource) -> Unit,
+    val onDismissRequest: () -> Unit
+)
+
+@Stable
+internal data class MatisseVideoPlayerPageViewState(
+    val visible: Boolean,
+    val videoUri: Uri,
     val onDismissRequest: () -> Unit
 )
 

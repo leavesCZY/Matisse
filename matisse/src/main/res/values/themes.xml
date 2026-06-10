@@ -4,7 +4,6 @@
     <style name="Matisse.Theme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowAnimationStyle">@style/Matisse.Animation.Activity</item>
         <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges
         </item>
     </style>
@@ -15,29 +14,6 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowAnimationStyle">@android:style/Animation.Translucent</item>
-    </style>
-
-    <style name="Matisse.Theme.VideoView" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowAnimationStyle">@style/Matisse.Animation.Activity</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges
-        </item>
-    </style>
-
-    <style name="Matisse.Animation.Activity" parent="@android:style/Animation.Activity">
-        <item name="android:activityOpenExitAnimation">@anim/animation_matisse_activity_static
-        </item>
-        <item name="android:activityOpenEnterAnimation">
-            @anim/animation_matisse_activity_from_right_to_center
-        </item>
-        <item name="android:activityCloseExitAnimation">
-            @anim/animation_matisse_activity_from_center_to_right
-        </item>
-        <item name="android:activityCloseEnterAnimation">@anim/animation_matisse_activity_static
-        </item>
     </style>
 
 </resources>

@@ -5,6 +5,11 @@ import android.net.Uri
 import android.widget.MediaController
 import android.widget.VideoView
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -22,6 +27,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import github.leavesczy.matisse.R
+import github.leavesczy.matisse.internal.logic.MatisseVideoPlayerPageViewState
 
 /**
  * @Author: leavesCZY
@@ -29,15 +35,41 @@ import github.leavesczy.matisse.R
  * @Desc:
  */
 @Composable
-internal fun MatisseVideoViewPage(
-    videoUri: Uri,
-    onBack: () -> Unit
-) {
-    BackHandler(onBack = onBack)
+internal fun MatisseVideoPlayerPage(pageViewState: MatisseVideoPlayerPageViewState) {
+    AnimatedVisibility(
+        modifier = Modifier
+            .fillMaxSize(),
+        visible = pageViewState.visible,
+        enter = slideInHorizontally(
+            animationSpec = tween(
+                durationMillis = 350,
+                easing = FastOutSlowInEasing
+            ),
+            initialOffsetX = { it }
+        ),
+        exit = slideOutHorizontally(
+            animationSpec = tween(
+                durationMillis = 350,
+                easing = FastOutSlowInEasing
+            ),
+            targetOffsetX = { it }
+        )
+    ) {
+        MatisseVideoPlayerPageContent(pageViewState = pageViewState)
+    }
+}
+
+@Composable
+private fun MatisseVideoPlayerPageContent(pageViewState: MatisseVideoPlayerPageViewState) {
+    BackHandler(
+        enabled = pageViewState.visible,
+        onBack = pageViewState.onDismissRequest
+    )
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorResource(id = R.color.matisse_video_player_background_color)),
+            .background(color = colorResource(id = R.color.matisse_video_player_background_color))
+            .clickableNoRipple(onClick = {}),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -49,7 +81,7 @@ internal fun MatisseVideoViewPage(
             modifier = Modifier
                 .weight(weight = 16f)
                 .fillMaxHeight(),
-            videoUri = videoUri
+            videoUri = pageViewState.videoUri
         )
         Spacer(
             modifier = Modifier

@@ -1,6 +1,7 @@
 package github.leavesczy.matisse.internal.logic
 
 import android.app.Application
+import android.net.Uri
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,6 +71,16 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             maxSelectable = maxSelectable,
             previewResources = emptyList(),
             onMediaCheckChanged = {},
+            requestOpenVideo = {},
+            onDismissRequest = {}
+        )
+    )
+        private set
+
+    var videoPlayerPageViewState by mutableStateOf(
+        value = MatisseVideoPlayerPageViewState(
+            visible = false,
+            videoUri = Uri.EMPTY,
             onDismissRequest = {}
         )
     )
@@ -337,7 +348,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private fun onClickMedia(mediaResource: MatisseMediaExtend) {
         val totalResources = pageViewState.selectedBucket.resources
-        previewResource(
+        showPreviewPage(
             initialPage = totalResources.indexOf(element = mediaResource),
             totalResources = totalResources,
             selectedResources = filterSelectedMediaResource()
@@ -346,24 +357,26 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private fun onClickPreviewButton() {
         val selected = filterSelectedMediaResource()
-        previewResource(
+        showPreviewPage(
             initialPage = 0,
             totalResources = selected,
             selectedResources = selected
         )
     }
 
-    private fun previewResource(
+    private fun showPreviewPage(
         initialPage: Int,
         totalResources: List<MatisseMediaExtend>,
         selectedResources: List<MatisseMediaExtend>
     ) {
-        previewPageViewState = previewPageViewState.copy(
+        previewPageViewState = MatissePreviewPageViewState(
             visible = true,
+            maxSelectable = maxSelectable,
             initialPage = initialPage,
             selectedImageSize = selectedResources.size,
             previewResources = totalResources,
             onMediaCheckChanged = ::onMediaCheckChanged,
+            requestOpenVideo = ::requestOpenVideo,
             onDismissRequest = ::dismissPreviewPage
         )
     }
@@ -374,9 +387,29 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             previewPageViewState = viewState.copy(
                 visible = false,
                 onMediaCheckChanged = {},
+                requestOpenVideo = {},
                 onDismissRequest = {}
             )
         }
+    }
+
+    private fun requestOpenVideo(mediaResource: MediaResource) {
+        showVideoPlayerPage(videoUri = mediaResource.uri)
+    }
+
+    private fun showVideoPlayerPage(videoUri: Uri) {
+        videoPlayerPageViewState = MatisseVideoPlayerPageViewState(
+            visible = true,
+            videoUri = videoUri,
+            onDismissRequest = ::dismissVideoPlayerPage
+        )
+    }
+
+    private fun dismissVideoPlayerPage() {
+        videoPlayerPageViewState = videoPlayerPageViewState.copy(
+            visible = false,
+            onDismissRequest = {}
+        )
     }
 
     fun filterSelectedMedia(): List<MediaResource> {

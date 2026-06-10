@@ -26,6 +26,7 @@ import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.ui.MatisseTheme
+import github.leavesczy.matisse.internal.ui.MatisseVideoPlayerPage
 import kotlinx.coroutines.flow.collectLatest
 
 /**
@@ -93,8 +94,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 MatissePreviewPage(
                     pageViewState = matisseViewModel.previewPageViewState,
                     imageEngine = matisseViewModel.pageViewState.matisse.imageEngine,
-                    requestOpenVideo = ::requestOpenVideo,
                     onClickSure = ::onClickSure
+                )
+                MatisseVideoPlayerPage(
+                    pageViewState = matisseViewModel.videoPlayerPageViewState
                 )
                 MatisseLoadingDialog(
                     modifier = Modifier,
@@ -126,12 +129,6 @@ internal class MatisseActivity : BaseCaptureActivity() {
         } else {
             requestReadMediaPermissionLauncher.launch(permissions)
         }
-    }
-
-    private fun requestOpenVideo(mediaResource: MediaResource) {
-        val intent = Intent(this, MatisseVideoViewActivity::class.java)
-        intent.putExtra(MediaResource::class.java.name, mediaResource)
-        startActivity(intent)
     }
 
     override fun dispatchTakePictureResult(mediaResource: MediaResource) {
