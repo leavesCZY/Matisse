@@ -4,24 +4,17 @@
 
 ## Features
 
-A modern image and video picker framework for Android, built with Jetpack Compose.
+An Android image and video picker framework built with Jetpack Compose.
 
-- **Broad Compatibility**: Effectively resolves compatibility issues across various Android system
-  versions.
-- **Permission Best Practices**: Follows Android's recommended permission management practices by
-  requesting permissions only as needed.
-- **Pure Kotlin & Compose**: Built entirely with Kotlin and Jetpack Compose, embracing the modern
-  Android development ecosystem.
-- **Flexible Capture Strategies**: Supports multiple media capture strategies and allows developers
-  to define custom camera logic.
-- **Custom Image Loading**: Seamlessly integrate with any image loading library (such as Coil or
-  Glide).
-- **Versatile Selection Modes**: Supports picking images and videos simultaneously or filtering for
-  a specific media type.
-- **Comprehensive Theming**: Provides deep UI customization capabilities with built-in Light and
-  Dark default themes.
+- **Broad Compatibility**: Effectively resolves compatibility issues across various Android system versions.
+- **Permission Best Practices**: Follows Android's recommended permission management practices by requesting permissions only as needed.
+- **Pure Kotlin & Compose**: Built entirely with Kotlin and Jetpack Compose, embracing the modern Android development ecosystem.
+- **Flexible Capture Strategies**: Supports multiple media capture strategies and allows developers to define custom camera logic.
+- **Custom Image Loading**: Seamlessly integrate with any image loading library (such as Coil or Glide).
+- **Versatile Selection Modes**: Supports picking images and videos simultaneously or filtering for a specific media type.
+- **Comprehensive Theming**: Provides deep UI customization capabilities with built-in Light and Dark default themes.
 
-## Dependency
+## Installation
 
 ```kotlin
 dependencyResolutionManagement {
@@ -38,7 +31,7 @@ dependencies {
 
 ## Documentation
 
-[How to Use the Matisse](https://github.com/leavesCZY/Matisse/wiki)
+[Matisse Integration Guide](https://github.com/leavesCZY/Matisse/wiki)
 
 |                                          Light Theme                                           |                                           Dark Theme                                           |                                          Custom Theme                                          |
 |:----------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------:|

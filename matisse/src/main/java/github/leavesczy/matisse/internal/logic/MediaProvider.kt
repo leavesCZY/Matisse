@@ -68,8 +68,6 @@ internal object MediaProvider {
         return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID
             val pathColumn = MediaStore.MediaColumns.DATA
-            val sizeColumn = MediaStore.MediaColumns.SIZE
-            val displayNameColumn = MediaStore.MediaColumns.DISPLAY_NAME
             val mineTypeColumn = MediaStore.MediaColumns.MIME_TYPE
             val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
             val bucketDisplayNameColumn = MediaStore.MediaColumns.BUCKET_DISPLAY_NAME
@@ -77,8 +75,6 @@ internal object MediaProvider {
             val projection = arrayOf(
                 idColumn,
                 pathColumn,
-                sizeColumn,
-                displayNameColumn,
                 mineTypeColumn,
                 bucketIdColumn,
                 bucketDisplayNameColumn

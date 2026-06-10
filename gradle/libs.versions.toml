@@ -19,7 +19,7 @@ androidx-compose-bom = "2026.05.01"
 
 junit = "4.13.2"
 
-coil = "3.4.0"
+coil = "3.5.0"
 glide = "1.0.0-beta09"
 
 leavesczy-matisse = "2.3.2"
