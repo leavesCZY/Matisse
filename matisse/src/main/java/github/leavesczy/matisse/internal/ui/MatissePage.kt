@@ -40,7 +40,7 @@ import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
-import github.leavesczy.matisse.internal.logic.MatisseMediaExtend
+import github.leavesczy.matisse.internal.logic.MatisseMediaItem
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
 import github.leavesczy.matisse.internal.logic.MatissePlaceholderState
 
@@ -48,9 +48,9 @@ import github.leavesczy.matisse.internal.logic.MatissePlaceholderState
 internal fun MatissePage(
     pageViewState: MatissePageViewState,
     bottomBarViewState: MatisseBottomBarViewState,
-    onRequestTakePicture: () -> Unit,
-    onClickConfirm: () -> Unit,
-    selectMediaInFastSelectMode: (MediaResource) -> Unit
+    onTakePictureRequest: () -> Unit,
+    onConfirmClick: () -> Unit,
+    onFastSelectMedia: (MediaResource) -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -60,8 +60,8 @@ internal fun MatissePage(
             MatisseTopBar(
                 modifier = Modifier,
                 bucketName = pageViewState.selectedBucket.bucketName,
-                mediaBucketsInfo = pageViewState.mediaBucketsInfo,
-                onClickBucket = pageViewState.onClickBucket,
+                mediaBuckets = pageViewState.mediaBuckets,
+                onBucketClick = pageViewState.onBucketClick,
                 imageEngine = pageViewState.matisse.imageEngine
             )
         },
@@ -69,8 +69,8 @@ internal fun MatissePage(
             if (!pageViewState.matisse.fastSelect) {
                 MatisseBottomBar(
                     modifier = Modifier,
-                    viewState = bottomBarViewState,
-                    onClickConfirm = onClickConfirm
+                    bottomBarViewState = bottomBarViewState,
+                    onConfirmClick = onConfirmClick
                 )
             }
         }
@@ -81,14 +81,14 @@ internal fun MatissePage(
                 .fillMaxSize()
         ) {
             when (val placeholderState = pageViewState.placeholderState) {
-                is MatissePlaceholderState.Nothing -> {
+                is MatissePlaceholderState.Ready -> {
                     if (placeholderState.hasReadMediaPermission) {
                         MediaList(
                             modifier = Modifier
                                 .fillMaxSize(),
                             pageViewState = pageViewState,
-                            onRequestTakePicture = onRequestTakePicture,
-                            selectMediaInFastSelectMode = selectMediaInFastSelectMode
+                            onTakePictureRequest = onTakePictureRequest,
+                            onFastSelectMedia = onFastSelectMedia
                         )
                     }
                 }
@@ -101,18 +101,18 @@ internal fun MatissePage(
                 }
 
                 is MatissePlaceholderState.NoMedia -> {
-                    if (pageViewState.selectedBucket.supportCapture) {
+                    if (pageViewState.selectedBucket.supportsCapture) {
                         CaptureItem(
                             modifier = Modifier,
                             gridColumns = pageViewState.matisse.gridColumns,
-                            onRequestTakePicture = onRequestTakePicture
+                            onTakePictureRequest = onTakePictureRequest
                         )
                     }
                     MatisseEmptyPlaceholder(
                         modifier = Modifier
                             .align(alignment = Alignment.Center),
-                        requestImage = placeholderState.requestImage,
-                        requestVideo = placeholderState.requestVideo
+                        includesImages = placeholderState.includesImages,
+                        includesVideos = placeholderState.includesVideos
                     )
                 }
             }
@@ -124,8 +124,8 @@ internal fun MatissePage(
 private fun MediaList(
     modifier: Modifier,
     pageViewState: MatissePageViewState,
-    onRequestTakePicture: () -> Unit,
-    selectMediaInFastSelectMode: (MediaResource) -> Unit
+    onTakePictureRequest: () -> Unit,
+    onFastSelectMedia: (MediaResource) -> Unit
 ) {
     val lazyGridState = rememberLazyGridState()
     LaunchedEffect(key1 = pageViewState.selectedBucket.bucketId) {
@@ -139,7 +139,7 @@ private fun MediaList(
         verticalArrangement = Arrangement.spacedBy(space = 1.dp),
         contentPadding = PaddingValues(bottom = 20.dp)
     ) {
-        if (pageViewState.selectedBucket.supportCapture) {
+        if (pageViewState.selectedBucket.supportsCapture) {
             item(
                 key = "CaptureItem",
                 contentType = "CaptureItem"
@@ -147,12 +147,12 @@ private fun MediaList(
                 CaptureItem(
                     modifier = Modifier
                         .matisseAnimateItem(lazyGridItemScope = this),
-                    onClick = onRequestTakePicture
+                    onTakePictureClick = onTakePictureRequest
                 )
             }
         }
         items(
-            items = pageViewState.selectedBucket.resources,
+            items = pageViewState.selectedBucket.mediaItems,
             key = {
                 it.mediaId
             },
@@ -164,18 +164,18 @@ private fun MediaList(
                 MediaItemFastSelect(
                     modifier = Modifier
                         .matisseAnimateItem(lazyGridItemScope = this),
-                    mediaResource = it.media,
+                    mediaResource = it.mediaResource,
                     imageEngine = pageViewState.matisse.imageEngine,
-                    onClickMedia = selectMediaInFastSelectMode
+                    onMediaClick = onFastSelectMedia
                 )
             } else {
                 MediaItem(
                     modifier = Modifier
                         .matisseAnimateItem(lazyGridItemScope = this),
-                    mediaResource = it,
+                    mediaItem = it,
                     imageEngine = pageViewState.matisse.imageEngine,
-                    onClickMedia = pageViewState.onClickMedia,
-                    onClickCheckBox = pageViewState.onMediaCheckChanged
+                    onMediaClick = pageViewState.onMediaClick,
+                    onMediaCheckChanged = pageViewState.onMediaCheckChanged
                 )
             }
         }
@@ -185,14 +185,14 @@ private fun MediaList(
 @Composable
 private fun CaptureItem(
     modifier: Modifier,
-    onClick: () -> Unit
+    onTakePictureClick: () -> Unit
 ) {
     Box(
         modifier = modifier
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_capture_background_color))
-            .clickable(onClick = onClick),
+            .clickable(onClick = onTakePictureClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -209,7 +209,7 @@ private fun CaptureItem(
 private fun CaptureItem(
     modifier: Modifier,
     gridColumns: Int,
-    onRequestTakePicture: () -> Unit
+    onTakePictureRequest: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -220,7 +220,7 @@ private fun CaptureItem(
         CaptureItem(
             modifier = Modifier
                 .weight(weight = 1f),
-            onClick = onRequestTakePicture
+            onTakePictureClick = onTakePictureRequest
         )
         Spacer(
             modifier = Modifier
@@ -232,21 +232,21 @@ private fun CaptureItem(
 @Composable
 private fun MediaItem(
     modifier: Modifier,
-    mediaResource: MatisseMediaExtend,
+    mediaItem: MatisseMediaItem,
     imageEngine: ImageEngine,
-    onClickMedia: (MatisseMediaExtend) -> Unit,
-    onClickCheckBox: (MatisseMediaExtend) -> Unit
+    onMediaClick: (MatisseMediaItem) -> Unit,
+    onMediaCheckChanged: (MatisseMediaItem) -> Unit
 ) {
     Box(
         modifier = modifier
             .aspectRatio(ratio = 1f)
             .clickable {
-                onClickMedia(mediaResource)
+                onMediaClick(mediaItem)
             },
         contentAlignment = Alignment.Center
     ) {
-        imageEngine.Thumbnail(mediaResource = mediaResource.media)
-        if (mediaResource.media.isVideo) {
+        imageEngine.Thumbnail(mediaResource = mediaItem.mediaResource)
+        if (mediaItem.mediaResource.isVideo) {
             VideoIcon(
                 modifier = Modifier
                     .fillMaxSize(fraction = 0.24f)
@@ -254,7 +254,7 @@ private fun MediaItem(
         }
         MediaItemScrimColor(
             modifier = Modifier,
-            isSelected = mediaResource.selectState.value.isSelected
+            isSelected = mediaItem.selectionState.value.isSelected
         )
         MatisseCheckbox(
             modifier = Modifier
@@ -262,9 +262,9 @@ private fun MediaItem(
                 .fillMaxSize(fraction = 0.28f)
                 .wrapContentSize(align = Alignment.Center)
                 .fillMaxSize(fraction = 0.80f),
-            selectState = mediaResource.selectState.value,
-            onClick = {
-                onClickCheckBox(mediaResource)
+            selectionState = mediaItem.selectionState.value,
+            onCheckedChange = {
+                onMediaCheckChanged(mediaItem)
             }
         )
     }
@@ -295,13 +295,13 @@ private fun MediaItemFastSelect(
     modifier: Modifier,
     mediaResource: MediaResource,
     imageEngine: ImageEngine,
-    onClickMedia: (MediaResource) -> Unit
+    onMediaClick: (MediaResource) -> Unit
 ) {
     Box(
         modifier = modifier
             .aspectRatio(ratio = 1f)
             .clickable {
-                onClickMedia(mediaResource)
+                onMediaClick(mediaResource)
             },
         contentAlignment = Alignment.Center
     ) {

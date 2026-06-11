@@ -27,10 +27,10 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     private val requestWriteExternalStoragePermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
-                requestCameraPermissionIfNeed()
+                requestCameraPermissionIfNeeded()
             } else {
                 showToast(id = R.string.matisse_error_write_storage_permission)
-                takePictureCancelled()
+                onTakePictureCancelled()
             }
         }
 
@@ -40,36 +40,36 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 takePicture()
             } else {
                 showToast(id = R.string.matisse_error_camera_permission)
-                takePictureCancelled()
+                onTakePictureCancelled()
             }
         }
 
     private val takePictureLauncher =
-        registerForActivityResult(MatisseTakePictureContract()) { successful ->
-            takePictureResult(successful = successful)
+        registerForActivityResult(MatisseTakePictureContract()) { isSuccessful ->
+            handleTakePictureResult(isSuccessful = isSuccessful)
         }
 
-    private var tempImageUriForTakePicture: Uri? = null
+    private var pendingCaptureUri: Uri? = null
 
     protected fun requestTakePicture() {
         if (captureStrategy.shouldRequestWriteExternalStoragePermission(context = applicationContext)) {
             requestWriteExternalStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         } else {
-            requestCameraPermissionIfNeed()
+            requestCameraPermissionIfNeeded()
         }
     }
 
-    private fun requestCameraPermissionIfNeed() {
+    private fun requestCameraPermissionIfNeeded() {
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
             val cameraPermission = Manifest.permission.CAMERA
-            val requirePermissionToTakePhotos = containsPermission(
+            val shouldRequestCameraPermission = containsPermission(
                 context = applicationContext,
                 permission = cameraPermission
             ) && !permissionGranted(
                 context = applicationContext,
                 permission = cameraPermission
             )
-            if (requirePermissionToTakePhotos) {
+            if (shouldRequestCameraPermission) {
                 requestCameraPermissionLauncher.launch(cameraPermission)
             } else {
                 takePicture()
@@ -79,14 +79,14 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     private fun takePicture() {
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
-            tempImageUriForTakePicture = null
+            pendingCaptureUri = null
             val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (captureIntent.resolveActivity(packageManager) != null) {
                 val imageUri = captureStrategy.createImageUri(context = applicationContext)
                 if (imageUri != null) {
-                    tempImageUriForTakePicture = imageUri
+                    pendingCaptureUri = imageUri
                     takePictureLauncher.launch(
-                        MatisseTakePictureContract.MatisseTakePictureContractParams(
+                        MatisseTakePictureContract.Params(
                             uri = imageUri,
                             extra = captureStrategy.getCaptureExtra()
                         )
@@ -96,38 +96,38 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             } else {
                 showToast(id = R.string.matisse_error_no_camera_app)
             }
-            takePictureCancelled()
+            onTakePictureCancelled()
         }
     }
 
-    private fun takePictureResult(successful: Boolean) {
+    private fun handleTakePictureResult(isSuccessful: Boolean) {
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
-            val imageUri = tempImageUriForTakePicture
-            tempImageUriForTakePicture = null
+            val imageUri = pendingCaptureUri
+            pendingCaptureUri = null
             if (imageUri != null) {
-                if (successful) {
-                    val resource = captureStrategy.loadResource(
+                if (isSuccessful) {
+                    val capturedMedia = captureStrategy.loadCapturedMedia(
                         context = applicationContext,
                         imageUri = imageUri
                     )
-                    if (resource != null) {
-                        dispatchTakePictureResult(mediaResource = resource)
+                    if (capturedMedia != null) {
+                        onCapturedMedia(mediaResource = capturedMedia)
                         return@launch
                     }
                 } else {
-                    captureStrategy.onTakePictureCanceled(
+                    captureStrategy.onTakePictureCancelled(
                         context = applicationContext,
                         imageUri = imageUri
                     )
                 }
             }
-            takePictureCancelled()
+            onTakePictureCancelled()
         }
     }
 
-    protected abstract fun dispatchTakePictureResult(mediaResource: MediaResource)
+    protected abstract fun onCapturedMedia(mediaResource: MediaResource)
 
-    protected abstract fun takePictureCancelled()
+    protected abstract fun onTakePictureCancelled()
 
     protected fun permissionGranted(context: Context, permissions: Array<String>): Boolean {
         return permissions.all {

@@ -1,6 +1,6 @@
 *.iml
-local.properties
 .gradle
 .idea
 .kotlin
 /build
+local.properties

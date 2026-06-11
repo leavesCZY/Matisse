@@ -23,29 +23,29 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val takePictureLauncher =
                 rememberLauncherForActivityResult(contract = MatisseCaptureContract()) {
-                    mainViewModel.takePictureResult(result = it)
+                    mainViewModel.onTakePictureResult(mediaResource = it)
                 }
             val mediaPickerLauncher =
                 rememberLauncherForActivityResult(contract = MatisseContract()) {
-                    mainViewModel.mediaPickerResult(result = it)
+                    mainViewModel.onMediaPickerResult(result = it)
                 }
             MatisseTheme(darkTheme = mainViewModel.pageViewState.darkTheme) {
                 MainPage(
                     pageViewState = mainViewModel.pageViewState,
-                    onClickImageAndVideo = {
+                    onPickImageAndVideo = {
                         mediaPickerLauncher.launch(
                             mainViewModel.buildMatisse(mediaType = MediaType.ImageAndVideo)
                         )
                     },
-                    onClickImageOnly = {
+                    onPickImageOnly = {
                         mediaPickerLauncher.launch(
                             mainViewModel.buildMatisse(mediaType = MediaType.ImageOnly)
                         )
                     },
-                    onClickVideoOnly = {
+                    onPickVideoOnly = {
                         mediaPickerLauncher.launch(input = mainViewModel.buildMatisse(mediaType = MediaType.VideoOnly))
                     },
-                    onClickGifAndMp4 = {
+                    onPickGifAndMp4 = {
                         mediaPickerLauncher.launch(
                             input = mainViewModel.buildMatisse(
                                 mediaType = MediaType.MultipleMimeType(
@@ -54,8 +54,8 @@ class MainActivity : AppCompatActivity() {
                             )
                         )
                     },
-                    onClickTakePicture = {
-                        val matisseCapture = mainViewModel.buildMediaCaptureStrategy()
+                    onTakePictureClick = {
+                        val matisseCapture = mainViewModel.buildMatisseCapture()
                         if (matisseCapture != null) {
                             takePictureLauncher.launch(input = matisseCapture)
                         }

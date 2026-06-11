@@ -41,12 +41,12 @@ interface CaptureStrategy : Parcelable {
     /**
      * 获取拍照结果
      */
-    suspend fun loadResource(context: Context, imageUri: Uri): MediaResource?
+    suspend fun loadCapturedMedia(context: Context, imageUri: Uri): MediaResource?
 
     /**
      * 当用户取消拍照时调用
      */
-    suspend fun onTakePictureCanceled(context: Context, imageUri: Uri)
+    suspend fun onTakePictureCancelled(context: Context, imageUri: Uri)
 
     /**
      * 生成图片名
@@ -106,14 +106,14 @@ class FileProviderCaptureStrategy(
         }
     }
 
-    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
+    override suspend fun loadCapturedMedia(context: Context, imageUri: Uri): MediaResource {
         return MediaResource(
             uri = imageUri,
             mimeType = JPG_MIME_TYPE
         )
     }
 
-    override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
+    override suspend fun onTakePictureCancelled(context: Context, imageUri: Uri) {
         withContext(context = Dispatchers.IO) {
             val imageFile = resolveImageFile(context = context, imageUri = imageUri)
             if (imageFile != null && imageFile.exists()) {
@@ -175,10 +175,10 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
         )
     }
 
-    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
+    override suspend fun loadCapturedMedia(context: Context, imageUri: Uri): MediaResource? {
         return withContext(context = Dispatchers.Default) {
             repeat(times = 10) {
-                val result = loadResources(context = context, uri = imageUri)
+                val result = loadCapturedMediaResource(context = context, uri = imageUri)
                 if (result != null) {
                     return@withContext result
                 }
@@ -188,9 +188,9 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
         }
     }
 
-    private suspend fun loadResources(context: Context, uri: Uri): MediaResource? {
+    private suspend fun loadCapturedMediaResource(context: Context, uri: Uri): MediaResource? {
         return withContext(context = Dispatchers.Default) {
-            val resource = MediaProvider.loadResources(context = context, uri = uri)
+            val resource = MediaProvider.loadMediaInfo(context = context, uri = uri)
             if (resource == null) {
                 null
             } else {
@@ -202,7 +202,7 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
         }
     }
 
-    override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
+    override suspend fun onTakePictureCancelled(context: Context, imageUri: Uri) {
         MediaProvider.deleteMedia(context = context, uri = imageUri)
     }
 
@@ -224,34 +224,34 @@ data class SmartCaptureStrategy(
 ) : CaptureStrategy {
 
     @IgnoredOnParcel
-    private val proxy = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    private val delegate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         MediaStoreCaptureStrategy(extra = fileProviderCaptureStrategy.getCaptureExtra())
     } else {
         fileProviderCaptureStrategy
     }
 
     override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
-        return proxy.shouldRequestWriteExternalStoragePermission(context = context)
+        return delegate.shouldRequestWriteExternalStoragePermission(context = context)
     }
 
     override suspend fun createImageUri(context: Context): Uri? {
-        return proxy.createImageUri(context = context)
+        return delegate.createImageUri(context = context)
     }
 
-    override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
-        return proxy.loadResource(context = context, imageUri = imageUri)
+    override suspend fun loadCapturedMedia(context: Context, imageUri: Uri): MediaResource? {
+        return delegate.loadCapturedMedia(context = context, imageUri = imageUri)
     }
 
-    override suspend fun onTakePictureCanceled(context: Context, imageUri: Uri) {
-        proxy.onTakePictureCanceled(context = context, imageUri = imageUri)
+    override suspend fun onTakePictureCancelled(context: Context, imageUri: Uri) {
+        delegate.onTakePictureCancelled(context = context, imageUri = imageUri)
     }
 
     override suspend fun createImageName(context: Context): String {
-        return proxy.createImageName(context = context)
+        return delegate.createImageName(context = context)
     }
 
     override fun getCaptureExtra(): Bundle {
-        return proxy.getCaptureExtra()
+        return delegate.getCaptureExtra()
     }
 
 }

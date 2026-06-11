@@ -49,8 +49,8 @@ import kotlinx.coroutines.launch
 internal fun MatisseTopBar(
     modifier: Modifier,
     bucketName: String,
-    mediaBucketsInfo: List<MatisseMediaBucketInfo>,
-    onClickBucket: suspend (String) -> Unit,
+    mediaBuckets: List<MatisseMediaBucketInfo>,
+    onBucketClick: suspend (String) -> Unit,
     imageEngine: ImageEngine
 ) {
     var menuExpanded by remember {
@@ -64,22 +64,22 @@ internal fun MatisseTopBar(
         verticalArrangement = Arrangement.Top
     ) {
         StatusBar(modifier = Modifier)
-        MatisseTopBar(
+        MatisseTopBarContent(
             modifier = Modifier,
             title = bucketName,
-            openDropdownMenu = {
+            onOpenBucketMenu = {
                 menuExpanded = true
             }
         )
         BucketDropdownMenu(
             modifier = Modifier,
             expanded = menuExpanded,
-            mediaBuckets = mediaBucketsInfo,
+            mediaBuckets = mediaBuckets,
             imageEngine = imageEngine,
-            onClickBucket = {
+            onBucketClick = {
                 menuExpanded = false
                 coroutineScope.launch {
-                    onClickBucket(it.bucketId)
+                    onBucketClick(it.bucketId)
                 }
             },
             onDismissRequest = {
@@ -100,10 +100,10 @@ private fun StatusBar(modifier: Modifier) {
 }
 
 @Composable
-private fun MatisseTopBar(
+private fun MatisseTopBarContent(
     modifier: Modifier,
     title: String,
-    openDropdownMenu: () -> Unit
+    onOpenBucketMenu: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -129,7 +129,7 @@ private fun MatisseTopBar(
         Text(
             modifier = Modifier
                 .weight(weight = 1f, fill = false)
-                .clickableNoRipple(onClick = openDropdownMenu),
+                .clickableNoRipple(onClick = onOpenBucketMenu),
             text = title,
             fontSize = 20.sp,
             maxLines = 1,
@@ -141,7 +141,7 @@ private fun MatisseTopBar(
         )
         Icon(
             modifier = Modifier
-                .clickableNoRipple(onClick = openDropdownMenu)
+                .clickableNoRipple(onClick = onOpenBucketMenu)
                 .padding(start = 14.dp)
                 .size(size = 32.dp),
             painter = painterResource(id = R.drawable.ic_matisse_arrow_drop_down),
@@ -157,7 +157,7 @@ private fun BucketDropdownMenu(
     expanded: Boolean,
     mediaBuckets: List<MatisseMediaBucketInfo>,
     imageEngine: ImageEngine,
-    onClickBucket: (MatisseMediaBucketInfo) -> Unit,
+    onBucketClick: (MatisseMediaBucketInfo) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     DropdownMenu(
@@ -186,21 +186,21 @@ private fun BucketDropdownMenu(
                                 .clip(shape = RoundedCornerShape(size = 4.dp)),
                             contentAlignment = Alignment.Center
                         ) {
-                            val firstMedia = bucket.firstMedia
-                            if (firstMedia == null) {
+                            val coverMedia = bucket.coverMedia
+                            if (coverMedia == null) {
                                 Spacer(
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .background(color = colorResource(id = R.color.matisse_media_item_background_color))
                                 )
                             } else {
-                                imageEngine.Thumbnail(mediaResource = firstMedia)
+                                imageEngine.Thumbnail(mediaResource = coverMedia)
                             }
                         }
                         Text(
                             modifier = Modifier
                                 .weight(weight = 1f, fill = false),
-                            text = bucket.bucketName + "(${bucket.size})",
+                            text = bucket.bucketName + "(${bucket.itemCount})",
                             fontSize = 15.sp,
                             maxLines = 1,
                             overflow = TextOverflow.MiddleEllipsis,
@@ -211,7 +211,7 @@ private fun BucketDropdownMenu(
                     }
                 },
                 onClick = {
-                    onClickBucket(bucket)
+                    onBucketClick(bucket)
                 }
             )
         }

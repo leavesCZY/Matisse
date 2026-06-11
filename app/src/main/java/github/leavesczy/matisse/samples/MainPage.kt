@@ -45,11 +45,11 @@ import github.leavesczy.matisse.samples.logic.MediaImageEngine
 @Composable
 fun MainPage(
     pageViewState: MainPageViewState,
-    onClickImageAndVideo: () -> Unit,
-    onClickImageOnly: () -> Unit,
-    onClickVideoOnly: () -> Unit,
-    onClickGifAndMp4: () -> Unit,
-    onClickTakePicture: () -> Unit
+    onPickImageAndVideo: () -> Unit,
+    onPickImageOnly: () -> Unit,
+    onPickVideoOnly: () -> Unit,
+    onPickGifAndMp4: () -> Unit,
+    onTakePictureClick: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -94,7 +94,7 @@ fun MainPage(
             ) {
                 for (gridColumns in 2..5) {
                     RadioButton(
-                        tips = gridColumns.toString(),
+                        label = gridColumns.toString(),
                         selected = pageViewState.gridColumns == gridColumns,
                         onClick = {
                             pageViewState.onGridColumnsChanged(gridColumns)
@@ -111,7 +111,7 @@ fun MainPage(
             ) {
                 for (maxSelectable in 1..4) {
                     RadioButton(
-                        tips = maxSelectable.toString(),
+                        label = maxSelectable.toString(),
                         selected = pageViewState.maxSelectable == maxSelectable,
                         onClick = {
                             pageViewState.onMaxSelectableChanged(maxSelectable)
@@ -139,7 +139,7 @@ fun MainPage(
             ) {
                 for (engine in MediaImageEngine.entries) {
                     RadioButton(
-                        tips = engine.name,
+                        label = engine.name,
                         selected = pageViewState.imageEngine == engine,
                         onClick = {
                             pageViewState.onImageEngineChanged(engine)
@@ -167,10 +167,10 @@ fun MainPage(
             ) {
                 for (strategy in MediaFilterStrategy.entries) {
                     RadioButton(
-                        tips = strategy.name,
-                        selected = pageViewState.filterStrategy == strategy,
+                        label = strategy.name,
+                        selected = pageViewState.mediaFilterStrategy == strategy,
                         onClick = {
-                            pageViewState.onFilterStrategyChanged(strategy)
+                            pageViewState.onMediaFilterStrategyChanged(strategy)
                         }
                     )
                 }
@@ -184,7 +184,7 @@ fun MainPage(
             ) {
                 for (strategy in MediaCaptureStrategy.entries) {
                     RadioButton(
-                        tips = strategy.name,
+                        label = strategy.name,
                         selected = pageViewState.captureStrategy == strategy,
                         onClick = {
                             pageViewState.onCaptureStrategyChanged(strategy)
@@ -198,11 +198,11 @@ fun MainPage(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Title(text = "CapturePreferencesCustom")
+                Title(text = "useFrontCamera")
                 Checkbox(
-                    checked = pageViewState.capturePreferencesCustom,
-                    enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Close,
-                    onCheckedChange = pageViewState.onCapturePreferencesCustomChanged
+                    checked = pageViewState.useFrontCamera,
+                    enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Disabled,
+                    onCheckedChange = pageViewState.onUseFrontCameraChanged
                 )
             }
             Column(
@@ -216,32 +216,32 @@ fun MainPage(
             ) {
                 Button(
                     text = "图片 + 视频",
-                    onClick = onClickImageAndVideo
+                    onClick = onPickImageAndVideo
                 )
                 Button(
                     text = "图片",
-                    onClick = onClickImageOnly
+                    onClick = onPickImageOnly
                 )
                 Button(
                     text = "视频",
-                    onClick = onClickVideoOnly
+                    onClick = onPickVideoOnly
                 )
                 Button(
                     text = "gif + mp4",
-                    onClick = onClickGifAndMp4
+                    onClick = onPickGifAndMp4
                 )
                 Button(
                     text = "直接拍照",
-                    enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Close,
-                    onClick = onClickTakePicture
+                    enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Disabled,
+                    onClick = onTakePictureClick
                 )
                 Button(
                     text = "切换主题",
-                    onClick = pageViewState.switchTheme
+                    onClick = pageViewState.onThemeToggled
                 )
             }
-            for (mediaResource in pageViewState.mediaList) {
-                MediaResourceItem(mediaResource = mediaResource)
+            for (media in pageViewState.pickedMediaList) {
+                MediaResourceItem(mediaResource = media)
             }
         }
     }
@@ -288,7 +288,7 @@ private fun Title(text: String) {
 
 @Composable
 private fun RadioButton(
-    tips: String,
+    label: String,
     selected: Boolean,
     onClick: () -> Unit
 ) {
@@ -298,7 +298,7 @@ private fun RadioButton(
     ) {
         Text(
             modifier = Modifier,
-            text = tips,
+            text = label,
             fontSize = 16.sp
         )
         RadioButton(

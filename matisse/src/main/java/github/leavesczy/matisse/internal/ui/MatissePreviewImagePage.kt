@@ -48,7 +48,7 @@ import kotlin.math.absoluteValue
 internal fun MatissePreviewImagePage(
     pageViewState: MatissePreviewImagePageViewState,
     imageEngine: ImageEngine,
-    onClickConfirm: () -> Unit
+    onConfirmClick: () -> Unit
 ) {
     AnimatedVisibility(
         modifier = Modifier
@@ -72,7 +72,7 @@ internal fun MatissePreviewImagePage(
         MatissePreviewImagePageContent(
             pageViewState = pageViewState,
             imageEngine = imageEngine,
-            onClickConfirm = onClickConfirm
+            onConfirmClick = onConfirmClick
         )
     }
 }
@@ -81,14 +81,14 @@ internal fun MatissePreviewImagePage(
 private fun MatissePreviewImagePageContent(
     pageViewState: MatissePreviewImagePageViewState,
     imageEngine: ImageEngine,
-    onClickConfirm: () -> Unit
+    onConfirmClick: () -> Unit
 ) {
     BackHandler(
         enabled = pageViewState.visible,
         onBack = pageViewState.onDismissRequest
     )
     val pagerState = rememberPagerState(initialPage = pageViewState.initialPage) {
-        pageViewState.previewResources.size
+        pageViewState.previewMediaItems.size
     }
     Scaffold(
         modifier = Modifier
@@ -108,7 +108,7 @@ private fun MatissePreviewImagePageContent(
                     .weight(weight = 1f),
                 state = pagerState,
                 key = { index ->
-                    pageViewState.previewResources[index].mediaId
+                    pageViewState.previewMediaItems[index].mediaId
                 }
             ) { pageIndex ->
                 PreviewPage(
@@ -117,16 +117,16 @@ private fun MatissePreviewImagePageContent(
                     pagerState = pagerState,
                     pageIndex = pageIndex,
                     imageEngine = imageEngine,
-                    mediaResource = pageViewState.previewResources[pageIndex].media,
-                    requestOpenVideo = pageViewState.requestOpenVideo
+                    mediaResource = pageViewState.previewMediaItems[pageIndex].mediaResource,
+                    onOpenVideoClick = pageViewState.onOpenVideoClick
                 )
             }
-            BottomController(
+            PreviewBottomBar(
                 modifier = Modifier
                     .fillMaxWidth(),
                 pageViewState = pageViewState,
                 pagerState = pagerState,
-                onClickConfirm = onClickConfirm
+                onConfirmClick = onConfirmClick
             )
         }
     }
@@ -139,7 +139,7 @@ private fun PreviewPage(
     pageIndex: Int,
     imageEngine: ImageEngine,
     mediaResource: MediaResource,
-    requestOpenVideo: (MediaResource) -> Unit
+    onOpenVideoClick: (MediaResource) -> Unit
 ) {
     val fraction by remember {
         derivedStateOf {
@@ -172,7 +172,7 @@ private fun PreviewPage(
                     modifier = Modifier
                         .clip(shape = CircleShape)
                         .clickable {
-                            requestOpenVideo(mediaResource)
+                            onOpenVideoClick(mediaResource)
                         }
                         .padding(all = 10.dp)
                         .size(size = 50.dp)
@@ -183,15 +183,15 @@ private fun PreviewPage(
 }
 
 @Composable
-private fun BottomController(
+private fun PreviewBottomBar(
     modifier: Modifier,
     pageViewState: MatissePreviewImagePageViewState,
     pagerState: PagerState,
-    onClickConfirm: () -> Unit
+    onConfirmClick: () -> Unit
 ) {
     val currentResource by remember {
         derivedStateOf {
-            pageViewState.previewResources[pagerState.currentPage]
+            pageViewState.previewMediaItems[pagerState.currentPage]
         }
     }
     Box(
@@ -217,22 +217,22 @@ private fun BottomController(
             modifier = Modifier
                 .align(alignment = Alignment.Center)
                 .size(size = 27.dp),
-            selectState = currentResource.selectState.value,
-            onClick = {
+            selectionState = currentResource.selectionState.value,
+            onCheckedChange = {
                 pageViewState.onMediaCheckChanged(currentResource)
             }
         )
-        val selectedImageSize = pageViewState.selectedImageSize
+        val selectedMediaCount = pageViewState.selectedMediaCount
         val maxSelectable = pageViewState.maxSelectable
-        val sureButtonClickable = selectedImageSize in 1..maxSelectable
+        val isConfirmEnabled = selectedMediaCount in 1..maxSelectable
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterEnd)
                 .then(
-                    other = if (sureButtonClickable) {
+                    other = if (isConfirmEnabled) {
                         Modifier
                             .clip(shape = CircleShape)
-                            .clickable(onClick = onClickConfirm)
+                            .clickable(onClick = onConfirmClick)
                     } else {
                         Modifier
                     }
@@ -241,7 +241,7 @@ private fun BottomController(
             text = if (maxSelectable > 1) {
                 stringResource(
                     id = R.string.matisse_action_confirm_with_count,
-                    selectedImageSize,
+                    selectedMediaCount,
                     maxSelectable
                 )
             } else {
@@ -251,7 +251,7 @@ private fun BottomController(
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
             color = colorResource(
-                id = if (sureButtonClickable) {
+                id = if (isConfirmEnabled) {
                     R.color.matisse_preview_page_confirm_text_color
                 } else {
                     R.color.matisse_preview_page_confirm_text_disabled_color

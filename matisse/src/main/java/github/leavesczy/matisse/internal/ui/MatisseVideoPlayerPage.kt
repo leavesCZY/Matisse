@@ -97,17 +97,17 @@ private fun MatisseVideoPlayer(
     DisposableEffect(key1 = lifecycleOwner) {
         val lifecycleObserver = object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
-                val position = playbackState.resumePosition
+                val position = playbackState.resumePositionMs
                 if (position > 0) {
                     playbackState.videoView?.seekTo(position)
-                    playbackState.resumePosition = -1
+                    playbackState.resumePositionMs = -1
                 }
             }
 
             override fun onPause(owner: LifecycleOwner) {
                 val videoView = playbackState.videoView
                 if (videoView != null) {
-                    playbackState.resumePosition = videoView.currentPosition
+                    playbackState.resumePositionMs = videoView.currentPosition
                 }
             }
         }
@@ -142,5 +142,5 @@ private fun MatisseVideoPlayer(
 
 private class VideoPlaybackState {
     var videoView: VideoView? = null
-    var resumePosition: Int = -1
+    var resumePositionMs: Int = -1
 }

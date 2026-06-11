@@ -23,24 +23,24 @@ internal class MatisseCaptureActivity : BaseCaptureActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (matisseCapture == null) {
-            setResultCanceled()
+            finishWithCanceledResult()
             return
         }
         requestTakePicture()
     }
 
-    override fun dispatchTakePictureResult(mediaResource: MediaResource) {
+    override fun onCapturedMedia(mediaResource: MediaResource) {
         val intent = Intent()
         intent.putExtra(MediaResource::class.java.name, mediaResource)
         setResult(RESULT_OK, intent)
         finish()
     }
 
-    override fun takePictureCancelled() {
-        setResultCanceled()
+    override fun onTakePictureCancelled() {
+        finishWithCanceledResult()
     }
 
-    private fun setResultCanceled() {
+    private fun finishWithCanceledResult() {
         setResult(RESULT_CANCELED)
         finish()
     }

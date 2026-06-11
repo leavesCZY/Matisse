@@ -29,19 +29,19 @@ class MainViewModel : ViewModel() {
             fastSelect = false,
             singleMediaType = false,
             imageEngine = MediaImageEngine.Coil,
-            filterStrategy = MediaFilterStrategy.Nothing,
+            mediaFilterStrategy = MediaFilterStrategy.None,
             captureStrategy = MediaCaptureStrategy.Smart,
-            capturePreferencesCustom = false,
-            mediaList = emptyList(),
+            useFrontCamera = false,
+            pickedMediaList = emptyList(),
             onGridColumnsChanged = ::onGridColumnsChanged,
             onMaxSelectableChanged = ::onMaxSelectableChanged,
             onFastSelectChanged = ::onFastSelectChanged,
             onSingleMediaTypeChanged = ::onSingleMediaTypeChanged,
             onImageEngineChanged = ::onImageEngineChanged,
-            onFilterStrategyChanged = ::onFilterStrategyChanged,
+            onMediaFilterStrategyChanged = ::onMediaFilterStrategyChanged,
             onCaptureStrategyChanged = ::onCaptureStrategyChanged,
-            onCapturePreferencesCustomChanged = ::onCapturePreferencesCustomChanged,
-            switchTheme = ::switchTheme
+            onUseFrontCameraChanged = ::onUseFrontCameraChanged,
+            onThemeToggled = ::onThemeToggled
         )
     )
         private set
@@ -51,55 +51,55 @@ class MainViewModel : ViewModel() {
     }
 
     private fun onMaxSelectableChanged(maxSelectable: Int) {
-        val viewState = pageViewState
-        val fastSelect = if (viewState.fastSelect) {
+        val currentPageViewState = pageViewState
+        val fastSelect = if (currentPageViewState.fastSelect) {
             maxSelectable == 1
         } else {
             false
         }
-        pageViewState = viewState.copy(
+        pageViewState = currentPageViewState.copy(
             maxSelectable = maxSelectable,
             fastSelect = fastSelect
         )
     }
 
     private fun onFastSelectChanged(fastSelect: Boolean) {
-        val viewState = pageViewState
+        val currentPageViewState = pageViewState
         val maxSelectable = if (fastSelect) {
             1
         } else {
-            viewState.maxSelectable
+            currentPageViewState.maxSelectable
         }
-        pageViewState = viewState.copy(
+        pageViewState = currentPageViewState.copy(
             maxSelectable = maxSelectable,
             fastSelect = fastSelect
         )
     }
 
-    private fun onSingleMediaTypeChanged(singleType: Boolean) {
-        pageViewState = pageViewState.copy(singleMediaType = singleType)
+    private fun onSingleMediaTypeChanged(singleMediaType: Boolean) {
+        pageViewState = pageViewState.copy(singleMediaType = singleMediaType)
     }
 
     private fun onImageEngineChanged(imageEngine: MediaImageEngine) {
         pageViewState = pageViewState.copy(imageEngine = imageEngine)
     }
 
-    private fun onFilterStrategyChanged(filterStrategy: MediaFilterStrategy) {
-        pageViewState = pageViewState.copy(filterStrategy = filterStrategy)
+    private fun onMediaFilterStrategyChanged(mediaFilterStrategy: MediaFilterStrategy) {
+        pageViewState = pageViewState.copy(mediaFilterStrategy = mediaFilterStrategy)
     }
 
     private fun onCaptureStrategyChanged(captureStrategy: MediaCaptureStrategy) {
         pageViewState = pageViewState.copy(captureStrategy = captureStrategy)
     }
 
-    private fun onCapturePreferencesCustomChanged(custom: Boolean) {
-        pageViewState = pageViewState.copy(capturePreferencesCustom = custom)
+    private fun onUseFrontCameraChanged(useFrontCamera: Boolean) {
+        pageViewState = pageViewState.copy(useFrontCamera = useFrontCamera)
     }
 
-    private fun switchTheme() {
-        val viewState = pageViewState
-        val darkTheme = !viewState.darkTheme
-        pageViewState = viewState.copy(darkTheme = darkTheme)
+    private fun onThemeToggled() {
+        val currentPageViewState = pageViewState
+        val darkTheme = !currentPageViewState.darkTheme
+        pageViewState = currentPageViewState.copy(darkTheme = darkTheme)
         if (darkTheme) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         } else {
@@ -107,10 +107,10 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private fun getMediaCaptureStrategy(): CaptureStrategy? {
-        val viewState = pageViewState
+    private fun resolveCaptureStrategy(): CaptureStrategy? {
+        val currentPageViewState = pageViewState
         val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
-        val captureExtra = if (viewState.capturePreferencesCustom) {
+        val captureExtra = if (currentPageViewState.useFrontCamera) {
             val bundle = Bundle()
             bundle.putBoolean("android.intent.extra.USE_FRONT_CAMERA", true)
             bundle.putInt("android.intent.extras.CAMERA_FACING", 1)
@@ -118,7 +118,7 @@ class MainViewModel : ViewModel() {
         } else {
             Bundle.EMPTY
         }
-        return when (viewState.captureStrategy) {
+        return when (currentPageViewState.captureStrategy) {
             MediaCaptureStrategy.Smart -> {
                 SmartCaptureStrategy(
                     fileProviderCaptureStrategy = FileProviderCaptureStrategy(
@@ -139,15 +139,15 @@ class MainViewModel : ViewModel() {
                 MediaStoreCaptureStrategy(extra = captureExtra)
             }
 
-            MediaCaptureStrategy.Close -> {
+            MediaCaptureStrategy.Disabled -> {
                 null
             }
         }
     }
 
     fun buildMatisse(mediaType: MediaType): Matisse {
-        val viewState = pageViewState
-        val imageEngine = when (viewState.imageEngine) {
+        val currentPageViewState = pageViewState
+        val imageEngine = when (currentPageViewState.imageEngine) {
             MediaImageEngine.Coil -> {
                 CoilImageEngine()
             }
@@ -156,55 +156,55 @@ class MainViewModel : ViewModel() {
                 GlideImageEngine()
             }
         }
-        val ignoredResourceUri: Set<Uri>
-        val selectedResourceUri: Set<Uri>
-        when (viewState.filterStrategy) {
-            MediaFilterStrategy.Nothing -> {
-                ignoredResourceUri = emptySet()
-                selectedResourceUri = emptySet()
+        val ignoredMediaUris: Set<Uri>
+        val selectedMediaUris: Set<Uri>
+        when (currentPageViewState.mediaFilterStrategy) {
+            MediaFilterStrategy.None -> {
+                ignoredMediaUris = emptySet()
+                selectedMediaUris = emptySet()
             }
 
-            MediaFilterStrategy.IgnoreSelected -> {
-                ignoredResourceUri = viewState.mediaList.map { it.uri }.toSet()
-                selectedResourceUri = emptySet()
+            MediaFilterStrategy.ExcludePrevious -> {
+                ignoredMediaUris = currentPageViewState.pickedMediaList.map { it.uri }.toSet()
+                selectedMediaUris = emptySet()
             }
 
-            MediaFilterStrategy.AttachSelected -> {
-                ignoredResourceUri = emptySet()
-                selectedResourceUri = viewState.mediaList.map { it.uri }.toSet()
+            MediaFilterStrategy.PreselectPrevious -> {
+                ignoredMediaUris = emptySet()
+                selectedMediaUris = currentPageViewState.pickedMediaList.map { it.uri }.toSet()
             }
         }
         val mediaFilter = DefaultMediaFilter(
-            ignoredMimeType = emptySet(),
-            ignoredResourceUri = ignoredResourceUri,
-            selectedResourceUri = selectedResourceUri
+            ignoredMimeTypes = emptySet(),
+            ignoredMediaUris = ignoredMediaUris,
+            selectedMediaUris = selectedMediaUris
         )
         return Matisse(
-            gridColumns = viewState.gridColumns,
-            maxSelectable = viewState.maxSelectable,
-            fastSelect = viewState.fastSelect,
+            gridColumns = currentPageViewState.gridColumns,
+            maxSelectable = currentPageViewState.maxSelectable,
+            fastSelect = currentPageViewState.fastSelect,
             mediaType = mediaType,
             mediaFilter = mediaFilter,
             imageEngine = imageEngine,
-            singleMediaType = viewState.singleMediaType,
-            captureStrategy = getMediaCaptureStrategy()
+            singleMediaType = currentPageViewState.singleMediaType,
+            captureStrategy = resolveCaptureStrategy()
         )
     }
 
-    fun buildMediaCaptureStrategy(): MatisseCapture? {
-        val captureStrategy = getMediaCaptureStrategy() ?: return null
+    fun buildMatisseCapture(): MatisseCapture? {
+        val captureStrategy = resolveCaptureStrategy() ?: return null
         return MatisseCapture(captureStrategy = captureStrategy)
     }
 
-    fun takePictureResult(result: MediaResource?) {
-        if (result != null) {
-            pageViewState = pageViewState.copy(mediaList = listOf(element = result))
+    fun onTakePictureResult(mediaResource: MediaResource?) {
+        if (mediaResource != null) {
+            pageViewState = pageViewState.copy(pickedMediaList = listOf(element = mediaResource))
         }
     }
 
-    fun mediaPickerResult(result: List<MediaResource>?) {
+    fun onMediaPickerResult(result: List<MediaResource>?) {
         if (!result.isNullOrEmpty()) {
-            pageViewState = pageViewState.copy(mediaList = result)
+            pageViewState = pageViewState.copy(pickedMediaList = result)
         }
     }
 

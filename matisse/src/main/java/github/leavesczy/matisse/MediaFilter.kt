@@ -24,24 +24,24 @@ interface MediaFilter : Parcelable {
 }
 
 /**
- * @param ignoredMimeType 包含在内的 mimeType 将会被忽略，不会展示给用户
- * @param ignoredResourceUri 包含在内的 Uri 将会被忽略，不会展示给用户
- * @param selectedResourceUri 包含在内的 Uri 将会被默认选中，仅在 [Matisse.fastSelect] 为 false 时生效
+ * @param ignoredMimeTypes 包含在内的 mimeType 将会被忽略，不会展示给用户
+ * @param ignoredMediaUris 包含在内的 Uri 将会被忽略，不会展示给用户
+ * @param selectedMediaUris 包含在内的 Uri 将会被默认选中，仅在 [Matisse.fastSelect] 为 false 时生效
  */
 @Parcelize
 class DefaultMediaFilter(
-    private val ignoredMimeType: Set<String> = emptySet(),
-    private val ignoredResourceUri: Set<Uri> = emptySet(),
-    private val selectedResourceUri: Set<Uri> = emptySet()
+    private val ignoredMimeTypes: Set<String> = emptySet(),
+    private val ignoredMediaUris: Set<Uri> = emptySet(),
+    private val selectedMediaUris: Set<Uri> = emptySet()
 ) : MediaFilter {
 
     override suspend fun ignoreMedia(mediaResource: MediaResource): Boolean {
-        return ignoredMimeType.contains(element = mediaResource.mimeType) ||
-                ignoredResourceUri.contains(element = mediaResource.uri)
+        return ignoredMimeTypes.contains(element = mediaResource.mimeType) ||
+                ignoredMediaUris.contains(element = mediaResource.uri)
     }
 
     override suspend fun selectMedia(mediaResource: MediaResource): Boolean {
-        return selectedResourceUri.contains(element = mediaResource.uri)
+        return selectedMediaUris.contains(element = mediaResource.uri)
     }
 
 }

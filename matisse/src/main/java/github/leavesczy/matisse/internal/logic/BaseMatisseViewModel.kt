@@ -21,10 +21,10 @@ internal abstract class BaseMatisseViewModel(application: Application) :
         private set
 
     @CallSuper
-    protected abstract fun filterSelectedMediaResource(): List<MatisseMediaExtend>
+    protected abstract fun getSelectedMediaItems(): List<MatisseMediaItem>
 
     @CallSuper
-    protected abstract fun onPreviewImagePageMediaCheckChanged(mediaExtend: MatisseMediaExtend)
+    protected abstract fun onPreviewImagePageMediaCheckChanged(mediaItem: MatisseMediaItem)
 
     protected fun showLoadingDialog() {
         loadingDialogVisible = true

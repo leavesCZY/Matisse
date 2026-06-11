@@ -16,11 +16,11 @@ internal abstract class MatissePreviewImageViewModel(application: Application, m
         value = MatissePreviewImagePageViewState(
             visible = false,
             initialPage = 0,
-            selectedImageSize = 0,
+            selectedMediaCount = 0,
             maxSelectable = maxSelectable,
-            previewResources = emptyList(),
+            previewMediaItems = emptyList(),
             onMediaCheckChanged = {},
-            requestOpenVideo = {},
+            onOpenVideoClick = {},
             onDismissRequest = {}
         )
     )
@@ -28,42 +28,44 @@ internal abstract class MatissePreviewImageViewModel(application: Application, m
 
     protected fun showPreviewImagePage(
         initialPage: Int,
-        totalResources: List<MatisseMediaExtend>,
-        selectedResources: List<MatisseMediaExtend>
+        previewMediaItems: List<MatisseMediaItem>,
+        selectedMediaItems: List<MatisseMediaItem>
     ) {
         previewImagePageViewState = MatissePreviewImagePageViewState(
             visible = true,
             maxSelectable = maxSelectable,
             initialPage = initialPage,
-            selectedImageSize = selectedResources.size,
-            previewResources = totalResources,
+            selectedMediaCount = selectedMediaItems.size,
+            previewMediaItems = previewMediaItems,
             onMediaCheckChanged = ::onPreviewImagePageMediaCheckChanged,
-            requestOpenVideo = ::requestOpenVideoPlayerPage,
+            onOpenVideoClick = ::openVideoPlayerPage,
             onDismissRequest = ::dismissPreviewImagePage
         )
     }
 
     protected fun dismissPreviewImagePage() {
-        val viewState = previewImagePageViewState
-        if (viewState.visible) {
-            previewImagePageViewState = viewState.copy(
+        val currentPreviewPageViewState = previewImagePageViewState
+        if (currentPreviewPageViewState.visible) {
+            previewImagePageViewState = currentPreviewPageViewState.copy(
                 visible = false,
                 onMediaCheckChanged = {},
-                requestOpenVideo = {},
+                onOpenVideoClick = {},
                 onDismissRequest = {}
             )
         }
     }
 
-    private fun requestOpenVideoPlayerPage(mediaResource: MediaResource) {
-        showVideoPlayerPage(videoUri = mediaResource.uri)
+    private fun openVideoPlayerPage(video: MediaResource) {
+        showVideoPlayerPage(videoUri = video.uri)
     }
 
-    protected fun updatePreviewImagePageIfNeed() {
-        val viewState = previewImagePageViewState
-        if (viewState.visible) {
-            val selectedResources = filterSelectedMediaResource()
-            previewImagePageViewState = viewState.copy(selectedImageSize = selectedResources.size)
+    protected fun updatePreviewImagePageIfNeeded() {
+        val currentPreviewPageViewState = previewImagePageViewState
+        if (currentPreviewPageViewState.visible) {
+            val selectedMediaItems = getSelectedMediaItems()
+            previewImagePageViewState = currentPreviewPageViewState.copy(
+                selectedMediaCount = selectedMediaItems.size
+            )
         }
     }
 

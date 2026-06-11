@@ -53,7 +53,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
 
     private val requestReadMediaPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
-            matisseViewModel.requestReadMediaPermissionResult(
+            matisseViewModel.onReadMediaPermissionResult(
                 granted = result.all {
                     it.value
                 }
@@ -67,7 +67,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         setSystemBarUi(previewPageVisible = false)
         super.onCreate(savedInstanceState)
         if (matisse == null) {
-            setResultCanceled()
+            finishWithCanceledResult()
             return
         }
         setContent {
@@ -82,14 +82,14 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 MatissePage(
                     pageViewState = matisseViewModel.pageViewState,
                     bottomBarViewState = matisseViewModel.bottomBarViewState,
-                    onRequestTakePicture = ::requestTakePicture,
-                    onClickConfirm = ::onClickConfirm,
-                    selectMediaInFastSelectMode = ::selectMediaInFastSelectMode
+                    onTakePictureRequest = ::requestTakePicture,
+                    onConfirmClick = ::onConfirmClick,
+                    onFastSelectMedia = ::onFastSelectMedia
                 )
                 MatissePreviewImagePage(
                     pageViewState = matisseViewModel.previewImagePageViewState,
                     imageEngine = matisseViewModel.pageViewState.matisse.imageEngine,
-                    onClickConfirm = ::onClickConfirm
+                    onConfirmClick = ::onConfirmClick
                 )
                 MatisseVideoPlayerPage(
                     pageViewState = matisseViewModel.videoPlayerPageViewState
@@ -120,62 +120,62 @@ internal class MatisseActivity : BaseCaptureActivity() {
             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
         if (permissionGranted(context = this, permissions = permissions)) {
-            matisseViewModel.requestReadMediaPermissionResult(granted = true)
+            matisseViewModel.onReadMediaPermissionResult(granted = true)
         } else {
             requestReadMediaPermissionLauncher.launch(permissions)
         }
     }
 
-    override fun dispatchTakePictureResult(mediaResource: MediaResource) {
+    override fun onCapturedMedia(mediaResource: MediaResource) {
         val maxSelectable = matisseViewModel.maxSelectable
-        val selectedResources = matisseViewModel.filterSelectedMedia()
-        val illegalMediaType = matisseViewModel.singleMediaType && selectedResources.any {
+        val selectedMedia = matisseViewModel.getSelectedMedia()
+        val wouldMixMediaTypes = matisseViewModel.singleMediaType && selectedMedia.any {
             it.isVideo
         }
         val result =
-            if (maxSelectable > 1 && (selectedResources.size in 1..<maxSelectable) && !illegalMediaType) {
-                val selectedResourcesMutable = selectedResources.toMutableList()
-                selectedResourcesMutable.add(element = mediaResource)
-                selectedResourcesMutable
+            if (maxSelectable > 1 && (selectedMedia.size in 1..<maxSelectable) && !wouldMixMediaTypes) {
+                val selectedMediaMutable = selectedMedia.toMutableList()
+                selectedMediaMutable.add(element = mediaResource)
+                selectedMediaMutable
             } else {
                 listOf(element = mediaResource)
             }
-        setResult(result = result)
+        finishWithSelectedMedia(result = result)
     }
 
-    private fun onClickConfirm() {
-        val selectedResources = matisseViewModel.filterSelectedMedia()
+    private fun onConfirmClick() {
+        val selectedMedia = matisseViewModel.getSelectedMedia()
         if (matisseViewModel.singleMediaType) {
-            val includeImage = selectedResources.any { it.isImage }
-            val includeVideo = selectedResources.any { it.isVideo }
+            val includeImage = selectedMedia.any { it.isImage }
+            val includeVideo = selectedMedia.any { it.isVideo }
             if (includeImage && includeVideo) {
                 showToast(id = R.string.matisse_error_mixed_media)
                 return
             }
         }
-        setResult(result = selectedResources)
+        finishWithSelectedMedia(result = selectedMedia)
     }
 
-    private fun selectMediaInFastSelectMode(mediaResource: MediaResource) {
-        setResult(result = listOf(element = mediaResource))
+    private fun onFastSelectMedia(mediaResource: MediaResource) {
+        finishWithSelectedMedia(result = listOf(element = mediaResource))
     }
 
-    private fun setResult(result: List<MediaResource>) {
+    private fun finishWithSelectedMedia(result: List<MediaResource>) {
         val data = Intent()
-        val resources = arrayListOf<Parcelable>().apply {
+        val selectedMediaList = arrayListOf<Parcelable>().apply {
             addAll(result)
         }
-        data.putParcelableArrayListExtra(MediaResource::class.java.name, resources)
+        data.putParcelableArrayListExtra(MediaResource::class.java.name, selectedMediaList)
         setResult(RESULT_OK, data)
         finish()
     }
 
-    private fun setResultCanceled() {
+    private fun finishWithCanceledResult() {
         setResult(RESULT_CANCELED)
         finish()
     }
 
-    override fun takePictureCancelled() {
+    override fun onTakePictureCancelled() {
 
     }
 

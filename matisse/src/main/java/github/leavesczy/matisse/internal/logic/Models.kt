@@ -10,20 +10,20 @@ import github.leavesczy.matisse.MediaResource
 internal data class MatissePageViewState(
     val matisse: Matisse,
     val selectedBucket: MatisseMediaBucket,
-    val mediaBucketsInfo: List<MatisseMediaBucketInfo>,
+    val mediaBuckets: List<MatisseMediaBucketInfo>,
     val placeholderState: MatissePlaceholderState,
-    val onClickBucket: suspend (String) -> Unit,
-    val onClickMedia: (MatisseMediaExtend) -> Unit,
-    val onMediaCheckChanged: (MatisseMediaExtend) -> Unit
+    val onBucketClick: suspend (String) -> Unit,
+    val onMediaClick: (MatisseMediaItem) -> Unit,
+    val onMediaCheckChanged: (MatisseMediaItem) -> Unit
 )
 
 @Stable
-internal data class MatisseMediaExtend(
+internal data class MatisseMediaItem(
     val mediaId: Long,
     val bucketId: String,
     val bucketName: String,
-    val media: MediaResource,
-    val selectState: State<MatisseMediaSelectState>
+    val mediaResource: MediaResource,
+    val selectionState: State<MatisseMediaSelectState>
 )
 
 @Stable
@@ -45,24 +45,24 @@ internal data class MatisseMediaSelectState(
 internal data class MatisseMediaBucket(
     val bucketId: String,
     val bucketName: String,
-    val supportCapture: Boolean,
-    val resources: List<MatisseMediaExtend>
+    val supportsCapture: Boolean,
+    val mediaItems: List<MatisseMediaItem>
 )
 
 @Stable
 internal data class MatisseMediaBucketInfo(
     val bucketId: String,
     val bucketName: String,
-    val size: Int,
-    val firstMedia: MediaResource?
+    val itemCount: Int,
+    val coverMedia: MediaResource?
 )
 
 @Stable
 internal data class MatisseBottomBarViewState(
-    val selectedImageSize: Int,
+    val selectedMediaCount: Int,
     val maxSelectable: Int,
-    val previewButtonClickable: Boolean,
-    val onClickPreviewButton: () -> Unit
+    val isPreviewEnabled: Boolean,
+    val onPreviewClick: () -> Unit
 )
 
 @Stable
@@ -70,10 +70,10 @@ internal data class MatissePreviewImagePageViewState(
     val visible: Boolean,
     val maxSelectable: Int,
     val initialPage: Int,
-    val selectedImageSize: Int,
-    val previewResources: List<MatisseMediaExtend>,
-    val onMediaCheckChanged: (MatisseMediaExtend) -> Unit,
-    val requestOpenVideo: (MediaResource) -> Unit,
+    val selectedMediaCount: Int,
+    val previewMediaItems: List<MatisseMediaItem>,
+    val onMediaCheckChanged: (MatisseMediaItem) -> Unit,
+    val onOpenVideoClick: (MediaResource) -> Unit,
     val onDismissRequest: () -> Unit
 )
 
@@ -88,15 +88,15 @@ internal data class MatisseVideoPlayerPageViewState(
 internal sealed class MatissePlaceholderState {
 
     @Stable
-    data class Nothing(val hasReadMediaPermission: Boolean) : MatissePlaceholderState()
+    data class Ready(val hasReadMediaPermission: Boolean) : MatissePlaceholderState()
 
     @Stable
     data object NoPermission : MatissePlaceholderState()
 
     @Stable
     data class NoMedia(
-        val requestImage: Boolean,
-        val requestVideo: Boolean
+        val includesImages: Boolean,
+        val includesVideos: Boolean
     ) : MatissePlaceholderState()
 
 }

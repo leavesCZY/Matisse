@@ -27,8 +27,8 @@ import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 @Composable
 internal fun MatisseBottomBar(
     modifier: Modifier,
-    viewState: MatisseBottomBarViewState,
-    onClickConfirm: () -> Unit
+    bottomBarViewState: MatisseBottomBarViewState,
+    onConfirmClick: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -44,10 +44,10 @@ internal fun MatisseBottomBar(
         Text(
             modifier = Modifier
                 .then(
-                    other = if (viewState.previewButtonClickable) {
+                    other = if (bottomBarViewState.isPreviewEnabled) {
                         Modifier
                             .clip(shape = CircleShape)
-                            .clickable(onClick = viewState.onClickPreviewButton)
+                            .clickable(onClick = bottomBarViewState.onPreviewClick)
                     } else {
                         Modifier
                     }
@@ -57,22 +57,22 @@ internal fun MatisseBottomBar(
             fontSize = 16.sp,
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
-            color = if (viewState.previewButtonClickable) {
+            color = if (bottomBarViewState.isPreviewEnabled) {
                 colorResource(id = R.color.matisse_bottom_bar_preview_text_color)
             } else {
                 colorResource(id = R.color.matisse_bottom_bar_preview_text_disabled_color)
             }
         )
-        val selectedImageSize = viewState.selectedImageSize
-        val maxSelectable = viewState.maxSelectable
-        val sureButtonClickable = selectedImageSize in 1..maxSelectable
+        val selectedMediaCount = bottomBarViewState.selectedMediaCount
+        val maxSelectable = bottomBarViewState.maxSelectable
+        val isConfirmEnabled = selectedMediaCount in 1..maxSelectable
         Text(
             modifier = Modifier
                 .then(
-                    other = if (sureButtonClickable) {
+                    other = if (isConfirmEnabled) {
                         Modifier
                             .clip(shape = CircleShape)
-                            .clickable(onClick = onClickConfirm)
+                            .clickable(onClick = onConfirmClick)
                     } else {
                         Modifier
                     }
@@ -81,7 +81,7 @@ internal fun MatisseBottomBar(
             text = if (maxSelectable > 1) {
                 stringResource(
                     id = R.string.matisse_action_confirm_with_count,
-                    selectedImageSize,
+                    selectedMediaCount,
                     maxSelectable
                 )
             } else {
@@ -91,7 +91,7 @@ internal fun MatisseBottomBar(
             fontStyle = FontStyle.Normal,
             fontWeight = FontWeight.Normal,
             color = colorResource(
-                id = if (sureButtonClickable) {
+                id = if (isConfirmEnabled) {
                     R.color.matisse_bottom_bar_confirm_text_color
                 } else {
                     R.color.matisse_bottom_bar_confirm_text_disabled_color

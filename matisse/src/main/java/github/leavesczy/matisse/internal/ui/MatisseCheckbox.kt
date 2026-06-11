@@ -28,12 +28,12 @@ import github.leavesczy.matisse.internal.logic.MatisseMediaSelectState
 @Composable
 internal fun MatisseCheckbox(
     modifier: Modifier,
-    selectState: MatisseMediaSelectState,
-    onClick: () -> Unit
+    selectionState: MatisseMediaSelectState,
+    onCheckedChange: () -> Unit
 ) {
     Box(
         modifier = modifier
-            .clickableNoRipple(onClick = onClick),
+            .clickableNoRipple(onClick = onCheckedChange),
         contentAlignment = Alignment.Center
     ) {
         Spacer(
@@ -44,7 +44,7 @@ internal fun MatisseCheckbox(
                     role = Role.Checkbox
                 }
                 .then(
-                    other = if (selectState.isSelected) {
+                    other = if (selectionState.isSelected) {
                         Modifier
                             .background(color = colorResource(id = R.color.matisse_checkbox_circle_fill_selected_color))
                     } else {
@@ -54,7 +54,7 @@ internal fun MatisseCheckbox(
                                 width = 1.8.dp,
                                 shape = CircleShape,
                                 color = colorResource(
-                                    id = if (selectState.isEnabled) {
+                                    id = if (selectionState.isEnabled) {
                                         R.color.matisse_checkbox_circle_stroke_color
                                     } else {
                                         R.color.matisse_checkbox_circle_stroke_disabled_color
@@ -64,7 +64,7 @@ internal fun MatisseCheckbox(
                     }
                 )
         )
-        val positionFormatted = selectState.positionFormatted
+        val positionFormatted = selectionState.positionFormatted
         if (!positionFormatted.isNullOrBlank()) {
             BasicText(
                 modifier = Modifier,

@@ -10,14 +10,14 @@ import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContract
 
 internal class MatisseTakePictureContract :
-    ActivityResultContract<MatisseTakePictureContract.MatisseTakePictureContractParams, Boolean>() {
+    ActivityResultContract<MatisseTakePictureContract.Params, Boolean>() {
 
-    data class MatisseTakePictureContractParams(
+    data class Params(
         val uri: Uri,
         val extra: Bundle
     )
 
-    override fun createIntent(context: Context, input: MatisseTakePictureContractParams): Intent {
+    override fun createIntent(context: Context, input: Params): Intent {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         val extra = input.extra
         if (!extra.isEmpty) {

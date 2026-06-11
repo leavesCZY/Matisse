@@ -55,7 +55,7 @@ internal object MediaProvider {
         }
     }
 
-    private suspend fun loadResources(
+    private suspend fun queryMediaInfoList(
         context: Context,
         selection: String?,
         selectionArgs: Array<String>?
@@ -63,20 +63,20 @@ internal object MediaProvider {
         return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID
             val pathColumn = MediaStore.MediaColumns.DATA
-            val mineTypeColumn = MediaStore.MediaColumns.MIME_TYPE
+            val mimeTypeColumn = MediaStore.MediaColumns.MIME_TYPE
             val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
             val bucketDisplayNameColumn = MediaStore.MediaColumns.BUCKET_DISPLAY_NAME
             val dateModifiedColumn = MediaStore.MediaColumns.DATE_MODIFIED
             val projection = arrayOf(
                 idColumn,
                 pathColumn,
-                mineTypeColumn,
+                mimeTypeColumn,
                 bucketIdColumn,
                 bucketDisplayNameColumn
             )
             val contentUri = MediaStore.Files.getContentUri("external")
             val sortOrder = "$dateModifiedColumn DESC"
-            val mediaResourceList = mutableListOf<MediaInfo>()
+            val mediaInfoList = mutableListOf<MediaInfo>()
             try {
                 val cursor = context.contentResolver.query(
                     contentUri,
@@ -88,10 +88,10 @@ internal object MediaProvider {
                 cursor.use { cursor ->
                     while (cursor.moveToNext()) {
                         try {
-                            val defaultId = Long.MAX_VALUE
-                            val id = cursor.getLong(idColumn, defaultId)
+                            val invalidId = Long.MAX_VALUE
+                            val id = cursor.getLong(idColumn, invalidId)
                             val path = cursor.getString(pathColumn, "")
-                            if (id == defaultId || path.isBlank()) {
+                            if (id == invalidId || path.isBlank()) {
                                 continue
                             }
                             val file = File(path)
@@ -101,7 +101,7 @@ internal object MediaProvider {
                             val uri = ContentUris.withAppendedId(contentUri, id)
                             val bucketId = cursor.getString(bucketIdColumn, "")
                             val bucketName = cursor.getString(bucketDisplayNameColumn, "")
-                            val mimeType = cursor.getString(mineTypeColumn, "")
+                            val mimeType = cursor.getString(mimeTypeColumn, "")
                             val mediaInfo = MediaInfo(
                                 uri = uri,
                                 mimeType = mimeType,
@@ -109,7 +109,7 @@ internal object MediaProvider {
                                 bucketId = bucketId,
                                 bucketName = bucketName
                             )
-                            mediaResourceList.add(element = mediaInfo)
+                            mediaInfoList.add(element = mediaInfo)
                         } catch (throwable: Throwable) {
                             throwable.printStackTrace()
                         }
@@ -118,16 +118,16 @@ internal object MediaProvider {
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
             }
-            mediaResourceList
+            mediaInfoList
         }
     }
 
-    suspend fun loadResources(
+    suspend fun loadMediaInfoList(
         context: Context,
         mediaType: MediaType
     ): List<MediaInfo>? {
         return withContext(context = Dispatchers.Default) {
-            loadResources(
+            queryMediaInfoList(
                 context = context,
                 selection = generateSqlSelection(mediaType = mediaType),
                 selectionArgs = null
@@ -174,19 +174,19 @@ internal object MediaProvider {
         }
     }
 
-    suspend fun loadResources(context: Context, uri: Uri): MediaInfo? {
+    suspend fun loadMediaInfo(context: Context, uri: Uri): MediaInfo? {
         return withContext(context = Dispatchers.Default) {
             val id = ContentUris.parseId(uri)
             val selection = MediaStore.MediaColumns._ID + " = " + id
-            val resources = loadResources(
+            val matchedMediaInfoList = queryMediaInfoList(
                 context = context,
                 selection = selection,
                 selectionArgs = null
             )
-            if (resources.isNullOrEmpty() || resources.size != 1) {
+            if (matchedMediaInfoList.isNullOrEmpty() || matchedMediaInfoList.size != 1) {
                 null
             } else {
-                resources[0]
+                matchedMediaInfoList[0]
             }
         }
     }
