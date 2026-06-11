@@ -121,7 +121,7 @@ private fun MatisseTopBarContent(
                     onBackPressedDispatcher?.onBackPressed()
                 }
                 .padding(start = 18.dp, end = 14.dp)
-                .size(size = 26.dp),
+                .size(size = 28.dp),
             painter = painterResource(id = R.drawable.ic_matisse_arrow_back),
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
             contentDescription = stringResource(id = R.string.matisse_cd_back)

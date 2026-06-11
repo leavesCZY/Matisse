@@ -242,7 +242,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             selectionState.value = unselectedEnabledMediaSelectState
         } else {
             if (maxSelectable == 1) {
-                resetAllMediaSelectState(state = unselectedEnabledMediaSelectState)
+                clearSelectedMedia()
             } else {
                 val selectedMediaItems = getSelectedMediaItems()
                 if (selectedMediaItems.size >= maxSelectable) {
@@ -271,20 +271,29 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private fun updateSelectionOrder() {
         val selectedMedia = getSelectedMediaItems()
-        resetAllMediaSelectState(
-            state = if (selectedMedia.size >= maxSelectable) {
-                unselectedDisabledMediaSelectState
-            } else {
-                unselectedEnabledMediaSelectState
-            }
-        )
-        selectedMedia.forEachIndexed { index, media ->
+        val unselectedState = if (selectedMedia.size >= maxSelectable) {
+            unselectedDisabledMediaSelectState
+        } else {
+            unselectedEnabledMediaSelectState
+        }
+        val selectedPositionByMediaId = selectedMedia.withIndex().associate { (index, media) ->
+            media.mediaId to index
+        }
+        allMediaItems.forEach { media ->
             val selectionState = media.selectionState as MutableState<MatisseMediaSelectState>
-            selectionState.value = MatisseMediaSelectState(
-                isSelected = true,
-                isEnabled = true,
-                positionIndex = index
-            )
+            val selectedPosition = selectedPositionByMediaId[media.mediaId]
+            val newState = if (selectedPosition != null) {
+                MatisseMediaSelectState(
+                    isSelected = true,
+                    isEnabled = true,
+                    positionIndex = selectedPosition
+                )
+            } else {
+                unselectedState
+            }
+            if (selectionState.value != newState) {
+                selectionState.value = newState
+            }
         }
     }
 
@@ -346,9 +355,12 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         }
     }
 
-    private fun resetAllMediaSelectState(state: MatisseMediaSelectState) {
-        allMediaItems.forEach {
-            (it.selectionState as MutableState<MatisseMediaSelectState>).value = state
+    private fun clearSelectedMedia() {
+        allMediaItems.forEach { media ->
+            val selectionState = media.selectionState as MutableState<MatisseMediaSelectState>
+            if (selectionState.value.isSelected) {
+                selectionState.value = unselectedEnabledMediaSelectState
+            }
         }
     }
 

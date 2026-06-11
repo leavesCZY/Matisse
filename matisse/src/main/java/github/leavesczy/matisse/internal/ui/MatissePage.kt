@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -27,6 +27,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +43,7 @@ import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 import github.leavesczy.matisse.internal.logic.MatisseMediaItem
+import github.leavesczy.matisse.internal.logic.MatisseMediaSelectState
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
 import github.leavesczy.matisse.internal.logic.MatissePlaceholderState
 
@@ -237,6 +240,11 @@ private fun MediaItem(
     onMediaClick: (MatisseMediaItem) -> Unit,
     onMediaCheckChanged: (MatisseMediaItem) -> Unit
 ) {
+    val onCheckedChange = remember(key1 = mediaItem.mediaId, key2 = onMediaCheckChanged) {
+        {
+            onMediaCheckChanged(mediaItem)
+        }
+    }
     Box(
         modifier = modifier
             .aspectRatio(ratio = 1f)
@@ -252,20 +260,33 @@ private fun MediaItem(
                     .fillMaxSize(fraction = 0.24f)
             )
         }
-        MediaItemScrimColor(
-            modifier = Modifier,
-            isSelected = mediaItem.selectionState.value.isSelected
+        MediaItemSelectionOverlay(
+            selectionState = mediaItem.selectionState,
+            onCheckedChange = onCheckedChange
         )
+    }
+}
+
+@Composable
+private fun BoxScope.MediaItemSelectionOverlay(
+    selectionState: State<MatisseMediaSelectState>,
+    onCheckedChange: () -> Unit
+) {
+    MediaItemScrimColor(
+        modifier = Modifier,
+        isSelected = selectionState.value.isSelected
+    )
+    Box(
+        modifier = Modifier
+            .align(alignment = Alignment.TopEnd)
+            .fillMaxSize(fraction = GridMatisseCheckboxContainerFraction),
+        contentAlignment = Alignment.Center
+    ) {
         MatisseCheckbox(
             modifier = Modifier
-                .align(alignment = Alignment.TopEnd)
-                .fillMaxSize(fraction = 0.28f)
-                .wrapContentSize(align = Alignment.Center)
-                .fillMaxSize(fraction = 0.80f),
-            selectionState = mediaItem.selectionState.value,
-            onCheckedChange = {
-                onMediaCheckChanged(mediaItem)
-            }
+                .fillMaxSize(fraction = GridMatisseCheckboxInnerFraction),
+            selectionState = selectionState,
+            onCheckedChange = onCheckedChange
         )
     }
 }

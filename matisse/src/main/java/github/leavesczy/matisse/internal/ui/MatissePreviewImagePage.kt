@@ -194,6 +194,14 @@ private fun PreviewBottomBar(
             pageViewState.previewMediaItems[pagerState.currentPage]
         }
     }
+    val onCheckedChange = remember(
+        key1 = currentResource.mediaId,
+        key2 = pageViewState.onMediaCheckChanged
+    ) {
+        {
+            pageViewState.onMediaCheckChanged(currentResource)
+        }
+    }
     Box(
         modifier = modifier
             .background(color = colorResource(id = R.color.matisse_preview_page_bottom_bar_background_color))
@@ -217,10 +225,8 @@ private fun PreviewBottomBar(
             modifier = Modifier
                 .align(alignment = Alignment.Center)
                 .size(size = 27.dp),
-            selectionState = currentResource.selectionState.value,
-            onCheckedChange = {
-                pageViewState.onMediaCheckChanged(currentResource)
-            }
+            selectionState = currentResource.selectionState,
+            onCheckedChange = onCheckedChange
         )
         val selectedMediaCount = pageViewState.selectedMediaCount
         val maxSelectable = pageViewState.maxSelectable
