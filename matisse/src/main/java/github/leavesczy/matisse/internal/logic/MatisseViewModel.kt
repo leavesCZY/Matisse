@@ -13,11 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * @Author: leavesCZY
- * @Date: 2022/6/1 19:19
- * @Desc:
- */
 internal class MatisseViewModel(application: Application, matisse: Matisse) :
     MatissePreviewImageViewModel(application = application, matisse = matisse) {
 

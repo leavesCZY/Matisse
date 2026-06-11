@@ -45,11 +45,6 @@ import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseMediaBucketInfo
 import kotlinx.coroutines.launch
 
-/**
- * @Author: leavesCZY
- * @Date: 2021/6/24 16:44
- * @Desc:
- */
 @Composable
 internal fun MatisseTopBar(
     modifier: Modifier,

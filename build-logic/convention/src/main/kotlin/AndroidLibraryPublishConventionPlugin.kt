@@ -6,11 +6,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 
-/**
- * @Author: leavesCZY
- * @Date: 2026/5/1 16:42
- * @Desc:
- */
 class AndroidLibraryPublishConventionPlugin : Plugin<Project> {
 
     override fun apply(target: Project) {

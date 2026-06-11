@@ -42,11 +42,6 @@ import github.leavesczy.matisse.samples.logic.MediaCaptureStrategy
 import github.leavesczy.matisse.samples.logic.MediaFilterStrategy
 import github.leavesczy.matisse.samples.logic.MediaImageEngine
 
-/**
- * @Author: leavesCZY
- * @Date: 2026/4/18 15:46
- * @Desc:
- */
 @Composable
 fun MainPage(
     pageViewState: MainPageViewState,

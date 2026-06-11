@@ -13,10 +13,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.R
 
-/**
- * @Author: leavesCZY
- * @Desc:
- */
 @Composable
 internal fun MatisseLoadingDialog(
     modifier: Modifier,

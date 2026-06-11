@@ -6,17 +6,12 @@ import androidx.compose.runtime.Stable
 import kotlinx.parcelize.Parcelize
 
 /**
- * @Author: leavesCZY
- * @Date: 2022/6/1 17:45
- * @Desc:
- */
-/**
  * @param maxSelectable 最多能选择几个媒体资源
- * @param imageEngine 图片加载框架
+ * @param imageEngine 图片加载框架，需自行添加 Coil 或 Glide 依赖，参见 [CoilImageEngine] 与 [GlideImageEngine]
  * @param gridColumns 一行要显示几个媒体资源。默认值为 4
  * @param fastSelect 是否要点击媒体资源后立即返回，值为 true 时 maxSelectable 必须为 1。默认不立即返回
  * @param mediaType 要加载的媒体资源类型。默认仅图片
- * @param singleMediaType 是否允许同时选择图片和视频。默认允许
+ * @param singleMediaType 是否限制为单一媒体类型。值为 true 时不允许混选图片和视频，默认为 true
  * @param mediaFilter 媒体资源的筛选规则。默认不进行筛选
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
@@ -28,7 +23,7 @@ data class Matisse(
     val gridColumns: Int = 4,
     val fastSelect: Boolean = false,
     val mediaType: MediaType = MediaType.ImageOnly,
-    val singleMediaType: Boolean = false,
+    val singleMediaType: Boolean = true,
     val mediaFilter: MediaFilter? = null,
     val captureStrategy: CaptureStrategy? = null
 ) : Parcelable {
@@ -55,18 +50,25 @@ data class MatisseCapture(
     val captureStrategy: CaptureStrategy
 ) : Parcelable
 
+/**
+ * 要加载的媒体类型
+ */
 @Parcelize
 sealed interface MediaType : Parcelable {
 
+    /** 仅图片 */
     @Parcelize
     data object ImageOnly : MediaType
 
+    /** 仅视频 */
     @Parcelize
     data object VideoOnly : MediaType
 
+    /** 图片与视频 */
     @Parcelize
     data object ImageAndVideo : MediaType
 
+    /** 按 MIME 类型过滤，例如 `image/png`、`video/mp4` */
     @Parcelize
     data class MultipleMimeType(val mimeTypes: Set<String>) : MediaType {
 

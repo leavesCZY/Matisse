@@ -23,12 +23,7 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * @Author: leavesCZY
- * @Date: 2022/6/6 14:20
- * @Desc:
- */
-/**
- * 拍照策略
+ * 拍照策略，定义 Uri 创建、结果读取与取消清理等行为
  */
 @Stable
 interface CaptureStrategy : Parcelable {
@@ -76,9 +71,10 @@ interface CaptureStrategy : Parcelable {
 private const val JPG_MIME_TYPE = "image/jpeg"
 
 /**
- *  通过 FileProvider 生成 ImageUri
- *  外部必须配置 FileProvider，通过 authority 来实例化 FileProviderCaptureStrategy
- *  此策略无需申请任何权限，所拍的照片不会保存在系统相册里
+ * 通过 FileProvider 生成 ImageUri
+ * 外部必须配置 FileProvider，并通过 authority 来实例化 [FileProviderCaptureStrategy]
+ * 无需申请 WRITE_EXTERNAL_STORAGE 权限；若宿主 App 在 Manifest 中声明了 CAMERA，则会在运行时按需申请相机权限
+ * 所拍的照片保存在应用私有目录，不会写入系统相册
  */
 @Parcelize
 class FileProviderCaptureStrategy(
@@ -153,9 +149,10 @@ class FileProviderCaptureStrategy(
 }
 
 /**
- *  通过 MediaStore 生成 ImageUri
- *  根据系统版本决定是否需要申请 WRITE_EXTERNAL_STORAGE 权限
- *  所拍的照片会保存在系统相册中
+ * 通过 MediaStore 生成 ImageUri
+ * Android 10 以下需要申请 WRITE_EXTERNAL_STORAGE 权限；Android 10 及以上无需该权限
+ * 若宿主 App 在 Manifest 中声明了 CAMERA，则会在运行时按需申请相机权限
+ * 所拍的照片会写入系统相册
  */
 @Parcelize
 data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) : CaptureStrategy {
@@ -217,9 +214,9 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
 
 /**
  * 根据系统版本智能选择拍照策略
- * 当系统版本小于 Android 10 时，执行 FileProviderCaptureStrategy 策略
- * 当系统版本大于等于 Android 10 时，执行 MediaStoreCaptureStrategy 策略
- * 既避免需要申请权限，又可以在系统允许的情况下将照片存入到系统相册中
+ * 当系统版本小于 Android 10 时，委托 [FileProviderCaptureStrategy]
+ * 当系统版本大于等于 Android 10 时，委托 [MediaStoreCaptureStrategy]
+ * Android 10 及以上无需申请 WRITE_EXTERNAL_STORAGE 权限，照片会写入系统相册
  */
 @Parcelize
 data class SmartCaptureStrategy(

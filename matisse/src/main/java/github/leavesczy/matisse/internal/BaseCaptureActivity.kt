@@ -20,11 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * @Author: leavesCZY
- * @Date: 2023/10/21 16:49
- * @Desc:
- */
 internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     protected abstract val captureStrategy: CaptureStrategy

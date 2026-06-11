@@ -8,9 +8,8 @@ import androidx.core.content.IntentCompat
 import github.leavesczy.matisse.internal.MatisseActivity
 
 /**
- * @Author: leavesCZY
- * @Date: 2022/6/2 15:30
- * @Desc:
+ * 启动图片/视频选择器的 [ActivityResultContract]
+ * 成功时返回已选中的 [MediaResource] 列表；用户取消或发生错误时返回 null
  */
 class MatisseContract : ActivityResultContract<Matisse, List<MediaResource>?>() {
 

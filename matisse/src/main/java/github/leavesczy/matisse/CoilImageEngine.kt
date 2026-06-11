@@ -16,9 +16,8 @@ import coil3.compose.AsyncImage
 import kotlinx.parcelize.Parcelize
 
 /**
- * @Author: CZY
- * @Date: 2025/7/23 21:24
- * @Desc:
+ * 基于 Coil 3 的 [ImageEngine] 实现
+ * 需额外添加依赖：`io.coil-kt.coil3:coil-compose`
  */
 @Parcelize
 class CoilImageEngine : ImageEngine {

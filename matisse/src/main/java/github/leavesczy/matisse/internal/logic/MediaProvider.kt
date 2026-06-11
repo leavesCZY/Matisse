@@ -12,11 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-/**
- * @Author: leavesCZY
- * @Date: 2022/6/2 11:11
- * @Desc:
- */
 internal object MediaProvider {
 
     data class MediaInfo(

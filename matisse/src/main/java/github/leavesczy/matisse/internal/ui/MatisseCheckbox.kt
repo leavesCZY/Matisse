@@ -25,11 +25,6 @@ import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseMediaSelectState
 
-/**
- * @Author: leavesCZY
- * @Date: 2022/5/31 14:27
- * @Desc:
- */
 @Composable
 internal fun MatisseCheckbox(
     modifier: Modifier,

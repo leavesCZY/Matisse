@@ -9,11 +9,6 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-/**
- * @Author: leavesCZY
- * @Date: 2024/2/21 17:46
- * @Desc:
- */
 internal fun Project.configureAndroidApplication(applicationExtension: ApplicationExtension) {
     applicationExtension.apply {
         defaultConfig {
@@ -64,6 +59,12 @@ internal fun Project.configureAndroidApplication(applicationExtension: Applicati
                     getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro"
                 )
+                ndk {
+                    abiFilters.apply {
+                        clear()
+                        add("arm64-v8a")
+                    }
+                }
             }
         }
         packaging {

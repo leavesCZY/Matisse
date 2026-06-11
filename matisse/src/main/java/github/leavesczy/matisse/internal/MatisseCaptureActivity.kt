@@ -7,11 +7,6 @@ import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MatisseCapture
 import github.leavesczy.matisse.MediaResource
 
-/**
- * @Author: leavesCZY
- * @Date: 2023/4/11 16:31
- * @Desc:
- */
 internal class MatisseCaptureActivity : BaseCaptureActivity() {
 
     private val matisseCapture by lazy(mode = LazyThreadSafetyMode.NONE) {

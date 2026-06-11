@@ -29,11 +29,6 @@ import github.leavesczy.matisse.internal.ui.MatisseTheme
 import github.leavesczy.matisse.internal.ui.MatisseVideoPlayerPage
 import kotlinx.coroutines.flow.collectLatest
 
-/**
- * @Author: leavesCZY
- * @Date: 2022/5/28 22:28
- * @Desc:
- */
 internal class MatisseActivity : BaseCaptureActivity() {
 
     private val matisse by lazy(mode = LazyThreadSafetyMode.NONE) {

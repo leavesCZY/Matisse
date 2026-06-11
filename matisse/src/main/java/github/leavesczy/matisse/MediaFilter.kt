@@ -5,9 +5,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 /**
- * @Author: leavesCZY
- * @Date: 2023/8/21 18:13
- * @Desc:
+ * 媒体资源筛选规则，用于控制列表展示与默认选中行为
  */
 interface MediaFilter : Parcelable {
 
@@ -19,7 +17,7 @@ interface MediaFilter : Parcelable {
 
     /**
      * 用于控制是否要默认选中特定的媒体资源
-     * 返回 true 则会被默认选中
+     * 返回 true 则会被默认选中，仅在 [Matisse.fastSelect] 为 false 时生效
      */
     suspend fun selectMedia(mediaResource: MediaResource): Boolean
 
@@ -28,7 +26,7 @@ interface MediaFilter : Parcelable {
 /**
  * @param ignoredMimeType 包含在内的 mimeType 将会被忽略，不会展示给用户
  * @param ignoredResourceUri 包含在内的 Uri 将会被忽略，不会展示给用户
- * @param selectedResourceUri 包含在内的 Uri 将会被默认选中
+ * @param selectedResourceUri 包含在内的 Uri 将会被默认选中，仅在 [Matisse.fastSelect] 为 false 时生效
  */
 @Parcelize
 class DefaultMediaFilter(

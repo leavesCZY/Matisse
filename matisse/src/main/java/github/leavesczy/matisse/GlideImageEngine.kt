@@ -19,9 +19,8 @@ import com.bumptech.glide.integration.compose.placeholder
 import kotlinx.parcelize.Parcelize
 
 /**
- * @Author: CZY
- * @Date: 2025/7/23 21:24
- * @Desc:
+ * 基于 Glide Compose 的 [ImageEngine] 实现
+ * 需额外添加依赖：`com.github.bumptech.glide:compose`
  */
 @Parcelize
 class GlideImageEngine : ImageEngine {

@@ -6,11 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-/**
- * @Author: leavesCZY
- * @Date: 2026/6/10 22:56
- * @Desc:
- */
 internal abstract class MatisseVideoPlayerViewModel(application: Application) :
     BaseMatisseViewModel(application = application) {
 

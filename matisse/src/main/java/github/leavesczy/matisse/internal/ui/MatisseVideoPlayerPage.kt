@@ -29,11 +29,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseVideoPlayerPageViewState
 
-/**
- * @Author: leavesCZY
- * @Date: 2026/6/9 18:56
- * @Desc:
- */
 @Composable
 internal fun MatisseVideoPlayerPage(pageViewState: MatisseVideoPlayerPageViewState) {
     AnimatedVisibility(

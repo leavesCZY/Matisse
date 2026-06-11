@@ -6,11 +6,6 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-/**
- * @Author: leavesCZY
- * @Date: 2024/2/21 17:51
- * @Desc:
- */
 internal fun Project.configureCompose(commonExtension: CommonExtension) {
     commonExtension.apply {
         buildFeatures.apply {

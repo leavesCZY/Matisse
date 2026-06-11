@@ -6,11 +6,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.getByType
 
-/**
- * @Author: leavesCZY
- * @Date: 2024/2/21 18:05
- * @Desc:
- */
 class LibraryConventionPlugin : Plugin<Project> {
 
     override fun apply(target: Project) {

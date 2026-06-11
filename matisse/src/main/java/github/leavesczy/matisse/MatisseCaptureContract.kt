@@ -8,9 +8,8 @@ import androidx.core.content.IntentCompat
 import github.leavesczy.matisse.internal.MatisseCaptureActivity
 
 /**
- * @Author: leavesCZY
- * @Date: 2023/4/11 16:38
- * @Desc:
+ * 启动独立拍照页的 [ActivityResultContract]
+ * 成功时返回拍摄的 [MediaResource]；用户取消或发生错误时返回 null
  */
 class MatisseCaptureContract : ActivityResultContract<MatisseCapture, MediaResource?>() {
 

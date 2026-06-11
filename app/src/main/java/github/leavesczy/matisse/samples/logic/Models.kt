@@ -3,11 +3,6 @@ package github.leavesczy.matisse.samples.logic
 import androidx.compose.runtime.Stable
 import github.leavesczy.matisse.MediaResource
 
-/**
- * @Author: leavesCZY
- * @Date: 2024/2/21 12:01
- * @Desc:
- */
 @Stable
 data class MainPageViewState(
     val darkTheme: Boolean,
@@ -36,18 +31,18 @@ enum class MediaCaptureStrategy {
     Smart,
     FileProvider,
     MediaStore,
-    Close
+    Close;
 }
 
 @Stable
 enum class MediaImageEngine {
     Coil,
-    Glide
+    Glide;
 }
 
 @Stable
 enum class MediaFilterStrategy {
     Nothing,
     IgnoreSelected,
-    AttachSelected
+    AttachSelected;
 }

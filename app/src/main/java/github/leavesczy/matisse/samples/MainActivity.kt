@@ -13,11 +13,6 @@ import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.samples.logic.MainViewModel
 import github.leavesczy.matisse.samples.theme.MatisseTheme
 
-/**
- * @Author: leavesCZY
- * @Date: 2024/2/21 12:01
- * @Desc:
- */
 class MainActivity : AppCompatActivity() {
 
     private val mainViewModel by viewModels<MainViewModel>()

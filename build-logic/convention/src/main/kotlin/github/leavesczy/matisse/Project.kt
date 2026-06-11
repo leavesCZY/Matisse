@@ -8,11 +8,6 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-/**
- * @Author: leavesCZY
- * @Date: 2025/9/12 15:32
- * @Desc:
- */
 internal fun Project.configureAndroidProject(commonExtension: CommonExtension) {
     commonExtension.apply {
         compileSdk {

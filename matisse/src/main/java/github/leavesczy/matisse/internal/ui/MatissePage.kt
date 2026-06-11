@@ -44,11 +44,6 @@ import github.leavesczy.matisse.internal.logic.MatisseMediaExtend
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
 import github.leavesczy.matisse.internal.logic.MatissePlaceholderState
 
-/**
- * @Author: leavesCZY
- * @Date: 2022/5/31 16:36
- * @Desc:
- */
 @Composable
 internal fun MatissePage(
     pageViewState: MatissePageViewState,

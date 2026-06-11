@@ -19,11 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
 
-/**
- * @Author: leavesCZY
- * @Date: 2026/6/9 21:46
- * @Desc:
- */
 @Composable
 internal fun MatisseNoPermissionPlaceholder(modifier: Modifier) {
     MatissePlaceholder(

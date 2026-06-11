@@ -7,11 +7,6 @@ import androidx.compose.runtime.setValue
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 
-/**
- * @Author: leavesCZY
- * @Date: 2026/6/10 22:59
- * @Desc:
- */
 internal abstract class MatissePreviewImageViewModel(application: Application, matisse: Matisse) :
     MatisseVideoPlayerViewModel(application = application) {
 

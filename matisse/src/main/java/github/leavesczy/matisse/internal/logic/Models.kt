@@ -6,11 +6,6 @@ import androidx.compose.runtime.State
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 
-/**
- * @Author: leavesCZY
- * @Date: 2022/5/30 23:24
- * @Desc:
- */
 @Stable
 internal data class MatissePageViewState(
     val matisse: Matisse,

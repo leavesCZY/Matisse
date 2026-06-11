@@ -1,6 +1,7 @@
 package github.leavesczy.matisse.internal.logic
 
 import android.app.Activity
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -8,11 +9,6 @@ import android.os.Bundle
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContract
 
-/**
- * @Author: leavesCZY
- * @Date: 2023/6/28 17:40
- * @Desc:
- */
 internal class MatisseTakePictureContract :
     ActivityResultContract<MatisseTakePictureContract.MatisseTakePictureContractParams, Boolean>() {
 
@@ -27,6 +23,8 @@ internal class MatisseTakePictureContract :
         if (!extra.isEmpty) {
             intent.putExtras(extra)
         }
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        intent.clipData = ClipData.newUri(context.contentResolver, "Photo", input.uri)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, input.uri)
         return intent
     }

@@ -19,11 +19,6 @@ import github.leavesczy.matisse.MediaStoreCaptureStrategy
 import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.SmartCaptureStrategy
 
-/**
- * @Author: leavesCZY
- * @Date: 2024/2/21 12:01
- * @Desc:
- */
 class MainViewModel : ViewModel() {
 
     var pageViewState by mutableStateOf(

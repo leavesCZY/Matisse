@@ -44,11 +44,6 @@ import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatissePreviewImagePageViewState
 import kotlin.math.absoluteValue
 
-/**
- * @Author: leavesCZY
- * @Date: 2022/6/1 19:14
- * @Desc:
- */
 @Composable
 internal fun MatissePreviewImagePage(
     pageViewState: MatissePreviewImagePageViewState,

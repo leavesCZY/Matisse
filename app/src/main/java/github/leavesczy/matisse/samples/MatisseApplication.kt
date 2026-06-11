@@ -11,11 +11,6 @@ import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
 
-/**
- * @Author: leavesCZY
- * @Date: 2022/5/29 21:10
- * @Desc:
- */
 class MatisseApplication : Application() {
 
     override fun onCreate() {

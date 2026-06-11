@@ -24,11 +24,6 @@ import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 
-/**
- * @Author: leavesCZY
- * @Date: 2022/6/1 19:19
- * @Desc:
- */
 @Composable
 internal fun MatisseBottomBar(
     modifier: Modifier,

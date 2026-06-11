@@ -5,9 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 
 /**
- * @Author: leavesCZY
- * @Date: 2023/6/7 23:11
- * @Desc:
+ * 图片加载引擎。Matisse 库本身不传递 Coil / Glide 依赖，集成方需根据所选实现自行添加对应依赖
  */
 @Stable
 interface ImageEngine : Parcelable {
