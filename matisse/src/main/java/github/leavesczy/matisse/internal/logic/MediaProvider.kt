@@ -62,14 +62,14 @@ internal object MediaProvider {
     ): List<MediaInfo>? {
         return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID
-            val pathColumn = MediaStore.MediaColumns.DATA
+            val dataColumn = MediaStore.MediaColumns.DATA
             val mimeTypeColumn = MediaStore.MediaColumns.MIME_TYPE
             val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
             val bucketDisplayNameColumn = MediaStore.MediaColumns.BUCKET_DISPLAY_NAME
             val dateModifiedColumn = MediaStore.MediaColumns.DATE_MODIFIED
             val projection = arrayOf(
                 idColumn,
-                pathColumn,
+                dataColumn,
                 mimeTypeColumn,
                 bucketIdColumn,
                 bucketDisplayNameColumn
@@ -90,12 +90,11 @@ internal object MediaProvider {
                         try {
                             val invalidId = Long.MAX_VALUE
                             val id = cursor.getLong(idColumn, invalidId)
-                            val path = cursor.getString(pathColumn, "")
-                            if (id == invalidId || path.isBlank()) {
+                            if (id == invalidId) {
                                 continue
                             }
-                            val file = File(path)
-                            if (!file.isFile || !file.exists()) {
+                            val path = cursor.getString(dataColumn, "")
+                            if (isStaleMediaEntry(path = path)) {
                                 continue
                             }
                             val uri = ContentUris.withAppendedId(contentUri, id)
@@ -129,7 +128,9 @@ internal object MediaProvider {
         return withContext(context = Dispatchers.Default) {
             queryMediaInfoList(
                 context = context,
-                selection = generateSqlSelection(mediaType = mediaType),
+                selection = withMediaStoreStateSelection(
+                    selection = generateSqlSelection(mediaType = mediaType)
+                ),
                 selectionArgs = null
             )
         }
@@ -177,7 +178,9 @@ internal object MediaProvider {
     suspend fun loadMediaInfo(context: Context, uri: Uri): MediaInfo? {
         return withContext(context = Dispatchers.Default) {
             val id = ContentUris.parseId(uri)
-            val selection = MediaStore.MediaColumns._ID + " = " + id
+            val selection = withMediaStoreStateSelection(
+                selection = MediaStore.MediaColumns._ID + " = " + id
+            )
             val matchedMediaInfoList = queryMediaInfoList(
                 context = context,
                 selection = selection,
@@ -187,6 +190,39 @@ internal object MediaProvider {
                 null
             } else {
                 matchedMediaInfoList[0]
+            }
+        }
+    }
+
+    private fun isStaleMediaEntry(path: String): Boolean {
+        if (path.isBlank()) {
+            return false
+        }
+        val file = File(path)
+        return !file.isFile || !file.exists()
+    }
+
+    private fun withMediaStoreStateSelection(selection: String): String {
+        val stateSelection = mediaStoreStateSelection()
+        return if (stateSelection.isBlank()) {
+            selection
+        } else {
+            "($selection) AND ($stateSelection)"
+        }
+    }
+
+    private fun mediaStoreStateSelection(): String {
+        return buildString {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val isPendingColumn = MediaStore.MediaColumns.IS_PENDING
+                append("($isPendingColumn IS NULL OR $isPendingColumn = 0)")
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (isNotEmpty()) {
+                    append(" AND ")
+                }
+                val isTrashedColumn = MediaStore.MediaColumns.IS_TRASHED
+                append("($isTrashedColumn IS NULL OR $isTrashedColumn = 0)")
             }
         }
     }

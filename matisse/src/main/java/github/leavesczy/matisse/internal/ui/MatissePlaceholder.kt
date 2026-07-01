@@ -66,7 +66,7 @@ private fun MatissePlaceholder(
     ) {
         Image(
             modifier = Modifier
-                .size(size = 200.dp),
+                .size(size = 180.dp),
             painter = painterResource(id = R.drawable.ic_matisse_empty_gallery),
             contentDescription = stringResource(id = R.string.matisse_cd_empty)
         )

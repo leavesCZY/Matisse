@@ -43,7 +43,6 @@
     <color name="matisse_video_player_background_color">#FF22202A</color>
     <!-- Empty state -->
     <color name="matisse_empty_glow_color">#1A03A9F4</color>
-    <color name="matisse_empty_accent_color">#FF03A9F4</color>
     <color name="matisse_empty_frame_fill_color">#FFF5F7FA</color>
     <color name="matisse_empty_frame_stroke_color">#FFB0BEC5</color>
     <color name="matisse_empty_landscape_color">#FFCFD8DC</color>
