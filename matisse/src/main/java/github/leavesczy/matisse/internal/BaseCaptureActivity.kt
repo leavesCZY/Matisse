@@ -114,12 +114,11 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                         onCapturedMedia(mediaResource = capturedMedia)
                         return@launch
                     }
-                } else {
-                    captureStrategy.onTakePictureCancelled(
-                        context = applicationContext,
-                        imageUri = imageUri
-                    )
                 }
+                captureStrategy.onTakePictureCancelled(
+                    context = applicationContext,
+                    imageUri = imageUri
+                )
             }
             onTakePictureCancelled()
         }

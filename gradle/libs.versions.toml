@@ -15,12 +15,12 @@ androidx-espresso = "3.7.0"
 androidx-appcompat = "1.7.1"
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.11.0"
-androidx-compose-bom = "2026.06.00"
+androidx-compose-bom = "2026.06.01"
 
 junit = "4.13.2"
 
 coil = "3.5.0"
-glide = "1.0.0-beta09"
+glide = "1.0.0-beta10"
 
 leavesczy-matisse = "2.3.2"
 

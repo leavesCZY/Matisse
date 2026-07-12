@@ -27,7 +27,7 @@ internal object MediaProvider {
         imageName: String,
         mimeType: String
     ): Uri? {
-        return withContext(context = Dispatchers.Default) {
+        return withContext(context = Dispatchers.IO) {
             try {
                 val contentValues = ContentValues()
                 contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageName)
@@ -46,7 +46,7 @@ internal object MediaProvider {
     }
 
     suspend fun deleteMedia(context: Context, uri: Uri) {
-        withContext(context = Dispatchers.Default) {
+        withContext(context = Dispatchers.IO) {
             try {
                 context.contentResolver.delete(uri, null, null)
             } catch (throwable: Throwable) {
@@ -60,7 +60,7 @@ internal object MediaProvider {
         selection: String?,
         selectionArgs: Array<String>?
     ): List<MediaInfo>? {
-        return withContext(context = Dispatchers.Default) {
+        return withContext(context = Dispatchers.IO) {
             val idColumn = MediaStore.MediaColumns._ID
             val dataColumn = MediaStore.MediaColumns.DATA
             val mimeTypeColumn = MediaStore.MediaColumns.MIME_TYPE
@@ -125,7 +125,7 @@ internal object MediaProvider {
         context: Context,
         mediaType: MediaType
     ): List<MediaInfo>? {
-        return withContext(context = Dispatchers.Default) {
+        return withContext(context = Dispatchers.IO) {
             queryMediaInfoList(
                 context = context,
                 selection = withMediaStoreStateSelection(
@@ -176,7 +176,7 @@ internal object MediaProvider {
     }
 
     suspend fun loadMediaInfo(context: Context, uri: Uri): MediaInfo? {
-        return withContext(context = Dispatchers.Default) {
+        return withContext(context = Dispatchers.IO) {
             val id = ContentUris.parseId(uri)
             val selection = withMediaStoreStateSelection(
                 selection = MediaStore.MediaColumns._ID + " = " + id

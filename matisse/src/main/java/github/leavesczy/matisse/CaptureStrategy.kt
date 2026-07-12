@@ -52,10 +52,8 @@ interface CaptureStrategy : Parcelable {
      * 生成图片名
      */
     suspend fun createImageName(context: Context): String {
-        return withContext(context = Dispatchers.Default) {
-            val time = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US).format(Date())
-            "IMG_$time.jpg"
-        }
+        val time = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US).format(Date())
+        return "IMG_$time.jpg"
     }
 
     /**
@@ -106,11 +104,18 @@ class FileProviderCaptureStrategy(
         }
     }
 
-    override suspend fun loadCapturedMedia(context: Context, imageUri: Uri): MediaResource {
-        return MediaResource(
-            uri = imageUri,
-            mimeType = JPG_MIME_TYPE
-        )
+    override suspend fun loadCapturedMedia(context: Context, imageUri: Uri): MediaResource? {
+        repeat(times = 5) {
+            val imageFile = resolveImageFile(context = context, imageUri = imageUri)
+            if (imageFile != null && imageFile.length() > 0L) {
+                return MediaResource(
+                    uri = imageUri,
+                    mimeType = JPG_MIME_TYPE
+                )
+            }
+            delay(timeMillis = 50L)
+        }
+        return null
     }
 
     override suspend fun onTakePictureCancelled(context: Context, imageUri: Uri) {
@@ -176,30 +181,17 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
     }
 
     override suspend fun loadCapturedMedia(context: Context, imageUri: Uri): MediaResource? {
-        return withContext(context = Dispatchers.Default) {
-            repeat(times = 10) {
-                val result = loadCapturedMediaResource(context = context, uri = imageUri)
-                if (result != null) {
-                    return@withContext result
-                }
-                delay(timeMillis = 50L)
-            }
-            return@withContext null
-        }
-    }
-
-    private suspend fun loadCapturedMediaResource(context: Context, uri: Uri): MediaResource? {
-        return withContext(context = Dispatchers.Default) {
-            val resource = MediaProvider.loadMediaInfo(context = context, uri = uri)
-            if (resource == null) {
-                null
-            } else {
-                MediaResource(
+        repeat(times = 5) {
+            val resource = MediaProvider.loadMediaInfo(context = context, uri = imageUri)
+            if (resource != null) {
+                return MediaResource(
                     uri = resource.uri,
                     mimeType = resource.mimeType
                 )
             }
+            delay(timeMillis = 50L)
         }
+        return null
     }
 
     override suspend fun onTakePictureCancelled(context: Context, imageUri: Uri) {
