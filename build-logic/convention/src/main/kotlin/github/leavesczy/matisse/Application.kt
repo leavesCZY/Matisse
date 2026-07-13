@@ -25,7 +25,7 @@ internal fun Project.configureAndroidApplication(applicationExtension: Applicati
         }
         val basePluginExtension = project.extensions.getByType<BasePluginExtension>()
         basePluginExtension.apply {
-            archivesName.set("Matisse_v${defaultConfig.versionName}_${defaultConfig.versionCode}_${getApkBuildTime()}")
+            archivesName.set("matisse_v${defaultConfig.versionName}_${defaultConfig.versionCode}_${getApkBuildTime()}")
         }
         signingConfigs {
             create("release") {

@@ -48,6 +48,7 @@ import kotlin.math.absoluteValue
 internal fun MatissePreviewImagePage(
     pageViewState: MatissePreviewImagePageViewState,
     imageEngine: ImageEngine,
+    selectionLimitReached: Boolean,
     onConfirmClick: () -> Unit
 ) {
     AnimatedVisibility(
@@ -72,6 +73,7 @@ internal fun MatissePreviewImagePage(
         MatissePreviewImagePageContent(
             pageViewState = pageViewState,
             imageEngine = imageEngine,
+            selectionLimitReached = selectionLimitReached,
             onConfirmClick = onConfirmClick
         )
     }
@@ -81,6 +83,7 @@ internal fun MatissePreviewImagePage(
 private fun MatissePreviewImagePageContent(
     pageViewState: MatissePreviewImagePageViewState,
     imageEngine: ImageEngine,
+    selectionLimitReached: Boolean,
     onConfirmClick: () -> Unit
 ) {
     BackHandler(
@@ -126,6 +129,7 @@ private fun MatissePreviewImagePageContent(
                     .fillMaxWidth(),
                 pageViewState = pageViewState,
                 pagerState = pagerState,
+                selectionLimitReached = selectionLimitReached,
                 onConfirmClick = onConfirmClick
             )
         }
@@ -187,6 +191,7 @@ private fun PreviewBottomBar(
     modifier: Modifier,
     pageViewState: MatissePreviewImagePageViewState,
     pagerState: PagerState,
+    selectionLimitReached: Boolean,
     onConfirmClick: () -> Unit
 ) {
     val currentResource by remember {
@@ -226,6 +231,8 @@ private fun PreviewBottomBar(
                 .align(alignment = Alignment.Center)
                 .size(size = 27.dp),
             selectionState = currentResource.selectionState,
+            selectionLimitReached = selectionLimitReached,
+            maxSelectable = pageViewState.maxSelectable,
             onCheckedChange = onCheckedChange
         )
         val selectedMediaCount = pageViewState.selectedMediaCount

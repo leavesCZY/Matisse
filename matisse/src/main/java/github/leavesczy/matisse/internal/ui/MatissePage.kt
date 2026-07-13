@@ -51,6 +51,7 @@ import github.leavesczy.matisse.internal.logic.MatissePlaceholderState
 internal fun MatissePage(
     pageViewState: MatissePageViewState,
     bottomBarViewState: MatisseBottomBarViewState,
+    selectionLimitReached: Boolean,
     onTakePictureRequest: () -> Unit,
     onConfirmClick: () -> Unit,
     onFastSelectMedia: (MediaResource) -> Unit
@@ -90,6 +91,7 @@ internal fun MatissePage(
                             modifier = Modifier
                                 .fillMaxSize(),
                             pageViewState = pageViewState,
+                            selectionLimitReached = selectionLimitReached,
                             onTakePictureRequest = onTakePictureRequest,
                             onFastSelectMedia = onFastSelectMedia
                         )
@@ -127,6 +129,7 @@ internal fun MatissePage(
 private fun MediaList(
     modifier: Modifier,
     pageViewState: MatissePageViewState,
+    selectionLimitReached: Boolean,
     onTakePictureRequest: () -> Unit,
     onFastSelectMedia: (MediaResource) -> Unit
 ) {
@@ -177,6 +180,8 @@ private fun MediaList(
                         .matisseAnimateItem(lazyGridItemScope = this),
                     mediaItem = it,
                     imageEngine = pageViewState.matisse.imageEngine,
+                    selectionLimitReached = selectionLimitReached,
+                    maxSelectable = pageViewState.matisse.maxSelectable,
                     onMediaClick = pageViewState.onMediaClick,
                     onMediaCheckChanged = pageViewState.onMediaCheckChanged
                 )
@@ -203,7 +208,7 @@ private fun CaptureItem(
                 .fillMaxSize(fraction = 0.5f),
             painter = painterResource(id = R.drawable.ic_matisse_photo_camera),
             tint = colorResource(id = R.color.matisse_capture_icon_color),
-            contentDescription = stringResource(id = R.string.matisse_cd_capture)
+            contentDescription = null
         )
     }
 }
@@ -237,6 +242,8 @@ private fun MediaItem(
     modifier: Modifier,
     mediaItem: MatisseMediaItem,
     imageEngine: ImageEngine,
+    selectionLimitReached: Boolean,
+    maxSelectable: Int,
     onMediaClick: (MatisseMediaItem) -> Unit,
     onMediaCheckChanged: (MatisseMediaItem) -> Unit
 ) {
@@ -262,6 +269,8 @@ private fun MediaItem(
         }
         MediaItemSelectionOverlay(
             selectionState = mediaItem.selectionState,
+            selectionLimitReached = selectionLimitReached,
+            maxSelectable = maxSelectable,
             onCheckedChange = onCheckedChange
         )
     }
@@ -270,6 +279,8 @@ private fun MediaItem(
 @Composable
 private fun BoxScope.MediaItemSelectionOverlay(
     selectionState: State<MatisseMediaSelectState>,
+    selectionLimitReached: Boolean,
+    maxSelectable: Int,
     onCheckedChange: () -> Unit
 ) {
     MediaItemScrimColor(
@@ -279,13 +290,15 @@ private fun BoxScope.MediaItemSelectionOverlay(
     Box(
         modifier = Modifier
             .align(alignment = Alignment.TopEnd)
-            .fillMaxSize(fraction = GridMatisseCheckboxContainerFraction),
+            .fillMaxSize(fraction = 0.28f),
         contentAlignment = Alignment.Center
     ) {
         MatisseCheckbox(
             modifier = Modifier
-                .fillMaxSize(fraction = GridMatisseCheckboxInnerFraction),
+                .fillMaxSize(fraction =  0.80f),
             selectionState = selectionState,
+            selectionLimitReached = selectionLimitReached,
+            maxSelectable = maxSelectable,
             onCheckedChange = onCheckedChange
         )
     }
@@ -350,7 +363,7 @@ internal fun VideoIcon(modifier: Modifier) {
                 .fillMaxSize(fraction = 0.62f),
             painter = painterResource(id = R.drawable.ic_matisse_play_arrow),
             tint = colorResource(id = R.color.matisse_media_video_icon_color),
-            contentDescription = stringResource(id = R.string.matisse_cd_play_video)
+            contentDescription = null
         )
     }
 }

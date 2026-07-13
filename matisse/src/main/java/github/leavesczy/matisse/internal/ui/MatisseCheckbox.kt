@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
@@ -13,6 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -25,16 +27,12 @@ import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseMediaSelectState
 
-/** 相对媒体格子边长，右上角容器区域比例 */
-internal const val GridMatisseCheckboxContainerFraction = 0.28f
-
-/** 容器内 checkbox 占比，居中后形成动态边距（0.28 × 0.80 = 0.224） */
-internal const val GridMatisseCheckboxInnerFraction = 0.80f
-
 @Composable
 internal fun MatisseCheckbox(
     modifier: Modifier,
     selectionState: State<MatisseMediaSelectState>,
+    selectionLimitReached: Boolean,
+    maxSelectable: Int,
     onCheckedChange: () -> Unit
 ) {
     val state = selectionState.value
@@ -43,17 +41,30 @@ internal fun MatisseCheckbox(
             modifier = Modifier
                 .fillMaxSize(),
             isSelected = state.isSelected,
-            isEnabled = state.isEnabled,
+            isEnabled = state.isSelected || !selectionLimitReached,
             onCheckedChange = onCheckedChange
         )
-        val positionFormatted = state.positionFormatted
-        if (!positionFormatted.isNullOrBlank()) {
-            CheckboxPositionText(
-                modifier = Modifier
-                    .align(alignment = Alignment.Center),
-                text = positionFormatted,
-                color = colorResource(id = R.color.matisse_checkbox_text_color)
-            )
+        if (state.isSelected) {
+            if (maxSelectable > 1) {
+                val positionFormatted = state.positionFormatted
+                if (!positionFormatted.isNullOrBlank()) {
+                    CheckboxPositionText(
+                        modifier = Modifier
+                            .align(alignment = Alignment.Center),
+                        text = positionFormatted,
+                        color = colorResource(id = R.color.matisse_checkbox_text_color)
+                    )
+                }
+            } else {
+                Icon(
+                    modifier = Modifier
+                        .align(alignment = Alignment.Center)
+                        .fillMaxSize(fraction = 0.78f),
+                    painter = painterResource(id = R.drawable.ic_matisse_check),
+                    tint = colorResource(id = R.color.matisse_checkbox_text_color),
+                    contentDescription = null
+                )
+            }
         }
     }
 }

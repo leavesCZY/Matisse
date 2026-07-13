@@ -82,6 +82,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 MatissePage(
                     pageViewState = matisseViewModel.pageViewState,
                     bottomBarViewState = matisseViewModel.bottomBarViewState,
+                    selectionLimitReached = matisseViewModel.selectionLimitReached,
                     onTakePictureRequest = ::requestTakePicture,
                     onConfirmClick = ::onConfirmClick,
                     onFastSelectMedia = ::onFastSelectMedia
@@ -89,6 +90,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 MatissePreviewImagePage(
                     pageViewState = matisseViewModel.previewImagePageViewState,
                     imageEngine = matisseViewModel.pageViewState.matisse.imageEngine,
+                    selectionLimitReached = matisseViewModel.selectionLimitReached,
                     onConfirmClick = ::onConfirmClick
                 )
                 MatisseVideoPlayerPage(

@@ -16,13 +16,6 @@
     <string name="matisse_error_max_media">最多只能选择 %1$d 个图片或视频</string>
     <string name="matisse_error_mixed_media">不能同时选择图片和视频</string>
     <string name="matisse_error_no_camera_app">没有可用于拍照的应用</string>
-    <!-- Content descriptions -->
-    <string name="matisse_cd_capture">拍照</string>
-    <string name="matisse_cd_play_video">播放视频</string>
-    <string name="matisse_cd_back">返回</string>
-    <string name="matisse_cd_show_albums">显示相册列表</string>
-    <string name="matisse_cd_image">图片</string>
-    <string name="matisse_cd_empty">空相册插图</string>
     <!-- Empty state -->
     <string name="matisse_empty_no_image_title">暂无图片</string>
     <string name="matisse_empty_no_image_subtitle">相册中没有可选择的图片</string>

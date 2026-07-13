@@ -124,7 +124,7 @@ private fun MatisseTopBarContent(
                 .size(size = 28.dp),
             painter = painterResource(id = R.drawable.ic_matisse_arrow_back),
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-            contentDescription = stringResource(id = R.string.matisse_cd_back)
+            contentDescription = null
         )
         Text(
             modifier = Modifier
@@ -146,7 +146,7 @@ private fun MatisseTopBarContent(
                 .size(size = 32.dp),
             painter = painterResource(id = R.drawable.ic_matisse_arrow_drop_down),
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-            contentDescription = stringResource(id = R.string.matisse_cd_show_albums)
+            contentDescription = null
         )
     }
 }
