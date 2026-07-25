@@ -237,7 +237,7 @@ fun MainPage(
                 )
                 Button(
                     text = "切换主题",
-                    onClick = pageViewState.onThemeToggled
+                    onClick = pageViewState.onToggleTheme
                 )
             }
             for (media in pageViewState.pickedMediaList) {

@@ -16,9 +16,9 @@ import github.leavesczy.matisse.R
 @Composable
 internal fun MatisseLoadingDialog(
     modifier: Modifier,
-    visible: Boolean
+    isVisible: Boolean
 ) {
-    if (visible) {
+    if (isVisible) {
         Box(
             modifier = modifier
                 .fillMaxSize()

@@ -31,7 +31,7 @@ import github.leavesczy.matisse.internal.logic.MatisseMediaSelectState
 internal fun MatisseCheckbox(
     modifier: Modifier,
     selectionState: State<MatisseMediaSelectState>,
-    selectionLimitReached: Boolean,
+    isSelectionLimitReached: Boolean,
     maxSelectable: Int,
     onCheckedChange: () -> Unit
 ) {
@@ -41,7 +41,7 @@ internal fun MatisseCheckbox(
             modifier = Modifier
                 .fillMaxSize(),
             isSelected = state.isSelected,
-            isEnabled = state.isSelected || !selectionLimitReached,
+            isEnabled = state.isSelected || !isSelectionLimitReached,
             onCheckedChange = onCheckedChange
         )
         if (state.isSelected) {

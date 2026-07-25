@@ -10,16 +10,16 @@ import kotlinx.parcelize.Parcelize
 interface MediaFilter : Parcelable {
 
     /**
-     * 用于控制是否要忽略特定的媒体资源
-     * 返回 true 则会被忽略，不会展示给用户
+     * 是否忽略该媒体资源
+     * 返回 true 则不会展示给用户
      */
-    suspend fun ignoreMedia(mediaResource: MediaResource): Boolean
+    suspend fun shouldIgnoreMedia(mediaResource: MediaResource): Boolean
 
     /**
-     * 用于控制是否要默认选中特定的媒体资源
+     * 是否默认选中该媒体资源
      * 返回 true 则会被默认选中，仅在 [Matisse.fastSelect] 为 false 时生效
      */
-    suspend fun selectMedia(mediaResource: MediaResource): Boolean
+    suspend fun shouldSelectMedia(mediaResource: MediaResource): Boolean
 
 }
 
@@ -35,12 +35,12 @@ class DefaultMediaFilter(
     private val selectedMediaUris: Set<Uri> = emptySet()
 ) : MediaFilter {
 
-    override suspend fun ignoreMedia(mediaResource: MediaResource): Boolean {
+    override suspend fun shouldIgnoreMedia(mediaResource: MediaResource): Boolean {
         return ignoredMimeTypes.contains(element = mediaResource.mimeType) ||
                 ignoredMediaUris.contains(element = mediaResource.uri)
     }
 
-    override suspend fun selectMedia(mediaResource: MediaResource): Boolean {
+    override suspend fun shouldSelectMedia(mediaResource: MediaResource): Boolean {
         return selectedMediaUris.contains(element = mediaResource.uri)
     }
 

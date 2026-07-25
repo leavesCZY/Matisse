@@ -17,7 +17,7 @@ internal abstract class BaseMatisseViewModel(application: Application) :
     protected val context: Context
         get() = getApplication()
 
-    var loadingDialogVisible by mutableStateOf(value = false)
+    var isLoadingDialogVisible by mutableStateOf(value = false)
         private set
 
     @CallSuper
@@ -27,11 +27,11 @@ internal abstract class BaseMatisseViewModel(application: Application) :
     protected abstract fun onPreviewImagePageMediaCheckChanged(mediaItem: MatisseMediaItem)
 
     protected fun showLoadingDialog() {
-        loadingDialogVisible = true
+        isLoadingDialogVisible = true
     }
 
     protected fun dismissLoadingDialog() {
-        loadingDialogVisible = false
+        isLoadingDialogVisible = false
     }
 
     protected fun showToast(@StringRes id: Int) {

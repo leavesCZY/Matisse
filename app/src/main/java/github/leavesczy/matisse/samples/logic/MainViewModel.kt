@@ -41,7 +41,7 @@ class MainViewModel : ViewModel() {
             onMediaFilterStrategyChanged = ::onMediaFilterStrategyChanged,
             onCaptureStrategyChanged = ::onCaptureStrategyChanged,
             onUseFrontCameraChanged = ::onUseFrontCameraChanged,
-            onThemeToggled = ::onThemeToggled
+            onToggleTheme = ::onToggleTheme
         )
     )
         private set
@@ -96,7 +96,7 @@ class MainViewModel : ViewModel() {
         pageViewState = pageViewState.copy(useFrontCamera = useFrontCamera)
     }
 
-    private fun onThemeToggled() {
+    private fun onToggleTheme() {
         val currentPageViewState = pageViewState
         val darkTheme = !currentPageViewState.darkTheme
         pageViewState = currentPageViewState.copy(darkTheme = darkTheme)

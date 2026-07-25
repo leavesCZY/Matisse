@@ -34,7 +34,7 @@ internal fun MatisseVideoPlayerPage(pageViewState: MatisseVideoPlayerPageViewSta
     AnimatedVisibility(
         modifier = Modifier
             .fillMaxSize(),
-        visible = pageViewState.visible,
+        visible = pageViewState.isVisible,
         enter = slideInHorizontally(
             animationSpec = tween(
                 durationMillis = 350,
@@ -57,7 +57,7 @@ internal fun MatisseVideoPlayerPage(pageViewState: MatisseVideoPlayerPageViewSta
 @Composable
 private fun MatisseVideoPlayerPageContent(pageViewState: MatisseVideoPlayerPageViewState) {
     BackHandler(
-        enabled = pageViewState.visible,
+        enabled = pageViewState.isVisible,
         onBack = pageViewState.onDismissRequest
     )
     Row(

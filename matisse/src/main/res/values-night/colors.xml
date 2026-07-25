@@ -1,52 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- System bars -->
-    <bool name="matisse_status_bar_icons_dark">false</bool>
-    <bool name="matisse_navigation_bar_icons_dark">false</bool>
-    <color name="matisse_status_bar_background_color">#FF2B2A34</color>
-    <color name="matisse_navigation_bar_background_color">#FF2B2A34</color>
-    <!-- Gallery page -->
-    <color name="matisse_main_page_background_color">#FF22202A</color>
-    <color name="matisse_media_item_background_color">#CCFFFFFF</color>
+    <!-- 夜间主题：墨蓝深底 + 亮蓝强调色 -->
+
+    <!-- 系统栏背景 -->
+    <color name="matisse_status_bar_background_color">#FF121A2A</color>
+    <color name="matisse_navigation_bar_background_color">#FF121A2A</color>
+
+    <!-- 相册页：页面背景、缩略图占位、选中遮罩、拍照入口、视频角标 -->
+    <color name="matisse_main_page_background_color">#FF0E1524</color>
+    <color name="matisse_media_item_background_color">#FF334764</color>
     <color name="matisse_media_item_scrim_unselected_color">#0D000000</color>
     <color name="matisse_media_item_scrim_selected_color">#80000000</color>
-    <color name="matisse_capture_background_color">#CCFFFFFF</color>
-    <color name="matisse_capture_icon_color">#FFFFFFFF</color>
-    <color name="matisse_media_video_icon_background_color">#FFFFFFFF</color>
-    <color name="matisse_media_video_icon_color">#FF000000</color>
-    <!-- Top bar -->
-    <color name="matisse_top_bar_background_color">#FF2B2A34</color>
-    <color name="matisse_top_bar_icon_color">#FFFFFFFF</color>
-    <color name="matisse_top_bar_text_color">#FFFFFFFF</color>
-    <color name="matisse_dropdown_menu_background_color">#FF2B2A34</color>
-    <color name="matisse_dropdown_menu_text_color">#FFFFFFFF</color>
-    <!-- Bottom bar -->
-    <color name="matisse_bottom_bar_background_color">#FF2B2A34</color>
-    <color name="matisse_bottom_bar_preview_text_color">#FFFFFFFF</color>
-    <color name="matisse_bottom_bar_preview_text_disabled_color">#99FFFFFF</color>
-    <color name="matisse_bottom_bar_confirm_text_color">#FFFFFFFF</color>
-    <color name="matisse_bottom_bar_confirm_text_disabled_color">#99FFFFFF</color>
-    <!-- Preview page -->
-    <color name="matisse_preview_page_background_color">#FF22202A</color>
-    <color name="matisse_preview_page_bottom_bar_background_color">#FF2B2A34</color>
-    <color name="matisse_preview_page_back_text_color">#FFFFFFFF</color>
-    <color name="matisse_preview_page_confirm_text_color">#FFFFFFFF</color>
-    <color name="matisse_preview_page_confirm_text_disabled_color">#99FFFFFF</color>
-    <!-- Checkbox -->
-    <color name="matisse_checkbox_circle_stroke_color">#FFFFFFFF</color>
-    <color name="matisse_checkbox_circle_stroke_disabled_color">#80FFFFFF</color>
-    <color name="matisse_checkbox_circle_fill_selected_color">#FF009688</color>
-    <color name="matisse_checkbox_circle_fill_unselected_color">#0D000000</color>
+    <color name="matisse_capture_background_color">#FF2A3A52</color>
+    <color name="matisse_capture_icon_color">#FFD6E4F7</color>
+    <color name="matisse_media_video_icon_background_color">#F7FFFFFF</color>
+    <color name="matisse_media_video_icon_color">#FF0E1524</color>
+
+    <!-- 顶栏与相册下拉菜单 -->
+    <color name="matisse_top_bar_background_color">#FF121A2A</color>
+    <color name="matisse_top_bar_icon_color">#FFF5F7FA</color>
+    <color name="matisse_top_bar_text_color">#FFF5F7FA</color>
+    <color name="matisse_dropdown_menu_background_color">#FF1A2740</color>
+    <color name="matisse_dropdown_menu_text_color">#FFF5F7FA</color>
+
+    <!-- 底栏：预览为浅色正文，确认为亮蓝 -->
+    <color name="matisse_bottom_bar_background_color">#FF121A2A</color>
+    <color name="matisse_bottom_bar_preview_text_color">#FFF5F7FA</color>
+    <color name="matisse_bottom_bar_preview_text_disabled_color">#99A8BAD4</color>
+    <color name="matisse_bottom_bar_confirm_text_color">#FF70B8FF</color>
+    <color name="matisse_bottom_bar_confirm_text_disabled_color">#6670B8FF</color>
+
+    <!-- 大图预览页 -->
+    <color name="matisse_preview_page_background_color">#FF0E1524</color>
+    <color name="matisse_preview_page_bottom_bar_background_color">#E6121A2A</color>
+    <color name="matisse_preview_page_back_text_color">#FFF5F7FA</color>
+    <color name="matisse_preview_page_confirm_text_color">#FF70B8FF</color>
+    <color name="matisse_preview_page_confirm_text_disabled_color">#6670B8FF</color>
+
+    <!-- 勾选框：描边、选中填充、序号/对勾文字 -->
+    <color name="matisse_checkbox_circle_stroke_color">#F7FFFFFF</color>
+    <color name="matisse_checkbox_circle_stroke_disabled_color">#66FFFFFF</color>
+    <color name="matisse_checkbox_circle_fill_selected_color">#FF4AA3FF</color>
+    <color name="matisse_checkbox_circle_fill_unselected_color">#40000000</color>
     <color name="matisse_checkbox_text_color">#FFFFFFFF</color>
-    <!-- Loading & video player -->
-    <color name="matisse_loading_indicator_color">#FF009688</color>
-    <color name="matisse_video_player_background_color">#FF22202A</color>
-    <!-- Empty state -->
-    <color name="matisse_empty_glow_color">#26009688</color>
-    <color name="matisse_empty_frame_fill_color">#FF3A3844</color>
-    <color name="matisse_empty_frame_stroke_color">#FF5C5A68</color>
-    <color name="matisse_empty_landscape_color">#FF6B6978</color>
-    <color name="matisse_empty_shadow_color">#40000000</color>
-    <color name="matisse_empty_title_text_color">#FFECEFF1</color>
-    <color name="matisse_empty_subtitle_text_color">#FF90A4AE</color>
+
+    <!-- Loading 指示器与视频播放页 -->
+    <color name="matisse_loading_indicator_color">#FF70B8FF</color>
+    <color name="matisse_video_player_background_color">#FF0E1524</color>
+
+    <!-- 空状态插画与文案 -->
+    <color name="matisse_empty_glow_color">#404AA3FF</color>
+    <color name="matisse_empty_frame_fill_color">#FF1A2740</color>
+    <color name="matisse_empty_frame_stroke_color">#FF2A3A52</color>
+    <color name="matisse_empty_landscape_color">#FF4A628A</color>
+    <color name="matisse_empty_shadow_color">#59000000</color>
+    <color name="matisse_empty_title_text_color">#FFF5F7FA</color>
+    <color name="matisse_empty_subtitle_text_color">#FFA8BAD4</color>
 </resources>

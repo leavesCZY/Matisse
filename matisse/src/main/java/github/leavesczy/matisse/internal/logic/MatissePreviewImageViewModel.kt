@@ -14,7 +14,7 @@ internal abstract class MatissePreviewImageViewModel(application: Application, m
 
     var previewImagePageViewState by mutableStateOf(
         value = MatissePreviewImagePageViewState(
-            visible = false,
+            isVisible = false,
             initialPage = 0,
             selectedMediaCount = 0,
             maxSelectable = maxSelectable,
@@ -32,7 +32,7 @@ internal abstract class MatissePreviewImageViewModel(application: Application, m
         selectedMediaItems: List<MatisseMediaItem>
     ) {
         previewImagePageViewState = MatissePreviewImagePageViewState(
-            visible = true,
+            isVisible = true,
             maxSelectable = maxSelectable,
             initialPage = initialPage,
             selectedMediaCount = selectedMediaItems.size,
@@ -45,9 +45,9 @@ internal abstract class MatissePreviewImageViewModel(application: Application, m
 
     protected fun dismissPreviewImagePage() {
         val currentPreviewPageViewState = previewImagePageViewState
-        if (currentPreviewPageViewState.visible) {
+        if (currentPreviewPageViewState.isVisible) {
             previewImagePageViewState = currentPreviewPageViewState.copy(
-                visible = false,
+                isVisible = false,
                 onMediaCheckChanged = {},
                 onOpenVideoClick = {},
                 onDismissRequest = {}
@@ -61,7 +61,7 @@ internal abstract class MatissePreviewImageViewModel(application: Application, m
 
     protected fun updatePreviewImagePageIfNeeded() {
         val currentPreviewPageViewState = previewImagePageViewState
-        if (currentPreviewPageViewState.visible) {
+        if (currentPreviewPageViewState.isVisible) {
             val selectedMediaItems = getSelectedMediaItems()
             previewImagePageViewState = currentPreviewPageViewState.copy(
                 selectedMediaCount = selectedMediaItems.size

@@ -11,7 +11,7 @@ import github.leavesczy.matisse.MatisseCaptureContract
 import github.leavesczy.matisse.MatisseContract
 import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.samples.logic.MainViewModel
-import github.leavesczy.matisse.samples.theme.MatisseTheme
+import github.leavesczy.matisse.samples.theme.MatisseSampleTheme
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
                 rememberLauncherForActivityResult(contract = MatisseContract()) {
                     mainViewModel.onMediaPickerResult(result = it)
                 }
-            MatisseTheme(darkTheme = mainViewModel.pageViewState.darkTheme) {
+            MatisseSampleTheme(darkTheme = mainViewModel.pageViewState.darkTheme) {
                 MainPage(
                     pageViewState = mainViewModel.pageViewState,
                     onPickImageAndVideo = {

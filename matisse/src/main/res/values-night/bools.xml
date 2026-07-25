@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 夜间：状态栏 / 导航栏使用浅色图标 -->
+    <bool name="matisse_status_bar_icons_dark">false</bool>
+    <bool name="matisse_navigation_bar_icons_dark">false</bool>
+</resources>

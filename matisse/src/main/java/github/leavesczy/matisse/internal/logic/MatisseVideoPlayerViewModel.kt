@@ -11,7 +11,7 @@ internal abstract class MatisseVideoPlayerViewModel(application: Application) :
 
     var videoPlayerPageViewState by mutableStateOf(
         value = MatisseVideoPlayerPageViewState(
-            visible = false,
+            isVisible = false,
             videoUri = Uri.EMPTY,
             onDismissRequest = {}
         )
@@ -20,7 +20,7 @@ internal abstract class MatisseVideoPlayerViewModel(application: Application) :
 
     protected fun showVideoPlayerPage(videoUri: Uri) {
         videoPlayerPageViewState = MatisseVideoPlayerPageViewState(
-            visible = true,
+            isVisible = true,
             videoUri = videoUri,
             onDismissRequest = ::dismissVideoPlayerPage
         )
@@ -28,7 +28,7 @@ internal abstract class MatisseVideoPlayerViewModel(application: Application) :
 
     protected fun dismissVideoPlayerPage() {
         videoPlayerPageViewState = videoPlayerPageViewState.copy(
-            visible = false,
+            isVisible = false,
             onDismissRequest = {}
         )
     }

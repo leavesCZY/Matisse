@@ -17,14 +17,14 @@ private val lightColorScheme = lightColorScheme(
 
 private val darkColorScheme = darkColorScheme(
     background = Color(color = 0xFF101010),
-    primary = Color(color = 0xFF09A293),
+    primary = Color(color = 0x9F3F51B5),
     onPrimary = Color(color = 0xFFFFFFFF),
     secondary = Color(color = 0xFFCCC2DC),
     tertiary = Color(color = 0xFFEFB8C8)
 )
 
 @Composable
-fun MatisseTheme(
+fun MatisseSampleTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {

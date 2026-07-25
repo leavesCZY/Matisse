@@ -29,7 +29,6 @@ internal data class MatisseMediaItem(
 @Stable
 internal data class MatisseMediaSelectState(
     val isSelected: Boolean,
-    val isEnabled: Boolean,
     val positionIndex: Int
 ) {
 
@@ -67,7 +66,7 @@ internal data class MatisseBottomBarViewState(
 
 @Stable
 internal data class MatissePreviewImagePageViewState(
-    val visible: Boolean,
+    val isVisible: Boolean,
     val maxSelectable: Int,
     val initialPage: Int,
     val selectedMediaCount: Int,
@@ -79,7 +78,7 @@ internal data class MatissePreviewImagePageViewState(
 
 @Stable
 internal data class MatisseVideoPlayerPageViewState(
-    val visible: Boolean,
+    val isVisible: Boolean,
     val videoUri: Uri,
     val onDismissRequest: () -> Unit
 )
@@ -95,8 +94,8 @@ internal sealed class MatissePlaceholderState {
 
     @Stable
     data class NoMedia(
-        val includesImages: Boolean,
-        val includesVideos: Boolean
+        val includeImage: Boolean,
+        val includeVideo: Boolean
     ) : MatissePlaceholderState()
 
 }

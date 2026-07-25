@@ -31,15 +31,15 @@ internal fun MatisseNoPermissionPlaceholder(modifier: Modifier) {
 @Composable
 internal fun MatisseEmptyPlaceholder(
     modifier: Modifier,
-    includesImages: Boolean,
-    includesVideos: Boolean
+    includeImage: Boolean,
+    includeVideo: Boolean
 ) {
     val titleRes: Int
     val subtitleRes: Int
-    if (includesImages && includesVideos) {
+    if (includeImage && includeVideo) {
         titleRes = R.string.matisse_empty_no_media_title
         subtitleRes = R.string.matisse_empty_no_media_subtitle
-    } else if (includesVideos) {
+    } else if (includeVideo) {
         titleRes = R.string.matisse_empty_no_video_title
         subtitleRes = R.string.matisse_empty_no_video_subtitle
     } else {

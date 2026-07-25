@@ -73,7 +73,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         setContent {
             LaunchedEffect(key1 = Unit) {
                 snapshotFlow {
-                    matisseViewModel.previewImagePageViewState.visible
+                    matisseViewModel.previewImagePageViewState.isVisible
                 }.collectLatest {
                     setSystemBarUi(previewPageVisible = it)
                 }
@@ -82,15 +82,15 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 MatissePage(
                     pageViewState = matisseViewModel.pageViewState,
                     bottomBarViewState = matisseViewModel.bottomBarViewState,
-                    selectionLimitReached = matisseViewModel.selectionLimitReached,
-                    onTakePictureRequest = ::requestTakePicture,
+                    isSelectionLimitReached = matisseViewModel.isSelectionLimitReached,
+                    onTakePictureClick = ::requestTakePicture,
                     onConfirmClick = ::onConfirmClick,
-                    onFastSelectMedia = ::onFastSelectMedia
+                    onFastSelectMediaClick = ::onFastSelectMediaClick
                 )
                 MatissePreviewImagePage(
                     pageViewState = matisseViewModel.previewImagePageViewState,
                     imageEngine = matisseViewModel.pageViewState.matisse.imageEngine,
-                    selectionLimitReached = matisseViewModel.selectionLimitReached,
+                    isSelectionLimitReached = matisseViewModel.isSelectionLimitReached,
                     onConfirmClick = ::onConfirmClick
                 )
                 MatisseVideoPlayerPage(
@@ -98,7 +98,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 )
                 MatisseLoadingDialog(
                     modifier = Modifier,
-                    visible = matisseViewModel.loadingDialogVisible
+                    isVisible = matisseViewModel.isLoadingDialogVisible
                 )
             }
         }
@@ -158,7 +158,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         finishWithSelectedMedia(result = selectedMedia)
     }
 
-    private fun onFastSelectMedia(mediaResource: MediaResource) {
+    private fun onFastSelectMediaClick(mediaResource: MediaResource) {
         finishWithSelectedMedia(result = listOf(element = mediaResource))
     }
 

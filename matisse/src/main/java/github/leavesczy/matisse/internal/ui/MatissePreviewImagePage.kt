@@ -48,13 +48,13 @@ import kotlin.math.absoluteValue
 internal fun MatissePreviewImagePage(
     pageViewState: MatissePreviewImagePageViewState,
     imageEngine: ImageEngine,
-    selectionLimitReached: Boolean,
+    isSelectionLimitReached: Boolean,
     onConfirmClick: () -> Unit
 ) {
     AnimatedVisibility(
         modifier = Modifier
             .fillMaxSize(),
-        visible = pageViewState.visible,
+        visible = pageViewState.isVisible,
         enter = slideInHorizontally(
             animationSpec = tween(
                 durationMillis = 350,
@@ -73,7 +73,7 @@ internal fun MatissePreviewImagePage(
         MatissePreviewImagePageContent(
             pageViewState = pageViewState,
             imageEngine = imageEngine,
-            selectionLimitReached = selectionLimitReached,
+            isSelectionLimitReached = isSelectionLimitReached,
             onConfirmClick = onConfirmClick
         )
     }
@@ -83,11 +83,11 @@ internal fun MatissePreviewImagePage(
 private fun MatissePreviewImagePageContent(
     pageViewState: MatissePreviewImagePageViewState,
     imageEngine: ImageEngine,
-    selectionLimitReached: Boolean,
+    isSelectionLimitReached: Boolean,
     onConfirmClick: () -> Unit
 ) {
     BackHandler(
-        enabled = pageViewState.visible,
+        enabled = pageViewState.isVisible,
         onBack = pageViewState.onDismissRequest
     )
     val pagerState = rememberPagerState(initialPage = pageViewState.initialPage) {
@@ -129,7 +129,7 @@ private fun MatissePreviewImagePageContent(
                     .fillMaxWidth(),
                 pageViewState = pageViewState,
                 pagerState = pagerState,
-                selectionLimitReached = selectionLimitReached,
+                isSelectionLimitReached = isSelectionLimitReached,
                 onConfirmClick = onConfirmClick
             )
         }
@@ -191,7 +191,7 @@ private fun PreviewBottomBar(
     modifier: Modifier,
     pageViewState: MatissePreviewImagePageViewState,
     pagerState: PagerState,
-    selectionLimitReached: Boolean,
+    isSelectionLimitReached: Boolean,
     onConfirmClick: () -> Unit
 ) {
     val currentResource by remember {
@@ -229,9 +229,9 @@ private fun PreviewBottomBar(
         MatisseCheckbox(
             modifier = Modifier
                 .align(alignment = Alignment.Center)
-                .size(size = 27.dp),
+                .size(size = 25.dp),
             selectionState = currentResource.selectionState,
-            selectionLimitReached = selectionLimitReached,
+            isSelectionLimitReached = isSelectionLimitReached,
             maxSelectable = pageViewState.maxSelectable,
             onCheckedChange = onCheckedChange
         )

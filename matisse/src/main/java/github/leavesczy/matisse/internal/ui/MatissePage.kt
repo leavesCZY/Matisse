@@ -35,7 +35,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import github.leavesczy.matisse.ImageEngine
@@ -51,10 +50,10 @@ import github.leavesczy.matisse.internal.logic.MatissePlaceholderState
 internal fun MatissePage(
     pageViewState: MatissePageViewState,
     bottomBarViewState: MatisseBottomBarViewState,
-    selectionLimitReached: Boolean,
-    onTakePictureRequest: () -> Unit,
+    isSelectionLimitReached: Boolean,
+    onTakePictureClick: () -> Unit,
     onConfirmClick: () -> Unit,
-    onFastSelectMedia: (MediaResource) -> Unit
+    onFastSelectMediaClick: (MediaResource) -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -91,9 +90,9 @@ internal fun MatissePage(
                             modifier = Modifier
                                 .fillMaxSize(),
                             pageViewState = pageViewState,
-                            selectionLimitReached = selectionLimitReached,
-                            onTakePictureRequest = onTakePictureRequest,
-                            onFastSelectMedia = onFastSelectMedia
+                            isSelectionLimitReached = isSelectionLimitReached,
+                            onTakePictureClick = onTakePictureClick,
+                            onFastSelectMediaClick = onFastSelectMediaClick
                         )
                     }
                 }
@@ -110,14 +109,14 @@ internal fun MatissePage(
                         CaptureItem(
                             modifier = Modifier,
                             gridColumns = pageViewState.matisse.gridColumns,
-                            onTakePictureRequest = onTakePictureRequest
+                            onTakePictureClick = onTakePictureClick
                         )
                     }
                     MatisseEmptyPlaceholder(
                         modifier = Modifier
                             .align(alignment = Alignment.Center),
-                        includesImages = placeholderState.includesImages,
-                        includesVideos = placeholderState.includesVideos
+                        includeImage = placeholderState.includeImage,
+                        includeVideo = placeholderState.includeVideo
                     )
                 }
             }
@@ -129,9 +128,9 @@ internal fun MatissePage(
 private fun MediaList(
     modifier: Modifier,
     pageViewState: MatissePageViewState,
-    selectionLimitReached: Boolean,
-    onTakePictureRequest: () -> Unit,
-    onFastSelectMedia: (MediaResource) -> Unit
+    isSelectionLimitReached: Boolean,
+    onTakePictureClick: () -> Unit,
+    onFastSelectMediaClick: (MediaResource) -> Unit
 ) {
     val lazyGridState = rememberLazyGridState()
     LaunchedEffect(key1 = pageViewState.selectedBucket.bucketId) {
@@ -153,7 +152,7 @@ private fun MediaList(
                 CaptureItem(
                     modifier = Modifier
                         .matisseAnimateItem(lazyGridItemScope = this),
-                    onTakePictureClick = onTakePictureRequest
+                    onTakePictureClick = onTakePictureClick
                 )
             }
         }
@@ -172,7 +171,7 @@ private fun MediaList(
                         .matisseAnimateItem(lazyGridItemScope = this),
                     mediaResource = it.mediaResource,
                     imageEngine = pageViewState.matisse.imageEngine,
-                    onMediaClick = onFastSelectMedia
+                    onMediaClick = onFastSelectMediaClick
                 )
             } else {
                 MediaItem(
@@ -180,7 +179,7 @@ private fun MediaList(
                         .matisseAnimateItem(lazyGridItemScope = this),
                     mediaItem = it,
                     imageEngine = pageViewState.matisse.imageEngine,
-                    selectionLimitReached = selectionLimitReached,
+                    isSelectionLimitReached = isSelectionLimitReached,
                     maxSelectable = pageViewState.matisse.maxSelectable,
                     onMediaClick = pageViewState.onMediaClick,
                     onMediaCheckChanged = pageViewState.onMediaCheckChanged
@@ -217,7 +216,7 @@ private fun CaptureItem(
 private fun CaptureItem(
     modifier: Modifier,
     gridColumns: Int,
-    onTakePictureRequest: () -> Unit
+    onTakePictureClick: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -228,7 +227,7 @@ private fun CaptureItem(
         CaptureItem(
             modifier = Modifier
                 .weight(weight = 1f),
-            onTakePictureClick = onTakePictureRequest
+            onTakePictureClick = onTakePictureClick
         )
         Spacer(
             modifier = Modifier
@@ -242,7 +241,7 @@ private fun MediaItem(
     modifier: Modifier,
     mediaItem: MatisseMediaItem,
     imageEngine: ImageEngine,
-    selectionLimitReached: Boolean,
+    isSelectionLimitReached: Boolean,
     maxSelectable: Int,
     onMediaClick: (MatisseMediaItem) -> Unit,
     onMediaCheckChanged: (MatisseMediaItem) -> Unit
@@ -269,7 +268,7 @@ private fun MediaItem(
         }
         MediaItemSelectionOverlay(
             selectionState = mediaItem.selectionState,
-            selectionLimitReached = selectionLimitReached,
+            isSelectionLimitReached = isSelectionLimitReached,
             maxSelectable = maxSelectable,
             onCheckedChange = onCheckedChange
         )
@@ -279,7 +278,7 @@ private fun MediaItem(
 @Composable
 private fun BoxScope.MediaItemSelectionOverlay(
     selectionState: State<MatisseMediaSelectState>,
-    selectionLimitReached: Boolean,
+    isSelectionLimitReached: Boolean,
     maxSelectable: Int,
     onCheckedChange: () -> Unit
 ) {
@@ -295,9 +294,9 @@ private fun BoxScope.MediaItemSelectionOverlay(
     ) {
         MatisseCheckbox(
             modifier = Modifier
-                .fillMaxSize(fraction =  0.80f),
+                .fillMaxSize(fraction = 0.80f),
             selectionState = selectionState,
-            selectionLimitReached = selectionLimitReached,
+            isSelectionLimitReached = isSelectionLimitReached,
             maxSelectable = maxSelectable,
             onCheckedChange = onCheckedChange
         )
