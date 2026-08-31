@@ -3,17 +3,22 @@ package github.leavesczy.matisse.internal.logic
 import android.net.Uri
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.paging.PagingData
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
+import kotlinx.coroutines.flow.Flow
 
 @Stable
 internal data class MatissePageViewState(
     val matisse: Matisse,
     val selectedBucket: MatisseMediaBucket,
     val mediaBuckets: List<MatisseMediaBucketInfo>,
+    val isMediaBucketsLoading: Boolean,
+    val mediaPagingDataFlow: Flow<PagingData<MatisseMediaItem>>,
     val placeholderState: MatissePlaceholderState,
+    val onBucketMenuOpen: () -> Unit,
     val onBucketClick: suspend (String) -> Unit,
-    val onMediaClick: (MatisseMediaItem) -> Unit,
+    val onMediaClick: (MatisseMediaItem, List<MatisseMediaItem>) -> Unit,
     val onMediaCheckChanged: (MatisseMediaItem) -> Unit
 )
 
@@ -44,8 +49,7 @@ internal data class MatisseMediaSelectState(
 internal data class MatisseMediaBucket(
     val bucketId: String,
     val bucketName: String,
-    val supportsCapture: Boolean,
-    val mediaItems: List<MatisseMediaItem>
+    val supportsCapture: Boolean
 )
 
 @Stable

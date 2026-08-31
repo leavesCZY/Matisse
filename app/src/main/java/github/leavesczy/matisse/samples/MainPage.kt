@@ -39,7 +39,6 @@ import coil3.compose.AsyncImage
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.samples.logic.MainPageViewState
 import github.leavesczy.matisse.samples.logic.MediaCaptureStrategy
-import github.leavesczy.matisse.samples.logic.MediaFilterStrategy
 import github.leavesczy.matisse.samples.logic.MediaImageEngine
 
 @Composable
@@ -160,22 +159,6 @@ fun MainPage(
                 )
             }
             OptionDivider()
-            Title(text = "mediaFilter")
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                for (strategy in MediaFilterStrategy.entries) {
-                    RadioButton(
-                        label = strategy.name,
-                        selected = pageViewState.mediaFilterStrategy == strategy,
-                        onClick = {
-                            pageViewState.onMediaFilterStrategyChanged(strategy)
-                        }
-                    )
-                }
-            }
-            OptionDivider()
             Title(text = "CaptureStrategy")
             FlowRow(
                 modifier = Modifier
@@ -234,6 +217,15 @@ fun MainPage(
                     text = "直接拍照",
                     enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Disabled,
                     onClick = onTakePictureClick
+                )
+                Button(
+                    text = if (pageViewState.isInsertingPagingTestImages) {
+                        "正在插入测试图片..."
+                    } else {
+                        "插入 200 张测试图片"
+                    },
+                    enabled = !pageViewState.isInsertingPagingTestImages,
+                    onClick = pageViewState.onInsertPagingTestImages
                 )
                 Button(
                     text = "切换主题",

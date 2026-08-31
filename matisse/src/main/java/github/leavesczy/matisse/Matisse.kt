@@ -12,7 +12,6 @@ import kotlinx.parcelize.Parcelize
  * @param fastSelect 是否要点击媒体资源后立即返回，值为 true 时 maxSelectable 必须为 1。默认不立即返回
  * @param mediaType 要加载的媒体资源类型。默认仅图片
  * @param singleMediaType 是否限制为单一媒体类型。值为 true 时不允许混选图片和视频，默认为 true
- * @param mediaFilter 媒体资源的筛选规则。默认不进行筛选
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  */
 @Stable
@@ -24,7 +23,6 @@ data class Matisse(
     val fastSelect: Boolean = false,
     val mediaType: MediaType = MediaType.ImageOnly,
     val singleMediaType: Boolean = true,
-    val mediaFilter: MediaFilter? = null,
     val captureStrategy: CaptureStrategy? = null
 ) : Parcelable {
 

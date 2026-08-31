@@ -1,16 +1,18 @@
 package github.leavesczy.matisse.internal.logic
 
+import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.provider.MediaStore
+import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
 
 internal object MediaProvider {
 
@@ -20,6 +22,14 @@ internal object MediaProvider {
         val mediaId: Long,
         val bucketId: String,
         val bucketName: String
+    )
+
+    data class MediaBucketAggregate(
+        val bucketId: String,
+        val bucketName: String,
+        val itemCount: Int,
+        val coverUri: Uri,
+        val coverMimeType: String
     )
 
     suspend fun createImage(
@@ -55,84 +65,390 @@ internal object MediaProvider {
         }
     }
 
-    private suspend fun queryMediaInfoList(
+    suspend fun loadMediaInfoPage(
         context: Context,
-        selection: String?,
-        selectionArgs: Array<String>?
-    ): List<MediaInfo>? {
+        mediaType: MediaType,
+        bucketId: String?,
+        limit: Int,
+        offset: Int
+    ): List<MediaInfo> {
         return withContext(context = Dispatchers.IO) {
-            val idColumn = MediaStore.MediaColumns._ID
-            val dataColumn = MediaStore.MediaColumns.DATA
-            val mimeTypeColumn = MediaStore.MediaColumns.MIME_TYPE
-            val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
-            val bucketDisplayNameColumn = MediaStore.MediaColumns.BUCKET_DISPLAY_NAME
-            val dateModifiedColumn = MediaStore.MediaColumns.DATE_MODIFIED
-            val projection = arrayOf(
-                idColumn,
-                dataColumn,
-                mimeTypeColumn,
-                bucketIdColumn,
-                bucketDisplayNameColumn
+            val selectionParts = mutableListOf(
+                withMediaStoreStateSelection(
+                    selection = generateSqlSelection(mediaType = mediaType)
+                )
             )
-            val contentUri = MediaStore.Files.getContentUri("external")
-            val sortOrder = "$dateModifiedColumn DESC"
-            val mediaInfoList = mutableListOf<MediaInfo>()
-            try {
-                val cursor = context.contentResolver.query(
-                    contentUri,
-                    projection,
-                    selection,
-                    selectionArgs,
-                    sortOrder,
-                ) ?: return@withContext null
-                cursor.use { cursor ->
-                    while (cursor.moveToNext()) {
-                        try {
-                            val invalidId = Long.MAX_VALUE
-                            val id = cursor.getLong(idColumn, invalidId)
-                            if (id == invalidId) {
-                                continue
-                            }
-                            val path = cursor.getString(dataColumn, "")
-                            if (isStaleMediaEntry(path = path)) {
-                                continue
-                            }
-                            val uri = ContentUris.withAppendedId(contentUri, id)
-                            val bucketId = cursor.getString(bucketIdColumn, "")
-                            val bucketName = cursor.getString(bucketDisplayNameColumn, "")
-                            val mimeType = cursor.getString(mimeTypeColumn, "")
-                            val mediaInfo = MediaInfo(
-                                uri = uri,
-                                mimeType = mimeType,
-                                mediaId = id,
-                                bucketId = bucketId,
-                                bucketName = bucketName
-                            )
-                            mediaInfoList.add(element = mediaInfo)
-                        } catch (throwable: Throwable) {
-                            throwable.printStackTrace()
-                        }
-                    }
-                }
-            } catch (throwable: Throwable) {
-                throwable.printStackTrace()
+            val selectionArgs = mutableListOf<String>()
+            if (!bucketId.isNullOrBlank()) {
+                selectionParts.add("${MediaStore.MediaColumns.BUCKET_ID} = ?")
+                selectionArgs.add(bucketId)
             }
-            mediaInfoList
+            queryMediaInfoList(
+                context = context,
+                selection = selectionParts.joinToString(separator = " AND ") { "($it)" },
+                selectionArgs = selectionArgs.toTypedArray(),
+                limit = limit,
+                offset = offset
+            ).orEmpty()
         }
     }
 
-    suspend fun loadMediaInfoList(
+    suspend fun loadMediaBuckets(
         context: Context,
         mediaType: MediaType
-    ): List<MediaInfo>? {
+    ): List<MediaBucketAggregate> {
         return withContext(context = Dispatchers.IO) {
-            queryMediaInfoList(
+            val summaries = queryGroupedBucketSummaries(
                 context = context,
+                mediaType = mediaType
+            )
+            if (summaries != null) {
+                loadBucketCovers(
+                    context = context,
+                    mediaType = mediaType,
+                    summaries = summaries
+                )
+            } else {
+                queryBucketsByFullScan(
+                    context = context,
+                    mediaType = mediaType
+                )
+            }
+        }
+    }
+
+    private fun queryGroupedBucketSummaries(
+        context: Context,
+        mediaType: MediaType
+    ): List<BucketSummary>? {
+        val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
+        val bucketDisplayNameColumn = MediaStore.MediaColumns.BUCKET_DISPLAY_NAME
+        val countColumn = "COUNT(${MediaStore.MediaColumns._ID})"
+        val projection = arrayOf(
+            bucketIdColumn,
+            bucketDisplayNameColumn,
+            countColumn
+        )
+        val contentUri = MediaStore.Files.getContentUri("external")
+        val summaries = ArrayList<BucketSummary>()
+        try {
+            val cursor = queryMediaCursor(
+                contentResolver = context.contentResolver,
+                contentUri = contentUri,
+                projection = projection,
                 selection = withMediaStoreStateSelection(
                     selection = generateSqlSelection(mediaType = mediaType)
                 ),
-                selectionArgs = null
+                selectionArgs = null,
+                limit = null,
+                offset = null,
+                groupBy = bucketIdColumn,
+                sortOrder = "$bucketDisplayNameColumn ASC"
+            ) ?: return null
+            cursor.use { cursor ->
+                val bucketIdIndex = cursor.getColumnIndexOrThrow(bucketIdColumn)
+                val bucketNameIndex = cursor.getColumnIndexOrThrow(bucketDisplayNameColumn)
+                val countIndex = cursor.indexOfCountColumn(countSql = countColumn)
+                if (countIndex < 0) {
+                    return null
+                }
+                while (cursor.moveToNext()) {
+                    val bucketId = cursor.getString(bucketIdIndex).orEmpty()
+                    val bucketName = cursor.getString(bucketNameIndex).orEmpty()
+                    if (bucketId.isBlank() || bucketName.isBlank()) {
+                        continue
+                    }
+                    val itemCount = cursor.getInt(countIndex)
+                    if (itemCount <= 0) {
+                        continue
+                    }
+                    summaries.add(
+                        element = BucketSummary(
+                            bucketId = bucketId,
+                            bucketName = bucketName,
+                            itemCount = itemCount
+                        )
+                    )
+                }
+            }
+        } catch (throwable: Throwable) {
+            throwable.printStackTrace()
+            return null
+        }
+        return summaries
+    }
+
+    private suspend fun loadBucketCovers(
+        context: Context,
+        mediaType: MediaType,
+        summaries: List<BucketSummary>
+    ): List<MediaBucketAggregate> {
+        val aggregates = ArrayList<MediaBucketAggregate>(summaries.size)
+        for (summary in summaries) {
+            val cover = loadMediaInfoPage(
+                context = context,
+                mediaType = mediaType,
+                bucketId = summary.bucketId,
+                limit = 1,
+                offset = 0
+            ).firstOrNull() ?: continue
+            aggregates.add(
+                element = MediaBucketAggregate(
+                    bucketId = summary.bucketId,
+                    bucketName = summary.bucketName,
+                    itemCount = summary.itemCount,
+                    coverUri = cover.uri,
+                    coverMimeType = cover.mimeType
+                )
             )
+        }
+        return aggregates
+    }
+
+    private fun queryBucketsByFullScan(
+        context: Context,
+        mediaType: MediaType
+    ): List<MediaBucketAggregate> {
+        val idColumn = MediaStore.MediaColumns._ID
+        val mimeTypeColumn = MediaStore.MediaColumns.MIME_TYPE
+        val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
+        val bucketDisplayNameColumn = MediaStore.MediaColumns.BUCKET_DISPLAY_NAME
+        val projection = arrayOf(
+            idColumn,
+            mimeTypeColumn,
+            bucketIdColumn,
+            bucketDisplayNameColumn
+        )
+        val contentUri = MediaStore.Files.getContentUri("external")
+        val aggregates = linkedMapOf<String, MutableBucketAggregate>()
+        try {
+            val cursor = queryMediaCursor(
+                contentResolver = context.contentResolver,
+                contentUri = contentUri,
+                projection = projection,
+                selection = withMediaStoreStateSelection(
+                    selection = generateSqlSelection(mediaType = mediaType)
+                ),
+                selectionArgs = null,
+                limit = null,
+                offset = null
+            ) ?: return emptyList()
+            cursor.use { cursor ->
+                val idIndex = cursor.getColumnIndexOrThrow(idColumn)
+                val mimeTypeIndex = cursor.getColumnIndexOrThrow(mimeTypeColumn)
+                val bucketIdIndex = cursor.getColumnIndexOrThrow(bucketIdColumn)
+                val bucketNameIndex = cursor.getColumnIndexOrThrow(bucketDisplayNameColumn)
+                while (cursor.moveToNext()) {
+                    try {
+                        val id = cursor.getLong(idIndex)
+                        val bucketId = cursor.getString(bucketIdIndex).orEmpty()
+                        val bucketName = cursor.getString(bucketNameIndex).orEmpty()
+                        if (bucketId.isBlank() || bucketName.isBlank()) {
+                            continue
+                        }
+                        val uri = ContentUris.withAppendedId(contentUri, id)
+                        val mimeType = cursor.getString(mimeTypeIndex).orEmpty()
+                        val aggregate = aggregates.getOrPut(key = bucketId) {
+                            MutableBucketAggregate(
+                                bucketId = bucketId,
+                                bucketName = bucketName,
+                                itemCount = 0,
+                                coverUri = uri,
+                                coverMimeType = mimeType
+                            )
+                        }
+                        aggregate.itemCount += 1
+                    } catch (throwable: Throwable) {
+                        throwable.printStackTrace()
+                    }
+                }
+            }
+        } catch (throwable: Throwable) {
+            throwable.printStackTrace()
+        }
+        return aggregates.values.map { aggregate ->
+            MediaBucketAggregate(
+                bucketId = aggregate.bucketId,
+                bucketName = aggregate.bucketName,
+                itemCount = aggregate.itemCount,
+                coverUri = aggregate.coverUri,
+                coverMimeType = aggregate.coverMimeType
+            )
+        }
+    }
+
+    private fun Cursor.indexOfCountColumn(countSql: String): Int {
+        val exactIndex = getColumnIndex(countSql)
+        if (exactIndex >= 0) {
+            return exactIndex
+        }
+        for (index in 0 until columnCount) {
+            if (getColumnName(index).contains(other = "COUNT", ignoreCase = true)) {
+                return index
+            }
+        }
+        return -1
+    }
+
+    private fun queryMediaInfoList(
+        context: Context,
+        selection: String?,
+        selectionArgs: Array<String>?,
+        limit: Int?,
+        offset: Int? = null
+    ): List<MediaInfo>? {
+        val idColumn = MediaStore.MediaColumns._ID
+        val mimeTypeColumn = MediaStore.MediaColumns.MIME_TYPE
+        val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
+        val bucketDisplayNameColumn = MediaStore.MediaColumns.BUCKET_DISPLAY_NAME
+        val projection = arrayOf(
+            idColumn,
+            mimeTypeColumn,
+            bucketIdColumn,
+            bucketDisplayNameColumn
+        )
+        val contentUri = MediaStore.Files.getContentUri("external")
+        val mediaInfoList = mutableListOf<MediaInfo>()
+        try {
+            val cursor = queryMediaCursor(
+                contentResolver = context.contentResolver,
+                contentUri = contentUri,
+                projection = projection,
+                selection = selection,
+                selectionArgs = selectionArgs,
+                limit = limit,
+                offset = offset
+            ) ?: return null
+            cursor.use { cursor ->
+                val idIndex = cursor.getColumnIndexOrThrow(idColumn)
+                val mimeTypeIndex = cursor.getColumnIndexOrThrow(mimeTypeColumn)
+                val bucketIdIndex = cursor.getColumnIndexOrThrow(bucketIdColumn)
+                val bucketNameIndex = cursor.getColumnIndexOrThrow(bucketDisplayNameColumn)
+                while (cursor.moveToNext()) {
+                    try {
+                        val id = cursor.getLong(idIndex)
+                        val uri = ContentUris.withAppendedId(contentUri, id)
+                        val mediaInfo = MediaInfo(
+                            uri = uri,
+                            mimeType = cursor.getString(mimeTypeIndex).orEmpty(),
+                            mediaId = id,
+                            bucketId = cursor.getString(bucketIdIndex).orEmpty(),
+                            bucketName = cursor.getString(bucketNameIndex).orEmpty()
+                        )
+                        mediaInfoList.add(element = mediaInfo)
+                    } catch (throwable: Throwable) {
+                        throwable.printStackTrace()
+                    }
+                }
+            }
+        } catch (throwable: Throwable) {
+            throwable.printStackTrace()
+        }
+        return mediaInfoList
+    }
+
+    private fun queryMediaCursor(
+        contentResolver: ContentResolver,
+        contentUri: Uri,
+        projection: Array<String>,
+        selection: String?,
+        selectionArgs: Array<String>?,
+        limit: Int?,
+        offset: Int?,
+        groupBy: String? = null,
+        sortOrder: String = mediaRecencySortOrder()
+    ): Cursor? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val queryArgs = Bundle().apply {
+                putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
+                putStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS, selectionArgs)
+                putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER, sortOrder)
+                if (groupBy != null) {
+                    putString(ContentResolver.QUERY_ARG_SQL_GROUP_BY, groupBy)
+                }
+                if (limit != null) {
+                    putInt(ContentResolver.QUERY_ARG_LIMIT, limit)
+                }
+                if (offset != null) {
+                    putInt(ContentResolver.QUERY_ARG_OFFSET, offset)
+                }
+            }
+            contentResolver.query(contentUri, projection, queryArgs, null)
+        } else {
+            val groupedSelection = if (groupBy != null) {
+                val baseSelection = selection ?: "1"
+                "$baseSelection) GROUP BY ($groupBy"
+            } else {
+                selection
+            }
+            val pagedSortOrder = if (limit != null) {
+                val safeOffset = offset ?: 0
+                "$sortOrder LIMIT $limit OFFSET $safeOffset"
+            } else {
+                sortOrder
+            }
+            contentResolver.query(
+                contentUri,
+                projection,
+                groupedSelection,
+                selectionArgs,
+                pagedSortOrder
+            )
+        }
+    }
+
+    /**
+     * Prefer whichever is newer between generation/import time and last modification.
+     */
+    private fun mediaRecencySortOrder(): String {
+        val dateAddedColumn = MediaStore.MediaColumns.DATE_ADDED
+        val dateModifiedColumn = MediaStore.MediaColumns.DATE_MODIFIED
+        val idColumn = MediaStore.MediaColumns._ID
+        return "(CASE WHEN $dateAddedColumn > $dateModifiedColumn THEN $dateAddedColumn ELSE $dateModifiedColumn END) DESC, $idColumn DESC"
+    }
+
+    suspend fun loadMediaInfo(context: Context, uri: Uri): MediaInfo? {
+        return withContext(context = Dispatchers.IO) {
+            val id = ContentUris.parseId(uri)
+            val selection = withMediaStoreStateSelection(
+                selection = MediaStore.MediaColumns._ID + " = " + id
+            )
+            val matchedMediaInfoList = queryMediaInfoList(
+                context = context,
+                selection = selection,
+                selectionArgs = null,
+                limit = 1
+            )
+            if (matchedMediaInfoList.isNullOrEmpty() || matchedMediaInfoList.size != 1) {
+                null
+            } else {
+                matchedMediaInfoList[0]
+            }
+        }
+    }
+
+    private fun withMediaStoreStateSelection(selection: String): String {
+        val stateSelection = mediaStoreStateSelection()
+        return if (stateSelection.isBlank()) {
+            selection
+        } else {
+            "($selection) AND ($stateSelection)"
+        }
+    }
+
+    private fun mediaStoreStateSelection(): String {
+        return buildString {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val isPendingColumn = MediaStore.MediaColumns.IS_PENDING
+                append("($isPendingColumn IS NULL OR $isPendingColumn = 0)")
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (isNotEmpty()) {
+                    append(" AND ")
+                }
+                val isTrashedColumn = MediaStore.MediaColumns.IS_TRASHED
+                append("($isTrashedColumn IS NULL OR $isTrashedColumn = 0)")
+            }
         }
     }
 
@@ -175,76 +491,25 @@ internal object MediaProvider {
         }
     }
 
-    suspend fun loadMediaInfo(context: Context, uri: Uri): MediaInfo? {
-        return withContext(context = Dispatchers.IO) {
-            val id = ContentUris.parseId(uri)
-            val selection = withMediaStoreStateSelection(
-                selection = MediaStore.MediaColumns._ID + " = " + id
-            )
-            val matchedMediaInfoList = queryMediaInfoList(
-                context = context,
-                selection = selection,
-                selectionArgs = null
-            )
-            if (matchedMediaInfoList.isNullOrEmpty() || matchedMediaInfoList.size != 1) {
-                null
-            } else {
-                matchedMediaInfoList[0]
-            }
-        }
-    }
+    private class BucketSummary(
+        val bucketId: String,
+        val bucketName: String,
+        val itemCount: Int
+    )
 
-    private fun isStaleMediaEntry(path: String): Boolean {
-        if (path.isBlank()) {
-            return false
-        }
-        val file = File(path)
-        return !file.isFile || !file.exists()
-    }
+    private class MutableBucketAggregate(
+        val bucketId: String,
+        val bucketName: String,
+        var itemCount: Int,
+        val coverUri: Uri,
+        val coverMimeType: String
+    )
 
-    private fun withMediaStoreStateSelection(selection: String): String {
-        val stateSelection = mediaStoreStateSelection()
-        return if (stateSelection.isBlank()) {
-            selection
-        } else {
-            "($selection) AND ($stateSelection)"
-        }
-    }
+}
 
-    private fun mediaStoreStateSelection(): String {
-        return buildString {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val isPendingColumn = MediaStore.MediaColumns.IS_PENDING
-                append("($isPendingColumn IS NULL OR $isPendingColumn = 0)")
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                if (isNotEmpty()) {
-                    append(" AND ")
-                }
-                val isTrashedColumn = MediaStore.MediaColumns.IS_TRASHED
-                append("($isTrashedColumn IS NULL OR $isTrashedColumn = 0)")
-            }
-        }
-    }
-
-    private fun Cursor.getLong(columnName: String, default: Long): Long {
-        return try {
-            val columnIndex = getColumnIndexOrThrow(columnName)
-            getLong(columnIndex)
-        } catch (throwable: IllegalArgumentException) {
-            throwable.printStackTrace()
-            default
-        }
-    }
-
-    private fun Cursor.getString(columnName: String, default: String): String {
-        return try {
-            val columnIndex = getColumnIndexOrThrow(columnName)
-            getString(columnIndex) ?: default
-        } catch (throwable: IllegalArgumentException) {
-            throwable.printStackTrace()
-            default
-        }
-    }
-
+internal fun MediaProvider.MediaBucketAggregate.toCoverMediaResource(): MediaResource {
+    return MediaResource(
+        uri = coverUri,
+        mimeType = coverMimeType
+    )
 }

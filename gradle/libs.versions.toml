@@ -6,7 +6,7 @@ android-target-sdk = "37"
 android-compile-sdk = "37"
 android-build-tools = "37.0.0"
 
-android-plugin = "9.3.1"
+android-plugin = "9.3.2"
 kotlin-plugin = "2.4.10"
 maven-publish-plugin = "0.37.0"
 
@@ -15,11 +15,12 @@ androidx-espresso = "3.7.0"
 androidx-appcompat = "1.8.0"
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.11.0"
+androidx-paging = "3.5.1"
 androidx-compose-bom = "2026.08.00"
 
 junit = "4.13.2"
 
-coil = "3.5.0"
+coil = "3.6.0"
 glide = "1.0.0-beta10"
 
 leavesczy-matisse = "2.3.2"
@@ -51,6 +52,8 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "androidx-paging" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "androidx-paging" }
 
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidx-compose-bom" }
 androidx-compose-ui = { module = "androidx.compose.ui:ui" }

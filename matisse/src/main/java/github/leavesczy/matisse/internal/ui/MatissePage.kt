@@ -3,6 +3,7 @@ package github.leavesczy.matisse.internal.ui
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,14 +16,16 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,10 +36,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
@@ -64,6 +70,8 @@ internal fun MatissePage(
                 modifier = Modifier,
                 bucketName = pageViewState.selectedBucket.bucketName,
                 mediaBuckets = pageViewState.mediaBuckets,
+                isMediaBucketsLoading = pageViewState.isMediaBucketsLoading,
+                onBucketMenuOpen = pageViewState.onBucketMenuOpen,
                 onBucketClick = pageViewState.onBucketClick,
                 imageEngine = pageViewState.matisse.imageEngine
             )
@@ -132,57 +140,94 @@ private fun MediaList(
     onTakePictureClick: () -> Unit,
     onFastSelectMediaClick: (MediaResource) -> Unit
 ) {
+    val lazyPagingItems = pageViewState.mediaPagingDataFlow.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
+    val refreshLoadState = lazyPagingItems.loadState.refresh
     LaunchedEffect(key1 = pageViewState.selectedBucket.bucketId) {
         lazyGridState.animateScrollToItem(index = 0)
     }
-    LazyVerticalGrid(
-        modifier = modifier,
-        state = lazyGridState,
-        columns = GridCells.Fixed(count = pageViewState.matisse.gridColumns),
-        horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
-        verticalArrangement = Arrangement.spacedBy(space = 1.dp),
-        contentPadding = PaddingValues(bottom = 20.dp)
-    ) {
-        if (pageViewState.selectedBucket.supportsCapture) {
-            item(
-                key = "CaptureItem",
-                contentType = "CaptureItem"
-            ) {
-                CaptureItem(
-                    modifier = Modifier
-                        .matisseAnimateItem(lazyGridItemScope = this),
-                    onTakePictureClick = onTakePictureClick
-                )
+    Box(modifier = modifier) {
+        LazyVerticalGrid(
+            modifier = Modifier
+                .fillMaxSize(),
+            state = lazyGridState,
+            columns = GridCells.Fixed(count = pageViewState.matisse.gridColumns),
+            horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 1.dp),
+            contentPadding = PaddingValues(bottom = 20.dp)
+        ) {
+            if (pageViewState.selectedBucket.supportsCapture) {
+                item(
+                    key = "CaptureItem",
+                    contentType = "CaptureItem"
+                ) {
+                    CaptureItem(
+                        modifier = Modifier
+                            .matisseAnimateItem(lazyGridItemScope = this),
+                        onTakePictureClick = onTakePictureClick
+                    )
+                }
+            }
+            items(
+                count = lazyPagingItems.itemCount,
+                key = { index ->
+                    val mediaId = lazyPagingItems.peek(index = index)?.mediaId
+                    if (mediaId != null) {
+                        "media_$mediaId"
+                    } else {
+                        "placeholder_$index"
+                    }
+                },
+                contentType = {
+                    "MediaItem"
+                }
+            ) { index ->
+                val mediaItem = lazyPagingItems[index] ?: return@items
+                if (pageViewState.matisse.fastSelect) {
+                    MediaItemFastSelect(
+                        modifier = Modifier
+                            .matisseAnimateItem(lazyGridItemScope = this),
+                        mediaResource = mediaItem.mediaResource,
+                        imageEngine = pageViewState.matisse.imageEngine,
+                        onMediaClick = onFastSelectMediaClick
+                    )
+                } else {
+                    MediaItem(
+                        modifier = Modifier
+                            .matisseAnimateItem(lazyGridItemScope = this),
+                        mediaItem = mediaItem,
+                        imageEngine = pageViewState.matisse.imageEngine,
+                        isSelectionLimitReached = isSelectionLimitReached,
+                        maxSelectable = pageViewState.matisse.maxSelectable,
+                        onMediaClick = {
+                            val previewMediaItems =
+                                lazyPagingItems.itemSnapshotList.items
+                            pageViewState.onMediaClick(mediaItem, previewMediaItems)
+                        },
+                        onMediaCheckChanged = pageViewState.onMediaCheckChanged
+                    )
+                }
             }
         }
-        items(
-            items = pageViewState.selectedBucket.mediaItems,
-            key = {
-                it.mediaId
-            },
-            contentType = {
-                "MediaItem"
-            }
-        ) {
-            if (pageViewState.matisse.fastSelect) {
-                MediaItemFastSelect(
+        when {
+            refreshLoadState is LoadState.Loading && lazyPagingItems.itemCount == 0 -> {
+                CircularProgressIndicator(
                     modifier = Modifier
-                        .matisseAnimateItem(lazyGridItemScope = this),
-                    mediaResource = it.mediaResource,
-                    imageEngine = pageViewState.matisse.imageEngine,
-                    onMediaClick = onFastSelectMediaClick
+                        .size(size = 42.dp)
+                        .align(alignment = Alignment.Center),
+                    strokeWidth = 3.dp,
+                    color = colorResource(id = R.color.matisse_loading_indicator_color),
+                    trackColor = Color.Transparent,
+                    strokeCap = ProgressIndicatorDefaults.CircularIndeterminateStrokeCap
                 )
-            } else {
-                MediaItem(
+            }
+
+            lazyPagingItems.itemCount == 0 -> {
+                MatisseEmptyPlaceholder(
                     modifier = Modifier
-                        .matisseAnimateItem(lazyGridItemScope = this),
-                    mediaItem = it,
-                    imageEngine = pageViewState.matisse.imageEngine,
-                    isSelectionLimitReached = isSelectionLimitReached,
-                    maxSelectable = pageViewState.matisse.maxSelectable,
-                    onMediaClick = pageViewState.onMediaClick,
-                    onMediaCheckChanged = pageViewState.onMediaCheckChanged
+                        .align(alignment = Alignment.Center),
+                    includeImage = pageViewState.matisse.mediaType.includeImage,
+                    includeVideo = pageViewState.matisse.mediaType.includeVideo
                 )
             }
         }
@@ -243,7 +288,7 @@ private fun MediaItem(
     imageEngine: ImageEngine,
     isSelectionLimitReached: Boolean,
     maxSelectable: Int,
-    onMediaClick: (MatisseMediaItem) -> Unit,
+    onMediaClick: () -> Unit,
     onMediaCheckChanged: (MatisseMediaItem) -> Unit
 ) {
     val onCheckedChange = remember(key1 = mediaItem.mediaId, key2 = onMediaCheckChanged) {
@@ -254,9 +299,7 @@ private fun MediaItem(
     Box(
         modifier = modifier
             .aspectRatio(ratio = 1f)
-            .clickable {
-                onMediaClick(mediaItem)
-            },
+            .clickable(onClick = onMediaClick),
         contentAlignment = Alignment.Center
     ) {
         imageEngine.Thumbnail(mediaResource = mediaItem.mediaResource)
@@ -371,8 +414,8 @@ internal fun VideoIcon(modifier: Modifier) {
 private fun Modifier.matisseAnimateItem(lazyGridItemScope: LazyGridItemScope): Modifier {
     return with(receiver = lazyGridItemScope) {
         animateItem(
-            fadeInSpec = spring(stiffness = Spring.StiffnessMedium),
-            fadeOutSpec = spring(stiffness = Spring.StiffnessMedium),
+            fadeInSpec = tween(durationMillis = 120),
+            fadeOutSpec = tween(durationMillis = 120),
             placementSpec = spring(
                 stiffness = Spring.StiffnessMediumLow,
                 visibilityThreshold = IntOffset.VisibilityThreshold

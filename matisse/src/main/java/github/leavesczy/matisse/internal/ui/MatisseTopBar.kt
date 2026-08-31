@@ -15,11 +15,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -49,6 +53,8 @@ internal fun MatisseTopBar(
     modifier: Modifier,
     bucketName: String,
     mediaBuckets: List<MatisseMediaBucketInfo>,
+    isMediaBucketsLoading: Boolean,
+    onBucketMenuOpen: () -> Unit,
     onBucketClick: suspend (String) -> Unit,
     imageEngine: ImageEngine
 ) {
@@ -67,6 +73,7 @@ internal fun MatisseTopBar(
             modifier = Modifier,
             title = bucketName,
             onOpenBucketMenu = {
+                onBucketMenuOpen()
                 menuExpanded = true
             }
         )
@@ -74,6 +81,7 @@ internal fun MatisseTopBar(
             modifier = Modifier,
             expanded = menuExpanded,
             mediaBuckets = mediaBuckets,
+            isMediaBucketsLoading = isMediaBucketsLoading,
             imageEngine = imageEngine,
             onBucketClick = {
                 menuExpanded = false
@@ -155,6 +163,7 @@ private fun BucketDropdownMenu(
     modifier: Modifier,
     expanded: Boolean,
     mediaBuckets: List<MatisseMediaBucketInfo>,
+    isMediaBucketsLoading: Boolean,
     imageEngine: ImageEngine,
     onBucketClick: (MatisseMediaBucketInfo) -> Unit,
     onDismissRequest: () -> Unit
@@ -166,53 +175,71 @@ private fun BucketDropdownMenu(
         offset = DpOffset(x = 20.dp, y = (-10).dp),
         onDismissRequest = onDismissRequest
     ) {
-        for (bucket in mediaBuckets) {
-            DropdownMenuItem(
-                modifier = Modifier,
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                text = {
-                    Row(
-                        modifier = Modifier,
-                        horizontalArrangement = Arrangement.spacedBy(
-                            space = 10.dp,
-                            alignment = Alignment.Start
-                        ),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(size = 52.dp)
-                                .clip(shape = RoundedCornerShape(size = 4.dp)),
-                            contentAlignment = Alignment.Center
+        if (isMediaBucketsLoading && mediaBuckets.size <= 1) {
+            Box(
+                modifier = Modifier
+                    .width(width = 220.dp)
+                    .padding(vertical = 20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(size = 28.dp),
+                    strokeWidth = 2.dp,
+                    color = colorResource(id = R.color.matisse_loading_indicator_color),
+                    trackColor = Color.Transparent,
+                    strokeCap = ProgressIndicatorDefaults.CircularIndeterminateStrokeCap
+                )
+            }
+        } else {
+            for (bucket in mediaBuckets) {
+                DropdownMenuItem(
+                    modifier = Modifier,
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                    text = {
+                        Row(
+                            modifier = Modifier,
+                            horizontalArrangement = Arrangement.spacedBy(
+                                space = 10.dp,
+                                alignment = Alignment.Start
+                            ),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            val coverMedia = bucket.coverMedia
-                            if (coverMedia == null) {
-                                Spacer(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(color = colorResource(id = R.color.matisse_media_item_background_color))
-                                )
-                            } else {
-                                imageEngine.Thumbnail(mediaResource = coverMedia)
+                            Box(
+                                modifier = Modifier
+                                    .size(size = 52.dp)
+                                    .clip(shape = RoundedCornerShape(size = 4.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                val coverMedia = bucket.coverMedia
+                                if (coverMedia == null) {
+                                    Spacer(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(color = colorResource(id = R.color.matisse_media_item_background_color))
+                                    )
+                                } else {
+                                    imageEngine.Thumbnail(mediaResource = coverMedia)
+                                }
                             }
+                            Text(
+                                modifier = Modifier
+                                    .weight(weight = 1f, fill = false),
+                                text = bucket.bucketName + "(${bucket.itemCount})",
+                                fontSize = 15.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.MiddleEllipsis,
+                                fontStyle = FontStyle.Normal,
+                                fontWeight = FontWeight.Normal,
+                                color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
+                            )
                         }
-                        Text(
-                            modifier = Modifier
-                                .weight(weight = 1f, fill = false),
-                            text = bucket.bucketName + "(${bucket.itemCount})",
-                            fontSize = 15.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.MiddleEllipsis,
-                            fontStyle = FontStyle.Normal,
-                            fontWeight = FontWeight.Normal,
-                            color = colorResource(id = R.color.matisse_dropdown_menu_text_color)
-                        )
+                    },
+                    onClick = {
+                        onBucketClick(bucket)
                     }
-                },
-                onClick = {
-                    onBucketClick(bucket)
-                }
-            )
+                )
+            }
         }
     }
 }
