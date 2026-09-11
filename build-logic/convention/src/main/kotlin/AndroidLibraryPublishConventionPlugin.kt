@@ -13,7 +13,11 @@ class AndroidLibraryPublishConventionPlugin : Plugin<Project> {
             apply(plugin = "com.vanniktech.maven.publish")
             extensions.configure<MavenPublishBaseExtension> {
                 publishToMavenCentral()
-                signAllPublications()
+                // JitPack runs publishToMavenLocal without GPG keys.
+                // Signing is only needed for Maven Central releases.
+                if (System.getenv("JITPACK") != "true") {
+                    signAllPublications()
+                }
                 configure(platform = AndroidSingleVariantLibrary())
                 coordinates(
                     groupId = "io.github.leavesczy",
