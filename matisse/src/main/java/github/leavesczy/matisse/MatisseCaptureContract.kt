@@ -8,8 +8,12 @@ import androidx.core.content.IntentCompat
 import github.leavesczy.matisse.internal.MatisseCaptureActivity
 
 /**
- * 启动独立拍照页的 [ActivityResultContract]
- * 成功时返回拍摄的 [MediaResource]；用户取消或发生错误时返回 null
+ * 使用 [MatisseCapture] 配置启动独立拍照流程的 [ActivityResultContract]。
+ *
+ * 启动后会立即打开系统相机，不显示媒体选择界面。
+ * 拍照并成功读取结果时返回 [MediaResource]；用户取消、相机不可用、权限被拒绝或结果无效时返回 null。
+ * 此流程不请求媒体读取权限；宿主声明 `CAMERA` 后会按需申请，存储权限和照片存储位置由
+ * [MatisseCapture.captureStrategy] 决定。
  */
 class MatisseCaptureContract : ActivityResultContract<MatisseCapture, MediaResource?>() {
 

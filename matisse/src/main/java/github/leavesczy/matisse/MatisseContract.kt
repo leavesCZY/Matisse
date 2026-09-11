@@ -8,8 +8,12 @@ import androidx.core.content.IntentCompat
 import github.leavesczy.matisse.internal.MatisseActivity
 
 /**
- * 启动图片/视频选择器的 [ActivityResultContract]
- * 成功时返回已选中的 [MediaResource] 列表；用户取消或发生错误时返回 null
+ * 使用 [Matisse] 配置启动图片和视频选择器的 [ActivityResultContract]。
+ *
+ * 选择完成时返回非空的 [MediaResource] 列表；Activity 未以成功结果结束、结果 Intent 缺失或
+ * 结果列表为空时返回 null。权限被拒或媒体加载失败不会自动结束选择器，用户返回后结果为 null。
+ * 宿主应用需要提前在 Manifest 中声明 [Matisse.mediaType] 对应的媒体读取权限，权限申请由选择器完成；
+ * 具体权限规则参见 [Matisse]。选择器界面固定为竖屏。
  */
 class MatisseContract : ActivityResultContract<Matisse, List<MediaResource>?>() {
 

@@ -30,9 +30,10 @@ private const val MAX_IMAGE_DECODE_DIMENSION = 4096
 /**
  * 基于 Coil 3 的 [ImageEngine] 实现。
  *
- * 宿主应用必须添加 `io.coil-kt.coil3:coil-compose`；需要展示视频封面时还必须添加
- * `io.coil-kt.coil3:coil-video`。如需加载 GIF，还需添加 `io.coil-kt.coil3:coil-gif`
- * 并在宿主的 [coil3.ImageLoader] 中注册对应的 GIF Decoder。
+ * 该实现直接使用 Coil 的视频解码器，因此宿主应用必须通过 `implementation` 添加
+ * `io.coil-kt.coil3:coil-compose` 和 `io.coil-kt.coil3:coil-video`。如需加载 GIF，
+ * 还需添加 `io.coil-kt.coil3:coil-gif`，并在宿主的 [coil3.ImageLoader] 中注册对应的
+ * GIF Decoder。
  *
  * 缩略图会裁切并填满容器；视频封面会完整显示在预览区域内。非视频大图按容器宽度
  * 等比展示且支持纵向滚动，其解码位图的宽高最大限制为 4096 像素。超过限制的图片

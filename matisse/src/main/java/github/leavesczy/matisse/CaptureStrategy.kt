@@ -23,33 +23,65 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * 拍照策略，定义 Uri 创建、结果读取与取消清理等行为
+ * 拍照流程的存储策略。
+ *
+ * Matisse 会依次调用 [shouldRequestWriteExternalStoragePermission]、[createImageUri]，
+ * 并在相机返回成功后调用 [loadCapturedMedia]。相机取消、拍照失败或者
+ * [loadCapturedMedia] 返回 null 时，会调用 [onTakePictureCancelled] 清理已创建的资源。
+ *
+ * 实现会随 [Matisse] 或 [MatisseCapture] 通过 Intent 传递，因此实现类及其成员必须满足
+ * [Parcelable] 要求。Matisse 从主线程发起拍照策略调用；实现不得阻塞调用线程，文件和
+ * ContentResolver 操作应自行切换到合适的后台调度器。
  */
 @Stable
 interface CaptureStrategy : Parcelable {
 
     /**
-     * 是否需要申请 WRITE_EXTERNAL_STORAGE 权限
+     * 是否需要在拍照前申请 [Manifest.permission.WRITE_EXTERNAL_STORAGE]。
+     *
+     * 返回 true 时，宿主必须同时在 Manifest 中声明该权限。Android 10 及以上通常应返回 false。
+     *
+     * @param context 宿主应用的 Context
+     * @return 是否需要在继续拍照前申请存储写入权限
      */
     fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean
 
     /**
-     * 生成图片 Uri
+     * 创建供外部相机写入的图片 Uri。
+     *
+     * Matisse 会通过 `MediaStore.EXTRA_OUTPUT` 传递该 Uri，并授予外部相机临时读写权限。
+     *
+     * @param context 宿主应用的 Context
+     * @return 可写入的图片 Uri；返回 null 会取消本次拍照
      */
     suspend fun createImageUri(context: Context): Uri?
 
     /**
-     * 获取拍照结果
+     * 在外部相机报告成功后读取并校验拍照结果。
+     *
+     * @param context 宿主应用的 Context
+     * @param imageUri [createImageUri] 创建的 Uri
+     * @return 有效的媒体资源；返回 null 表示结果无效，随后会调用 [onTakePictureCancelled]
      */
     suspend fun loadCapturedMedia(context: Context, imageUri: Uri): MediaResource?
 
     /**
-     * 当用户取消拍照时调用
+     * 清理由 [createImageUri] 创建但未产生有效结果的资源。
+     *
+     * 相机取消、拍照失败以及 [loadCapturedMedia] 返回 null 时均可能调用此方法。
+     *
+     * @param context 宿主应用的 Context
+     * @param imageUri 需要清理的 Uri
      */
     suspend fun onTakePictureCancelled(context: Context, imageUri: Uri)
 
     /**
-     * 生成图片名
+     * 生成新图片的文件名。
+     *
+     * 默认返回格式为 `IMG_yyyyMMdd_HHmmssSSS.jpg` 的名称。
+     *
+     * @param context 宿主应用的 Context
+     * @return 新图片使用的文件名
      */
     suspend fun createImageName(context: Context): String {
         val time = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US).format(Date())
@@ -57,8 +89,11 @@ interface CaptureStrategy : Parcelable {
     }
 
     /**
-     * 用于为相机设置启动参数
-     * 返回值会传递给启动相机的 Intent
+     * 返回需要附加到外部相机 Intent 的额外参数。
+     *
+     * `MediaStore.EXTRA_OUTPUT` 和 Uri 授权标记由 Matisse 设置，不应通过该 Bundle 覆盖。
+     *
+     * @return 需要合并到相机 Intent 的额外参数，默认返回空 Bundle
      */
     fun getCaptureExtra(): Bundle {
         return Bundle.EMPTY
@@ -69,10 +104,19 @@ interface CaptureStrategy : Parcelable {
 private const val JPG_MIME_TYPE = "image/jpeg"
 
 /**
- * 通过 FileProvider 生成 ImageUri
- * 外部必须配置 FileProvider，并通过 authority 来实例化 [FileProviderCaptureStrategy]
- * 无需申请 WRITE_EXTERNAL_STORAGE 权限；若宿主 App 在 Manifest 中声明了 CAMERA，则会在运行时按需申请相机权限
- * 所拍的照片保存在应用私有目录，不会写入系统相册
+ * 使用 [FileProvider] 创建拍照 Uri 的策略。
+ *
+ * 宿主必须在 Manifest 中配置 FileProvider，并将其 `authority` 传给 [authority]。当前实现会在
+ * `context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)` 中创建文件，FileProvider 路径配置
+ * 必须能够映射该目录。照片保存在应用专属外部存储目录，不会写入系统相册，也不需要
+ * [Manifest.permission.WRITE_EXTERNAL_STORAGE]。
+ * 当前内置实现使用 `.jpg` 文件名，并将返回结果的 MIME 类型固定标记为 `image/jpeg`。
+ *
+ * 如果宿主在 Manifest 中声明了 [Manifest.permission.CAMERA]，Matisse 会在需要时申请该权限；
+ * 未声明时则直接调用系统相机。
+ *
+ * @param authority 与宿主 FileProvider Manifest 配置完全一致的 authority
+ * @param extra 需要附加到相机 Intent 的额外参数
  */
 @Parcelize
 class FileProviderCaptureStrategy(
@@ -154,10 +198,17 @@ class FileProviderCaptureStrategy(
 }
 
 /**
- * 通过 MediaStore 生成 ImageUri
- * Android 10 以下需要申请 WRITE_EXTERNAL_STORAGE 权限；Android 10 及以上无需该权限
- * 若宿主 App 在 Manifest 中声明了 CAMERA，则会在运行时按需申请相机权限
- * 所拍的照片会写入系统相册
+ * 使用 MediaStore 创建拍照 Uri，并将照片写入系统相册的策略。
+ *
+ * Android 9 及以下，宿主必须在 Manifest 中声明 [Manifest.permission.WRITE_EXTERNAL_STORAGE]，
+ * Matisse 会在拍照前申请该权限；Android 10 及以上无需该权限。
+ * 当前内置实现使用 `.jpg` 文件名，创建 MediaStore 记录时声明 `image/jpeg`；
+ * 返回结果使用 MediaStore 记录的 MIME 类型，通常仍为 `image/jpeg`。
+ *
+ * 如果宿主在 Manifest 中声明了 [Manifest.permission.CAMERA]，Matisse 会在需要时申请该权限；
+ * 未声明时则直接调用系统相机。
+ *
+ * @param extra 需要附加到相机 Intent 的额外参数
  */
 @Parcelize
 data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) : CaptureStrategy {
@@ -205,10 +256,15 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
 }
 
 /**
- * 根据系统版本智能选择拍照策略
- * 当系统版本小于 Android 10 时，委托 [FileProviderCaptureStrategy]
- * 当系统版本大于等于 Android 10 时，委托 [MediaStoreCaptureStrategy]
- * Android 10 及以上无需申请 WRITE_EXTERNAL_STORAGE 权限，照片会写入系统相册
+ * 根据系统版本选择存储方式的拍照策略。
+ *
+ * Android 9 及以下委托给 [fileProviderCaptureStrategy]，照片保存在应用专属外部存储目录；
+ * Android 10 及以上委托给 [MediaStoreCaptureStrategy]，照片写入系统相册。传入
+ * [fileProviderCaptureStrategy] 的相机额外参数也会用于 Android 10 及以上的 MediaStore 策略。
+ * 因此，即使宿主仅在新系统上测试，也仍应按照 [FileProviderCaptureStrategy] 的要求完成
+ * FileProvider 配置，以兼容 Android 9 及以下设备。
+ *
+ * @param fileProviderCaptureStrategy Android 9 及以下使用的 FileProvider 策略
  */
 @Parcelize
 data class SmartCaptureStrategy(
