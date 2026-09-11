@@ -163,6 +163,7 @@ private fun PreviewPage(
     ) {
         Box(
             modifier = Modifier
+                .fillMaxSize()
                 .graphicsLayer {
                     scaleX = fraction
                     scaleY = fraction

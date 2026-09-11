@@ -332,7 +332,7 @@ private fun BoxScope.MediaItemSelectionOverlay(
     Box(
         modifier = Modifier
             .align(alignment = Alignment.TopEnd)
-            .fillMaxSize(fraction = 0.28f),
+            .fillMaxSize(fraction = 0.29f),
         contentAlignment = Alignment.Center
     ) {
         MatisseCheckbox(

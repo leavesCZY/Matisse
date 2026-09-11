@@ -2,9 +2,13 @@ package github.leavesczy.matisse
 
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -15,11 +19,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import kotlinx.parcelize.Parcelize
 
+private const val MAX_IMAGE_DECODE_DIMENSION = 4096
+
 /**
- * 基于 Glide Compose 的 [ImageEngine] 实现
- * 需额外添加依赖：`com.github.bumptech.glide:compose`
+ * 基于 Glide Compose 的 [ImageEngine] 实现。
+ *
+ * 宿主应用必须通过 `implementation` 添加 `com.github.bumptech.glide:compose`。
+ *
+ * 缩略图会裁切并填满容器；视频封面会完整显示在预览区域内。非视频大图按容器宽度
+ * 等比展示且支持纵向滚动，其解码目标的宽高最大限制为 4096 像素。超过限制的图片
+ * 会保持宽高比进行降采样，因此放大后清晰度可能降低。
  */
 @Parcelize
 class GlideImageEngine : ImageEngine {
@@ -38,22 +50,43 @@ class GlideImageEngine : ImageEngine {
     @Composable
     override fun Image(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
-            GlideComposeImage(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth,
-                backgroundColor = null
-            )
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                GlideComposeImage(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    model = mediaResource.uri,
+                    contentScale = ContentScale.Fit,
+                    backgroundColor = null
+                )
+            }
         } else {
-            GlideComposeImage(
+            BoxWithConstraints(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(state = rememberScrollState()),
-                model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth,
-                backgroundColor = null
-            )
+                    .fillMaxSize()
+            ) {
+                val maxWidth = constraints.maxWidth
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(state = rememberScrollState())
+                        .heightIn(min = maxHeight),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    GlideComposeImage(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        model = mediaResource.uri,
+                        contentScale = ContentScale.FillWidth,
+                        backgroundColor = null,
+                        overrideWidth = maxWidth
+                    )
+                }
+            }
         }
     }
 
@@ -65,7 +98,8 @@ private fun GlideComposeImage(
     model: Uri,
     contentScale: ContentScale = ContentScale.Crop,
     alignment: Alignment = Alignment.Center,
-    backgroundColor: Color?
+    backgroundColor: Color?,
+    overrideWidth: Int? = null
 ) {
     GlideImage(
         modifier = modifier,
@@ -86,7 +120,20 @@ private fun GlideComposeImage(
                 Placeholder(backgroundColor = backgroundColor)
             }
         },
-        contentDescription = null
+        contentDescription = null,
+        requestBuilderTransform = { requestBuilder ->
+            if (overrideWidth == null) {
+                requestBuilder
+            } else {
+                // 保持宽高比采样，并将解码目标的最大宽高限制在 4096 像素
+                requestBuilder
+                    .override(
+                        overrideWidth.coerceAtMost(maximumValue = MAX_IMAGE_DECODE_DIMENSION),
+                        MAX_IMAGE_DECODE_DIMENSION
+                    )
+                    .downsample(DownsampleStrategy.CENTER_INSIDE)
+            }
+        }
     )
 }
 

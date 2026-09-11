@@ -21,7 +21,8 @@ androidx-compose-bom = "2026.09.00"
 junit = "4.13.2"
 
 coil = "3.6.2"
-glide = "1.0.0-beta10"
+glide = "5.0.9"
+glide-compose = "1.0.0-beta10"
 
 leavesczy-matisse = "2.3.2"
 
@@ -71,4 +72,5 @@ coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
 coil-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 
-glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glide" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glide-compose" }

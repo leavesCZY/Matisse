@@ -48,7 +48,9 @@ fun MainPage(
     onPickImageOnly: () -> Unit,
     onPickVideoOnly: () -> Unit,
     onPickGifAndMp4: () -> Unit,
-    onTakePictureClick: () -> Unit
+    onTakePictureClick: () -> Unit,
+    onInsertPagingTestImages: () -> Unit,
+    onInsertImageEngineTestImages: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -224,8 +226,19 @@ fun MainPage(
                     } else {
                         "插入 200 张测试图片"
                     },
-                    enabled = !pageViewState.isInsertingPagingTestImages,
-                    onClick = pageViewState.onInsertPagingTestImages
+                    enabled = !pageViewState.isInsertingPagingTestImages &&
+                            !pageViewState.isInsertingImageEngineTestImages,
+                    onClick = onInsertPagingTestImages
+                )
+                Button(
+                    text = if (pageViewState.isInsertingImageEngineTestImages) {
+                        "正在插入多尺寸图片..."
+                    } else {
+                        "插入多尺寸图片测试 ImageEngine"
+                    },
+                    enabled = !pageViewState.isInsertingImageEngineTestImages &&
+                            !pageViewState.isInsertingPagingTestImages,
+                    onClick = onInsertImageEngineTestImages
                 )
                 Button(
                     text = "切换主题",

@@ -14,6 +14,7 @@ data class MainPageViewState(
     val captureStrategy: MediaCaptureStrategy,
     val useFrontCamera: Boolean,
     val isInsertingPagingTestImages: Boolean,
+    val isInsertingImageEngineTestImages: Boolean,
     val pickedMediaList: List<MediaResource>,
     val onGridColumnsChanged: (Int) -> Unit,
     val onMaxSelectableChanged: (Int) -> Unit,
@@ -22,8 +23,7 @@ data class MainPageViewState(
     val onImageEngineChanged: (MediaImageEngine) -> Unit,
     val onCaptureStrategyChanged: (MediaCaptureStrategy) -> Unit,
     val onUseFrontCameraChanged: (Boolean) -> Unit,
-    val onToggleTheme: () -> Unit,
-    val onInsertPagingTestImages: () -> Unit
+    val onToggleTheme: () -> Unit
 )
 
 @Stable

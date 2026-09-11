@@ -14,9 +14,10 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime)
-    implementation(libs.coil.compose)
+    implementation(libs.glide)
+    implementation(libs.glide.compose)
     implementation(libs.coil.gif)
     implementation(libs.coil.video)
-    implementation(libs.glide.compose)
+    implementation(libs.coil.compose)
     implementation(project(":matisse"))
 }

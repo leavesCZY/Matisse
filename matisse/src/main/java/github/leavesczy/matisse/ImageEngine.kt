@@ -11,13 +11,13 @@ import androidx.compose.runtime.Stable
 interface ImageEngine : Parcelable {
 
     /**
-     * 加载缩略图时调用
+     * 加载图片缩略图或视频封面缩略图时调用
      */
     @Composable
     fun Thumbnail(mediaResource: MediaResource)
 
     /**
-     * 加载大图时调用
+     * 加载大图或预览视频封面时调用
      */
     @Composable
     fun Image(mediaResource: MediaResource)
