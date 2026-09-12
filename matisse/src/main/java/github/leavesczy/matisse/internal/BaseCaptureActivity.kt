@@ -5,12 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.os.BundleCompat
 import androidx.lifecycle.lifecycleScope
 import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MediaResource
@@ -21,6 +23,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 internal abstract class BaseCaptureActivity : AppCompatActivity() {
+
+    companion object {
+
+        private const val KEY_PENDING_CAPTURE_URI = "pendingCaptureUri"
+
+    }
 
     protected abstract val captureStrategy: CaptureStrategy
 
@@ -50,6 +58,23 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
         }
 
     private var pendingCaptureUri: Uri? = null
+
+    protected val hasPendingCapture: Boolean
+        get() = pendingCaptureUri != null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pendingCaptureUri = savedInstanceState?.let {
+            BundleCompat.getParcelable(it, KEY_PENDING_CAPTURE_URI, Uri::class.java)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        pendingCaptureUri?.let {
+            outState.putParcelable(KEY_PENDING_CAPTURE_URI, it)
+        }
+        super.onSaveInstanceState(outState)
+    }
 
     protected fun requestTakePicture() {
         if (captureStrategy.shouldRequestWriteExternalStoragePermission(context = applicationContext)) {

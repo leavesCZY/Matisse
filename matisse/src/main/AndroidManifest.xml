@@ -20,7 +20,7 @@
             tools:ignore="DiscouragedApi" />
         <activity
             android:name=".internal.MatisseCaptureActivity"
-            android:configChanges="orientation"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Matisse.Theme.Capture" />

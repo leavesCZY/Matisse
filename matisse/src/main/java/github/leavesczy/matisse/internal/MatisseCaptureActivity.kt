@@ -26,7 +26,9 @@ internal class MatisseCaptureActivity : BaseCaptureActivity() {
             finishWithCanceledResult()
             return
         }
-        requestTakePicture()
+        if (!hasPendingCapture) {
+            requestTakePicture()
+        }
     }
 
     override fun onCapturedMedia(mediaResource: MediaResource) {
