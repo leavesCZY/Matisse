@@ -2,12 +2,14 @@ package github.leavesczy.matisse.internal
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -52,11 +54,9 @@ internal class MatisseActivity : BaseCaptureActivity() {
     })
 
     private val requestReadMediaPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
             matisseViewModel.onReadMediaPermissionResult(
-                granted = result.all {
-                    it.value
-                }
+                granted = hasFullReadMediaPermission() || hasPartialReadMediaPermission()
             )
         }
 
@@ -106,9 +106,38 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     private fun requestReadMediaPermission() {
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-            && applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
-        ) {
+        if (matisseViewModel.isReadMediaPermissionInitialized) {
+            return
+        }
+        val permissions = buildReadMediaPermissions()
+        if (hasFullReadMediaPermission()) {
+            matisseViewModel.onReadMediaPermissionResult(granted = true)
+        } else {
+            requestReadMediaPermissionLauncher.launch(permissions)
+        }
+    }
+
+    private fun buildReadMediaPermissions(): Array<String> {
+        return if (usesGranularMediaPermissions()) {
+            buildList {
+                val mediaType = matisseViewModel.mediaType
+                if (mediaType.includeImage) {
+                    add(element = Manifest.permission.READ_MEDIA_IMAGES)
+                }
+                if (mediaType.includeVideo) {
+                    add(element = Manifest.permission.READ_MEDIA_VIDEO)
+                }
+                if (supportsPartialMediaPermission()) {
+                    add(element = Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+                }
+            }.toTypedArray()
+        } else {
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+    }
+
+    private fun hasFullReadMediaPermission(): Boolean {
+        val fullAccessPermissions = if (usesGranularMediaPermissions()) {
             buildList {
                 val mediaType = matisseViewModel.mediaType
                 if (mediaType.includeImage) {
@@ -121,11 +150,36 @@ internal class MatisseActivity : BaseCaptureActivity() {
         } else {
             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
-        if (permissionGranted(context = this, permissions = permissions)) {
-            matisseViewModel.onReadMediaPermissionResult(granted = true)
-        } else {
-            requestReadMediaPermissionLauncher.launch(permissions)
-        }
+        return permissionGranted(context = this, permissions = fullAccessPermissions)
+    }
+
+    private fun hasPartialReadMediaPermission(): Boolean {
+        return supportsPartialMediaPermission() && permissionGranted(
+            context = this,
+            permissions = arrayOf(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+        )
+    }
+
+    private fun usesGranularMediaPermissions(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                applicationInfo.targetSdkVersion >= Build.VERSION_CODES.TIRAMISU
+    }
+
+    private fun supportsPartialMediaPermission(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                applicationInfo.targetSdkVersion >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                containsPartialMediaPermissionInManifest()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private fun containsPartialMediaPermissionInManifest(): Boolean {
+        val packageInfo = packageManager.getPackageInfo(
+            packageName,
+            PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
+        )
+        return packageInfo.requestedPermissions?.contains(
+            Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+        ) == true
     }
 
     override fun onCapturedMedia(mediaResource: MediaResource) {

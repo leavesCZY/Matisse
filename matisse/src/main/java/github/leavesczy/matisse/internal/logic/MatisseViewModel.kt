@@ -62,6 +62,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private var mediaBucketsLoaded = false
 
+    private var readMediaPermissionGranted: Boolean? = null
+
+    val isReadMediaPermissionInitialized: Boolean
+        get() = readMediaPermissionGranted != null
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val mediaPagingDataFlow = combine(
         flow = selectedBucketIdFlow,
@@ -117,6 +122,10 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         private set
 
     fun onReadMediaPermissionResult(granted: Boolean) {
+        if (readMediaPermissionGranted == granted) {
+            return
+        }
+        readMediaPermissionGranted = granted
         viewModelScope.launch(context = Dispatchers.Main.immediate) {
             dismissPreviewImagePage()
             dismissVideoPlayerPage()

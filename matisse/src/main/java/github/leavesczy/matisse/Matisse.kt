@@ -11,7 +11,10 @@ import kotlinx.parcelize.Parcelize
  * Matisse 不会在库 Manifest 中声明媒体读取权限。宿主应用需要根据 [mediaType] 声明相应权限。
  * 当设备为 Android 13 及以上且宿主 `targetSdkVersion >= 33` 时，Matisse 请求
  * [mediaType] 实际包含的 `READ_MEDIA_IMAGES` 和/或 `READ_MEDIA_VIDEO`；其他情况请求
- * `READ_EXTERNAL_STORAGE`。同时请求图片和视频权限时，必须全部授予后才能进入选择界面。
+ * `READ_EXTERNAL_STORAGE`。Android 14 及以上且宿主 `targetSdkVersion >= 34` 时，如果宿主还声明了
+ * `READ_MEDIA_VISUAL_USER_SELECTED`，Matisse 会同时请求并接受用户授予的部分媒体访问权限。
+ * 再次启动选择器时，部分授权会重新打开系统授权界面，以便调整可访问的媒体范围。
+ * 未获得部分访问权限时，同时请求的图片和视频权限必须全部授予后才能进入选择界面。
  *
  * @param maxSelectable 最多可选择的媒体数量，必须大于 0
  * @param imageEngine 图片加载引擎。Matisse 不传递 Coil 或 Glide 依赖，宿主需要根据所选实现添加依赖，
@@ -93,8 +96,9 @@ sealed interface MediaType : Parcelable {
      * 按指定 MIME 类型精确查询媒体，例如 `image/png`、`image/gif` 或 `video/mp4`。
      * 选择器仅支持以 `image/` 或 `video/` 开头的类型；其他类型无法匹配对应媒体权限与预览行为。
      *
-     * @param mimeTypes 需要与 MediaStore MIME 值精确匹配的完整 MIME 类型集合，不允许为空
-     * @throws IllegalArgumentException 当 [mimeTypes] 为空时抛出
+     * @param mimeTypes 需要与 MediaStore MIME 值精确匹配的完整 MIME 类型集合，不允许为空，
+     * 且每项必须以 `image/` 或 `video/` 开头
+     * @throws IllegalArgumentException 当 [mimeTypes] 为空或包含不支持的类型时抛出
      */
     @Parcelize
     data class MultipleMimeType(val mimeTypes: Set<String>) : MediaType {
@@ -102,6 +106,13 @@ sealed interface MediaType : Parcelable {
         init {
             if (mimeTypes.isEmpty()) {
                 throw IllegalArgumentException("mimeTypes cannot be empty")
+            }
+            val hasUnsupportedMimeType = mimeTypes.any { mimeType ->
+                !mimeType.startsWith(prefix = ImageMimeTypePrefix) &&
+                        !mimeType.startsWith(prefix = VideoMimeTypePrefix)
+            }
+            if (hasUnsupportedMimeType) {
+                throw IllegalArgumentException("mimeTypes only support image and video")
             }
         }
 
