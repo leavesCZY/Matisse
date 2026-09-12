@@ -25,9 +25,9 @@ import java.util.Locale
 /**
  * 拍照流程的存储策略。
  *
- * Matisse 会依次调用 [shouldRequestWriteExternalStoragePermission]、[createImageUri]，
- * 并在相机返回成功后调用 [loadCapturedMedia]。相机取消、拍照失败或者
- * [loadCapturedMedia] 返回 null 时，会调用 [onTakePictureCancelled] 清理已创建的资源。
+ * Matisse 会先调用 [shouldRequestWriteExternalStoragePermission]；在完成必要的存储写入与相机权限处理后，
+ * 再调用 [createImageUri] 与 [getCaptureExtra] 启动系统相机。相机返回成功后调用 [loadCapturedMedia]；
+ * 相机取消、拍照失败或者 [loadCapturedMedia] 返回 null 时，会调用 [onTakePictureCancelled] 清理已创建的资源。
  *
  * 实现会随 [Matisse] 或 [MatisseCapture] 通过 Intent 传递，因此实现类及其成员必须满足
  * [Parcelable] 要求。Matisse 从主线程发起拍照策略调用；实现不得阻塞调用线程，文件和

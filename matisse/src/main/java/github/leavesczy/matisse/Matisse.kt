@@ -13,8 +13,9 @@ import kotlinx.parcelize.Parcelize
  * [mediaType] 实际包含的 `READ_MEDIA_IMAGES` 和/或 `READ_MEDIA_VIDEO`；其他情况请求
  * `READ_EXTERNAL_STORAGE`。Android 14 及以上且宿主 `targetSdkVersion >= 34` 时，如果宿主还声明了
  * `READ_MEDIA_VISUAL_USER_SELECTED`，Matisse 会同时请求并接受用户授予的部分媒体访问权限。
- * 再次启动选择器时，部分授权会重新打开系统授权界面，以便调整可访问的媒体范围。
- * 未获得部分访问权限时，同时请求的图片和视频权限必须全部授予后才能进入选择界面。
+ * 再次启动选择器时，若当前不是完整访问（包括仅有部分授权），会重新打开系统授权界面，
+ * 以便调整可访问的媒体范围；已是完整访问时不会重复弹窗。未启用部分访问，或未获得部分访问权限时，
+ * 已请求的图片和/或视频权限必须全部授予后才能进入选择界面。
  *
  * @param maxSelectable 最多可选择的媒体数量，必须大于 0
  * @param imageEngine 图片加载引擎。Matisse 不传递 Coil 或 Glide 依赖，宿主需要根据所选实现添加依赖，
@@ -25,10 +26,11 @@ import kotlinx.parcelize.Parcelize
  * @param mediaType 需要展示的媒体类型，默认为 [MediaType.ImageOnly]
  * @param singleMediaType 是否禁止同时选择图片和视频。为 false 时允许在同一结果中混合图片和视频，
  * 默认为 true
- * @param captureStrategy 拍照策略。传入非空值且媒体读取权限已授予时，在“全部”相册中显示拍照入口。
- * 拍照成功后立即结束选择器：若当前存在未达到 [maxSelectable] 且符合 [singleMediaType] 限制的已选项，
- * 返回“已选项 + 新照片”，否则仅返回新照片。拍照入口不受 [mediaType] 限制，因此即使选择
- * [MediaType.VideoOnly] 也会显示入口并返回图片。默认为 null
+ * @param captureStrategy 拍照策略。传入非空值，且已获得媒体读取权限（完整访问或部分访问均可）时，
+ * 在“全部”相册中显示拍照入口。拍照成功后立即结束选择器：当 [maxSelectable] 大于 1、当前已有未达上限的
+ * 已选项，且（[singleMediaType] 为 false，或已选项中不含视频）时，返回“已选项 + 新照片”；否则仅返回
+ * 新照片。拍照入口不受 [mediaType] 限制，因此即使选择 [MediaType.VideoOnly] 也会显示入口并返回图片。
+ * 默认为 null
  *
  * @throws IllegalArgumentException 当 [maxSelectable] 或 [gridColumns] 小于 1，或者
  * [maxSelectable] 大于 1 且 [fastSelect] 为 true 时抛出
@@ -60,8 +62,8 @@ data class Matisse(
 }
 
 /**
- * 独立拍照功能的启动配置。通过 [MatisseCaptureContract] 启动后会立即打开系统相机，
- * 不显示媒体选择界面。
+ * 独立拍照功能的启动配置。通过 [MatisseCaptureContract] 启动后进入拍照流程
+ * （可能先按需申请存储写入或相机权限），然后打开系统相机，不显示媒体选择界面。
  *
  * 如果宿主在 Manifest 中声明了 `CAMERA`，Matisse 会按需申请相机权限；存储权限、输出位置和
  * FileProvider 配置要求由具体 [CaptureStrategy] 决定。
