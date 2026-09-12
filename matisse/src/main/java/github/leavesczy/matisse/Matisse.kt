@@ -29,11 +29,11 @@ import kotlinx.parcelize.Parcelize
  * @param captureStrategy 拍照策略。传入非空值，且已获得媒体读取权限（完整访问或部分访问均可）时，
  * 在“全部”相册中显示拍照入口。拍照成功后立即结束选择器：当 [maxSelectable] 大于 1、当前已有未达上限的
  * 已选项，且（[singleMediaType] 为 false，或已选项中不含视频）时，返回“已选项 + 新照片”；否则仅返回
- * 新照片。拍照入口不受 [mediaType] 限制，因此即使选择 [MediaType.VideoOnly] 也会显示入口并返回图片。
- * 默认为 null
+ * 新照片。[mediaType] 必须包含图片（[MediaType.includeImage] 为 true），否则只能为 null。默认为 null
  *
  * @throws IllegalArgumentException 当 [maxSelectable] 或 [gridColumns] 小于 1，或者
- * [maxSelectable] 大于 1 且 [fastSelect] 为 true 时抛出
+ * [maxSelectable] 大于 1 且 [fastSelect] 为 true，或者 [mediaType] 不包含图片且 [captureStrategy]
+ * 非空时抛出
  */
 @Stable
 @Parcelize
@@ -56,6 +56,9 @@ data class Matisse(
         }
         if (gridColumns < 1) {
             throw IllegalArgumentException("gridColumns should be larger than zero")
+        }
+        if (!mediaType.includeImage && captureStrategy != null) {
+            throw IllegalArgumentException("captureStrategy must be null when mediaType does not include image")
         }
     }
 

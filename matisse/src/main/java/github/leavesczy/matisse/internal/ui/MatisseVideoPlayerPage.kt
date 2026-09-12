@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,12 +73,14 @@ private fun MatisseVideoPlayerPageContent(pageViewState: MatisseVideoPlayerPageV
             modifier = Modifier
                 .weight(weight = 1f)
         )
-        MatisseVideoPlayer(
-            modifier = Modifier
-                .weight(weight = 16f)
-                .fillMaxHeight(),
-            videoUri = pageViewState.videoUri
-        )
+        key(pageViewState.videoUri) {
+            MatisseVideoPlayer(
+                modifier = Modifier
+                    .weight(weight = 16f)
+                    .fillMaxHeight(),
+                videoUri = pageViewState.videoUri
+            )
+        }
         Spacer(
             modifier = Modifier
                 .weight(weight = 1f)
@@ -97,18 +100,23 @@ private fun MatisseVideoPlayer(
     DisposableEffect(key1 = lifecycleOwner) {
         val lifecycleObserver = object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
+                val videoView = playbackState.videoView ?: return
                 val position = playbackState.resumePositionMs
-                if (position > 0) {
-                    playbackState.videoView?.seekTo(position)
+                if (position >= 0) {
+                    videoView.seekTo(position)
                     playbackState.resumePositionMs = -1
+                }
+                if (playbackState.resumeWhenResumed) {
+                    videoView.start()
+                    playbackState.resumeWhenResumed = false
                 }
             }
 
             override fun onPause(owner: LifecycleOwner) {
-                val videoView = playbackState.videoView
-                if (videoView != null) {
-                    playbackState.resumePositionMs = videoView.currentPosition
-                }
+                val videoView = playbackState.videoView ?: return
+                playbackState.resumePositionMs = videoView.currentPosition
+                playbackState.resumeWhenResumed = videoView.isPlaying
+                videoView.pause()
             }
         }
         lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
@@ -143,4 +151,5 @@ private fun MatisseVideoPlayer(
 private class VideoPlaybackState {
     var videoView: VideoView? = null
     var resumePositionMs: Int = -1
+    var resumeWhenResumed: Boolean = false
 }

@@ -70,6 +70,9 @@ internal class MatisseActivity : BaseCaptureActivity() {
             finishWithCanceledResult()
             return
         }
+        if (hasPendingCapture && !isAwaitingCameraResult) {
+            resumeInterruptedCaptureFinalize()
+        }
         setContent {
             LaunchedEffect(key1 = Unit) {
                 snapshotFlow {

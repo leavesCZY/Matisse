@@ -26,7 +26,7 @@ internal class MatisseCaptureActivity : BaseCaptureActivity() {
             finishWithCanceledResult()
             return
         }
-        if (!hasPendingCapture) {
+        if (!isCaptureInProgress) {
             requestTakePicture()
         }
     }

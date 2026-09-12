@@ -111,6 +111,7 @@ private const val JPG_MIME_TYPE = "image/jpeg"
  * 必须能够映射该目录。照片保存在应用专属外部存储目录，不会写入系统相册，也不需要
  * [Manifest.permission.WRITE_EXTERNAL_STORAGE]。
  * 当前内置实现使用 `.jpg` 文件名，并将返回结果的 MIME 类型固定标记为 `image/jpeg`。
+ * 读取结果时会校验文件长度大于 0，否则视为无效并清理。
  *
  * 如果宿主在 Manifest 中声明了 [Manifest.permission.CAMERA]，Matisse 会在需要时申请该权限；
  * 未声明时则直接调用系统相机。
@@ -203,6 +204,7 @@ class FileProviderCaptureStrategy(
  * Android 9 及以下，宿主必须在 Manifest 中声明 [Manifest.permission.WRITE_EXTERNAL_STORAGE]，
  * Matisse 会在拍照前申请该权限；Android 10 及以上无需该权限。
  * 当前内置实现使用 `.jpg` 文件名，创建 MediaStore 记录时声明 `image/jpeg`；
+ * Android 10 及以上会先以 `IS_PENDING = 1` 插入，确认写入内容非空后再清除 pending。
  * 返回结果使用 MediaStore 记录的 MIME 类型，通常仍为 `image/jpeg`。
  *
  * 如果宿主在 Manifest 中声明了 [Manifest.permission.CAMERA]，Matisse 会在需要时申请该权限；
@@ -232,13 +234,17 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
     }
 
     override suspend fun loadCapturedMedia(context: Context, imageUri: Uri): MediaResource? {
-        repeat(times = 5) {
-            val resource = MediaProvider.loadMediaInfo(context = context, uri = imageUri)
-            if (resource != null) {
-                return MediaResource(
-                    uri = resource.uri,
-                    mimeType = resource.mimeType
-                )
+        repeat(times = 10) {
+            if (MediaProvider.isMediaContentReady(context = context, uri = imageUri)) {
+                if (MediaProvider.publishPendingImage(context = context, uri = imageUri)) {
+                    val resource = MediaProvider.loadMediaInfo(context = context, uri = imageUri)
+                    if (resource != null) {
+                        return MediaResource(
+                            uri = resource.uri,
+                            mimeType = resource.mimeType
+                        )
+                    }
+                }
             }
             delay(timeMillis = 50L)
         }

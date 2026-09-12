@@ -19,6 +19,7 @@ import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseTakePictureContract
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -27,6 +28,10 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     companion object {
 
         private const val KEY_PENDING_CAPTURE_URI = "pendingCaptureUri"
+
+        private const val KEY_CAPTURE_IN_PROGRESS = "captureInProgress"
+
+        private const val KEY_AWAITING_CAMERA_RESULT = "awaitingCameraResult"
 
     }
 
@@ -37,8 +42,8 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             if (granted) {
                 requestCameraPermissionIfNeeded()
             } else {
+                finishCaptureFlowCancelled()
                 showToast(id = R.string.matisse_error_write_storage_permission)
-                onTakePictureCancelled()
             }
         }
 
@@ -47,8 +52,8 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             if (granted) {
                 takePicture()
             } else {
+                finishCaptureFlowCancelled()
                 showToast(id = R.string.matisse_error_camera_permission)
-                onTakePictureCancelled()
             }
         }
 
@@ -59,13 +64,33 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     private var pendingCaptureUri: Uri? = null
 
+    private var captureInProgress = false
+
+    private var awaitingCameraResult = false
+
+    private var isFinalizingCapture = false
+
     protected val hasPendingCapture: Boolean
         get() = pendingCaptureUri != null
 
+    protected val isCaptureInProgress: Boolean
+        get() = captureInProgress
+
+    protected val isAwaitingCameraResult: Boolean
+        get() = awaitingCameraResult
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pendingCaptureUri = savedInstanceState?.let {
-            BundleCompat.getParcelable(it, KEY_PENDING_CAPTURE_URI, Uri::class.java)
+        if (savedInstanceState != null) {
+            pendingCaptureUri = BundleCompat.getParcelable(
+                savedInstanceState,
+                KEY_PENDING_CAPTURE_URI,
+                Uri::class.java
+            )
+            captureInProgress = savedInstanceState.getBoolean(KEY_CAPTURE_IN_PROGRESS, false) ||
+                    pendingCaptureUri != null
+            awaitingCameraResult =
+                savedInstanceState.getBoolean(KEY_AWAITING_CAMERA_RESULT, false)
         }
     }
 
@@ -73,15 +98,33 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
         pendingCaptureUri?.let {
             outState.putParcelable(KEY_PENDING_CAPTURE_URI, it)
         }
+        outState.putBoolean(KEY_CAPTURE_IN_PROGRESS, captureInProgress)
+        outState.putBoolean(KEY_AWAITING_CAMERA_RESULT, awaitingCameraResult)
         super.onSaveInstanceState(outState)
     }
 
     protected fun requestTakePicture() {
+        if (captureInProgress) {
+            return
+        }
+        captureInProgress = true
         if (captureStrategy.shouldRequestWriteExternalStoragePermission(context = applicationContext)) {
             requestWriteExternalStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         } else {
             requestCameraPermissionIfNeeded()
         }
+    }
+
+    /**
+     * 选择器在配置变更后若仍持有未完成的拍照 Uri，且并非正在等待系统相机结果时，
+     * 尝试完成 load 或清理，避免留下 IS_PENDING 记录。
+     */
+    protected fun resumeInterruptedCaptureFinalize() {
+        if (pendingCaptureUri == null || awaitingCameraResult || isFinalizingCapture) {
+            return
+        }
+        captureInProgress = true
+        handleTakePictureResult(isSuccessful = true)
     }
 
     private fun requestCameraPermissionIfNeeded() {
@@ -104,12 +147,23 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     private fun takePicture() {
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
-            pendingCaptureUri = null
+            val previousCaptureUri = pendingCaptureUri
+            if (previousCaptureUri != null) {
+                pendingCaptureUri = null
+                awaitingCameraResult = false
+                withContext(context = NonCancellable) {
+                    captureStrategy.onTakePictureCancelled(
+                        context = applicationContext,
+                        imageUri = previousCaptureUri
+                    )
+                }
+            }
             val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (captureIntent.resolveActivity(packageManager) != null) {
                 val imageUri = captureStrategy.createImageUri(context = applicationContext)
                 if (imageUri != null) {
                     pendingCaptureUri = imageUri
+                    awaitingCameraResult = true
                     takePictureLauncher.launch(
                         MatisseTakePictureContract.Params(
                             uri = imageUri,
@@ -121,32 +175,56 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             } else {
                 showToast(id = R.string.matisse_error_no_camera_app)
             }
-            onTakePictureCancelled()
+            finishCaptureFlowCancelled()
         }
     }
 
     private fun handleTakePictureResult(isSuccessful: Boolean) {
+        if (isFinalizingCapture) {
+            return
+        }
+        val imageUri = pendingCaptureUri
+        if (imageUri == null) {
+            finishCaptureFlowCancelled()
+            return
+        }
+        awaitingCameraResult = false
+        isFinalizingCapture = true
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
-            val imageUri = pendingCaptureUri
-            pendingCaptureUri = null
-            if (imageUri != null) {
-                if (isSuccessful) {
-                    val capturedMedia = captureStrategy.loadCapturedMedia(
+            try {
+                val capturedMedia = withContext(context = NonCancellable) {
+                    if (isSuccessful) {
+                        val media = captureStrategy.loadCapturedMedia(
+                            context = applicationContext,
+                            imageUri = imageUri
+                        )
+                        if (media != null) {
+                            return@withContext media
+                        }
+                    }
+                    captureStrategy.onTakePictureCancelled(
                         context = applicationContext,
                         imageUri = imageUri
                     )
-                    if (capturedMedia != null) {
-                        onCapturedMedia(mediaResource = capturedMedia)
-                        return@launch
-                    }
+                    null
                 }
-                captureStrategy.onTakePictureCancelled(
-                    context = applicationContext,
-                    imageUri = imageUri
-                )
+                pendingCaptureUri = null
+                captureInProgress = false
+                if (capturedMedia != null) {
+                    onCapturedMedia(mediaResource = capturedMedia)
+                } else {
+                    onTakePictureCancelled()
+                }
+            } finally {
+                isFinalizingCapture = false
             }
-            onTakePictureCancelled()
         }
+    }
+
+    private fun finishCaptureFlowCancelled() {
+        captureInProgress = false
+        awaitingCameraResult = false
+        onTakePictureCancelled()
     }
 
     protected abstract fun onCapturedMedia(mediaResource: MediaResource)

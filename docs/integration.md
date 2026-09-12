@@ -34,23 +34,29 @@ dependencies {
 
 Matisse 本身不传递 Coil 或 Glide 依赖。使用内置 `CoilImageEngine` / `GlideImageEngine` 时，还需按下文补充对应依赖。
 
-库 Manifest 已声明选择器 / 拍照 Activity，以及用于解析系统相机、预览 Intent 的 `<queries>`。宿主**无需**再声明这些组件；也不要用同名 Activity 覆盖库内配置。
+库 Manifest 已声明选择器 / 拍照 Activity，以及用于解析系统相机、预览 Intent 的 `<queries>`。宿主**无需
+**再声明这些组件；也不要用同名 Activity 覆盖库内配置。
 
 # 三、基本使用
 
 Matisse 包含两种使用场景，可以单独使用或者组合使用，分别对应两个 `ActivityResultContract`
 
-- `MatisseContract`：展示系统相册内的图片和视频，支持同时开启拍照功能。选择器界面固定为竖屏。宿主需提前在 Manifest 中声明 `mediaType` 对应的媒体读取权限，权限申请由选择器完成
-- `MatisseCaptureContract`：启动独立拍照流程（可能先按需申请存储写入或相机权限），然后打开系统相机，不显示媒体选择界面。此流程不请求媒体读取权限；宿主声明 `CAMERA` 后会按需申请，存储权限和照片存储位置由 `captureStrategy` 决定
+- `MatisseContract`：展示系统相册内的图片和视频，支持同时开启拍照功能。选择器界面固定为竖屏。宿主需提前在
+  Manifest 中声明 `mediaType` 对应的媒体读取权限，权限申请由选择器完成
+- `MatisseCaptureContract`：启动独立拍照流程（可能先按需申请存储写入或相机权限），然后打开系统相机，不显示媒体选择界面。此流程不请求媒体读取权限；宿主声明
+  `CAMERA` 后会按需申请，存储权限和照片存储位置由 `captureStrategy` 决定
 
-选择完成时，`MatisseContract` 返回非空的 `List<MediaResource>`；Activity 未以成功结果结束、结果 Intent 缺失或结果列表为空时返回 `null`。权限被拒或媒体加载失败不会自动结束选择器，用户返回后结果为 `null`。
+选择完成时，`MatisseContract` 返回非空的 `List<MediaResource>`；Activity 未以成功结果结束、结果 Intent
+缺失或结果列表为空时返回 `null`。权限被拒或媒体加载失败不会自动结束选择器，用户返回后结果为 `null`。
 
-`MatisseCaptureContract` 拍照并成功读取结果时返回 `MediaResource`；用户取消、相机不可用、权限被拒绝或结果无效时返回 `null`。
+`MatisseCaptureContract` 拍照并成功读取结果时返回 `MediaResource`；用户取消、相机不可用、权限被拒绝或结果无效时返回
+`null`。
 
 `MediaResource` 目前仅包含：
 
 - `uri`：媒体 Uri。内置选择和拍照策略返回 `content://` Uri；实际访问范围取决于 Uri 来源及宿主权限
-- `mimeType`：媒体的 MIME 类型，例如 `image/jpeg`、`video/mp4`。MediaStore 未提供类型或自定义调用方传入非标准值时可能为空或无法识别，此时 `isImage` 与 `isVideo` 均为 `false`
+- `mimeType`：媒体的 MIME 类型，例如 `image/jpeg`、`video/mp4`。MediaStore
+  未提供类型或自定义调用方传入非标准值时可能为空或无法识别，此时 `isImage` 与 `isVideo` 均为 `false`
 - `isImage` / `isVideo`：根据 `mimeType` 是否以 `image/`、`video/` 开头判断
 
 ## 1、MatisseContract
@@ -145,8 +151,7 @@ takePictureLauncher.launch(
  * @param captureStrategy 拍照策略。传入非空值，且已获得媒体读取权限（完整访问或部分访问均可）时，
  * 在“全部”相册中显示拍照入口。拍照成功后立即结束选择器：当 maxSelectable 大于 1、当前已有未达上限的
  * 已选项，且（singleMediaType 为 false，或已选项中不含视频）时，返回“已选项 + 新照片”；否则仅返回
- * 新照片。拍照入口不受 mediaType 限制，因此即使选择 MediaType.VideoOnly 也会显示入口并返回图片。
- * 默认为 null
+ * 新照片。mediaType 必须包含图片，否则只能为 null。默认为 null
  */
 data class Matisse(
     val maxSelectable: Int,
@@ -200,7 +205,9 @@ interface ImageEngine : Parcelable {
 }
 ```
 
-Matisse 内置了 `GlideImageEngine` 和 `CoilImageEngine`。实现会随 `Matisse` 通过 Intent 传递，因此实现类及其成员必须满足 `Parcelable` 要求。两个 Composable 会在主线程参与 Compose 重组，实现应保持可重入且不得执行阻塞操作。
+Matisse 内置了 `GlideImageEngine` 和 `CoilImageEngine`。实现会随 `Matisse` 通过 Intent
+传递，因此实现类及其成员必须满足 `Parcelable` 要求。两个 Composable 会在主线程参与 Compose
+重组，实现应保持可重入且不得执行阻塞操作。
 
 ### GlideImageEngine
 
@@ -220,7 +227,9 @@ val matisse = Matisse(
 
 ### CoilImageEngine
 
-该实现直接使用 Coil 的视频解码器，因此必须通过 `implementation` 添加 `io.coil-kt.coil3:coil-compose` 和 `io.coil-kt.coil3:coil-video`。视频帧解码由引擎在请求中自行指定，宿主一般无需再全局注册 `VideoFrameDecoder`。
+该实现直接使用 Coil 的视频解码器，因此必须通过 `implementation` 添加 `io.coil-kt.coil3:coil-compose`
+和 `io.coil-kt.coil3:coil-video`。视频帧解码由引擎在请求中自行指定，宿主一般无需再全局注册
+`VideoFrameDecoder`。
 
 如需加载 GIF，还需添加 `io.coil-kt.coil3:coil-gif`，并在宿主的 `ImageLoader` 中注册对应的 GIF Decoder：
 
@@ -263,13 +272,16 @@ val matisse = Matisse(
 
 ### 自定义
 
-如果默认实现不满足需求，可以自行实现 `ImageEngine`。宿主项目需要开启 Jetpack Compose，并参考 [Compose to Kotlin Compatibility Map](https://developer.android.com/jetpack/androidx/releases/compose-kotlin) 配置 Kotlin Compiler。建议通过 Parcelize 插件实现序列化。
+如果默认实现不满足需求，可以自行实现 `ImageEngine`。宿主项目需要开启 Jetpack
+Compose，并参考 [Compose to Kotlin Compatibility Map](https://developer.android.com/jetpack/androidx/releases/compose-kotlin)
+配置 Kotlin Compiler。建议通过 Parcelize 插件实现序列化。
 
 内置引擎行为说明：
 
 - 缩略图：裁切并填满容器
 - 视频封面：完整显示在预览区域内
-- 非视频大图：按容器宽度等比展示，支持纵向滚动；解码宽高最大限制为 4096 像素。超过限制的图片会保持宽高比进行降采样，因此放大后清晰度可能降低
+- 非视频大图：按容器宽度等比展示，支持纵向滚动；解码宽高最大限制为 4096
+  像素。超过限制的图片会保持宽高比进行降采样，因此放大后清晰度可能降低
 
 ## 3、gridColumns
 
@@ -277,7 +289,8 @@ val matisse = Matisse(
 
 ## 4、fastSelect
 
-启用后，点击缩略图会立即返回单个 `MediaResource`，不进入预览或多选确认流程。仅当 `maxSelectable == 1` 时可设为 `true`。
+启用后，点击缩略图会立即返回单个 `MediaResource`，不进入预览或多选确认流程。仅当 `maxSelectable == 1`
+时可设为 `true`。
 
 ## 5、mediaType
 
@@ -297,7 +310,8 @@ val mimeTypes = MediaType.MultipleMimeType(
 )
 ```
 
-`MultipleMimeType` 不允许为空，且每项必须以 `image/` 或 `video/` 开头；其他类型无法匹配对应媒体权限与预览行为。权限申请依据其中是否包含 `image/`、`video/` 前缀（即 `includeImage` / `includeVideo`），与具体 MIME 子集无关。
+`MultipleMimeType` 不允许为空，且每项必须以 `image/` 或 `video/` 开头；其他类型无法匹配对应媒体权限与预览行为。权限申请依据其中是否包含
+`image/`、`video/` 前缀（即 `includeImage` / `includeVideo`），与具体 MIME 子集无关。
 
 ## 6、singleMediaType
 
@@ -311,30 +325,37 @@ val mimeTypes = MediaType.MultipleMimeType(
 用于支持两种拍照场景：
 
 - 通过 `MatisseCaptureContract` 启动独立拍照流程
-- 在选择器中，当媒体读取权限已授予（完整访问或部分访问均可）且 `captureStrategy` 非空时，于“全部”相册显示拍照入口；拍照成功后立即结束选择器
+- 在选择器中，当媒体读取权限已授予（完整访问或部分访问均可）且 `captureStrategy`
+  非空时，于“全部”相册显示拍照入口；拍照成功后立即结束选择器
 
 说明：
 
-- 拍照入口不受 `mediaType` 限制，因此即使配置了 `MediaType.VideoOnly`，也会显示入口并返回图片
-- 当 `maxSelectable` 大于 1、当前已有未达上限的已选项，且（`singleMediaType` 为 false，或已选项中不含视频）时，返回“已选项 + 新照片”；否则仅返回新照片
-- 内置策略以 `.jpg` / `image/jpeg` 创建文件。`FileProviderCaptureStrategy` 返回固定 `image/jpeg`；`MediaStoreCaptureStrategy` 返回 MediaStore 中记录的 MIME（通常为 `image/jpeg`）
+- `mediaType` 必须包含图片（例如不可为单独的 `MediaType.VideoOnly`，也不可为仅含 `video/` 的
+  `MultipleMimeType`），否则 `captureStrategy` 只能为 `null`
+- 当 `maxSelectable` 大于 1、当前已有未达上限的已选项，且（`singleMediaType` 为
+  false，或已选项中不含视频）时，返回“已选项 + 新照片”；否则仅返回新照片
+- 内置策略以 `.jpg` / `image/jpeg` 创建文件，并在返回前校验内容非空。`FileProviderCaptureStrategy`
+  返回固定 `image/jpeg`；`MediaStoreCaptureStrategy` 返回 MediaStore 中记录的 MIME（通常为
+  `image/jpeg`）
 
 Matisse 提供三种默认实现：
 
 ### 1、FileProviderCaptureStrategy
 
-通过 FileProvider 生成拍照 Uri。宿主必须在 Manifest 中配置 FileProvider，并将其 `authority` 传给构造参数。当前实现会在 `context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)` 中创建文件，FileProvider 路径配置必须能够映射该目录。照片保存在应用专属外部存储目录，不会写入系统相册，也不需要 `WRITE_EXTERNAL_STORAGE`。当前内置实现使用 `.jpg` 文件名，并将返回结果的 MIME 类型固定标记为 `image/jpeg`。
+通过 FileProvider 生成拍照 Uri。宿主必须在 Manifest 中配置 FileProvider，并将其 `authority`
+传给构造参数。当前实现会在 `context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)`
+中创建文件，FileProvider 路径配置必须能够映射该目录。照片保存在应用专属外部存储目录，不会写入系统相册，也不需要
+`WRITE_EXTERNAL_STORAGE`。当前内置实现使用 `.jpg` 文件名，并将返回结果的 MIME 类型固定标记为
+`image/jpeg`；读取结果时会校验文件长度大于 0，否则视为无效并清理。
 
 如果宿主在 Manifest 中声明了 `CAMERA`，Matisse 会在需要时申请该权限；未声明时则直接调用系统相机。
 
 ```xml
-<provider
-    android:name="androidx.core.content.FileProvider"
-    android:authorities="${applicationId}.FileProvider"
-    android:exported="false"
+
+<provider android:name="androidx.core.content.FileProvider"
+    android:authorities="${applicationId}.FileProvider" android:exported="false"
     android:grantUriPermissions="true">
-    <meta-data
-        android:name="android.support.FILE_PROVIDER_PATHS"
+    <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
         android:resource="@xml/file_provider_paths" />
 </provider>
 ```
@@ -342,9 +363,7 @@ Matisse 提供三种默认实现：
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <external-files-path
-        name="Matisse"
-        path="Pictures" />
+    <external-files-path name="Matisse" path="Pictures" />
 </paths>
 ```
 
@@ -363,7 +382,9 @@ FileProviderCaptureStrategy(
 - Android 9 及以下：宿主必须在 Manifest 中声明 `WRITE_EXTERNAL_STORAGE`，Matisse 会在拍照前申请该权限
 - Android 10 及以上：无需该权限
 
-当前内置实现使用 `.jpg` 文件名，创建 MediaStore 记录时声明 `image/jpeg`；返回结果使用 MediaStore 记录的 MIME 类型，通常仍为 `image/jpeg`。
+当前内置实现使用 `.jpg` 文件名，创建 MediaStore 记录时声明 `image/jpeg`。Android 10 及以上会先以
+`IS_PENDING = 1` 插入，确认写入内容非空后再清除 pending；返回结果使用 MediaStore 记录的 MIME 类型，通常仍为
+`image/jpeg`。
 
 如果宿主在 Manifest 中声明了 `CAMERA`，Matisse 会在需要时申请该权限；未声明时则直接调用系统相机。
 
@@ -372,9 +393,11 @@ FileProviderCaptureStrategy(
 根据系统版本自动选择策略：
 
 - Android 9 及以下：委托给传入的 `FileProviderCaptureStrategy`，照片保存在应用专属外部存储目录
-- Android 10 及以上：委托给 `MediaStoreCaptureStrategy`，照片写入系统相册；传入 `FileProviderCaptureStrategy` 的相机额外参数也会用于 MediaStore 策略
+- Android 10 及以上：委托给 `MediaStoreCaptureStrategy`，照片写入系统相册；传入
+  `FileProviderCaptureStrategy` 的相机额外参数也会用于 MediaStore 策略
 
-因此，即使宿主仅在新系统上测试，也仍应按照 `FileProviderCaptureStrategy` 的要求完成 FileProvider 配置，以兼容 Android 9 及以下设备。
+因此，即使宿主仅在新系统上测试，也仍应按照 `FileProviderCaptureStrategy` 的要求完成 FileProvider
+配置，以兼容 Android 9 及以下设备。
 
 ```kotlin
 SmartCaptureStrategy(
@@ -386,11 +409,11 @@ SmartCaptureStrategy(
 
 ### 4、总结
 
-| 拍照策略 | 需要的权限 | 配置项 | 图片对用户是否可见 |
-| --- | --- | --- | --- |
-| FileProviderCaptureStrategy | 无 | 需要配置 FileProvider | 否，保存在应用专属目录 |
-| MediaStoreCaptureStrategy | Android 9 及以下需要 `WRITE_EXTERNAL_STORAGE` | 无 | 是，写入系统相册 |
-| SmartCaptureStrategy | 通常无需额外写权限 | 需要配置 FileProvider | Android 9 及以下不可见；Android 10 及以上可见 |
+| 拍照策略                        | 需要的权限                                    | 配置项               | 图片对用户是否可见                         |
+|-----------------------------|------------------------------------------|-------------------|-----------------------------------|
+| FileProviderCaptureStrategy | 无                                        | 需要配置 FileProvider | 否，保存在应用专属目录                       |
+| MediaStoreCaptureStrategy   | Android 9 及以下需要 `WRITE_EXTERNAL_STORAGE` | 无                 | 是，写入系统相册                          |
+| SmartCaptureStrategy        | 通常无需额外写权限                                | 需要配置 FileProvider | Android 9 及以下不可见；Android 10 及以上可见 |
 
 选择建议：
 
@@ -401,13 +424,19 @@ SmartCaptureStrategy(
 
 `CaptureStrategy` 是接口。若内置策略无法满足需求，可自行实现。
 
-Matisse 会依次调用 `shouldRequestWriteExternalStoragePermission`、`createImageUri`，并在相机返回成功后调用 `loadCapturedMedia`。相机取消、拍照失败或者 `loadCapturedMedia` 返回 null 时，会调用 `onTakePictureCancelled` 清理已创建的资源。实现会随 Intent 传递，必须满足 `Parcelable`；Matisse 从主线程发起策略调用，实现不得阻塞调用线程，文件与 ContentResolver 操作应自行切换到后台调度器。
+Matisse 会先调用 `shouldRequestWriteExternalStoragePermission`；在完成必要的存储写入与相机权限处理后，再调用
+`createImageUri` 与 `getCaptureExtra` 启动系统相机。相机返回成功后调用 `loadCapturedMedia`
+；相机取消、拍照失败或者 `loadCapturedMedia` 返回 null 时，会调用 `onTakePictureCancelled`
+清理已创建的资源。实现会随 Intent 传递，必须满足 `Parcelable`；Matisse 从主线程发起策略调用，实现不得阻塞调用线程，文件与
+ContentResolver 操作应自行切换到后台调度器。
 
 需要实现：
 
-- `shouldRequestWriteExternalStoragePermission`：返回 true 时，宿主必须同时在 Manifest 中声明该权限。Android 10 及以上通常应返回 false
-- `createImageUri`：返回供外部相机写入的 Uri；返回 null 会取消本次拍照。Matisse 会通过 `MediaStore.EXTRA_OUTPUT` 传递该 Uri，并授予外部相机临时读写权限
-- `loadCapturedMedia`：校验并读取拍照结果；返回 null 表示结果无效
+- `shouldRequestWriteExternalStoragePermission`：返回 true 时，宿主必须同时在 Manifest 中声明该权限。Android
+  10 及以上通常应返回 false
+- `createImageUri`：返回供外部相机写入的 Uri；返回 null 会取消本次拍照。Matisse 会通过
+  `MediaStore.EXTRA_OUTPUT` 传递该 Uri，并授予外部相机临时读写权限
+- `loadCapturedMedia`：校验并读取拍照结果；返回 null 表示结果无效，随后会调用 `onTakePictureCancelled`
 - `onTakePictureCancelled`：清理未产生有效结果的资源
 
 可选覆盖：
@@ -415,7 +444,8 @@ Matisse 会依次调用 `shouldRequestWriteExternalStoragePermission`、`createI
 - `createImageName`：默认生成 `IMG_yyyyMMdd_HHmmssSSS.jpg`
 - `getCaptureExtra`：合并到启动系统相机的 Intent。不要覆盖 `MediaStore.EXTRA_OUTPUT` 和 Uri 授权标记
 
-内置 `FileProviderCaptureStrategy` / `MediaStoreCaptureStrategy` 通过构造参数 `extra` 传入相机附加参数，`getCaptureExtra()` 会返回该 Bundle。例如请求前置摄像头：
+内置 `FileProviderCaptureStrategy` / `MediaStoreCaptureStrategy` 通过构造参数 `extra` 传入相机附加参数，
+`getCaptureExtra()` 会返回该 Bundle。例如请求前置摄像头：
 
 ```kotlin
 val captureExtra = Bundle().apply {
@@ -435,7 +465,8 @@ MediaStoreCaptureStrategy(extra = captureExtra)
 
 Matisse 提供日间和夜间两套默认主题，也支持进一步自定义。
 
-在项目的 `values` 与 `values-night` 中按需覆盖下列**同名**资源即可。下面列出的是日间默认值，仅作参考；夜间默认值不同，不要把日间色值原样抄到 `values-night`。
+在项目的 `values` 与 `values-night` 中按需覆盖下列**同名**资源即可。下面列出的是日间默认值，仅作参考；夜间默认值不同，不要把日间色值原样抄到
+`values-night`。
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -526,17 +557,20 @@ Matisse 提供日间和夜间两套默认主题，也支持进一步自定义。
 
 # 六、声明权限
 
-Matisse 不会在库 Manifest 中声明媒体读取权限，开发者需要按 `mediaType`、系统版本和拍照策略按需声明。权限申请由选择器 / 拍照流程完成。
+Matisse 不会在库 Manifest 中声明媒体读取权限，开发者需要按 `mediaType`
+、系统版本和拍照策略按需声明。权限申请由选择器 / 拍照流程完成。
 
 ## 1、媒体读取权限
 
-仅 `MatisseContract` 会申请媒体读取权限。实际请求内容同时取决于设备系统版本与宿主 `targetSdkVersion`，以及 `mediaType` 实际包含的图片 / 视频类型（`includeImage` / `includeVideo`）。
+仅 `MatisseContract` 会申请媒体读取权限。实际请求内容同时取决于设备系统版本与宿主 `targetSdkVersion`
+，以及 `mediaType` 实际包含的图片 / 视频类型（`includeImage` / `includeVideo`）。
 
 ### 设备为 Android 13 以下，或 targetSdkVersion 小于 33
 
 申请并依赖 `READ_EXTERNAL_STORAGE`：
 
 ```xml
+
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 ```
 
@@ -553,11 +587,10 @@ Matisse 请求 `mediaType` 实际包含的 `READ_MEDIA_IMAGES` 和/或 `READ_MED
 因此 `targetSdkVersion` 大于等于 33 时，通常还要保留带 `maxSdkVersion="32"` 的旧权限，以覆盖低版本设备：
 
 ```xml
-<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-<uses-permission
-    android:name="android.permission.READ_EXTERNAL_STORAGE"
-    android:maxSdkVersion="32" />
+
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" /><uses-permission
+android:name="android.permission.READ_MEDIA_VIDEO" /><uses-permission
+android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 ```
 
 ### Android 14 部分媒体访问（可选）
@@ -565,6 +598,7 @@ Matisse 请求 `mediaType` 实际包含的 `READ_MEDIA_IMAGES` 和/或 `READ_MED
 当设备为 Android 14 及以上、宿主 `targetSdkVersion` 大于等于 34，并且 Manifest 声明了：
 
 ```xml
+
 <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 ```
 
@@ -576,14 +610,16 @@ Matisse 会同时请求并接受用户授予的部分媒体访问权限：仅获
 
 ## 2、拍照相关权限
 
-- `FileProviderCaptureStrategy` / `SmartCaptureStrategy`：通常无需写存储权限，但需要正确配置 FileProvider
+- `FileProviderCaptureStrategy` / `SmartCaptureStrategy`：通常无需写存储权限，但需要正确配置
+  FileProvider
 - `MediaStoreCaptureStrategy`：
-  - Android 10 及以上：无需写存储权限
-  - Android 9 及以下：会申请 `WRITE_EXTERNAL_STORAGE`；若 `minSdkVersion` 小于 29，Manifest 需声明该权限，可将 `maxSdkVersion` 设为 28
+    - Android 10 及以上：无需写存储权限
+    - Android 9 及以下：会申请 `WRITE_EXTERNAL_STORAGE`；若 `minSdkVersion` 小于 29，Manifest 需声明该权限，可将
+      `maxSdkVersion` 设为 28
 
 ```xml
-<uses-permission
-    android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
     android:maxSdkVersion="28" />
 ```
 

@@ -478,7 +478,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             mediaType = mediaType,
             imageEngine = imageEngine,
             singleMediaType = currentPageViewState.singleMediaType,
-            captureStrategy = resolveCaptureStrategy()
+            captureStrategy = if (mediaType.includeImage) {
+                resolveCaptureStrategy()
+            } else {
+                null
+            }
         )
     }
 
