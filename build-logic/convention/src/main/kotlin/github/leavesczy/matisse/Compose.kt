@@ -13,15 +13,9 @@ internal fun Project.configureCompose(commonExtension: CommonExtension) {
         }
         dependencies {
             val composeBom = libs.findLibrary("androidx-compose-bom").get()
-            val composeBomPlatform = platform(composeBom)
-            add("implementation", composeBomPlatform)
-            add("androidTestImplementation", composeBomPlatform)
+            add("implementation", platform(composeBom))
             add("implementation", libs.findLibrary("androidx-compose-ui").get())
             add("implementation", libs.findLibrary("androidx-compose-ui-util").get())
-            add("debugImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
-            add("implementation", libs.findLibrary("androidx-compose-ui-tooling-preview").get())
-            add("androidTestImplementation", libs.findLibrary("androidx-compose-ui-test").get())
-            add("debugImplementation", libs.findLibrary("androidx-compose-ui-test-manifest").get())
             add("implementation", libs.findLibrary("androidx-compose-foundation").get())
             add("implementation", libs.findLibrary("androidx-compose-material3").get())
         }

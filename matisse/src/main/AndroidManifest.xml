@@ -23,6 +23,6 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="false"
             android:launchMode="singleTop"
-            android:theme="@style/Matisse.Theme.Capture" />
+            android:theme="@style/Matisse.Capture.Theme" />
     </application>
 </manifest>

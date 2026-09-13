@@ -13,7 +13,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.glide)
     implementation(libs.glide.compose)
     implementation(libs.coil.gif)

@@ -17,7 +17,6 @@ dependencies {
     implementation(libs.androidx.paging.compose)
     compileOnly(libs.glide)
     compileOnly(libs.glide.compose)
-    compileOnly(libs.coil.gif)
     compileOnly(libs.coil.video)
     compileOnly(libs.coil.compose)
 }
