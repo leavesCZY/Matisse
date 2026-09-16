@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(application: Application) : AndroidViewModel(application = application) {
 
     companion object {
 
@@ -351,7 +351,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             canvas.drawRect(0f, top, spec.width.toFloat(), top + sectionHeight, paint)
         }
         paint.color = Color.argb(150, 255, 255, 255)
-        paint.strokeWidth = (minOf(spec.width, spec.height) * 0.008f).coerceAtLeast(2f)
+        paint.strokeWidth = (minOf(a = spec.width, b = spec.height) * 0.008f).coerceAtLeast(minimumValue = 2f)
         canvas.drawLine(
             spec.width / 2f,
             0f,
@@ -361,7 +361,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
         paint.color = Color.WHITE
         paint.textAlign = Paint.Align.CENTER
-        paint.textSize = (minOf(spec.width, spec.height) * 0.07f).coerceIn(26f, 96f)
+        paint.textSize = (minOf(a = spec.width, b = spec.height) * 0.07f).coerceIn(
+            minimumValue = 26f,
+            maximumValue = 96f
+        )
         repeat(times = sectionCount) { section ->
             val progress = section * 100 / (sectionCount - 1)
             val centerY = section * sectionHeight + sectionHeight / 2f
@@ -478,7 +481,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             mediaType = mediaType,
             imageEngine = imageEngine,
             singleMediaType = currentPageViewState.singleMediaType,
-            captureStrategy = if (mediaType.includeImage) {
+            captureStrategy = if (mediaType.includesImage) {
                 resolveCaptureStrategy()
             } else {
                 null
@@ -491,7 +494,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return MatisseCapture(captureStrategy = captureStrategy)
     }
 
-    fun onTakePictureResult(mediaResource: MediaResource?) {
+    fun onCaptureResult(mediaResource: MediaResource?) {
         if (mediaResource != null) {
             pageViewState = pageViewState.copy(pickedMediaList = listOf(element = mediaResource))
         }

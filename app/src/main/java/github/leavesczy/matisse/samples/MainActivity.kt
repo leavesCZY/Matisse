@@ -43,9 +43,9 @@ class MainActivity : AppCompatActivity() {
                         showStoragePermissionDeniedToast()
                     }
                 }
-            val takePictureLauncher =
+            val captureLauncher =
                 rememberLauncherForActivityResult(contract = MatisseCaptureContract()) {
-                    mainViewModel.onTakePictureResult(mediaResource = it)
+                    mainViewModel.onCaptureResult(mediaResource = it)
                 }
             val mediaPickerLauncher =
                 rememberLauncherForActivityResult(contract = MatisseContract()) {
@@ -56,12 +56,12 @@ class MainActivity : AppCompatActivity() {
                     pageViewState = mainViewModel.pageViewState,
                     onPickImageAndVideo = {
                         mediaPickerLauncher.launch(
-                            mainViewModel.buildMatisse(mediaType = MediaType.ImageAndVideo)
+                            input = mainViewModel.buildMatisse(mediaType = MediaType.ImageAndVideo)
                         )
                     },
                     onPickImageOnly = {
                         mediaPickerLauncher.launch(
-                            mainViewModel.buildMatisse(mediaType = MediaType.ImageOnly)
+                            input = mainViewModel.buildMatisse(mediaType = MediaType.ImageOnly)
                         )
                     },
                     onPickVideoOnly = {
@@ -76,10 +76,10 @@ class MainActivity : AppCompatActivity() {
                             )
                         )
                     },
-                    onTakePictureClick = {
+                    onCaptureClick = {
                         val matisseCapture = mainViewModel.buildMatisseCapture()
                         if (matisseCapture != null) {
-                            takePictureLauncher.launch(input = matisseCapture)
+                            captureLauncher.launch(input = matisseCapture)
                         }
                     },
                     onInsertPagingTestImages = {

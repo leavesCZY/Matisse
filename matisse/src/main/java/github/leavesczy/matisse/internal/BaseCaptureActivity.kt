@@ -17,7 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatisseTakePictureContract
+import github.leavesczy.matisse.internal.logic.MatisseCaptureIntentContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
@@ -38,7 +38,9 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     protected abstract val captureStrategy: CaptureStrategy
 
     private val requestWriteExternalStoragePermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        registerForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { granted ->
             if (granted) {
                 requestCameraPermissionIfNeeded()
             } else {
@@ -48,18 +50,22 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
         }
 
     private val requestCameraPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        registerForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { granted ->
             if (granted) {
-                takePicture()
+                launchCapture()
             } else {
                 finishCaptureFlowCancelled()
                 showToast(id = R.string.matisse_error_camera_permission)
             }
         }
 
-    private val takePictureLauncher =
-        registerForActivityResult(MatisseTakePictureContract()) { isSuccessful ->
-            handleTakePictureResult(isSuccessful = isSuccessful)
+    private val captureLauncher =
+        registerForActivityResult(
+            contract = MatisseCaptureIntentContract()
+        ) { isSuccessful ->
+            handleCaptureResult(isSuccessful = isSuccessful)
         }
 
     private var pendingCaptureUri: Uri? = null
@@ -87,10 +93,14 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 KEY_PENDING_CAPTURE_URI,
                 Uri::class.java
             )
-            captureInProgress = savedInstanceState.getBoolean(KEY_CAPTURE_IN_PROGRESS, false) ||
-                    pendingCaptureUri != null
-            awaitingCameraResult =
-                savedInstanceState.getBoolean(KEY_AWAITING_CAMERA_RESULT, false)
+            captureInProgress = savedInstanceState.getBoolean(
+                KEY_CAPTURE_IN_PROGRESS,
+                false
+            ) || pendingCaptureUri != null
+            awaitingCameraResult = savedInstanceState.getBoolean(
+                KEY_AWAITING_CAMERA_RESULT,
+                false
+            )
         }
     }
 
@@ -103,28 +113,31 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
-    protected fun requestTakePicture() {
+    protected fun requestCapture() {
         if (captureInProgress) {
             return
         }
         captureInProgress = true
         if (captureStrategy.shouldRequestWriteExternalStoragePermission(context = applicationContext)) {
-            requestWriteExternalStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            requestWriteExternalStoragePermissionLauncher.launch(
+                input = Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
         } else {
             requestCameraPermissionIfNeeded()
         }
     }
 
     /**
-     * 选择器在配置变更后若仍持有未完成的拍照 Uri，且并非正在等待系统相机结果时，
-     * 尝试完成 load 或清理，避免留下 IS_PENDING 记录。
+     * 配置变更后若仍持有未完成的拍照 Uri，且并非正在等待系统相机结果时，尝试
+     * [CaptureStrategy.loadCapturedMedia] 完成读取；失败则调用
+     * [CaptureStrategy.onCaptureCancelled] 清理输出，避免残留文件或 MediaStore 记录。
      */
     protected fun resumeInterruptedCaptureFinalize() {
         if (pendingCaptureUri == null || awaitingCameraResult || isFinalizingCapture) {
             return
         }
         captureInProgress = true
-        handleTakePictureResult(isSuccessful = true)
+        handleCaptureResult(isSuccessful = true)
     }
 
     private fun requestCameraPermissionIfNeeded() {
@@ -138,21 +151,21 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 permission = cameraPermission
             )
             if (shouldRequestCameraPermission) {
-                requestCameraPermissionLauncher.launch(cameraPermission)
+                requestCameraPermissionLauncher.launch(input = cameraPermission)
             } else {
-                takePicture()
+                launchCapture()
             }
         }
     }
 
-    private fun takePicture() {
+    private fun launchCapture() {
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
             val previousCaptureUri = pendingCaptureUri
             if (previousCaptureUri != null) {
                 pendingCaptureUri = null
                 awaitingCameraResult = false
                 withContext(context = NonCancellable) {
-                    captureStrategy.onTakePictureCancelled(
+                    captureStrategy.onCaptureCancelled(
                         context = applicationContext,
                         imageUri = previousCaptureUri
                     )
@@ -164,10 +177,10 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 if (imageUri != null) {
                     pendingCaptureUri = imageUri
                     awaitingCameraResult = true
-                    takePictureLauncher.launch(
-                        MatisseTakePictureContract.Params(
+                    captureLauncher.launch(
+                        input = MatisseCaptureIntentContract.Params(
                             uri = imageUri,
-                            extra = captureStrategy.getCaptureExtra()
+                            extra = captureStrategy.captureExtra
                         )
                     )
                     return@launch
@@ -179,7 +192,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleTakePictureResult(isSuccessful: Boolean) {
+    private fun handleCaptureResult(isSuccessful: Boolean) {
         if (isFinalizingCapture) {
             return
         }
@@ -202,7 +215,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                             return@withContext media
                         }
                     }
-                    captureStrategy.onTakePictureCancelled(
+                    captureStrategy.onCaptureCancelled(
                         context = applicationContext,
                         imageUri = imageUri
                     )
@@ -213,7 +226,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 if (capturedMedia != null) {
                     onCapturedMedia(mediaResource = capturedMedia)
                 } else {
-                    onTakePictureCancelled()
+                    onCaptureCancelled()
                 }
             } finally {
                 isFinalizingCapture = false
@@ -224,12 +237,17 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     private fun finishCaptureFlowCancelled() {
         captureInProgress = false
         awaitingCameraResult = false
-        onTakePictureCancelled()
+        onCaptureCancelled()
     }
 
+    /** 拍照成功并得到有效 [MediaResource] 后的 Activity 侧处理（回传结果或结束选择器）。 */
     protected abstract fun onCapturedMedia(mediaResource: MediaResource)
 
-    protected abstract fun onTakePictureCancelled()
+    /**
+     * 拍照流程取消或结果无效时的 Activity 侧处理（例如结束 Activity）。
+     * 不等于 [CaptureStrategy.onCaptureCancelled]：后者负责清理拍照输出资源。
+     */
+    protected abstract fun onCaptureCancelled()
 
     protected fun permissionGranted(context: Context, permissions: Array<String>): Boolean {
         return permissions.all {
@@ -254,7 +272,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 )
                 val permissions = packageInfo.requestedPermissions
                 if (!permissions.isNullOrEmpty()) {
-                    return@withContext permissions.contains(permission)
+                    return@withContext permissions.contains(element = permission)
                 }
             } catch (exception: PackageManager.NameNotFoundException) {
                 exception.printStackTrace()
@@ -269,7 +287,11 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     protected fun showToast(text: String) {
         if (text.isNotBlank()) {
-            Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                text,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

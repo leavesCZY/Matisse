@@ -26,7 +26,7 @@ import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
-import github.leavesczy.matisse.internal.ui.MatissePreviewImagePage
+import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.ui.MatisseTheme
 import github.leavesczy.matisse.internal.ui.MatisseVideoPlayerPage
 import kotlinx.coroutines.flow.collectLatest
@@ -54,7 +54,9 @@ internal class MatisseActivity : BaseCaptureActivity() {
     })
 
     private val requestReadMediaPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        registerForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) {
             matisseViewModel.onReadMediaPermissionResult(
                 granted = hasFullReadMediaPermission() || hasPartialReadMediaPermission()
             )
@@ -76,7 +78,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         setContent {
             LaunchedEffect(key1 = Unit) {
                 snapshotFlow {
-                    matisseViewModel.previewImagePageViewState.isVisible
+                    matisseViewModel.previewPageViewState.isVisible
                 }.collectLatest {
                     setSystemBarUi(previewPageVisible = it)
                 }
@@ -86,12 +88,12 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     pageViewState = matisseViewModel.pageViewState,
                     bottomBarViewState = matisseViewModel.bottomBarViewState,
                     isSelectionLimitReached = matisseViewModel.isSelectionLimitReached,
-                    onTakePictureClick = ::requestTakePicture,
+                    onCaptureClick = ::requestCapture,
                     onConfirmClick = ::onConfirmClick,
                     onFastSelectMediaClick = ::onFastSelectMediaClick
                 )
-                MatissePreviewImagePage(
-                    pageViewState = matisseViewModel.previewImagePageViewState,
+                MatissePreviewPage(
+                    pageViewState = matisseViewModel.previewPageViewState,
                     imageEngine = matisseViewModel.pageViewState.matisse.imageEngine,
                     isSelectionLimitReached = matisseViewModel.isSelectionLimitReached,
                     onConfirmClick = ::onConfirmClick
@@ -116,7 +118,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         if (hasFullReadMediaPermission()) {
             matisseViewModel.onReadMediaPermissionResult(granted = true)
         } else {
-            requestReadMediaPermissionLauncher.launch(permissions)
+            requestReadMediaPermissionLauncher.launch(input = permissions)
         }
     }
 
@@ -124,10 +126,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
         return if (usesGranularMediaPermissions()) {
             buildList {
                 val mediaType = matisseViewModel.mediaType
-                if (mediaType.includeImage) {
+                if (mediaType.includesImage) {
                     add(element = Manifest.permission.READ_MEDIA_IMAGES)
                 }
-                if (mediaType.includeVideo) {
+                if (mediaType.includesVideo) {
                     add(element = Manifest.permission.READ_MEDIA_VIDEO)
                 }
                 if (supportsPartialMediaPermission()) {
@@ -143,10 +145,10 @@ internal class MatisseActivity : BaseCaptureActivity() {
         val fullAccessPermissions = if (usesGranularMediaPermissions()) {
             buildList {
                 val mediaType = matisseViewModel.mediaType
-                if (mediaType.includeImage) {
+                if (mediaType.includesImage) {
                     add(element = Manifest.permission.READ_MEDIA_IMAGES)
                 }
-                if (mediaType.includeVideo) {
+                if (mediaType.includesVideo) {
                     add(element = Manifest.permission.READ_MEDIA_VIDEO)
                 }
             }.toTypedArray()
@@ -181,7 +183,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
             PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
         )
         return packageInfo.requestedPermissions?.contains(
-            Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+            element = Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
         ) == true
     }
 
@@ -205,9 +207,9 @@ internal class MatisseActivity : BaseCaptureActivity() {
     private fun onConfirmClick() {
         val selectedMedia = matisseViewModel.getSelectedMedia()
         if (matisseViewModel.singleMediaType) {
-            val includeImage = selectedMedia.any { it.isImage }
-            val includeVideo = selectedMedia.any { it.isVideo }
-            if (includeImage && includeVideo) {
+            val includesImage = selectedMedia.any { it.isImage }
+            val includesVideo = selectedMedia.any { it.isVideo }
+            if (includesImage && includesVideo) {
                 showToast(id = R.string.matisse_error_mixed_media)
                 return
             }
@@ -222,7 +224,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
     private fun finishWithSelectedMedia(result: List<MediaResource>) {
         val data = Intent()
         val selectedMediaList = arrayListOf<Parcelable>().apply {
-            addAll(result)
+            addAll(elements = result)
         }
         data.putParcelableArrayListExtra(MediaResource::class.java.name, selectedMediaList)
         setResult(RESULT_OK, data)
@@ -234,7 +236,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         finish()
     }
 
-    override fun onTakePictureCancelled() {
+    override fun onCaptureCancelled() {
 
     }
 

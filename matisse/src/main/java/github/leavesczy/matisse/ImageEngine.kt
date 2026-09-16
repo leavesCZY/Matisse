@@ -9,7 +9,8 @@ import androidx.compose.runtime.Stable
  *
  * 实现会随 [Matisse] 一同通过 Intent 传递，因此实现类及其成员必须满足 [Parcelable] 要求。
  * Matisse 不传递 Coil 或 Glide 依赖，宿主应用需要根据所选实现自行添加运行时依赖。
- * 两个 Composable 会在主线程参与 Compose 重组，实现应保持可重入且不得执行阻塞操作。
+ * 需实现 [Thumbnail]（网格与相册列表缩略图）与 [Preview]（预览页完整图片或视频封面）两个
+ * 主线程 Composable；实现应保持可重入且不得执行阻塞操作。
  *
  * @see CoilImageEngine
  * @see GlideImageEngine
@@ -36,6 +37,6 @@ interface ImageEngine : Parcelable {
      * @param mediaResource 需要预览的图片或视频资源
      */
     @Composable
-    fun Image(mediaResource: MediaResource)
+    fun Preview(mediaResource: MediaResource)
 
 }

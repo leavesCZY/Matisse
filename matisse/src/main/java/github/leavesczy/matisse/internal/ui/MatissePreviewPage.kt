@@ -41,12 +41,13 @@ import androidx.compose.ui.util.lerp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatissePreviewImagePageViewState
+import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
+import github.leavesczy.matisse.internal.logic.MatisseOpenVideoClickHandler
 import kotlin.math.absoluteValue
 
 @Composable
-internal fun MatissePreviewImagePage(
-    pageViewState: MatissePreviewImagePageViewState,
+internal fun MatissePreviewPage(
+    pageViewState: MatissePreviewPageViewState,
     imageEngine: ImageEngine,
     isSelectionLimitReached: Boolean,
     onConfirmClick: () -> Unit
@@ -70,7 +71,7 @@ internal fun MatissePreviewImagePage(
             targetOffsetX = { it }
         )
     ) {
-        MatissePreviewImagePageContent(
+        MatissePreviewPageContent(
             pageViewState = pageViewState,
             imageEngine = imageEngine,
             isSelectionLimitReached = isSelectionLimitReached,
@@ -80,8 +81,8 @@ internal fun MatissePreviewImagePage(
 }
 
 @Composable
-private fun MatissePreviewImagePageContent(
-    pageViewState: MatissePreviewImagePageViewState,
+private fun MatissePreviewPageContent(
+    pageViewState: MatissePreviewPageViewState,
     imageEngine: ImageEngine,
     isSelectionLimitReached: Boolean,
     onConfirmClick: () -> Unit
@@ -114,7 +115,7 @@ private fun MatissePreviewImagePageContent(
                     pageViewState.previewMediaItems[index].mediaId
                 }
             ) { pageIndex ->
-                PreviewPage(
+                PreviewMediaPage(
                     modifier = Modifier
                         .fillMaxSize(),
                     pagerState = pagerState,
@@ -137,19 +138,19 @@ private fun MatissePreviewImagePageContent(
 }
 
 @Composable
-private fun PreviewPage(
+private fun PreviewMediaPage(
     modifier: Modifier,
     pagerState: PagerState,
     pageIndex: Int,
     imageEngine: ImageEngine,
     mediaResource: MediaResource,
-    onOpenVideoClick: (MediaResource) -> Unit
+    onOpenVideoClick: MatisseOpenVideoClickHandler
 ) {
     val fraction by remember {
         derivedStateOf {
             val pageOffset =
                 (pagerState.currentPage - pageIndex + pagerState.currentPageOffsetFraction).absoluteValue
-            val progress = 1f - pageOffset.coerceIn(0f, 1f)
+            val progress = 1f - pageOffset.coerceIn(minimumValue = 0f, maximumValue = 1f)
             lerp(
                 start = 0.80f,
                 stop = 1f,
@@ -171,13 +172,13 @@ private fun PreviewPage(
                 },
             contentAlignment = Alignment.Center
         ) {
-            imageEngine.Image(mediaResource = mediaResource)
+            imageEngine.Preview(mediaResource = mediaResource)
             if (mediaResource.isVideo) {
                 VideoIcon(
                     modifier = Modifier
                         .clip(shape = CircleShape)
                         .clickable {
-                            onOpenVideoClick(mediaResource)
+                            onOpenVideoClick(mediaResource = mediaResource)
                         }
                         .padding(all = 10.dp)
                         .size(size = 50.dp)
@@ -190,7 +191,7 @@ private fun PreviewPage(
 @Composable
 private fun PreviewBottomBar(
     modifier: Modifier,
-    pageViewState: MatissePreviewImagePageViewState,
+    pageViewState: MatissePreviewPageViewState,
     pagerState: PagerState,
     isSelectionLimitReached: Boolean,
     onConfirmClick: () -> Unit
@@ -205,7 +206,7 @@ private fun PreviewBottomBar(
         key2 = pageViewState.onMediaCheckChanged
     ) {
         {
-            pageViewState.onMediaCheckChanged(currentResource)
+            pageViewState.onMediaCheckChanged(mediaItem = currentResource)
         }
     }
     Box(
@@ -255,8 +256,7 @@ private fun PreviewBottomBar(
             text = if (maxSelectable > 1) {
                 stringResource(
                     id = R.string.matisse_action_confirm_with_count,
-                    selectedMediaCount,
-                    maxSelectable
+                    formatArgs = arrayOf(selectedMediaCount, maxSelectable)
                 )
             } else {
                 stringResource(id = R.string.matisse_action_confirm)

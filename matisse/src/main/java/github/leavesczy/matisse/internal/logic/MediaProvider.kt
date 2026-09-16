@@ -164,8 +164,8 @@ internal object MediaProvider {
                 addAll(elements = mediaSelection.selectionArgs)
             }
             if (!bucketId.isNullOrBlank()) {
-                selectionParts.add("${MediaStore.MediaColumns.BUCKET_ID} = ?")
-                selectionArgs.add(bucketId)
+                selectionParts.add(element = "${MediaStore.MediaColumns.BUCKET_ID} = ?")
+                selectionArgs.add(element = bucketId)
             }
             queryMediaInfoList(
                 context = context,
@@ -480,7 +480,7 @@ internal object MediaProvider {
     }
 
     /**
-     * Prefer whichever is newer between generation/import time and last modification.
+     * 取 DATE_ADDED 与 DATE_MODIFIED 中较新者作为排序时间，其次按 `_ID` 降序。
      */
     private fun mediaRecencySortOrder(): String {
         val dateAddedColumn = MediaStore.MediaColumns.DATE_ADDED

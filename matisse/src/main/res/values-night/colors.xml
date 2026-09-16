@@ -30,7 +30,7 @@
     <color name="matisse_bottom_bar_confirm_text_color">#FF70B8FF</color>
     <color name="matisse_bottom_bar_confirm_text_disabled_color">#6670B8FF</color>
 
-    <!-- 大图预览页 -->
+    <!-- 预览页 -->
     <color name="matisse_preview_page_background_color">#FF0E1524</color>
     <color name="matisse_preview_page_bottom_bar_background_color">#E6121A2A</color>
     <color name="matisse_preview_page_back_text_color">#FFF5F7FA</color>

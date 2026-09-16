@@ -3,6 +3,34 @@ package github.leavesczy.matisse.samples.logic
 import androidx.compose.runtime.Stable
 import github.leavesczy.matisse.MediaResource
 
+fun interface GridColumnsChangedHandler {
+    operator fun invoke(gridColumns: Int)
+}
+
+fun interface MaxSelectableChangedHandler {
+    operator fun invoke(maxSelectable: Int)
+}
+
+fun interface FastSelectChangedHandler {
+    operator fun invoke(fastSelect: Boolean)
+}
+
+fun interface SingleMediaTypeChangedHandler {
+    operator fun invoke(singleMediaType: Boolean)
+}
+
+fun interface ImageEngineChangedHandler {
+    operator fun invoke(imageEngine: MediaImageEngine)
+}
+
+fun interface CaptureStrategyChangedHandler {
+    operator fun invoke(captureStrategy: MediaCaptureStrategy)
+}
+
+fun interface UseFrontCameraChangedHandler {
+    operator fun invoke(useFrontCamera: Boolean)
+}
+
 @Stable
 data class MainPageViewState(
     val darkTheme: Boolean,
@@ -16,13 +44,13 @@ data class MainPageViewState(
     val isInsertingPagingTestImages: Boolean,
     val isInsertingImageEngineTestImages: Boolean,
     val pickedMediaList: List<MediaResource>,
-    val onGridColumnsChanged: (Int) -> Unit,
-    val onMaxSelectableChanged: (Int) -> Unit,
-    val onFastSelectChanged: (Boolean) -> Unit,
-    val onSingleMediaTypeChanged: (Boolean) -> Unit,
-    val onImageEngineChanged: (MediaImageEngine) -> Unit,
-    val onCaptureStrategyChanged: (MediaCaptureStrategy) -> Unit,
-    val onUseFrontCameraChanged: (Boolean) -> Unit,
+    val onGridColumnsChanged: GridColumnsChangedHandler,
+    val onMaxSelectableChanged: MaxSelectableChangedHandler,
+    val onFastSelectChanged: FastSelectChangedHandler,
+    val onSingleMediaTypeChanged: SingleMediaTypeChangedHandler,
+    val onImageEngineChanged: ImageEngineChangedHandler,
+    val onCaptureStrategyChanged: CaptureStrategyChangedHandler,
+    val onUseFrontCameraChanged: UseFrontCameraChangedHandler,
     val onToggleTheme: () -> Unit
 )
 

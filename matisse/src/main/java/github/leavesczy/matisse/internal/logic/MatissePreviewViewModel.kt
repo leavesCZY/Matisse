@@ -7,13 +7,13 @@ import androidx.compose.runtime.setValue
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 
-internal abstract class MatissePreviewImageViewModel(application: Application, matisse: Matisse) :
+internal abstract class MatissePreviewViewModel(application: Application, matisse: Matisse) :
     MatisseVideoPlayerViewModel(application = application) {
 
     private val maxSelectable = matisse.maxSelectable
 
-    var previewImagePageViewState by mutableStateOf(
-        value = MatissePreviewImagePageViewState(
+    var previewPageViewState by mutableStateOf(
+        value = MatissePreviewPageViewState(
             isVisible = false,
             initialPage = 0,
             selectedMediaCount = 0,
@@ -26,27 +26,27 @@ internal abstract class MatissePreviewImageViewModel(application: Application, m
     )
         private set
 
-    protected fun showPreviewImagePage(
+    protected fun showPreviewPage(
         initialPage: Int,
         previewMediaItems: List<MatisseMediaItem>,
         selectedMediaItems: List<MatisseMediaItem>
     ) {
-        previewImagePageViewState = MatissePreviewImagePageViewState(
+        previewPageViewState = MatissePreviewPageViewState(
             isVisible = true,
             maxSelectable = maxSelectable,
             initialPage = initialPage,
             selectedMediaCount = selectedMediaItems.size,
             previewMediaItems = previewMediaItems,
-            onMediaCheckChanged = ::onPreviewImagePageMediaCheckChanged,
+            onMediaCheckChanged = ::onPreviewPageMediaCheckChanged,
             onOpenVideoClick = ::openVideoPlayerPage,
-            onDismissRequest = ::dismissPreviewImagePage
+            onDismissRequest = ::dismissPreviewPage
         )
     }
 
-    protected fun dismissPreviewImagePage() {
-        val currentPreviewPageViewState = previewImagePageViewState
+    protected fun dismissPreviewPage() {
+        val currentPreviewPageViewState = previewPageViewState
         if (currentPreviewPageViewState.isVisible) {
-            previewImagePageViewState = currentPreviewPageViewState.copy(
+            previewPageViewState = currentPreviewPageViewState.copy(
                 isVisible = false,
                 onMediaCheckChanged = {},
                 onOpenVideoClick = {},
@@ -59,11 +59,11 @@ internal abstract class MatissePreviewImageViewModel(application: Application, m
         showVideoPlayerPage(videoUri = video.uri)
     }
 
-    protected fun updatePreviewImagePageIfNeeded() {
-        val currentPreviewPageViewState = previewImagePageViewState
+    protected fun updatePreviewPageIfNeeded() {
+        val currentPreviewPageViewState = previewPageViewState
         if (currentPreviewPageViewState.isVisible) {
             val selectedMediaItems = getSelectedMediaItems()
-            previewImagePageViewState = currentPreviewPageViewState.copy(
+            previewPageViewState = currentPreviewPageViewState.copy(
                 selectedMediaCount = selectedMediaItems.size
             )
         }

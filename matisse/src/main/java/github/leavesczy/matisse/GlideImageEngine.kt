@@ -29,7 +29,7 @@ private const val MAX_IMAGE_DECODE_DIMENSION = 4096
  *
  * 宿主应用必须通过 `implementation` 添加 `com.github.bumptech.glide:compose`。
  *
- * 缩略图会裁切并填满容器；视频封面会完整显示在预览区域内。非视频大图按容器宽度
+ * [Thumbnail] 会裁切并填满容器；[Preview] 中视频封面完整显示在预览区域内，非视频大图按容器宽度
  * 等比展示且支持纵向滚动，其解码目标的宽高最大限制为 4096 像素。超过限制的图片
  * 会保持宽高比进行降采样，因此放大后清晰度可能降低。
  */
@@ -48,7 +48,7 @@ class GlideImageEngine : ImageEngine {
     }
 
     @Composable
-    override fun Image(mediaResource: MediaResource) {
+    override fun Preview(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
             Box(
                 modifier = Modifier

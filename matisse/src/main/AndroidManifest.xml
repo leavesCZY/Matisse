@@ -16,13 +16,13 @@
             android:name=".internal.MatisseActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/Matisse.Theme"
+            android:theme="@style/Theme.Matisse"
             tools:ignore="DiscouragedApi" />
         <activity
             android:name=".internal.MatisseCaptureActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="false"
             android:launchMode="singleTop"
-            android:theme="@style/Matisse.Capture.Theme" />
+            android:theme="@style/Theme.Matisse.Capture" />
     </application>
 </manifest>

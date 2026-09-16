@@ -22,7 +22,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
 internal class MatisseViewModel(application: Application, matisse: Matisse) :
-    MatissePreviewImageViewModel(application = application, matisse = matisse) {
+    MatissePreviewViewModel(application = application, matisse = matisse) {
 
     companion object {
 
@@ -127,7 +127,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         }
         readMediaPermissionGranted = granted
         viewModelScope.launch(context = Dispatchers.Main.immediate) {
-            dismissPreviewImagePage()
+            dismissPreviewPage()
             dismissVideoPlayerPage()
             selectedMediaById.clear()
             selectionStateByMediaId.clear()
@@ -282,13 +282,13 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         val selectedIds = selectedMediaById.keys
         val iterator = selectionStateByMediaId.keys.iterator()
         while (iterator.hasNext()) {
-            if (!selectedIds.contains(iterator.next())) {
+            if (!selectedIds.contains(element = iterator.next())) {
                 iterator.remove()
             }
         }
     }
 
-    override fun onPreviewImagePageMediaCheckChanged(mediaItem: MatisseMediaItem) {
+    override fun onPreviewPageMediaCheckChanged(mediaItem: MatisseMediaItem) {
         onMediaCheckChanged(mediaItem = mediaItem)
     }
 
@@ -321,7 +321,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             )
         }
         updateSelectionOrder()
-        updatePreviewImagePageIfNeeded()
+        updatePreviewPageIfNeeded()
         bottomBarViewState = buildBottomBarViewState()
     }
 
@@ -340,18 +340,18 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     }
 
     private fun maxSelectionExceededMessage(): String {
-        val includeImage = mediaType.includeImage
-        val includeVideo = mediaType.includeVideo
-        val stringId = if (includeImage && !includeVideo) {
+        val includesImage = mediaType.includesImage
+        val includesVideo = mediaType.includesVideo
+        val stringId = if (includesImage && !includesVideo) {
             R.string.matisse_error_max_images
-        } else if (!includeImage && includeVideo) {
+        } else if (!includesImage && includesVideo) {
             R.string.matisse_error_max_videos
         } else {
             R.string.matisse_error_max_media
         }
         return getString(
             id = stringId,
-            maxSelectable
+            formatArgs = arrayOf(maxSelectable)
         )
     }
 
@@ -372,7 +372,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         val initialPage = previewMediaItems.indexOfFirst {
             it.mediaId == mediaItem.mediaId
         }.coerceAtLeast(minimumValue = 0)
-        showPreviewImagePage(
+        showPreviewPage(
             initialPage = initialPage,
             previewMediaItems = previewMediaItems,
             selectedMediaItems = getSelectedMediaItems()
@@ -381,7 +381,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private fun onPreviewClick() {
         val selectedMediaItems = getSelectedMediaItems()
-        showPreviewImagePage(
+        showPreviewPage(
             initialPage = 0,
             previewMediaItems = selectedMediaItems,
             selectedMediaItems = selectedMediaItems

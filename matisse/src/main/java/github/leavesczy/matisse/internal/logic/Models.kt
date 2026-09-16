@@ -8,6 +8,34 @@ import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import kotlinx.coroutines.flow.Flow
 
+internal fun interface MatisseBucketClickHandler {
+    suspend operator fun invoke(bucketId: String)
+}
+
+internal fun interface MatisseMediaClickHandler {
+    operator fun invoke(mediaItem: MatisseMediaItem, previewMediaItems: List<MatisseMediaItem>)
+}
+
+internal fun interface MatisseMediaCheckChangedHandler {
+    operator fun invoke(mediaItem: MatisseMediaItem)
+}
+
+internal fun interface MatisseOpenVideoClickHandler {
+    operator fun invoke(mediaResource: MediaResource)
+}
+
+internal fun interface MatisseMediaItemFactory {
+    operator fun invoke(mediaInfo: MediaProvider.MediaInfo): MatisseMediaItem
+}
+
+internal fun interface MatisseBucketInfoClickHandler {
+    operator fun invoke(bucket: MatisseMediaBucketInfo)
+}
+
+internal fun interface MatisseMediaResourceClickHandler {
+    operator fun invoke(mediaResource: MediaResource)
+}
+
 @Stable
 internal data class MatissePageViewState(
     val matisse: Matisse,
@@ -17,9 +45,9 @@ internal data class MatissePageViewState(
     val mediaPagingDataFlow: Flow<PagingData<MatisseMediaItem>>,
     val placeholderState: MatissePlaceholderState,
     val onBucketMenuOpen: () -> Unit,
-    val onBucketClick: suspend (String) -> Unit,
-    val onMediaClick: (MatisseMediaItem, List<MatisseMediaItem>) -> Unit,
-    val onMediaCheckChanged: (MatisseMediaItem) -> Unit
+    val onBucketClick: MatisseBucketClickHandler,
+    val onMediaClick: MatisseMediaClickHandler,
+    val onMediaCheckChanged: MatisseMediaCheckChangedHandler
 )
 
 @Stable
@@ -69,14 +97,14 @@ internal data class MatisseBottomBarViewState(
 )
 
 @Stable
-internal data class MatissePreviewImagePageViewState(
+internal data class MatissePreviewPageViewState(
     val isVisible: Boolean,
     val maxSelectable: Int,
     val initialPage: Int,
     val selectedMediaCount: Int,
     val previewMediaItems: List<MatisseMediaItem>,
-    val onMediaCheckChanged: (MatisseMediaItem) -> Unit,
-    val onOpenVideoClick: (MediaResource) -> Unit,
+    val onMediaCheckChanged: MatisseMediaCheckChangedHandler,
+    val onOpenVideoClick: MatisseOpenVideoClickHandler,
     val onDismissRequest: () -> Unit
 )
 
@@ -98,8 +126,8 @@ internal sealed class MatissePlaceholderState {
 
     @Stable
     data class NoMedia(
-        val includeImage: Boolean,
-        val includeVideo: Boolean
+        val includesImage: Boolean,
+        val includesVideo: Boolean
     ) : MatissePlaceholderState()
 
 }

@@ -9,8 +9,8 @@ import android.os.Bundle
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContract
 
-internal class MatisseTakePictureContract :
-    ActivityResultContract<MatisseTakePictureContract.Params, Boolean>() {
+internal class MatisseCaptureIntentContract :
+    ActivityResultContract<MatisseCaptureIntentContract.Params, Boolean>() {
 
     data class Params(
         val uri: Uri,

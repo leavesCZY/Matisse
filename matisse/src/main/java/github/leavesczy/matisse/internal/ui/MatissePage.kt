@@ -47,7 +47,9 @@ import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
+import github.leavesczy.matisse.internal.logic.MatisseMediaCheckChangedHandler
 import github.leavesczy.matisse.internal.logic.MatisseMediaItem
+import github.leavesczy.matisse.internal.logic.MatisseMediaResourceClickHandler
 import github.leavesczy.matisse.internal.logic.MatisseMediaSelectState
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
 import github.leavesczy.matisse.internal.logic.MatissePlaceholderState
@@ -57,9 +59,9 @@ internal fun MatissePage(
     pageViewState: MatissePageViewState,
     bottomBarViewState: MatisseBottomBarViewState,
     isSelectionLimitReached: Boolean,
-    onTakePictureClick: () -> Unit,
+    onCaptureClick: () -> Unit,
     onConfirmClick: () -> Unit,
-    onFastSelectMediaClick: (MediaResource) -> Unit
+    onFastSelectMediaClick: MatisseMediaResourceClickHandler
 ) {
     Scaffold(
         modifier = Modifier
@@ -99,7 +101,7 @@ internal fun MatissePage(
                                 .fillMaxSize(),
                             pageViewState = pageViewState,
                             isSelectionLimitReached = isSelectionLimitReached,
-                            onTakePictureClick = onTakePictureClick,
+                            onCaptureClick = onCaptureClick,
                             onFastSelectMediaClick = onFastSelectMediaClick
                         )
                     }
@@ -117,14 +119,14 @@ internal fun MatissePage(
                         CaptureItem(
                             modifier = Modifier,
                             gridColumns = pageViewState.matisse.gridColumns,
-                            onTakePictureClick = onTakePictureClick
+                            onCaptureClick = onCaptureClick
                         )
                     }
                     MatisseEmptyPlaceholder(
                         modifier = Modifier
                             .align(alignment = Alignment.Center),
-                        includeImage = placeholderState.includeImage,
-                        includeVideo = placeholderState.includeVideo
+                        includesImage = placeholderState.includesImage,
+                        includesVideo = placeholderState.includesVideo
                     )
                 }
             }
@@ -137,8 +139,8 @@ private fun MediaList(
     modifier: Modifier,
     pageViewState: MatissePageViewState,
     isSelectionLimitReached: Boolean,
-    onTakePictureClick: () -> Unit,
-    onFastSelectMediaClick: (MediaResource) -> Unit
+    onCaptureClick: () -> Unit,
+    onFastSelectMediaClick: MatisseMediaResourceClickHandler
 ) {
     val lazyPagingItems = pageViewState.mediaPagingDataFlow.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
@@ -164,7 +166,7 @@ private fun MediaList(
                     CaptureItem(
                         modifier = Modifier
                             .matisseAnimateItem(lazyGridItemScope = this),
-                        onTakePictureClick = onTakePictureClick
+                        onCaptureClick = onCaptureClick
                     )
                 }
             }
@@ -202,7 +204,10 @@ private fun MediaList(
                         onMediaClick = {
                             val previewMediaItems =
                                 lazyPagingItems.itemSnapshotList.items
-                            pageViewState.onMediaClick(mediaItem, previewMediaItems)
+                            pageViewState.onMediaClick(
+                                mediaItem = mediaItem,
+                                previewMediaItems = previewMediaItems
+                            )
                         },
                         onMediaCheckChanged = pageViewState.onMediaCheckChanged
                     )
@@ -226,8 +231,8 @@ private fun MediaList(
                 MatisseEmptyPlaceholder(
                     modifier = Modifier
                         .align(alignment = Alignment.Center),
-                    includeImage = pageViewState.matisse.mediaType.includeImage,
-                    includeVideo = pageViewState.matisse.mediaType.includeVideo
+                    includesImage = pageViewState.matisse.mediaType.includesImage,
+                    includesVideo = pageViewState.matisse.mediaType.includesVideo
                 )
             }
         }
@@ -237,14 +242,14 @@ private fun MediaList(
 @Composable
 private fun CaptureItem(
     modifier: Modifier,
-    onTakePictureClick: () -> Unit
+    onCaptureClick: () -> Unit
 ) {
     Box(
         modifier = modifier
             .aspectRatio(ratio = 1f)
             .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_capture_background_color))
-            .clickable(onClick = onTakePictureClick),
+            .clickable(onClick = onCaptureClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -261,7 +266,7 @@ private fun CaptureItem(
 private fun CaptureItem(
     modifier: Modifier,
     gridColumns: Int,
-    onTakePictureClick: () -> Unit
+    onCaptureClick: () -> Unit
 ) {
     Row(
         modifier = modifier
@@ -272,7 +277,7 @@ private fun CaptureItem(
         CaptureItem(
             modifier = Modifier
                 .weight(weight = 1f),
-            onTakePictureClick = onTakePictureClick
+            onCaptureClick = onCaptureClick
         )
         Spacer(
             modifier = Modifier
@@ -289,11 +294,11 @@ private fun MediaItem(
     isSelectionLimitReached: Boolean,
     maxSelectable: Int,
     onMediaClick: () -> Unit,
-    onMediaCheckChanged: (MatisseMediaItem) -> Unit
+    onMediaCheckChanged: MatisseMediaCheckChangedHandler
 ) {
     val onCheckedChange = remember(key1 = mediaItem.mediaId, key2 = onMediaCheckChanged) {
         {
-            onMediaCheckChanged(mediaItem)
+            onMediaCheckChanged(mediaItem = mediaItem)
         }
     }
     Box(
@@ -325,7 +330,7 @@ private fun BoxScope.MediaItemSelectionOverlay(
     maxSelectable: Int,
     onCheckedChange: () -> Unit
 ) {
-    MediaItemScrimColor(
+    MediaItemScrim(
         modifier = Modifier,
         isSelected = selectionState.value.isSelected
     )
@@ -347,7 +352,7 @@ private fun BoxScope.MediaItemSelectionOverlay(
 }
 
 @Composable
-private fun MediaItemScrimColor(
+private fun MediaItemScrim(
     modifier: Modifier,
     isSelected: Boolean
 ) {
@@ -371,13 +376,13 @@ private fun MediaItemFastSelect(
     modifier: Modifier,
     mediaResource: MediaResource,
     imageEngine: ImageEngine,
-    onMediaClick: (MediaResource) -> Unit
+    onMediaClick: MatisseMediaResourceClickHandler
 ) {
     Box(
         modifier = modifier
             .aspectRatio(ratio = 1f)
             .clickable {
-                onMediaClick(mediaResource)
+                onMediaClick(mediaResource = mediaResource)
             },
         contentAlignment = Alignment.Center
     ) {

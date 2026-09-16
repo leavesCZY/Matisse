@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 
 internal abstract class BaseMatisseViewModel(application: Application) :
-    AndroidViewModel(application) {
+    AndroidViewModel(application = application) {
 
     protected val context: Context
         get() = getApplication()
@@ -24,7 +24,7 @@ internal abstract class BaseMatisseViewModel(application: Application) :
     protected abstract fun getSelectedMediaItems(): List<MatisseMediaItem>
 
     @CallSuper
-    protected abstract fun onPreviewImagePageMediaCheckChanged(mediaItem: MatisseMediaItem)
+    protected abstract fun onPreviewPageMediaCheckChanged(mediaItem: MatisseMediaItem)
 
     protected fun showLoadingDialog() {
         isLoadingDialogVisible = true
@@ -40,7 +40,11 @@ internal abstract class BaseMatisseViewModel(application: Application) :
 
     protected fun showToast(text: String) {
         if (text.isNotBlank()) {
-            Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                text,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -49,7 +53,7 @@ internal abstract class BaseMatisseViewModel(application: Application) :
     }
 
     protected fun getString(@StringRes id: Int, vararg formatArgs: Any): String {
-        return ContextCompat.getString(context, id).format(*formatArgs)
+        return ContextCompat.getString(context, id).format(args = formatArgs)
     }
 
 }

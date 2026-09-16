@@ -48,7 +48,7 @@ fun MainPage(
     onPickImageOnly: () -> Unit,
     onPickVideoOnly: () -> Unit,
     onPickGifAndMp4: () -> Unit,
-    onTakePictureClick: () -> Unit,
+    onCaptureClick: () -> Unit,
     onInsertPagingTestImages: () -> Unit,
     onInsertImageEngineTestImages: () -> Unit
 ) {
@@ -98,7 +98,7 @@ fun MainPage(
                         label = gridColumns.toString(),
                         selected = pageViewState.gridColumns == gridColumns,
                         onClick = {
-                            pageViewState.onGridColumnsChanged(gridColumns)
+                            pageViewState.onGridColumnsChanged(gridColumns = gridColumns)
                         }
                     )
                 }
@@ -115,7 +115,7 @@ fun MainPage(
                         label = maxSelectable.toString(),
                         selected = pageViewState.maxSelectable == maxSelectable,
                         onClick = {
-                            pageViewState.onMaxSelectableChanged(maxSelectable)
+                            pageViewState.onMaxSelectableChanged(maxSelectable = maxSelectable)
                         }
                     )
                 }
@@ -129,7 +129,9 @@ fun MainPage(
                 Title(text = "fastSelect")
                 Checkbox(
                     checked = pageViewState.fastSelect,
-                    onCheckedChange = pageViewState.onFastSelectChanged
+                    onCheckedChange = { fastSelect ->
+                        pageViewState.onFastSelectChanged(fastSelect = fastSelect)
+                    }
                 )
             }
             OptionDivider()
@@ -143,7 +145,7 @@ fun MainPage(
                         label = engine.name,
                         selected = pageViewState.imageEngine == engine,
                         onClick = {
-                            pageViewState.onImageEngineChanged(engine)
+                            pageViewState.onImageEngineChanged(imageEngine = engine)
                         }
                     )
                 }
@@ -157,7 +159,9 @@ fun MainPage(
                 Title(text = "singleMediaType")
                 Checkbox(
                     checked = pageViewState.singleMediaType,
-                    onCheckedChange = pageViewState.onSingleMediaTypeChanged
+                    onCheckedChange = { singleMediaType ->
+                        pageViewState.onSingleMediaTypeChanged(singleMediaType = singleMediaType)
+                    }
                 )
             }
             OptionDivider()
@@ -172,7 +176,7 @@ fun MainPage(
                         label = strategy.name,
                         selected = pageViewState.captureStrategy == strategy,
                         onClick = {
-                            pageViewState.onCaptureStrategyChanged(strategy)
+                            pageViewState.onCaptureStrategyChanged(captureStrategy = strategy)
                         }
                     )
                 }
@@ -187,7 +191,9 @@ fun MainPage(
                 Checkbox(
                     checked = pageViewState.useFrontCamera,
                     enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Disabled,
-                    onCheckedChange = pageViewState.onUseFrontCameraChanged
+                    onCheckedChange = { useFrontCamera ->
+                        pageViewState.onUseFrontCameraChanged(useFrontCamera = useFrontCamera)
+                    }
                 )
             }
             Column(
@@ -218,7 +224,7 @@ fun MainPage(
                 Button(
                     text = "直接拍照",
                     enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Disabled,
-                    onClick = onTakePictureClick
+                    onClick = onCaptureClick
                 )
                 Button(
                     text = if (pageViewState.isInsertingPagingTestImages) {

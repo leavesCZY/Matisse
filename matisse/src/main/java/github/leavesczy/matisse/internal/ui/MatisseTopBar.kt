@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.R
+import github.leavesczy.matisse.internal.logic.MatisseBucketClickHandler
+import github.leavesczy.matisse.internal.logic.MatisseBucketInfoClickHandler
 import github.leavesczy.matisse.internal.logic.MatisseMediaBucketInfo
 import kotlinx.coroutines.launch
 
@@ -55,7 +57,7 @@ internal fun MatisseTopBar(
     mediaBuckets: List<MatisseMediaBucketInfo>,
     isMediaBucketsLoading: Boolean,
     onBucketMenuOpen: () -> Unit,
-    onBucketClick: suspend (String) -> Unit,
+    onBucketClick: MatisseBucketClickHandler,
     imageEngine: ImageEngine
 ) {
     var menuExpanded by remember {
@@ -86,7 +88,7 @@ internal fun MatisseTopBar(
             onBucketClick = {
                 menuExpanded = false
                 coroutineScope.launch {
-                    onBucketClick(it.bucketId)
+                    onBucketClick(bucketId = it.bucketId)
                 }
             },
             onDismissRequest = {
@@ -165,7 +167,7 @@ private fun BucketDropdownMenu(
     mediaBuckets: List<MatisseMediaBucketInfo>,
     isMediaBucketsLoading: Boolean,
     imageEngine: ImageEngine,
-    onBucketClick: (MatisseMediaBucketInfo) -> Unit,
+    onBucketClick: MatisseBucketInfoClickHandler,
     onDismissRequest: () -> Unit
 ) {
     DropdownMenu(
@@ -236,7 +238,7 @@ private fun BucketDropdownMenu(
                         }
                     },
                     onClick = {
-                        onBucketClick(bucket)
+                        onBucketClick(bucket = bucket)
                     }
                 )
             }

@@ -10,7 +10,7 @@ internal class MediaPagingSource(
     private val context: Context,
     private val mediaType: MediaType,
     private val bucketId: String?,
-    private val createMediaItem: (MediaProvider.MediaInfo) -> MatisseMediaItem
+    private val createMediaItem: MatisseMediaItemFactory
 ) : PagingSource<Int, MatisseMediaItem>() {
 
     private val loadedMediaIds = HashSet<Long>()
@@ -43,10 +43,10 @@ internal class MediaPagingSource(
                 }
                 for (mediaInfo in mediaInfoList) {
                     queryOffset += 1
-                    if (!loadedMediaIds.add(mediaInfo.mediaId)) {
+                    if (!loadedMediaIds.add(element = mediaInfo.mediaId)) {
                         continue
                     }
-                    mediaItems.add(element = createMediaItem(mediaInfo))
+                    mediaItems.add(element = createMediaItem(mediaInfo = mediaInfo))
                     if (mediaItems.size >= pageSize) {
                         break
                     }

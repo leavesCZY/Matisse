@@ -27,7 +27,7 @@ internal class MatisseCaptureActivity : BaseCaptureActivity() {
             return
         }
         if (!isCaptureInProgress) {
-            requestTakePicture()
+            requestCapture()
         }
     }
 
@@ -38,7 +38,7 @@ internal class MatisseCaptureActivity : BaseCaptureActivity() {
         finish()
     }
 
-    override fun onTakePictureCancelled() {
+    override fun onCaptureCancelled() {
         finishWithCanceledResult()
     }
 

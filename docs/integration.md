@@ -34,20 +34,21 @@ dependencies {
 
 Matisse 本身不传递 Coil 或 Glide 依赖。使用内置 `CoilImageEngine` / `GlideImageEngine` 时，还需按下文补充对应依赖。
 
-库 Manifest 已声明选择器 / 拍照 Activity，以及用于解析系统相机、预览 Intent 的 `<queries>`。宿主**无需
-**再声明这些组件；也不要用同名 Activity 覆盖库内配置。
+库 Manifest 已声明选择器 / 拍照 Activity，以及用于解析系统相机、预览 Intent 的 `<queries>`。宿主**无需**再声明这些组件；也不要用同名 Activity 覆盖库内配置。
 
 # 三、基本使用
 
 Matisse 包含两种使用场景，可以单独使用或者组合使用，分别对应两个 `ActivityResultContract`
 
-- `MatisseContract`：展示系统相册内的图片和视频，支持同时开启拍照功能。选择器界面固定为竖屏。宿主需提前在
-  Manifest 中声明 `mediaType` 对应的媒体读取权限，权限申请由选择器完成
-- `MatisseCaptureContract`：启动独立拍照流程（可能先按需申请存储写入或相机权限），然后打开系统相机，不显示媒体选择界面。此流程不请求媒体读取权限；宿主声明
+- `MatisseContract`：展示系统相册内的图片和视频，支持同时开启拍照功能。选择器界面使用 `Theme.Matisse`
+  ，固定为竖屏。宿主需提前在 Manifest 中声明 `mediaType` 对应的媒体读取权限，权限申请由选择器完成
+- `MatisseCaptureContract`：启动独立拍照流程（可能先按需申请存储写入或相机权限），然后打开系统相机，不显示媒体选择界面。
+  Activity 使用 `Theme.Matisse.Capture`（透明窗），不强制竖屏。此流程不请求媒体读取权限；宿主声明
   `CAMERA` 后会按需申请，存储权限和照片存储位置由 `captureStrategy` 决定
 
-选择完成时，`MatisseContract` 返回非空的 `List<MediaResource>`；Activity 未以成功结果结束、结果 Intent
-缺失或结果列表为空时返回 `null`。权限被拒或媒体加载失败不会自动结束选择器，用户返回后结果为 `null`。
+确认选择或选择器内拍照成功时，`MatisseContract` 返回非空的 `List<MediaResource>`；Activity 未以成功结果结束、结果 Intent
+缺失或结果列表为空时返回 `null`。权限被拒或媒体加载失败不会自动结束选择器，用户返回后结果为 `null`。若配置了
+`captureStrategy`，拍照成功也会立即结束并返回媒体列表（合并规则见下文 `captureStrategy`）。
 
 `MatisseCaptureContract` 拍照并成功读取结果时返回 `MediaResource`；用户取消、相机不可用、权限被拒绝或结果无效时返回
 `null`。
@@ -78,14 +79,14 @@ val matisse = Matisse(
     imageEngine = CoilImageEngine(),
     mediaType = MediaType.ImageOnly
 )
-mediaPickerLauncher.launch(matisse)
+mediaPickerLauncher.launch(input = matisse)
 ```
 
 View：
 
 ```kotlin
 private val mediaPickerLauncher =
-    registerForActivityResult(MatisseContract()) { result: List<MediaResource>? ->
+    registerForActivityResult(contract = MatisseContract()) { result: List<MediaResource>? ->
         if (!result.isNullOrEmpty()) {
             val mediaResource = result[0]
             val uri = mediaResource.uri
@@ -98,7 +99,7 @@ val matisse = Matisse(
     imageEngine = CoilImageEngine(),
     mediaType = MediaType.ImageOnly
 )
-mediaPickerLauncher.launch(matisse)
+mediaPickerLauncher.launch(input = matisse)
 ```
 
 ## 2、MatisseCaptureContract
@@ -106,7 +107,7 @@ mediaPickerLauncher.launch(matisse)
 Jetpack Compose：
 
 ```kotlin
-val takePictureLauncher =
+val captureLauncher =
     rememberLauncherForActivityResult(contract = MatisseCaptureContract()) { result ->
         if (result != null) {
             val uri = result.uri
@@ -114,24 +115,24 @@ val takePictureLauncher =
         }
     }
 
-takePictureLauncher.launch(
-    MatisseCapture(captureStrategy = MediaStoreCaptureStrategy())
+captureLauncher.launch(
+    input = MatisseCapture(captureStrategy = MediaStoreCaptureStrategy())
 )
 ```
 
 View：
 
 ```kotlin
-private val takePictureLauncher =
-    registerForActivityResult(MatisseCaptureContract()) { result: MediaResource? ->
+private val captureLauncher =
+    registerForActivityResult(contract = MatisseCaptureContract()) { result: MediaResource? ->
         if (result != null) {
             val uri = result.uri
             val mimeType = result.mimeType
         }
     }
 
-takePictureLauncher.launch(
-    MatisseCapture(captureStrategy = MediaStoreCaptureStrategy())
+captureLauncher.launch(
+    input = MatisseCapture(captureStrategy = MediaStoreCaptureStrategy())
 )
 ```
 
@@ -139,6 +140,9 @@ takePictureLauncher.launch(
 
 ```kotlin
 /**
+ * 图片和视频选择器的启动配置。选择器 Activity 使用 Theme.Matisse，界面固定竖屏。
+ * 可通过覆盖库内 matisse_* color / bool 资源定制外观。
+ *
  * @param maxSelectable 最多可选择的媒体数量，必须大于 0
  * @param imageEngine 图片加载引擎。Matisse 不传递 Coil 或 Glide 依赖，宿主需要根据所选实现添加依赖，
  * 具体要求参见 CoilImageEngine 与 GlideImageEngine
@@ -151,7 +155,7 @@ takePictureLauncher.launch(
  * @param captureStrategy 拍照策略。传入非空值，且已获得媒体读取权限（完整访问或部分访问均可）时，
  * 在“全部”相册中显示拍照入口。拍照成功后立即结束选择器：当 maxSelectable 大于 1、当前已有未达上限的
  * 已选项，且（singleMediaType 为 false，或已选项中不含视频）时，返回“已选项 + 新照片”；否则仅返回
- * 新照片。mediaType 必须包含图片，否则只能为 null。默认为 null
+ * 新照片。mediaType 必须包含图片（MediaType.includesImage 为 true），否则只能为 null。默认为 null
  */
 data class Matisse(
     val maxSelectable: Int,
@@ -166,6 +170,7 @@ data class Matisse(
 /**
  * 独立拍照功能的启动配置。通过 MatisseCaptureContract 启动后进入拍照流程
  * （可能先按需申请存储写入或相机权限），然后打开系统相机，不显示媒体选择界面。
+ * Activity 使用 Theme.Matisse.Capture（透明窗、无媒体选择 UI），不强制竖屏。
  * 如果宿主在 Manifest 中声明了 CAMERA，Matisse 会按需申请相机权限；存储权限、输出位置和
  * FileProvider 配置要求由具体 CaptureStrategy 决定。
  *
@@ -201,13 +206,13 @@ interface ImageEngine : Parcelable {
      * 视频资源只需展示静态封面，视频播放由 Matisse 单独处理。
      */
     @Composable
-    fun Image(mediaResource: MediaResource)
+    fun Preview(mediaResource: MediaResource)
 }
 ```
 
 Matisse 内置了 `GlideImageEngine` 和 `CoilImageEngine`。实现会随 `Matisse` 通过 Intent
-传递，因此实现类及其成员必须满足 `Parcelable` 要求。两个 Composable 会在主线程参与 Compose
-重组，实现应保持可重入且不得执行阻塞操作。
+传递，因此实现类及其成员必须满足 `Parcelable` 要求。需实现 `Thumbnail`（网格与相册列表缩略图）与
+`Preview`（预览页完整图片或视频封面）两个主线程 Composable；实现应保持可重入且不得执行阻塞操作。
 
 ### GlideImageEngine
 
@@ -278,10 +283,9 @@ Compose，并参考 [Compose to Kotlin Compatibility Map](https://developer.andr
 
 内置引擎行为说明：
 
-- 缩略图：裁切并填满容器
-- 视频封面：完整显示在预览区域内
-- 非视频大图：按容器宽度等比展示，支持纵向滚动；解码宽高最大限制为 4096
-  像素。超过限制的图片会保持宽高比进行降采样，因此放大后清晰度可能降低
+- `Thumbnail`：裁切并填满容器
+- `Preview`：视频封面完整显示在预览区域内；非视频大图按容器宽度等比展示，支持纵向滚动；解码宽高最大限制为
+  4096 像素。超过限制的图片会保持宽高比进行降采样，因此放大后清晰度可能降低
 
 ## 3、gridColumns
 
@@ -310,8 +314,16 @@ val mimeTypes = MediaType.MultipleMimeType(
 )
 ```
 
-`MultipleMimeType` 不允许为空，且每项必须以 `image/` 或 `video/` 开头；其他类型无法匹配对应媒体权限与预览行为。权限申请依据其中是否包含
-`image/`、`video/` 前缀（即 `includeImage` / `includeVideo`），与具体 MIME 子集无关。
+`MultipleMimeType` 不允许为空，且每项必须以 `image/` 或 `video/` 开头；其他类型无法匹配对应媒体权限与预览行为。
+
+`MediaType.includesImage` / `includesVideo` 判定规则：
+
+- `includesImage`：`ImageOnly` / `ImageAndVideo` 为 true；`VideoOnly` 为 false；`MultipleMimeType`
+  中存在以 `image/` 开头的类型时为 true
+- `includesVideo`：`VideoOnly` / `ImageAndVideo` 为 true；`ImageOnly` 为 false；`MultipleMimeType`
+  中存在以 `video/` 开头的类型时为 true
+
+权限申请依据上述属性，与具体 MIME 子集无关。
 
 ## 6、singleMediaType
 
@@ -330,8 +342,9 @@ val mimeTypes = MediaType.MultipleMimeType(
 
 说明：
 
-- `mediaType` 必须包含图片（例如不可为单独的 `MediaType.VideoOnly`，也不可为仅含 `video/` 的
-  `MultipleMimeType`），否则 `captureStrategy` 只能为 `null`
+- `mediaType` 必须包含图片（`MediaType.includesImage` 为 true；例如不可为单独的
+  `MediaType.VideoOnly`，也不可为仅含 `video/` 的 `MultipleMimeType`），否则 `captureStrategy` 只能为
+  `null`
 - 当 `maxSelectable` 大于 1、当前已有未达上限的已选项，且（`singleMediaType` 为
   false，或已选项中不含视频）时，返回“已选项 + 新照片”；否则仅返回新照片
 - 内置策略以 `.jpg` / `image/jpeg` 创建文件，并在返回前校验内容非空。`FileProviderCaptureStrategy`
@@ -425,27 +438,28 @@ SmartCaptureStrategy(
 `CaptureStrategy` 是接口。若内置策略无法满足需求，可自行实现。
 
 Matisse 会先调用 `shouldRequestWriteExternalStoragePermission`；在完成必要的存储写入与相机权限处理后，再调用
-`createImageUri` 与 `getCaptureExtra` 启动系统相机。相机返回成功后调用 `loadCapturedMedia`
-；相机取消、拍照失败或者 `loadCapturedMedia` 返回 null 时，会调用 `onTakePictureCancelled`
-清理已创建的资源。实现会随 Intent 传递，必须满足 `Parcelable`；Matisse 从主线程发起策略调用，实现不得阻塞调用线程，文件与
+`createImageUri` 与 `captureExtra` 启动系统相机。相机返回成功后调用 `loadCapturedMedia`
+；相机取消、拍照失败、`loadCapturedMedia` 返回 null，或再次启动拍照前清理仍挂起的 Uri 时，会调用
+`onCaptureCancelled` 清理已创建的资源。若 `createImageUri` 返回 null，则不会调用 `onCaptureCancelled`
+（尚无 Uri 可清理）。实现会随 Intent 传递，必须满足 `Parcelable`；Matisse 从主线程发起策略调用，实现不得阻塞调用线程，文件与
 ContentResolver 操作应自行切换到后台调度器。
 
 需要实现：
 
 - `shouldRequestWriteExternalStoragePermission`：返回 true 时，宿主必须同时在 Manifest 中声明该权限。Android
   10 及以上通常应返回 false
-- `createImageUri`：返回供外部相机写入的 Uri；返回 null 会取消本次拍照。Matisse 会通过
-  `MediaStore.EXTRA_OUTPUT` 传递该 Uri，并授予外部相机临时读写权限
-- `loadCapturedMedia`：校验并读取拍照结果；返回 null 表示结果无效，随后会调用 `onTakePictureCancelled`
-- `onTakePictureCancelled`：清理未产生有效结果的资源
+- `createImageUri`：返回供外部相机写入的 Uri；返回 null 会取消本次拍照，且不会调用
+  `onCaptureCancelled`。Matisse 会通过 `MediaStore.EXTRA_OUTPUT` 传递该 Uri，并授予外部相机临时读写权限
+- `loadCapturedMedia`：校验并读取拍照结果；返回 null 表示结果无效，随后会调用 `onCaptureCancelled`
+- `onCaptureCancelled`：清理未产生有效结果的资源。相机取消、拍照失败、`loadCapturedMedia` 返回 null，以及再次启动拍照前清理仍挂起的 Uri 时会调用；`createImageUri` 返回 null 时不会调用
 
 可选覆盖：
 
 - `createImageName`：默认生成 `IMG_yyyyMMdd_HHmmssSSS.jpg`
-- `getCaptureExtra`：合并到启动系统相机的 Intent。不要覆盖 `MediaStore.EXTRA_OUTPUT` 和 Uri 授权标记
+- `captureExtra`：合并到启动系统相机的 Intent。不要覆盖 `MediaStore.EXTRA_OUTPUT` 和 Uri 授权标记
 
 内置 `FileProviderCaptureStrategy` / `MediaStoreCaptureStrategy` 通过构造参数 `extra` 传入相机附加参数，
-`getCaptureExtra()` 会返回该 Bundle。例如请求前置摄像头：
+其 `captureExtra` 属性会返回该 Bundle。例如请求前置摄像头：
 
 ```kotlin
 val captureExtra = Bundle().apply {
@@ -464,6 +478,9 @@ MediaStoreCaptureStrategy(extra = captureExtra)
 # 五、主题和文本
 
 Matisse 提供日间和夜间两套默认主题，也支持进一步自定义。
+
+- 选择器 Activity：`Theme.Matisse`（固定竖屏）
+- 独立拍照 Activity：`Theme.Matisse.Capture`（透明窗，不强制竖屏）
 
 在项目的 `values` 与 `values-night` 中按需覆盖下列**同名**资源即可。下面列出的是日间默认值，仅作参考；夜间默认值不同，不要把日间色值原样抄到
 `values-night`。
@@ -563,7 +580,7 @@ Matisse 不会在库 Manifest 中声明媒体读取权限，开发者需要按 `
 ## 1、媒体读取权限
 
 仅 `MatisseContract` 会申请媒体读取权限。实际请求内容同时取决于设备系统版本与宿主 `targetSdkVersion`
-，以及 `mediaType` 实际包含的图片 / 视频类型（`includeImage` / `includeVideo`）。
+，以及 `MediaType.includesImage` / `includesVideo`。
 
 ### 设备为 Android 13 以下，或 targetSdkVersion 小于 33
 
@@ -576,7 +593,7 @@ Matisse 不会在库 Manifest 中声明媒体读取权限，开发者需要按 `
 
 ### 设备为 Android 13 及以上，且 targetSdkVersion 大于等于 33
 
-Matisse 请求 `mediaType` 实际包含的 `READ_MEDIA_IMAGES` 和/或 `READ_MEDIA_VIDEO`：
+Matisse 按 `includesImage` / `includesVideo` 请求对应的 `READ_MEDIA_IMAGES` 和/或 `READ_MEDIA_VIDEO`：
 
 - 包含图片（`ImageOnly`、`ImageAndVideo`，或 `MultipleMimeType` 含 `image/`）：`READ_MEDIA_IMAGES`
 - 包含视频（`VideoOnly`、`ImageAndVideo`，或 `MultipleMimeType` 含 `video/`）：`READ_MEDIA_VIDEO`

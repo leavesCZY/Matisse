@@ -81,8 +81,7 @@ internal fun MatisseBottomBar(
             text = if (maxSelectable > 1) {
                 stringResource(
                     id = R.string.matisse_action_confirm_with_count,
-                    selectedMediaCount,
-                    maxSelectable
+                    formatArgs = arrayOf(selectedMediaCount, maxSelectable)
                 )
             } else {
                 stringResource(id = R.string.matisse_action_confirm)
