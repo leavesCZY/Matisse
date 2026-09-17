@@ -5,9 +5,6 @@ import android.content.Context
 import android.widget.Toast
 import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 
@@ -17,35 +14,21 @@ internal abstract class BaseMatisseViewModel(application: Application) :
     protected val context: Context
         get() = getApplication()
 
-    var isLoadingDialogVisible by mutableStateOf(value = false)
-        private set
-
     @CallSuper
     protected abstract fun getSelectedMediaItems(): List<MatisseMediaItem>
 
     @CallSuper
     protected abstract fun onPreviewPageMediaCheckChanged(mediaItem: MatisseMediaItem)
 
-    protected fun showLoadingDialog() {
-        isLoadingDialogVisible = true
-    }
-
-    protected fun dismissLoadingDialog() {
-        isLoadingDialogVisible = false
-    }
-
     protected fun showToast(@StringRes id: Int) {
         showToast(text = getString(id = id))
     }
 
     protected fun showToast(text: String) {
-        if (text.isNotBlank()) {
-            Toast.makeText(
-                context,
-                text,
-                Toast.LENGTH_SHORT
-            ).show()
+        if (text.isBlank()) {
+            return
         }
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
     }
 
     protected fun getString(@StringRes id: Int): String {
@@ -53,7 +36,7 @@ internal abstract class BaseMatisseViewModel(application: Application) :
     }
 
     protected fun getString(@StringRes id: Int, vararg formatArgs: Any): String {
-        return ContextCompat.getString(context, id).format(args = formatArgs)
+        return ContextCompat.getString(context, id).format(*formatArgs)
     }
 
 }

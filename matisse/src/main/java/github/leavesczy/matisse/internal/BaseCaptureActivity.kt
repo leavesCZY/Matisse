@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,18 +23,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.parcelize.Parcelize
 
 internal abstract class BaseCaptureActivity : AppCompatActivity() {
-
-    companion object {
-
-        private const val KEY_PENDING_CAPTURE_URI = "pendingCaptureUri"
-
-        private const val KEY_CAPTURE_IN_PROGRESS = "captureInProgress"
-
-        private const val KEY_AWAITING_CAMERA_RESULT = "awaitingCameraResult"
-
-    }
 
     protected abstract val captureStrategy: CaptureStrategy
 
@@ -42,7 +34,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             if (granted) {
                 requestCameraPermissionIfNeeded()
             } else {
-                finishCaptureFlowCancelled()
+                completeCaptureCancelled()
                 showToast(id = R.string.matisse_error_write_storage_permission)
             }
         }
@@ -50,92 +42,66 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     private val requestCameraPermissionLauncher =
         registerForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
-                launchCapture()
+                launchCamera()
             } else {
-                finishCaptureFlowCancelled()
+                completeCaptureCancelled()
                 showToast(id = R.string.matisse_error_camera_permission)
             }
         }
 
     private val captureLauncher =
         registerForActivityResult(contract = MatisseCaptureIntentContract()) { isSuccessful ->
-            handleCaptureResult(isSuccessful = isSuccessful)
+            onCameraResult(isSuccessful = isSuccessful)
         }
 
-    private var pendingCaptureUri: Uri? = null
+    private var captureSession: CaptureSession = CaptureSession.Idle
 
-    private var captureInProgress = false
-
-    private var awaitingCameraResult = false
-
-    private var isFinalizingCapture = false
-
-    protected val hasPendingCapture: Boolean
-        get() = pendingCaptureUri != null
-
-    protected val isCaptureInProgress: Boolean
-        get() = captureInProgress
-
-    protected val isAwaitingCameraResult: Boolean
-        get() = awaitingCameraResult
+    protected val isCaptureSessionIdle: Boolean
+        get() = captureSession is CaptureSession.Idle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState != null) {
-            pendingCaptureUri = BundleCompat.getParcelable(
-                savedInstanceState,
-                KEY_PENDING_CAPTURE_URI,
-                Uri::class.java
-            )
-            captureInProgress = savedInstanceState.getBoolean(
-                KEY_CAPTURE_IN_PROGRESS,
-                false
-            ) || pendingCaptureUri != null
-            awaitingCameraResult = savedInstanceState.getBoolean(
-                KEY_AWAITING_CAMERA_RESULT,
-                false
-            )
+            captureSession = savedInstanceState.captureSession
+            when (val session = captureSession) {
+                is CaptureSession.Idle,
+                is CaptureSession.AwaitingCamera -> {
+
+                }
+
+                is CaptureSession.RequestingPermission -> {
+                    captureSession = CaptureSession.Idle
+                }
+
+                is CaptureSession.Finalizing -> {
+                    finalizeCapture(outputUri = session.outputUri, isSuccessful = true)
+                }
+            }
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        pendingCaptureUri?.let {
-            outState.putParcelable(KEY_PENDING_CAPTURE_URI, it)
-        }
-        outState.putBoolean(KEY_CAPTURE_IN_PROGRESS, captureInProgress)
-        outState.putBoolean(KEY_AWAITING_CAMERA_RESULT, awaitingCameraResult)
+        outState.captureSession = captureSession
         super.onSaveInstanceState(outState)
     }
 
     protected fun requestCapture() {
-        if (captureInProgress) {
+        if (captureSession !is CaptureSession.Idle) {
             return
         }
-        captureInProgress = true
+        captureSession = CaptureSession.RequestingPermission
         if (captureStrategy.shouldRequestWriteExternalStoragePermission(context = applicationContext)) {
-            requestWriteExternalStoragePermissionLauncher.launch(
-                input = Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
+            requestWriteExternalStoragePermissionLauncher.launch(input = Manifest.permission.WRITE_EXTERNAL_STORAGE)
         } else {
             requestCameraPermissionIfNeeded()
         }
     }
 
-    /**
-     * 配置变更后若仍持有未完成的拍照 Uri，且并非正在等待系统相机结果时，尝试
-     * [CaptureStrategy.loadCapturedMedia] 完成读取；失败则调用
-     * [CaptureStrategy.deleteImageUri] 清理输出，避免残留文件或 MediaStore 记录。
-     */
-    protected fun resumeInterruptedCaptureFinalize() {
-        if (pendingCaptureUri == null || awaitingCameraResult || isFinalizingCapture) {
-            return
-        }
-        captureInProgress = true
-        handleCaptureResult(isSuccessful = true)
-    }
-
     private fun requestCameraPermissionIfNeeded() {
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
+            if (captureSession !is CaptureSession.RequestingPermission) {
+                return@launch
+            }
             val cameraPermission = Manifest.permission.CAMERA
             val shouldRequestCameraPermission = containsPermission(
                 context = applicationContext,
@@ -147,85 +113,88 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             if (shouldRequestCameraPermission) {
                 requestCameraPermissionLauncher.launch(input = cameraPermission)
             } else {
-                launchCapture()
+                launchCamera()
             }
         }
     }
 
-    private fun launchCapture() {
+    private fun launchCamera() {
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
-            val previousCaptureUri = pendingCaptureUri
-            if (previousCaptureUri != null) {
-                pendingCaptureUri = null
-                awaitingCameraResult = false
+            if (captureSession !is CaptureSession.RequestingPermission) {
+                return@launch
+            }
+            val previousOutputUri = captureSession.outputUriOrNull()
+            if (previousOutputUri != null) {
                 withContext(context = NonCancellable) {
                     captureStrategy.deleteImageUri(
                         context = applicationContext,
-                        imageUri = previousCaptureUri
+                        imageUri = previousOutputUri
                     )
                 }
             }
             val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            if (captureIntent.resolveActivity(packageManager) != null) {
-                val imageUri = captureStrategy.createImageUri(context = applicationContext)
-                if (imageUri != null) {
-                    pendingCaptureUri = imageUri
-                    awaitingCameraResult = true
-                    captureLauncher.launch(input = imageUri)
-                    return@launch
-                }
-            } else {
+            if (captureIntent.resolveActivity(packageManager) == null) {
                 showToast(id = R.string.matisse_error_no_camera_app)
+                completeCaptureCancelled()
+                return@launch
             }
-            finishCaptureFlowCancelled()
+            val imageUri = withContext(context = NonCancellable) {
+                val uri = captureStrategy.createImageUri(context = applicationContext)
+                if (uri != null) {
+                    captureSession = CaptureSession.AwaitingCamera(outputUri = uri)
+                }
+                uri
+            }
+            if (imageUri != null) {
+                captureLauncher.launch(input = imageUri)
+            } else {
+                completeCaptureCancelled()
+            }
         }
     }
 
-    private fun handleCaptureResult(isSuccessful: Boolean) {
-        if (isFinalizingCapture) {
+    private fun onCameraResult(isSuccessful: Boolean) {
+        val session = captureSession
+        if (session !is CaptureSession.AwaitingCamera) {
             return
         }
-        val imageUri = pendingCaptureUri
-        if (imageUri == null) {
-            finishCaptureFlowCancelled()
-            return
-        }
-        awaitingCameraResult = false
-        isFinalizingCapture = true
+        finalizeCapture(outputUri = session.outputUri, isSuccessful = isSuccessful)
+    }
+
+    private fun finalizeCapture(outputUri: Uri, isSuccessful: Boolean) {
+        captureSession = CaptureSession.Finalizing(outputUri = outputUri)
         lifecycleScope.launch(context = Dispatchers.Main.immediate) {
-            try {
-                val capturedMedia = withContext(context = NonCancellable) {
-                    if (isSuccessful) {
-                        val media = captureStrategy.loadCapturedMedia(
-                            context = applicationContext,
-                            imageUri = imageUri
-                        )
-                        if (media != null) {
-                            return@withContext media
-                        }
-                    }
-                    captureStrategy.deleteImageUri(
+            val capturedMedia = withContext(context = NonCancellable) {
+                if (isSuccessful) {
+                    val media = captureStrategy.loadCapturedMedia(
                         context = applicationContext,
-                        imageUri = imageUri
+                        imageUri = outputUri
                     )
-                    null
+                    if (media != null) {
+                        return@withContext media
+                    }
                 }
-                pendingCaptureUri = null
-                captureInProgress = false
-                if (capturedMedia != null) {
-                    onCapturedMedia(mediaResource = capturedMedia)
-                } else {
-                    onCaptureCancelled()
-                }
-            } finally {
-                isFinalizingCapture = false
+                captureStrategy.deleteImageUri(
+                    context = applicationContext,
+                    imageUri = outputUri
+                )
+                null
             }
+            completeCapture(mediaResource = capturedMedia)
         }
     }
 
-    private fun finishCaptureFlowCancelled() {
-        captureInProgress = false
-        awaitingCameraResult = false
+    private fun completeCapture(mediaResource: MediaResource?) {
+        captureSession = CaptureSession.Idle
+        if (mediaResource != null) {
+            onCapturedMedia(mediaResource = mediaResource)
+        } else {
+            onCaptureCancelled()
+        }
+    }
+
+    private fun completeCaptureCancelled() {
+        captureSession = CaptureSession.Idle
         onCaptureCancelled()
     }
 
@@ -275,13 +244,93 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     }
 
     protected fun showToast(text: String) {
-        if (text.isNotBlank()) {
-            Toast.makeText(
-                this,
-                text,
-                Toast.LENGTH_SHORT
-            ).show()
+        if (text.isBlank()) {
+            return
+        }
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+    }
+
+}
+
+private enum class CapturePhase {
+    Idle,
+    RequestingPermission,
+    AwaitingCamera,
+    Finalizing
+}
+
+private sealed class CaptureSession {
+    data object Idle : CaptureSession()
+    data object RequestingPermission : CaptureSession()
+    data class AwaitingCamera(val outputUri: Uri) : CaptureSession()
+    data class Finalizing(val outputUri: Uri) : CaptureSession()
+
+    fun outputUriOrNull(): Uri? {
+        return when (this) {
+            is AwaitingCamera -> outputUri
+            is Finalizing -> outputUri
+            Idle, RequestingPermission -> null
+        }
+    }
+
+    fun toSavedState(): SavedCaptureSession {
+        return SavedCaptureSession(
+            phase = when (this) {
+                Idle -> CapturePhase.Idle
+                RequestingPermission -> CapturePhase.RequestingPermission
+                is AwaitingCamera -> CapturePhase.AwaitingCamera
+                is Finalizing -> CapturePhase.Finalizing
+            },
+            outputUri = outputUriOrNull()
+        )
+    }
+}
+
+@Parcelize
+private data class SavedCaptureSession(
+    val phase: CapturePhase,
+    val outputUri: Uri? = null
+) : Parcelable {
+
+    fun toCaptureSession(): CaptureSession {
+        return when (phase) {
+            CapturePhase.AwaitingCamera -> {
+                if (outputUri != null) {
+                    CaptureSession.AwaitingCamera(outputUri = outputUri)
+                } else {
+                    CaptureSession.Idle
+                }
+            }
+
+            CapturePhase.Finalizing -> {
+                if (outputUri != null) {
+                    CaptureSession.Finalizing(outputUri = outputUri)
+                } else {
+                    CaptureSession.Idle
+                }
+            }
+
+            CapturePhase.RequestingPermission -> {
+                CaptureSession.RequestingPermission
+            }
+
+            CapturePhase.Idle -> {
+                CaptureSession.Idle
+            }
         }
     }
 
 }
+
+private var Bundle.captureSession: CaptureSession
+    get() {
+        val saved = BundleCompat.getParcelable(
+            this,
+            SavedCaptureSession::class.java.name,
+            SavedCaptureSession::class.java
+        )
+        return saved?.toCaptureSession() ?: CaptureSession.Idle
+    }
+    set(value) {
+        putParcelable(SavedCaptureSession::class.java.name, value.toSavedState())
+    }

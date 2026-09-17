@@ -133,6 +133,7 @@ private fun MatisseVideoPlayer(
                     controller.setAnchorView(this)
                     controller.setMediaPlayer(this)
                     setMediaController(controller)
+                    playbackState.mediaController = controller
                 }
                 setOnPreparedListener(onPreparedListener)
                 setVideoURI(videoUri)
@@ -142,7 +143,10 @@ private fun MatisseVideoPlayer(
         },
         onRelease = { videoView ->
             videoView.setOnPreparedListener(null)
-            videoView.suspend()
+            playbackState.mediaController?.hide()
+            playbackState.mediaController = null
+            videoView.setMediaController(null)
+            videoView.stopPlayback()
             playbackState.videoView = null
         }
     )
@@ -150,6 +154,7 @@ private fun MatisseVideoPlayer(
 
 private class VideoPlaybackState {
     var videoView: VideoView? = null
+    var mediaController: MediaController? = null
     var resumePositionMs: Int = -1
     var resumeWhenResumed: Boolean = false
 }

@@ -26,7 +26,7 @@ internal class MatisseCaptureActivity : BaseCaptureActivity() {
             finishWithCanceledResult()
             return
         }
-        if (!isCaptureInProgress) {
+        if (isCaptureSessionIdle) {
             requestCapture()
         }
     }

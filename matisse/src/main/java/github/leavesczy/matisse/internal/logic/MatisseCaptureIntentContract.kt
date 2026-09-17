@@ -12,9 +12,9 @@ internal class MatisseCaptureIntentContract : ActivityResultContract<Uri, Boolea
 
     override fun createIntent(context: Context, input: Uri): Intent {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         intent.clipData = ClipData.newUri(context.contentResolver, "Photo", input)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, input)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         return intent
     }
 

@@ -32,7 +32,9 @@ internal object MediaProvider {
         val coverMimeType: String
     )
 
-    suspend fun createImage(
+    private val isAtLeastQ = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+
+    suspend fun createImageUri(
         context: Context,
         imageName: String,
         mimeType: String
@@ -42,8 +44,7 @@ internal object MediaProvider {
                 val contentValues = ContentValues()
                 contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageName)
                 contentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
-                val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    contentValues.put(MediaStore.Images.Media.IS_PENDING, 1)
+                val imageCollection = if (isAtLeastQ) {
                     MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
                 } else {
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -53,88 +54,6 @@ internal object MediaProvider {
                 throwable.printStackTrace()
                 null
             }
-        }
-    }
-
-    suspend fun isMediaContentReady(context: Context, uri: Uri): Boolean {
-        return withContext(context = Dispatchers.IO) {
-            try {
-                context.contentResolver.query(
-                    uri,
-                    arrayOf(MediaStore.MediaColumns.SIZE),
-                    null,
-                    null,
-                    null
-                )?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        val sizeIndex = cursor.getColumnIndex(MediaStore.MediaColumns.SIZE)
-                        if (sizeIndex >= 0 && !cursor.isNull(sizeIndex) && cursor.getLong(sizeIndex) > 0L) {
-                            return@withContext true
-                        }
-                    }
-                }
-                context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { descriptor ->
-                    val length = descriptor.length
-                    if (length > 0L) {
-                        return@withContext true
-                    }
-                    if (length == 0L) {
-                        return@withContext false
-                    }
-                }
-                context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val buffer = ByteArray(size = 1)
-                    return@withContext inputStream.read(buffer) > 0
-                }
-                false
-            } catch (throwable: Throwable) {
-                throwable.printStackTrace()
-                false
-            }
-        }
-    }
-
-    suspend fun publishPendingImage(context: Context, uri: Uri): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            return true
-        }
-        return withContext(context = Dispatchers.IO) {
-            try {
-                if (!isPendingImage(context = context, uri = uri)) {
-                    return@withContext true
-                }
-                val contentValues = ContentValues()
-                contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
-                val updatedRows = context.contentResolver.update(uri, contentValues, null, null)
-                if (updatedRows > 0) {
-                    return@withContext true
-                }
-                !isPendingImage(context = context, uri = uri)
-            } catch (throwable: Throwable) {
-                throwable.printStackTrace()
-                false
-            }
-        }
-    }
-
-    private fun isPendingImage(context: Context, uri: Uri): Boolean {
-        return try {
-            context.contentResolver.query(
-                uri,
-                arrayOf(MediaStore.Images.Media.IS_PENDING),
-                null,
-                null,
-                null
-            )?.use { cursor ->
-                if (!cursor.moveToFirst()) {
-                    return false
-                }
-                val pendingIndex = cursor.getColumnIndex(MediaStore.Images.Media.IS_PENDING)
-                pendingIndex >= 0 && !cursor.isNull(pendingIndex) && cursor.getInt(pendingIndex) != 0
-            } ?: false
-        } catch (throwable: Throwable) {
-            throwable.printStackTrace()
-            false
         }
     }
 
@@ -520,7 +439,7 @@ internal object MediaProvider {
 
     private fun mediaStoreStateSelection(): String {
         return buildString {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (isAtLeastQ) {
                 val isPendingColumn = MediaStore.MediaColumns.IS_PENDING
                 append("($isPendingColumn IS NULL OR $isPendingColumn = 0)")
             }

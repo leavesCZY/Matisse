@@ -12,7 +12,6 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Modifier
 import androidx.core.content.IntentCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -24,7 +23,6 @@ import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
-import github.leavesczy.matisse.internal.ui.MatisseLoadingDialog
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.ui.MatisseTheme
@@ -72,9 +70,6 @@ internal class MatisseActivity : BaseCaptureActivity() {
             finishWithCanceledResult()
             return
         }
-        if (hasPendingCapture && !isAwaitingCameraResult) {
-            resumeInterruptedCaptureFinalize()
-        }
         setContent {
             LaunchedEffect(key1 = Unit) {
                 snapshotFlow {
@@ -100,10 +95,6 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 )
                 MatisseVideoPlayerPage(
                     pageViewState = matisseViewModel.videoPlayerPageViewState
-                )
-                MatisseLoadingDialog(
-                    modifier = Modifier,
-                    isVisible = matisseViewModel.isLoadingDialogVisible
                 )
             }
         }
