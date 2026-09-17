@@ -179,20 +179,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     override fun onCapturedMedia(mediaResource: MediaResource) {
-        val maxSelectable = matisseViewModel.maxSelectable
-        val selectedMedia = matisseViewModel.getSelectedMedia()
-        val wouldMixMediaTypes = matisseViewModel.singleMediaType && selectedMedia.any {
-            it.isVideo
-        }
-        val result =
-            if (maxSelectable > 1 && (selectedMedia.size in 1..<maxSelectable) && !wouldMixMediaTypes) {
-                val selectedMediaMutable = selectedMedia.toMutableList()
-                selectedMediaMutable.add(element = mediaResource)
-                selectedMediaMutable
-            } else {
-                listOf(element = mediaResource)
-            }
-        finishWithSelectedMedia(result = result)
+        matisseViewModel.onMediaCaptured(mediaResource = mediaResource)
     }
 
     private fun onConfirmClick() {

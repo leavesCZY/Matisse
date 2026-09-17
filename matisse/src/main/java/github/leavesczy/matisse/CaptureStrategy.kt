@@ -118,25 +118,17 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
 
     override suspend fun createImageUri(context: Context): Uri? {
         return withContext(context = Dispatchers.IO) {
-            val tempFile = createTempFile(context = context) ?: return@withContext null
-            FileProvider.getUriForFile(
-                context,
-                authority,
-                tempFile
-            )
-        }
-    }
-
-    private suspend fun createTempFile(context: Context): File? {
-        return withContext(context = Dispatchers.IO) {
             val picturesDirectory =
                 getAuthorityDirectory(context = context) ?: return@withContext null
             val file = File(picturesDirectory, createImageName(context = context))
-            if (file.createNewFile()) {
-                file
-            } else {
-                null
+            if (!file.createNewFile()) {
+                return@withContext null
             }
+            FileProvider.getUriForFile(
+                context,
+                authority,
+                file
+            )
         }
     }
 
@@ -156,7 +148,10 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
 
     override suspend fun deleteImageUri(context: Context, imageUri: Uri) {
         withContext(context = Dispatchers.IO) {
-            val imageFile = resolveImageFile(context = context, imageUri = imageUri)
+            val imageFile = resolveImageFileLocked(
+                context = context,
+                imageUri = imageUri
+            )
             if (imageFile != null && imageFile.exists()) {
                 imageFile.delete()
             }
@@ -169,17 +164,21 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
 
     private suspend fun resolveImageFile(context: Context, imageUri: Uri): File? {
         return withContext(context = Dispatchers.IO) {
-            val fileName = imageUri.lastPathSegment
-            val directory = getAuthorityDirectory(context = context)
-            if (imageUri.authority != authority || fileName.isNullOrBlank() || directory == null) {
-                return@withContext null
-            }
-            val file = File(directory, fileName)
-            if (file.isFile && file.exists()) {
-                file
-            } else {
-                null
-            }
+            resolveImageFileLocked(context = context, imageUri = imageUri)
+        }
+    }
+
+    private fun resolveImageFileLocked(context: Context, imageUri: Uri): File? {
+        val fileName = imageUri.lastPathSegment
+        val directory = getAuthorityDirectory(context = context)
+        if (imageUri.authority != authority || fileName.isNullOrBlank() || directory == null) {
+            return null
+        }
+        val file = File(directory, fileName)
+        return if (file.isFile && file.exists()) {
+            file
+        } else {
+            null
         }
     }
 

@@ -42,6 +42,7 @@ internal data class MatissePageViewState(
     val selectedBucket: MatisseMediaBucket,
     val mediaBuckets: List<MatisseMediaBucketInfo>,
     val isMediaBucketsLoading: Boolean,
+    val capturedMediaItems: List<MatisseMediaItem>,
     val mediaPagingDataFlow: Flow<PagingData<MatisseMediaItem>>,
     val placeholderState: MatissePlaceholderState,
     val onBucketMenuOpen: () -> Unit,

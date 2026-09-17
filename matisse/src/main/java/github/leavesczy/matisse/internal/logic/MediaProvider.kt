@@ -100,18 +100,20 @@ internal object MediaProvider {
         context: Context,
         mediaType: MediaType
     ): List<MediaBucketAggregate> {
-        return withContext(context = Dispatchers.IO) {
-            val summaries = queryGroupedBucketSummaries(
+        val summaries = withContext(context = Dispatchers.IO) {
+            queryGroupedBucketSummaries(
                 context = context,
                 mediaType = mediaType
             )
-            if (summaries != null) {
-                loadBucketCovers(
-                    context = context,
-                    mediaType = mediaType,
-                    summaries = summaries
-                )
-            } else {
+        }
+        return if (summaries != null) {
+            loadBucketCovers(
+                context = context,
+                mediaType = mediaType,
+                summaries = summaries
+            )
+        } else {
+            withContext(context = Dispatchers.IO) {
                 queryBucketsByFullScan(
                     context = context,
                     mediaType = mediaType

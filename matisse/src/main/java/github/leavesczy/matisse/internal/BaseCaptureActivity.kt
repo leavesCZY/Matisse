@@ -98,7 +98,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     }
 
     private fun requestCameraPermissionIfNeeded() {
-        lifecycleScope.launch(context = Dispatchers.Main.immediate) {
+        lifecycleScope.launch {
             if (captureSession !is CaptureSession.RequestingPermission) {
                 return@launch
             }
@@ -119,7 +119,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     }
 
     private fun launchCamera() {
-        lifecycleScope.launch(context = Dispatchers.Main.immediate) {
+        lifecycleScope.launch {
             if (captureSession !is CaptureSession.RequestingPermission) {
                 return@launch
             }
@@ -163,7 +163,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     private fun finalizeCapture(outputUri: Uri, isSuccessful: Boolean) {
         captureSession = CaptureSession.Finalizing(outputUri = outputUri)
-        lifecycleScope.launch(context = Dispatchers.Main.immediate) {
+        lifecycleScope.launch {
             val capturedMedia = withContext(context = NonCancellable) {
                 if (isSuccessful) {
                     val media = captureStrategy.loadCapturedMedia(

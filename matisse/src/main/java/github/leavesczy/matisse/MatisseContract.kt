@@ -12,9 +12,10 @@ import github.leavesczy.matisse.internal.MatisseActivity
  *
  * 确认选择或选择器内拍照成功时，返回非空的 [MediaResource] 列表；Activity 未以成功结果结束、
  * 结果 Intent 缺失或结果列表为空时返回 null。权限被拒或媒体加载失败不会自动结束选择器，用户返回后
- * 结果为 null。若配置了 [Matisse.captureStrategy]，拍照成功也会立即结束并返回媒体列表（合并规则见
- * [Matisse]）。宿主应用需要提前在 Manifest 中声明 [Matisse.mediaType] 对应的媒体读取权限，权限申请
- * 由选择器完成；具体权限规则参见 [Matisse]。选择器界面使用 `Theme.Matisse`，固定为竖屏。
+ * 结果为 null。若配置了 [Matisse.captureStrategy]，选择器内拍照成功后不会结束流程，新照片会插入
+ * “全部”相册列表首位且不自动选中；用户确认选择后才返回结果。宿主应用需要提前在 Manifest 中声明
+ * [Matisse.mediaType] 对应的媒体读取权限，权限申请由选择器完成；具体权限规则参见 [Matisse]。选择器界面
+ * 使用 `Theme.Matisse`，固定为竖屏。
  */
 class MatisseContract : ActivityResultContract<Matisse, List<MediaResource>?>() {
 

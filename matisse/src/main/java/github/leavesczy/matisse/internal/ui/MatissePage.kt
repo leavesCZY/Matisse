@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
@@ -145,8 +146,18 @@ private fun MediaList(
     val lazyPagingItems = pageViewState.mediaPagingDataFlow.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
     val refreshLoadState = lazyPagingItems.loadState.refresh
+    val capturedMediaItems = if (pageViewState.selectedBucket.supportsCapture) {
+        pageViewState.capturedMediaItems
+    } else {
+        emptyList()
+    }
     LaunchedEffect(key1 = pageViewState.selectedBucket.bucketId) {
         lazyGridState.animateScrollToItem(index = 0)
+    }
+    LaunchedEffect(key1 = capturedMediaItems.firstOrNull()?.mediaId) {
+        if (capturedMediaItems.isNotEmpty()) {
+            lazyGridState.animateScrollToItem(index = 0)
+        }
     }
     Box(modifier = modifier) {
         LazyVerticalGrid(
@@ -171,6 +182,26 @@ private fun MediaList(
                 }
             }
             items(
+                count = capturedMediaItems.size,
+                key = { index ->
+                    "captured_${capturedMediaItems[index].mediaId}"
+                },
+                contentType = {
+                    "MediaItem"
+                }
+            ) { index ->
+                val mediaItem = capturedMediaItems[index]
+                MediaListItem(
+                    lazyGridItemScope = this,
+                    pageViewState = pageViewState,
+                    mediaItem = mediaItem,
+                    isSelectionLimitReached = isSelectionLimitReached,
+                    capturedMediaItems = capturedMediaItems,
+                    lazyPagingItems = lazyPagingItems,
+                    onFastSelectMediaClick = onFastSelectMediaClick
+                )
+            }
+            items(
                 count = lazyPagingItems.itemCount,
                 key = { index ->
                     val mediaId = lazyPagingItems.peek(index = index)?.mediaId
@@ -185,37 +216,21 @@ private fun MediaList(
                 }
             ) { index ->
                 val mediaItem = lazyPagingItems[index] ?: return@items
-                if (pageViewState.matisse.fastSelect) {
-                    MediaItemFastSelect(
-                        modifier = Modifier
-                            .matisseAnimateItem(lazyGridItemScope = this),
-                        mediaResource = mediaItem.mediaResource,
-                        imageEngine = pageViewState.matisse.imageEngine,
-                        onMediaClick = onFastSelectMediaClick
-                    )
-                } else {
-                    MediaItem(
-                        modifier = Modifier
-                            .matisseAnimateItem(lazyGridItemScope = this),
-                        mediaItem = mediaItem,
-                        imageEngine = pageViewState.matisse.imageEngine,
-                        isSelectionLimitReached = isSelectionLimitReached,
-                        maxSelectable = pageViewState.matisse.maxSelectable,
-                        onMediaClick = {
-                            val previewMediaItems =
-                                lazyPagingItems.itemSnapshotList.items
-                            pageViewState.onMediaClick(
-                                mediaItem = mediaItem,
-                                previewMediaItems = previewMediaItems
-                            )
-                        },
-                        onMediaCheckChanged = pageViewState.onMediaCheckChanged
-                    )
-                }
+                MediaListItem(
+                    lazyGridItemScope = this,
+                    pageViewState = pageViewState,
+                    mediaItem = mediaItem,
+                    isSelectionLimitReached = isSelectionLimitReached,
+                    capturedMediaItems = capturedMediaItems,
+                    lazyPagingItems = lazyPagingItems,
+                    onFastSelectMediaClick = onFastSelectMediaClick
+                )
             }
         }
         when {
-            refreshLoadState is LoadState.Loading && lazyPagingItems.itemCount == 0 -> {
+            refreshLoadState is LoadState.Loading &&
+                    lazyPagingItems.itemCount == 0 &&
+                    capturedMediaItems.isEmpty() -> {
                 CircularProgressIndicator(
                     modifier = Modifier
                         .size(size = 42.dp)
@@ -227,7 +242,7 @@ private fun MediaList(
                 )
             }
 
-            lazyPagingItems.itemCount == 0 -> {
+            lazyPagingItems.itemCount == 0 && capturedMediaItems.isEmpty() -> {
                 MatisseEmptyPlaceholder(
                     modifier = Modifier
                         .align(alignment = Alignment.Center),
@@ -236,6 +251,47 @@ private fun MediaList(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun MediaListItem(
+    lazyGridItemScope: LazyGridItemScope,
+    pageViewState: MatissePageViewState,
+    mediaItem: MatisseMediaItem,
+    isSelectionLimitReached: Boolean,
+    capturedMediaItems: List<MatisseMediaItem>,
+    lazyPagingItems: LazyPagingItems<MatisseMediaItem>,
+    onFastSelectMediaClick: MatisseMediaResourceClickHandler
+) {
+    if (pageViewState.matisse.fastSelect) {
+        MediaItemFastSelect(
+            modifier = Modifier
+                .matisseAnimateItem(lazyGridItemScope = lazyGridItemScope),
+            mediaResource = mediaItem.mediaResource,
+            imageEngine = pageViewState.matisse.imageEngine,
+            onMediaClick = onFastSelectMediaClick
+        )
+    } else {
+        MediaItem(
+            modifier = Modifier
+                .matisseAnimateItem(lazyGridItemScope = lazyGridItemScope),
+            mediaItem = mediaItem,
+            imageEngine = pageViewState.matisse.imageEngine,
+            isSelectionLimitReached = isSelectionLimitReached,
+            maxSelectable = pageViewState.matisse.maxSelectable,
+            onMediaClick = {
+                val previewMediaItems = buildList {
+                    addAll(elements = capturedMediaItems)
+                    addAll(elements = lazyPagingItems.itemSnapshotList.items)
+                }
+                pageViewState.onMediaClick(
+                    mediaItem = mediaItem,
+                    previewMediaItems = previewMediaItems
+                )
+            },
+            onMediaCheckChanged = pageViewState.onMediaCheckChanged
+        )
     }
 }
 

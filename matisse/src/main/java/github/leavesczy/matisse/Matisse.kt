@@ -30,9 +30,9 @@ import kotlinx.parcelize.Parcelize
  * @param singleMediaType 是否禁止同时选择图片和视频。为 false 时允许在同一结果中混合图片和视频，
  * 默认为 true
  * @param captureStrategy 拍照策略。传入非空值，且已获得媒体读取权限（完整访问或部分访问均可）时，
- * 在“全部”相册中显示拍照入口。拍照成功后立即结束选择器：当 [maxSelectable] 大于 1、当前已有未达上限的
- * 已选项，且（[singleMediaType] 为 false，或已选项中不含视频）时，返回“已选项 + 新照片”；否则仅返回
- * 新照片。[mediaType] 必须包含图片（[MediaType.includesImage] 为 true），否则只能为 null。默认为 null
+ * 在“全部”相册中显示拍照入口。拍照成功后不结束选择器：新照片固定插入“全部”相册列表首位（拍照入口之后），
+ * 且不会自动选中，由用户继续选择或确认。[mediaType] 必须包含图片（[MediaType.includesImage] 为 true），
+ * 否则只能为 null。默认为 null
  *
  * @throws IllegalArgumentException 当 [maxSelectable] 或 [gridColumns] 小于 1，或者
  * [maxSelectable] 大于 1 且 [fastSelect] 为 true，或者 [mediaType] 不包含图片且 [captureStrategy]

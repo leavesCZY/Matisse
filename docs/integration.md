@@ -34,7 +34,8 @@ dependencies {
 
 Matisse 本身不传递 Coil 或 Glide 依赖。使用内置 `CoilImageEngine` / `GlideImageEngine` 时，还需按下文补充对应依赖。
 
-库 Manifest 已声明选择器 / 拍照 Activity，以及用于解析系统相机、预览 Intent 的 `<queries>`。宿主**无需**再声明这些组件；也不要用同名 Activity 覆盖库内配置。
+库 Manifest 已声明选择器 / 拍照 Activity，以及用于解析系统相机、预览 Intent 的 `<queries>`。宿主**无需
+**再声明这些组件；也不要用同名 Activity 覆盖库内配置。
 
 # 三、基本使用
 
@@ -46,7 +47,10 @@ Matisse 包含两种使用场景，可以单独使用或者组合使用，分别
   Activity 使用 `Theme.Matisse.Capture`（透明窗），不强制竖屏。此流程不请求媒体读取权限；宿主声明
   `CAMERA` 后会按需申请，存储权限和照片存储位置由 `captureStrategy` 决定
 
-确认选择或选择器内拍照成功时，`MatisseContract` 返回非空的 `List<MediaResource>`；Activity 未以成功结果结束、结果 Intent 缺失或结果列表为空时返回 `null`。权限被拒或媒体加载失败不会自动结束选择器，用户返回后结果为 `null`。若配置了 `captureStrategy`，拍照成功也会立即结束并返回媒体列表（合并规则见下文 `captureStrategy`）。
+确认选择时，`MatisseContract` 返回非空的 `List<MediaResource>`；Activity 未以成功结果结束、结果 Intent
+缺失或结果列表为空时返回 `null`。权限被拒或媒体加载失败不会自动结束选择器，用户返回后结果为 `null`
+。若配置了 `captureStrategy`，选择器内拍照成功后不会结束流程，新照片会插入“全部”相册列表首位且不自动选中（详见下文
+`captureStrategy`）。
 
 `MatisseCaptureContract` 拍照并成功读取结果时返回 `MediaResource`；用户取消、相机不可用、权限被拒绝或结果无效时返回
 `null`。
@@ -151,9 +155,9 @@ captureLauncher.launch(
  * @param singleMediaType 是否禁止同时选择图片和视频。为 false 时允许在同一结果中混合图片和视频，
  * 默认为 true
  * @param captureStrategy 拍照策略。传入非空值，且已获得媒体读取权限（完整访问或部分访问均可）时，
- * 在“全部”相册中显示拍照入口。拍照成功后立即结束选择器：当 maxSelectable 大于 1、当前已有未达上限的
- * 已选项，且（singleMediaType 为 false，或已选项中不含视频）时，返回“已选项 + 新照片”；否则仅返回
- * 新照片。mediaType 必须包含图片（MediaType.includesImage 为 true），否则只能为 null。默认为 null
+ * 在“全部”相册中显示拍照入口。拍照成功后不结束选择器：新照片固定插入“全部”相册列表首位（拍照入口之后），
+ * 且不会自动选中，由用户继续选择或确认。mediaType 必须包含图片（MediaType.includesImage 为 true），
+ * 否则只能为 null。默认为 null
  */
 data class Matisse(
     val maxSelectable: Int,
@@ -336,15 +340,13 @@ val mimeTypes = MediaType.MultipleMimeType(
 
 - 通过 `MatisseCaptureContract` 启动独立拍照流程
 - 在选择器中，当媒体读取权限已授予（完整访问或部分访问均可）且 `captureStrategy`
-  非空时，于“全部”相册显示拍照入口；拍照成功后立即结束选择器
+  非空时，于“全部”相册显示拍照入口；拍照成功后不结束选择器，新照片固定插入列表首位（拍照入口之后），且不会自动选中
 
 说明：
 
 - `mediaType` 必须包含图片（`MediaType.includesImage` 为 true；例如不可为单独的
   `MediaType.VideoOnly`，也不可为仅含 `video/` 的 `MultipleMimeType`），否则 `captureStrategy` 只能为
   `null`
-- 当 `maxSelectable` 大于 1、当前已有未达上限的已选项，且（`singleMediaType` 为
-  false，或已选项中不含视频）时，返回“已选项 + 新照片”；否则仅返回新照片
 - 内置策略以 `.jpg` / `image/jpeg` 创建输出。`FileProviderCaptureStrategy` 返回前校验文件长度大于
   0，MIME 固定为 `image/jpeg`；`MediaStoreCaptureStrategy` 通过 MediaStore 查询该 Uri 对应记录，
   MIME 使用 MediaStore 记录值（通常为 `image/jpeg`），不校验文件字节是否非空
@@ -393,7 +395,9 @@ FileProviderCaptureStrategy(
 - Android 9 及以下：宿主必须在 Manifest 中声明 `WRITE_EXTERNAL_STORAGE`，Matisse 会在拍照前申请该权限
 - Android 10 及以上：无需该权限
 
-当前内置实现使用 `.jpg` 文件名，创建 MediaStore 记录时声明 `image/jpeg`（不设置 `IS_PENDING`，以便系统相机可直接写入该 Uri）。相机返回后轮询查询该记录：Android 10 及以上仅匹配非 pending，Android 11 及以上同时排除已移入回收站的记录；查到则返回其 MIME 类型（通常仍为 `image/jpeg`），否则视为无效。
+当前内置实现使用 `.jpg` 文件名，创建 MediaStore 记录时声明 `image/jpeg`（不设置 `IS_PENDING`
+，以便系统相机可直接写入该 Uri）。相机返回后轮询查询该记录：Android 10 及以上仅匹配非 pending，Android 11
+及以上同时排除已移入回收站的记录；查到则返回其 MIME 类型（通常仍为 `image/jpeg`），否则视为无效。
 
 如果宿主在 Manifest 中声明了 `CAMERA`，Matisse 会在需要时申请该权限；未声明时则直接调用系统相机。
 

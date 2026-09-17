@@ -1,6 +1,7 @@
 package github.leavesczy.matisse.internal.logic
 
 import android.app.Application
+import android.content.ContentUris
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,23 +13,15 @@ import androidx.paging.cachedIn
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
 internal class MatisseViewModel(application: Application, matisse: Matisse) :
     MatissePreviewViewModel(application = application, matisse = matisse) {
-
-    companion object {
-
-        private const val MEDIA_PAGE_SIZE = 40
-
-    }
 
     val maxSelectable = matisse.maxSelectable
 
@@ -64,6 +57,10 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private var readMediaPermissionGranted: Boolean? = null
 
+    private var nextSyntheticCapturedMediaId = -1L
+
+    private var capturedMediaItems: List<MatisseMediaItem> = emptyList()
+
     val isReadMediaPermissionInitialized: Boolean
         get() = readMediaPermissionGranted != null
 
@@ -79,11 +76,17 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         } else {
             bucketId
         }
+        val excludedMediaIds = if (bucketId == defaultBucketId) {
+            capturedMediaItems.mapTo(destination = HashSet()) { it.mediaId }
+        } else {
+            emptySet()
+        }
+        val mediaPageSize = 40
         Pager(
             config = PagingConfig(
-                pageSize = MEDIA_PAGE_SIZE,
-                initialLoadSize = MEDIA_PAGE_SIZE,
-                prefetchDistance = MEDIA_PAGE_SIZE,
+                pageSize = mediaPageSize,
+                initialLoadSize = mediaPageSize,
+                prefetchDistance = mediaPageSize,
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
@@ -91,6 +94,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                     context = context,
                     mediaType = mediaType,
                     bucketId = queryBucketId,
+                    excludedMediaIds = excludedMediaIds,
                     createMediaItem = ::createMediaItem
                 )
             }
@@ -106,6 +110,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             selectedBucket = defaultBucket,
             mediaBuckets = emptyList(),
             isMediaBucketsLoading = false,
+            capturedMediaItems = emptyList(),
             mediaPagingDataFlow = mediaPagingDataFlow,
             placeholderState = MatissePlaceholderState.Ready(hasReadMediaPermission = false),
             onBucketMenuOpen = ::onBucketMenuOpen,
@@ -126,11 +131,12 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             return
         }
         readMediaPermissionGranted = granted
-        viewModelScope.launch(context = Dispatchers.Main.immediate) {
+        viewModelScope.launch {
             dismissPreviewPage()
             dismissVideoPlayerPage()
             selectedMediaById.clear()
             selectionStateByMediaId.clear()
+            capturedMediaItems = emptyList()
             isSelectionLimitReached = false
             mediaBucketsLoaded = false
             if (granted) {
@@ -147,6 +153,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                         )
                     ),
                     isMediaBucketsLoading = false,
+                    capturedMediaItems = emptyList(),
                     placeholderState = MatissePlaceholderState.Ready(hasReadMediaPermission = true)
                 )
                 bottomBarViewState = buildBottomBarViewState()
@@ -155,6 +162,48 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 bottomBarViewState = buildBottomBarViewState()
                 showToast(id = R.string.matisse_error_read_media_permission)
             }
+        }
+    }
+
+    fun onMediaCaptured(mediaResource: MediaResource) {
+        val mediaId = resolveCapturedMediaId(mediaResource = mediaResource)
+        val selectionState = selectionStateByMediaId.getOrPut(key = mediaId) {
+            mutableStateOf(value = unselectedMediaSelectState)
+        }
+        if (!selectionState.value.isSelected) {
+            selectionState.value = unselectedMediaSelectState
+        }
+        val capturedMediaItem = MatisseMediaItem(
+            mediaId = mediaId,
+            bucketId = defaultBucketId,
+            bucketName = defaultBucket.bucketName,
+            mediaResource = mediaResource,
+            selectionState = selectionState
+        )
+        capturedMediaItems = buildList {
+            add(element = capturedMediaItem)
+            capturedMediaItems.forEach { existing ->
+                if (existing.mediaId != mediaId) {
+                    add(element = existing)
+                }
+            }
+        }
+        pruneUnselectedSelectionStates()
+        selectedBucketIdFlow.value = defaultBucketId
+        mediaReloadGenerationFlow.value += 1
+        mediaBucketsLoaded = false
+        pageViewState = pageViewState.copy(
+            selectedBucket = defaultBucket,
+            capturedMediaItems = capturedMediaItems,
+            isMediaBucketsLoading = false
+        )
+    }
+
+    private fun resolveCapturedMediaId(mediaResource: MediaResource): Long {
+        return try {
+            ContentUris.parseId(mediaResource.uri)
+        } catch (_: Throwable) {
+            nextSyntheticCapturedMediaId--
         }
     }
 
@@ -170,45 +219,43 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private fun loadMediaBucketsAsync() {
         pageViewState = pageViewState.copy(isMediaBucketsLoading = true)
-        viewModelScope.launch(context = Dispatchers.Main.immediate) {
-            val mediaBuckets = withContext(context = Dispatchers.IO) {
-                val bucketAggregates = MediaProvider.loadMediaBuckets(
-                    context = context,
-                    mediaType = mediaType
-                )
-                val newestMedia = MediaProvider.loadMediaInfoPage(
-                    context = context,
-                    mediaType = mediaType,
-                    bucketId = null,
-                    limit = 1,
-                    offset = 0
-                ).firstOrNull()
-                val totalItemCount = bucketAggregates.sumOf { it.itemCount }
-                buildList {
-                    add(
-                        element = MatisseMediaBucketInfo(
-                            bucketId = defaultBucket.bucketId,
-                            bucketName = defaultBucket.bucketName,
-                            itemCount = totalItemCount,
-                            coverMedia = newestMedia?.let { mediaInfo ->
-                                MediaResource(
-                                    uri = mediaInfo.uri,
-                                    mimeType = mediaInfo.mimeType
-                                )
-                            }
-                        )
-                    )
-                    addAll(
-                        elements = bucketAggregates.map { aggregate ->
-                            MatisseMediaBucketInfo(
-                                bucketId = aggregate.bucketId,
-                                bucketName = aggregate.bucketName,
-                                itemCount = aggregate.itemCount,
-                                coverMedia = aggregate.toCoverMediaResource()
+        viewModelScope.launch {
+            val bucketAggregates = MediaProvider.loadMediaBuckets(
+                context = context,
+                mediaType = mediaType
+            )
+            val newestMedia = MediaProvider.loadMediaInfoPage(
+                context = context,
+                mediaType = mediaType,
+                bucketId = null,
+                limit = 1,
+                offset = 0
+            ).firstOrNull()
+            val totalItemCount = bucketAggregates.sumOf { it.itemCount }
+            val mediaBuckets = buildList {
+                add(
+                    element = MatisseMediaBucketInfo(
+                        bucketId = defaultBucket.bucketId,
+                        bucketName = defaultBucket.bucketName,
+                        itemCount = totalItemCount,
+                        coverMedia = newestMedia?.let { mediaInfo ->
+                            MediaResource(
+                                uri = mediaInfo.uri,
+                                mimeType = mediaInfo.mimeType
                             )
                         }
                     )
-                }
+                )
+                addAll(
+                    elements = bucketAggregates.map { aggregate ->
+                        MatisseMediaBucketInfo(
+                            bucketId = aggregate.bucketId,
+                            bucketName = aggregate.bucketName,
+                            itemCount = aggregate.itemCount,
+                            coverMedia = aggregate.toCoverMediaResource()
+                        )
+                    }
+                )
             }
             if (pageViewState.placeholderState is MatissePlaceholderState.Ready) {
                 mediaBucketsLoaded = true
@@ -242,6 +289,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     private fun setReadMediaPermissionDeniedState() {
         selectedBucketIdFlow.value = defaultBucketId
         mediaBucketsLoaded = false
+        capturedMediaItems = emptyList()
         pageViewState = pageViewState.copy(
             selectedBucket = defaultBucket,
             mediaBuckets = listOf(
@@ -253,11 +301,12 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 )
             ),
             isMediaBucketsLoading = false,
+            capturedMediaItems = emptyList(),
             placeholderState = MatissePlaceholderState.NoPermission
         )
     }
 
-    private suspend fun onBucketClick(bucketId: String) {
+    private fun onBucketClick(bucketId: String) {
         val currentPageViewState = pageViewState
         if (currentPageViewState.selectedBucket.bucketId == bucketId) {
             return
@@ -279,10 +328,13 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     }
 
     private fun pruneUnselectedSelectionStates() {
-        val selectedIds = selectedMediaById.keys
+        val retainedIds = buildSet {
+            addAll(elements = selectedMediaById.keys)
+            capturedMediaItems.forEach { add(element = it.mediaId) }
+        }
         val iterator = selectionStateByMediaId.keys.iterator()
         while (iterator.hasNext()) {
-            if (!selectedIds.contains(element = iterator.next())) {
+            if (!retainedIds.contains(element = iterator.next())) {
                 iterator.remove()
             }
         }
