@@ -81,12 +81,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         } else {
             emptySet()
         }
-        val mediaPageSize = 40
         Pager(
             config = PagingConfig(
-                pageSize = mediaPageSize,
-                initialLoadSize = mediaPageSize,
-                prefetchDistance = mediaPageSize,
+                pageSize = 40,
+                initialLoadSize = 40,
+                prefetchDistance = 30,
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
@@ -169,9 +168,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         val mediaId = resolveCapturedMediaId(mediaResource = mediaResource)
         val selectionState = selectionStateByMediaId.getOrPut(key = mediaId) {
             mutableStateOf(value = unselectedMediaSelectState)
-        }
-        if (!selectionState.value.isSelected) {
-            selectionState.value = unselectedMediaSelectState
         }
         val capturedMediaItem = MatisseMediaItem(
             mediaId = mediaId,

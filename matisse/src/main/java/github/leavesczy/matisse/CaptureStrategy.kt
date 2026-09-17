@@ -26,9 +26,9 @@ import java.util.Locale
  *
  * Matisse 会先调用 [shouldRequestWriteExternalStoragePermission]；在完成必要的存储写入与相机权限处理后，
  * 再调用 [createImageUri] 启动系统相机。相机以成功结果返回后调用 [loadCapturedMedia]；
- * 相机取消、拍照失败、[loadCapturedMedia] 返回 null，或再次启动拍照前清理仍挂起的 Uri 时，会调用
- * [deleteImageUri] 清理已创建的资源。若 [createImageUri] 返回 null，则不会调用 [deleteImageUri]
- * （尚无 Uri 可清理）。
+ * 相机取消或拍照失败时会调用 [deleteImageUri] 清理已创建的资源。相机成功返回但 [loadCapturedMedia]
+ * 返回 null 时不会删除 Uri。启动流程中若已创建 Uri 但未能成功交给系统相机，也会调用 [deleteImageUri]。
+ * 若 [createImageUri] 返回 null，则不会调用 [deleteImageUri]（尚无 Uri 可清理）。
  *
  * 实现会随 [Matisse] 或 [MatisseCapture] 通过 Intent 传递，因此实现类及其成员必须满足
  * [Parcelable] 要求。Matisse 从主线程发起拍照策略调用；实现不得阻塞调用线程，文件和
@@ -62,15 +62,16 @@ interface CaptureStrategy : Parcelable {
      *
      * @param context 宿主应用的 Context
      * @param imageUri [createImageUri] 创建的 Uri
-     * @return 有效的媒体资源；返回 null 表示结果无效，随后会调用 [deleteImageUri]
+     * @return 有效的媒体资源；返回 null 表示本次未能得到有效结果。
+     * 若相机结果为成功，Matisse 不会因此调用 [deleteImageUri]
      */
     suspend fun loadCapturedMedia(context: Context, imageUri: Uri): MediaResource?
 
     /**
      * 清理由 [createImageUri] 创建但未产生有效结果的资源。
      *
-     * 相机取消、拍照失败、[loadCapturedMedia] 返回 null，以及再次启动拍照前清理仍挂起的 Uri 时会调用。
-     * 注意：[createImageUri] 返回 null 时不会调用本方法。
+     * 相机取消或拍照失败时会调用；启动流程中已创建但未能成功交给系统相机的 Uri 也会清理。
+     * [createImageUri] 返回 null，或相机成功但 [loadCapturedMedia] 返回 null 时不会调用本方法。
      *
      * @param context 宿主应用的 Context
      * @param imageUri 需要清理的 Uri
@@ -102,7 +103,7 @@ private const val JPG_MIME_TYPE = "image/jpeg"
  * 必须能够映射该目录。照片保存在应用专属外部存储目录，不会写入系统相册，也不需要
  * [Manifest.permission.WRITE_EXTERNAL_STORAGE]。
  * 当前内置实现使用 `.jpg` 文件名，并将返回结果的 MIME 类型固定标记为 `image/jpeg`。
- * 读取结果时会校验文件长度大于 0，否则视为无效。
+ * 读取结果时会校验文件长度大于 0；读不到有效内容则返回 null。
  *
  * 如果宿主在 Manifest 中声明了 [Manifest.permission.CAMERA]，Matisse 会在需要时申请该权限；
  * 未声明时则直接调用系统相机。
@@ -141,7 +142,7 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
                     mimeType = JPG_MIME_TYPE
                 )
             }
-            delay(timeMillis = 50L)
+            delay(timeMillis = 100L)
         }
         return null
     }
@@ -192,7 +193,7 @@ class FileProviderCaptureStrategy(private val authority: String) : CaptureStrate
  * 当前内置实现使用 `.jpg` 文件名，创建 MediaStore 记录时声明 `image/jpeg`（不设置
  * `IS_PENDING`，以便系统相机可直接写入该 Uri）。相机返回后轮询查询该记录：Android 10
  * 及以上仅匹配非 pending，Android 11 及以上同时排除已移入回收站的记录；查到则返回其 MIME
- * 类型（通常仍为 `image/jpeg`），否则视为无效。
+ * 类型（通常仍为 `image/jpeg`），读不到则返回 null。
  *
  * 如果宿主在 Manifest 中声明了 [Manifest.permission.CAMERA]，Matisse 会在需要时申请该权限；
  * 未声明时则直接调用系统相机。
@@ -227,7 +228,7 @@ class MediaStoreCaptureStrategy : CaptureStrategy {
                     mimeType = resource.mimeType
                 )
             }
-            delay(timeMillis = 50L)
+            delay(timeMillis = 100L)
         }
         return null
     }

@@ -47,10 +47,7 @@ Matisse 包含两种使用场景，可以单独使用或者组合使用，分别
   Activity 使用 `Theme.Matisse.Capture`（透明窗），不强制竖屏。此流程不请求媒体读取权限；宿主声明
   `CAMERA` 后会按需申请，存储权限和照片存储位置由 `captureStrategy` 决定
 
-确认选择时，`MatisseContract` 返回非空的 `List<MediaResource>`；Activity 未以成功结果结束、结果 Intent
-缺失或结果列表为空时返回 `null`。权限被拒或媒体加载失败不会自动结束选择器，用户返回后结果为 `null`
-。若配置了 `captureStrategy`，选择器内拍照成功后不会结束流程，新照片会插入“全部”相册列表首位且不自动选中（详见下文
-`captureStrategy`）。
+确认选择时，`MatisseContract` 返回非空的 `List<MediaResource>`；Activity 未以成功结果结束、结果 Intent 缺失或结果列表为空时返回 `null`。权限被拒或媒体加载失败不会自动结束选择器，用户返回后结果为 `null`。若配置了 `captureStrategy`，选择器内拍照成功后不会结束流程，新照片会插入“全部”相册列表首位且不自动选中（详见下文 `captureStrategy`）。
 
 `MatisseCaptureContract` 拍照并成功读取结果时返回 `MediaResource`；用户取消、相机不可用、权限被拒绝或结果无效时返回
 `null`。
@@ -359,7 +356,7 @@ Matisse 提供三种默认实现：
 传给构造参数。当前实现会在 `context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)`
 中创建文件，FileProvider 路径配置必须能够映射该目录。照片保存在应用专属外部存储目录，不会写入系统相册，也不需要
 `WRITE_EXTERNAL_STORAGE`。当前内置实现使用 `.jpg` 文件名，并将返回结果的 MIME 类型固定标记为
-`image/jpeg`；读取结果时会校验文件长度大于 0，否则视为无效。
+`image/jpeg`；读取结果时会校验文件长度大于 0，读不到有效内容则返回 null。
 
 如果宿主在 Manifest 中声明了 `CAMERA`，Matisse 会在需要时申请该权限；未声明时则直接调用系统相机。
 
@@ -397,7 +394,7 @@ FileProviderCaptureStrategy(
 
 当前内置实现使用 `.jpg` 文件名，创建 MediaStore 记录时声明 `image/jpeg`（不设置 `IS_PENDING`
 ，以便系统相机可直接写入该 Uri）。相机返回后轮询查询该记录：Android 10 及以上仅匹配非 pending，Android 11
-及以上同时排除已移入回收站的记录；查到则返回其 MIME 类型（通常仍为 `image/jpeg`），否则视为无效。
+及以上同时排除已移入回收站的记录；查到则返回其 MIME 类型（通常仍为 `image/jpeg`），读不到则返回 null。
 
 如果宿主在 Manifest 中声明了 `CAMERA`，Matisse 会在需要时申请该权限；未声明时则直接调用系统相机。
 
@@ -438,10 +435,10 @@ SmartCaptureStrategy(
 
 Matisse 会先调用 `shouldRequestWriteExternalStoragePermission`；在完成必要的存储写入与相机权限处理后，再调用
 `createImageUri` 启动系统相机。相机以成功结果返回后调用 `loadCapturedMedia`
-；相机取消、拍照失败、`loadCapturedMedia` 返回 null，或再次启动拍照前清理仍挂起的 Uri 时，会调用
-`deleteImageUri` 清理已创建的资源。若 `createImageUri` 返回 null，则不会调用 `deleteImageUri`
-（尚无 Uri 可清理）。实现会随 Intent 传递，必须满足 `Parcelable`；Matisse 从主线程发起策略调用，实现不得阻塞调用线程，文件与
-ContentResolver 操作应自行切换到后台调度器。
+；相机取消或拍照失败时会调用 `deleteImageUri` 清理已创建的资源。相机成功返回但 `loadCapturedMedia`
+返回 null 时不会删除 Uri。启动流程中若已创建 Uri 但未能成功交给系统相机，也会调用 `deleteImageUri`。若
+`createImageUri` 返回 null，则不会调用 `deleteImageUri`（尚无 Uri 可清理）。实现会随 Intent 传递，必须满足
+`Parcelable`；Matisse 从主线程发起策略调用，实现不得阻塞调用线程，文件与 ContentResolver 操作应自行切换到后台调度器。
 
 需要实现：
 
@@ -449,9 +446,10 @@ ContentResolver 操作应自行切换到后台调度器。
   10 及以上通常应返回 false
 - `createImageUri`：返回供外部相机写入的 Uri；返回 null 会取消本次拍照，且不会调用
   `deleteImageUri`。Matisse 会通过 `MediaStore.EXTRA_OUTPUT` 传递该 Uri，并授予外部相机临时读写权限
-- `loadCapturedMedia`：读取拍照结果；返回 null 表示结果无效，随后会调用 `deleteImageUri`
-- `deleteImageUri`：清理未产生有效结果的资源。相机取消、拍照失败、`loadCapturedMedia` 返回
-  null，以及再次启动拍照前清理仍挂起的 Uri 时会调用；`createImageUri` 返回 null 时不会调用
+- `loadCapturedMedia`：读取拍照结果；返回 null 表示本次未能得到有效结果。若相机结果为成功，Matisse
+  不会因此调用 `deleteImageUri`
+- `deleteImageUri`：清理未产生有效结果的资源。相机取消或拍照失败时会调用；启动流程中已创建但未能成功交给系统相机的
+  Uri 也会清理。`createImageUri` 返回 null，或相机成功但 `loadCapturedMedia` 返回 null 时不会调用
 
 可选覆盖：
 

@@ -125,10 +125,4 @@ internal sealed class MatissePlaceholderState {
     @Stable
     data object NoPermission : MatissePlaceholderState()
 
-    @Stable
-    data class NoMedia(
-        val includesImage: Boolean,
-        val includesVideo: Boolean
-    ) : MatissePlaceholderState()
-
 }

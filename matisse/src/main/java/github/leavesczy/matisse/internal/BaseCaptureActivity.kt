@@ -19,8 +19,10 @@ import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseCaptureIntentContract
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
@@ -64,9 +66,14 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
         if (savedInstanceState != null) {
             captureSession = savedInstanceState.captureSession
             when (val session = captureSession) {
-                is CaptureSession.Idle,
-                is CaptureSession.AwaitingCamera -> {
+                is CaptureSession.Idle -> {
 
+                }
+
+                is CaptureSession.AwaitingCamera -> {
+                    if (!session.launcherStarted) {
+                        discardOrphanedCaptureUri(outputUri = session.outputUri)
+                    }
                 }
 
                 is CaptureSession.RequestingPermission -> {
@@ -74,7 +81,10 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 }
 
                 is CaptureSession.Finalizing -> {
-                    finalizeCapture(outputUri = session.outputUri, isSuccessful = true)
+                    finalizeCapture(
+                        outputUri = session.outputUri,
+                        isSuccessful = session.isSuccessful
+                    )
                 }
             }
         }
@@ -123,15 +133,6 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             if (captureSession !is CaptureSession.RequestingPermission) {
                 return@launch
             }
-            val previousOutputUri = captureSession.outputUriOrNull()
-            if (previousOutputUri != null) {
-                withContext(context = NonCancellable) {
-                    captureStrategy.deleteImageUri(
-                        context = applicationContext,
-                        imageUri = previousOutputUri
-                    )
-                }
-            }
             val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (captureIntent.resolveActivity(packageManager) == null) {
                 showToast(id = R.string.matisse_error_no_camera_app)
@@ -139,16 +140,29 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 return@launch
             }
             val imageUri = withContext(context = NonCancellable) {
-                val uri = captureStrategy.createImageUri(context = applicationContext)
-                if (uri != null) {
-                    captureSession = CaptureSession.AwaitingCamera(outputUri = uri)
-                }
-                uri
+                captureStrategy.createImageUri(context = applicationContext)
             }
-            if (imageUri != null) {
-                captureLauncher.launch(input = imageUri)
-            } else {
+            if (imageUri == null) {
                 completeCaptureCancelled()
+                return@launch
+            }
+            try {
+                ensureActive()
+                if (captureSession !is CaptureSession.RequestingPermission) {
+                    deleteCaptureUri(imageUri = imageUri)
+                    return@launch
+                }
+                // 先标记 launcherStarted，再 launch，避免 onSaveInstanceState 落在中间态时
+                // 恢复误删相机仍在写入的 Uri
+                captureSession = CaptureSession.AwaitingCamera(
+                    outputUri = imageUri,
+                    launcherStarted = true
+                )
+                captureLauncher.launch(input = imageUri)
+            } catch (cancellationException: CancellationException) {
+                deleteCaptureUri(imageUri = imageUri)
+                captureSession = CaptureSession.Idle
+                throw cancellationException
             }
         }
     }
@@ -162,25 +176,43 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     }
 
     private fun finalizeCapture(outputUri: Uri, isSuccessful: Boolean) {
-        captureSession = CaptureSession.Finalizing(outputUri = outputUri)
+        captureSession = CaptureSession.Finalizing(
+            outputUri = outputUri,
+            isSuccessful = isSuccessful
+        )
         lifecycleScope.launch {
             val capturedMedia = withContext(context = NonCancellable) {
                 if (isSuccessful) {
-                    val media = captureStrategy.loadCapturedMedia(
+                    // RESULT_OK 后若短时间内尚未可读，保留 Uri，避免误删慢写入的照片
+                    captureStrategy.loadCapturedMedia(
                         context = applicationContext,
                         imageUri = outputUri
                     )
-                    if (media != null) {
-                        return@withContext media
-                    }
+                } else {
+                    captureStrategy.deleteImageUri(
+                        context = applicationContext,
+                        imageUri = outputUri
+                    )
+                    null
                 }
-                captureStrategy.deleteImageUri(
-                    context = applicationContext,
-                    imageUri = outputUri
-                )
-                null
             }
             completeCapture(mediaResource = capturedMedia)
+        }
+    }
+
+    private fun discardOrphanedCaptureUri(outputUri: Uri) {
+        captureSession = CaptureSession.Idle
+        lifecycleScope.launch {
+            deleteCaptureUri(imageUri = outputUri)
+        }
+    }
+
+    private suspend fun deleteCaptureUri(imageUri: Uri) {
+        withContext(context = NonCancellable) {
+            captureStrategy.deleteImageUri(
+                context = applicationContext,
+                imageUri = imageUri
+            )
         }
     }
 
@@ -198,11 +230,11 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
         onCaptureCancelled()
     }
 
-    /** 拍照成功并得到有效 [MediaResource] 后的 Activity 侧处理（回传结果或结束选择器）。 */
+    /** 拍照成功并得到有效 [MediaResource] 后的 Activity 侧处理。 */
     protected abstract fun onCapturedMedia(mediaResource: MediaResource)
 
     /**
-     * 拍照流程取消或结果无效时的 Activity 侧处理（例如结束 Activity）。
+     * 拍照流程取消或未能得到有效结果时的 Activity 侧处理（例如结束独立拍照 Activity）。
      * 不等于 [CaptureStrategy.deleteImageUri]：后者负责清理拍照输出资源。
      */
     protected abstract fun onCaptureCancelled()
@@ -262,8 +294,15 @@ private enum class CapturePhase {
 private sealed class CaptureSession {
     data object Idle : CaptureSession()
     data object RequestingPermission : CaptureSession()
-    data class AwaitingCamera(val outputUri: Uri) : CaptureSession()
-    data class Finalizing(val outputUri: Uri) : CaptureSession()
+    data class AwaitingCamera(
+        val outputUri: Uri,
+        val launcherStarted: Boolean
+    ) : CaptureSession()
+
+    data class Finalizing(
+        val outputUri: Uri,
+        val isSuccessful: Boolean
+    ) : CaptureSession()
 
     fun outputUriOrNull(): Uri? {
         return when (this) {
@@ -281,7 +320,15 @@ private sealed class CaptureSession {
                 is AwaitingCamera -> CapturePhase.AwaitingCamera
                 is Finalizing -> CapturePhase.Finalizing
             },
-            outputUri = outputUriOrNull()
+            outputUri = outputUriOrNull(),
+            launcherStarted = when (this) {
+                is AwaitingCamera -> launcherStarted
+                else -> false
+            },
+            isSuccessful = when (this) {
+                is Finalizing -> isSuccessful
+                else -> false
+            }
         )
     }
 }
@@ -289,14 +336,19 @@ private sealed class CaptureSession {
 @Parcelize
 private data class SavedCaptureSession(
     val phase: CapturePhase,
-    val outputUri: Uri? = null
+    val outputUri: Uri? = null,
+    val launcherStarted: Boolean = false,
+    val isSuccessful: Boolean = false
 ) : Parcelable {
 
     fun toCaptureSession(): CaptureSession {
         return when (phase) {
             CapturePhase.AwaitingCamera -> {
                 if (outputUri != null) {
-                    CaptureSession.AwaitingCamera(outputUri = outputUri)
+                    CaptureSession.AwaitingCamera(
+                        outputUri = outputUri,
+                        launcherStarted = launcherStarted
+                    )
                 } else {
                     CaptureSession.Idle
                 }
@@ -304,7 +356,10 @@ private data class SavedCaptureSession(
 
             CapturePhase.Finalizing -> {
                 if (outputUri != null) {
-                    CaptureSession.Finalizing(outputUri = outputUri)
+                    CaptureSession.Finalizing(
+                        outputUri = outputUri,
+                        isSuccessful = isSuccessful
+                    )
                 } else {
                     CaptureSession.Idle
                 }

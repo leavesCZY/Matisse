@@ -10,11 +10,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -112,22 +110,6 @@ internal fun MatissePage(
                     MatisseNoPermissionPlaceholder(
                         modifier = Modifier
                             .align(alignment = Alignment.Center)
-                    )
-                }
-
-                is MatissePlaceholderState.NoMedia -> {
-                    if (pageViewState.selectedBucket.supportsCapture) {
-                        CaptureItem(
-                            modifier = Modifier,
-                            gridColumns = pageViewState.matisse.gridColumns,
-                            onCaptureClick = onCaptureClick
-                        )
-                    }
-                    MatisseEmptyPlaceholder(
-                        modifier = Modifier
-                            .align(alignment = Alignment.Center),
-                        includesImage = placeholderState.includesImage,
-                        includesVideo = placeholderState.includesVideo
                     )
                 }
             }
@@ -314,30 +296,6 @@ private fun CaptureItem(
             painter = painterResource(id = R.drawable.ic_matisse_photo_camera),
             tint = colorResource(id = R.color.matisse_capture_icon_color),
             contentDescription = null
-        )
-    }
-}
-
-@Composable
-private fun CaptureItem(
-    modifier: Modifier,
-    gridColumns: Int,
-    onCaptureClick: () -> Unit
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        CaptureItem(
-            modifier = Modifier
-                .weight(weight = 1f),
-            onCaptureClick = onCaptureClick
-        )
-        Spacer(
-            modifier = Modifier
-                .weight(weight = (gridColumns - 1).toFloat())
         )
     }
 }
