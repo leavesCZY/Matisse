@@ -7,7 +7,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Build
-import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
@@ -68,7 +67,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application = a
             singleMediaType = false,
             imageEngine = MediaImageEngine.Coil,
             captureStrategy = MediaCaptureStrategy.Smart,
-            useFrontCamera = false,
             isInsertingPagingTestImages = false,
             isInsertingImageEngineTestImages = false,
             pickedMediaList = emptyList(),
@@ -78,7 +76,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application = a
             onSingleMediaTypeChanged = ::onSingleMediaTypeChanged,
             onImageEngineChanged = ::onImageEngineChanged,
             onCaptureStrategyChanged = ::onCaptureStrategyChanged,
-            onUseFrontCameraChanged = ::onUseFrontCameraChanged,
             onToggleTheme = ::onToggleTheme
         )
     )
@@ -124,10 +121,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application = a
 
     private fun onCaptureStrategyChanged(captureStrategy: MediaCaptureStrategy) {
         pageViewState = pageViewState.copy(captureStrategy = captureStrategy)
-    }
-
-    private fun onUseFrontCameraChanged(useFrontCamera: Boolean) {
-        pageViewState = pageViewState.copy(useFrontCamera = useFrontCamera)
     }
 
     private fun onToggleTheme() {
@@ -351,7 +344,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application = a
             canvas.drawRect(0f, top, spec.width.toFloat(), top + sectionHeight, paint)
         }
         paint.color = Color.argb(150, 255, 255, 255)
-        paint.strokeWidth = (minOf(a = spec.width, b = spec.height) * 0.008f).coerceAtLeast(minimumValue = 2f)
+        paint.strokeWidth =
+            (minOf(a = spec.width, b = spec.height) * 0.008f).coerceAtLeast(minimumValue = 2f)
         canvas.drawLine(
             spec.width / 2f,
             0f,
@@ -428,33 +422,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application = a
     private fun resolveCaptureStrategy(): CaptureStrategy? {
         val currentPageViewState = pageViewState
         val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
-        val captureExtra = if (currentPageViewState.useFrontCamera) {
-            val bundle = Bundle()
-            bundle.putBoolean("android.intent.extra.USE_FRONT_CAMERA", true)
-            bundle.putInt("android.intent.extras.CAMERA_FACING", 1)
-            bundle
-        } else {
-            Bundle.EMPTY
-        }
         return when (currentPageViewState.captureStrategy) {
             MediaCaptureStrategy.Smart -> {
                 SmartCaptureStrategy(
                     fileProviderCaptureStrategy = FileProviderCaptureStrategy(
-                        authority = fileProviderAuthority,
-                        extra = captureExtra
+                        authority = fileProviderAuthority
                     )
                 )
             }
 
             MediaCaptureStrategy.FileProvider -> {
                 FileProviderCaptureStrategy(
-                    authority = fileProviderAuthority,
-                    extra = captureExtra
+                    authority = fileProviderAuthority
                 )
             }
 
             MediaCaptureStrategy.MediaStore -> {
-                MediaStoreCaptureStrategy(extra = captureExtra)
+                MediaStoreCaptureStrategy()
             }
 
             MediaCaptureStrategy.Disabled -> {

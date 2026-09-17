@@ -181,21 +181,6 @@ fun MainPage(
                     )
                 }
             }
-            OptionDivider()
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Title(text = "useFrontCamera")
-                Checkbox(
-                    checked = pageViewState.useFrontCamera,
-                    enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Disabled,
-                    onCheckedChange = { useFrontCamera ->
-                        pageViewState.onUseFrontCameraChanged(useFrontCamera = useFrontCamera)
-                    }
-                )
-            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth(),

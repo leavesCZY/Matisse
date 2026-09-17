@@ -27,10 +27,6 @@ fun interface CaptureStrategyChangedHandler {
     operator fun invoke(captureStrategy: MediaCaptureStrategy)
 }
 
-fun interface UseFrontCameraChangedHandler {
-    operator fun invoke(useFrontCamera: Boolean)
-}
-
 @Stable
 data class MainPageViewState(
     val darkTheme: Boolean,
@@ -40,7 +36,6 @@ data class MainPageViewState(
     val singleMediaType: Boolean,
     val imageEngine: MediaImageEngine,
     val captureStrategy: MediaCaptureStrategy,
-    val useFrontCamera: Boolean,
     val isInsertingPagingTestImages: Boolean,
     val isInsertingImageEngineTestImages: Boolean,
     val pickedMediaList: List<MediaResource>,
@@ -50,7 +45,6 @@ data class MainPageViewState(
     val onSingleMediaTypeChanged: SingleMediaTypeChangedHandler,
     val onImageEngineChanged: ImageEngineChangedHandler,
     val onCaptureStrategyChanged: CaptureStrategyChangedHandler,
-    val onUseFrontCameraChanged: UseFrontCameraChangedHandler,
     val onToggleTheme: () -> Unit
 )
 

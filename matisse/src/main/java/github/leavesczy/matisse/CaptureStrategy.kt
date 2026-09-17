@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
 import androidx.compose.runtime.Stable
@@ -26,9 +25,9 @@ import java.util.Locale
  * 拍照流程的存储策略。
  *
  * Matisse 会先调用 [shouldRequestWriteExternalStoragePermission]；在完成必要的存储写入与相机权限处理后，
- * 再调用 [createImageUri] 与 [captureExtra] 启动系统相机。相机返回成功后调用 [loadCapturedMedia]；
+ * 再调用 [createImageUri] 启动系统相机。相机返回成功后调用 [loadCapturedMedia]；
  * 相机取消、拍照失败、[loadCapturedMedia] 返回 null，或再次启动拍照前清理仍挂起的 Uri 时，会调用
- * [onCaptureCancelled] 清理已创建的资源。若 [createImageUri] 返回 null，则不会调用 [onCaptureCancelled]
+ * [deleteImageUri] 清理已创建的资源。若 [createImageUri] 返回 null，则不会调用 [deleteImageUri]
  * （尚无 Uri 可清理）。
  *
  * 实现会随 [Matisse] 或 [MatisseCapture] 通过 Intent 传递，因此实现类及其成员必须满足
@@ -54,7 +53,7 @@ interface CaptureStrategy : Parcelable {
      * Matisse 会通过 `MediaStore.EXTRA_OUTPUT` 传递该 Uri，并授予外部相机临时读写权限。
      *
      * @param context 宿主应用的 Context
-     * @return 可写入的图片 Uri；返回 null 会取消本次拍照，且不会调用 [onCaptureCancelled]
+     * @return 可写入的图片 Uri；返回 null 会取消本次拍照，且不会调用 [deleteImageUri]
      */
     suspend fun createImageUri(context: Context): Uri?
 
@@ -63,7 +62,7 @@ interface CaptureStrategy : Parcelable {
      *
      * @param context 宿主应用的 Context
      * @param imageUri [createImageUri] 创建的 Uri
-     * @return 有效的媒体资源；返回 null 表示结果无效，随后会调用 [onCaptureCancelled]
+     * @return 有效的媒体资源；返回 null 表示结果无效，随后会调用 [deleteImageUri]
      */
     suspend fun loadCapturedMedia(context: Context, imageUri: Uri): MediaResource?
 
@@ -76,7 +75,7 @@ interface CaptureStrategy : Parcelable {
      * @param context 宿主应用的 Context
      * @param imageUri 需要清理的 Uri
      */
-    suspend fun onCaptureCancelled(context: Context, imageUri: Uri)
+    suspend fun deleteImageUri(context: Context, imageUri: Uri)
 
     /**
      * 生成新图片的文件名。
@@ -90,16 +89,6 @@ interface CaptureStrategy : Parcelable {
         val time = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US).format(Date())
         return "IMG_$time.jpg"
     }
-
-    /**
-     * 需要附加到外部相机 Intent 的额外参数。
-     *
-     * `MediaStore.EXTRA_OUTPUT` 和 Uri 授权标记由 Matisse 设置，不应通过该 Bundle 覆盖。
-     *
-     * 默认返回空 Bundle。
-     */
-    val captureExtra: Bundle
-        get() = Bundle.EMPTY
 
 }
 
@@ -119,13 +108,9 @@ private const val JPG_MIME_TYPE = "image/jpeg"
  * 未声明时则直接调用系统相机。
  *
  * @param authority 与宿主 FileProvider Manifest 配置完全一致的 authority
- * @param extra 附加到相机 Intent 的额外参数，对应 [CaptureStrategy.captureExtra]
  */
 @Parcelize
-class FileProviderCaptureStrategy(
-    private val authority: String,
-    private val extra: Bundle = Bundle.EMPTY
-) : CaptureStrategy {
+class FileProviderCaptureStrategy(private val authority: String) : CaptureStrategy {
 
     override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
         return false
@@ -169,7 +154,7 @@ class FileProviderCaptureStrategy(
         return null
     }
 
-    override suspend fun onCaptureCancelled(context: Context, imageUri: Uri) {
+    override suspend fun deleteImageUri(context: Context, imageUri: Uri) {
         withContext(context = Dispatchers.IO) {
             val imageFile = resolveImageFile(context = context, imageUri = imageUri)
             if (imageFile != null && imageFile.exists()) {
@@ -198,9 +183,6 @@ class FileProviderCaptureStrategy(
         }
     }
 
-    override val captureExtra: Bundle
-        get() = extra
-
 }
 
 /**
@@ -214,11 +196,9 @@ class FileProviderCaptureStrategy(
  *
  * 如果宿主在 Manifest 中声明了 [Manifest.permission.CAMERA]，Matisse 会在需要时申请该权限；
  * 未声明时则直接调用系统相机。
- *
- * @param extra 附加到相机 Intent 的额外参数，对应 [CaptureStrategy.captureExtra]
  */
 @Parcelize
-data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) : CaptureStrategy {
+class MediaStoreCaptureStrategy : CaptureStrategy {
 
     override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -256,12 +236,9 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
         return null
     }
 
-    override suspend fun onCaptureCancelled(context: Context, imageUri: Uri) {
+    override suspend fun deleteImageUri(context: Context, imageUri: Uri) {
         MediaProvider.deleteMedia(context = context, uri = imageUri)
     }
-
-    override val captureExtra: Bundle
-        get() = extra
 
 }
 
@@ -269,21 +246,19 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
  * 根据系统版本选择存储方式的拍照策略。
  *
  * Android 9 及以下委托给 [fileProviderCaptureStrategy]，照片保存在应用专属外部存储目录；
- * Android 10 及以上委托给 [MediaStoreCaptureStrategy]，照片写入系统相册。传入
- * [fileProviderCaptureStrategy] 的相机额外参数也会用于 Android 10 及以上的 MediaStore 策略。
+ * Android 10 及以上委托给 [MediaStoreCaptureStrategy]，照片写入系统相册。
  * 因此，即使宿主仅在新系统上测试，也仍应按照 [FileProviderCaptureStrategy] 的要求完成
  * FileProvider 配置，以兼容 Android 9 及以下设备。
  *
  * @param fileProviderCaptureStrategy Android 9 及以下使用的 FileProvider 策略
  */
 @Parcelize
-data class SmartCaptureStrategy(
-    private val fileProviderCaptureStrategy: FileProviderCaptureStrategy
-) : CaptureStrategy {
+data class SmartCaptureStrategy(private val fileProviderCaptureStrategy: FileProviderCaptureStrategy) :
+    CaptureStrategy {
 
     @IgnoredOnParcel
     private val delegate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        MediaStoreCaptureStrategy(extra = fileProviderCaptureStrategy.captureExtra)
+        MediaStoreCaptureStrategy()
     } else {
         fileProviderCaptureStrategy
     }
@@ -300,15 +275,12 @@ data class SmartCaptureStrategy(
         return delegate.loadCapturedMedia(context = context, imageUri = imageUri)
     }
 
-    override suspend fun onCaptureCancelled(context: Context, imageUri: Uri) {
-        delegate.onCaptureCancelled(context = context, imageUri = imageUri)
+    override suspend fun deleteImageUri(context: Context, imageUri: Uri) {
+        delegate.deleteImageUri(context = context, imageUri = imageUri)
     }
 
     override suspend fun createImageName(context: Context): String {
         return delegate.createImageName(context = context)
     }
-
-    override val captureExtra: Bundle
-        get() = delegate.captureExtra
 
 }

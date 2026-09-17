@@ -38,9 +38,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     protected abstract val captureStrategy: CaptureStrategy
 
     private val requestWriteExternalStoragePermissionLauncher =
-        registerForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { granted ->
+        registerForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
                 requestCameraPermissionIfNeeded()
             } else {
@@ -50,9 +48,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
         }
 
     private val requestCameraPermissionLauncher =
-        registerForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { granted ->
+        registerForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
                 launchCapture()
             } else {
@@ -62,9 +58,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
         }
 
     private val captureLauncher =
-        registerForActivityResult(
-            contract = MatisseCaptureIntentContract()
-        ) { isSuccessful ->
+        registerForActivityResult(contract = MatisseCaptureIntentContract()) { isSuccessful ->
             handleCaptureResult(isSuccessful = isSuccessful)
         }
 
@@ -130,7 +124,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     /**
      * 配置变更后若仍持有未完成的拍照 Uri，且并非正在等待系统相机结果时，尝试
      * [CaptureStrategy.loadCapturedMedia] 完成读取；失败则调用
-     * [CaptureStrategy.onCaptureCancelled] 清理输出，避免残留文件或 MediaStore 记录。
+     * [CaptureStrategy.deleteImageUri] 清理输出，避免残留文件或 MediaStore 记录。
      */
     protected fun resumeInterruptedCaptureFinalize() {
         if (pendingCaptureUri == null || awaitingCameraResult || isFinalizingCapture) {
@@ -165,7 +159,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 pendingCaptureUri = null
                 awaitingCameraResult = false
                 withContext(context = NonCancellable) {
-                    captureStrategy.onCaptureCancelled(
+                    captureStrategy.deleteImageUri(
                         context = applicationContext,
                         imageUri = previousCaptureUri
                     )
@@ -177,12 +171,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 if (imageUri != null) {
                     pendingCaptureUri = imageUri
                     awaitingCameraResult = true
-                    captureLauncher.launch(
-                        input = MatisseCaptureIntentContract.Params(
-                            uri = imageUri,
-                            extra = captureStrategy.captureExtra
-                        )
-                    )
+                    captureLauncher.launch(input = imageUri)
                     return@launch
                 }
             } else {
@@ -215,7 +204,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                             return@withContext media
                         }
                     }
-                    captureStrategy.onCaptureCancelled(
+                    captureStrategy.deleteImageUri(
                         context = applicationContext,
                         imageUri = imageUri
                     )
@@ -245,7 +234,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
     /**
      * 拍照流程取消或结果无效时的 Activity 侧处理（例如结束 Activity）。
-     * 不等于 [CaptureStrategy.onCaptureCancelled]：后者负责清理拍照输出资源。
+     * 不等于 [CaptureStrategy.deleteImageUri]：后者负责清理拍照输出资源。
      */
     protected abstract fun onCaptureCancelled()
 

@@ -34,7 +34,8 @@ dependencies {
 
 Matisse 本身不传递 Coil 或 Glide 依赖。使用内置 `CoilImageEngine` / `GlideImageEngine` 时，还需按下文补充对应依赖。
 
-库 Manifest 已声明选择器 / 拍照 Activity，以及用于解析系统相机、预览 Intent 的 `<queries>`。宿主**无需**再声明这些组件；也不要用同名 Activity 覆盖库内配置。
+库 Manifest 已声明选择器 / 拍照 Activity，以及用于解析系统相机、预览 Intent 的 `<queries>`。宿主**无需
+**再声明这些组件；也不要用同名 Activity 覆盖库内配置。
 
 # 三、基本使用
 
@@ -46,8 +47,10 @@ Matisse 包含两种使用场景，可以单独使用或者组合使用，分别
   Activity 使用 `Theme.Matisse.Capture`（透明窗），不强制竖屏。此流程不请求媒体读取权限；宿主声明
   `CAMERA` 后会按需申请，存储权限和照片存储位置由 `captureStrategy` 决定
 
-确认选择或选择器内拍照成功时，`MatisseContract` 返回非空的 `List<MediaResource>`；Activity 未以成功结果结束、结果 Intent
-缺失或结果列表为空时返回 `null`。权限被拒或媒体加载失败不会自动结束选择器，用户返回后结果为 `null`。若配置了
+确认选择或选择器内拍照成功时，`MatisseContract` 返回非空的 `List<MediaResource>`；Activity 未以成功结果结束、结果
+Intent
+缺失或结果列表为空时返回 `null`。权限被拒或媒体加载失败不会自动结束选择器，用户返回后结果为 `null`
+。若配置了
 `captureStrategy`，拍照成功也会立即结束并返回媒体列表（合并规则见下文 `captureStrategy`）。
 
 `MatisseCaptureContract` 拍照并成功读取结果时返回 `MediaResource`；用户取消、相机不可用、权限被拒绝或结果无效时返回
@@ -406,8 +409,7 @@ FileProviderCaptureStrategy(
 根据系统版本自动选择策略：
 
 - Android 9 及以下：委托给传入的 `FileProviderCaptureStrategy`，照片保存在应用专属外部存储目录
-- Android 10 及以上：委托给 `MediaStoreCaptureStrategy`，照片写入系统相册；传入
-  `FileProviderCaptureStrategy` 的相机额外参数也会用于 MediaStore 策略
+- Android 10 及以上：委托给 `MediaStoreCaptureStrategy`，照片写入系统相册
 
 因此，即使宿主仅在新系统上测试，也仍应按照 `FileProviderCaptureStrategy` 的要求完成 FileProvider
 配置，以兼容 Android 9 及以下设备。
@@ -433,14 +435,14 @@ SmartCaptureStrategy(
 - 应用本身已有写存储权限：可优先使用 `MediaStoreCaptureStrategy`
 - 应用不想申请写存储权限：使用 `FileProviderCaptureStrategy` 或 `SmartCaptureStrategy`
 
-### 5、自定义与相机附加参数
+### 5、自定义
 
 `CaptureStrategy` 是接口。若内置策略无法满足需求，可自行实现。
 
 Matisse 会先调用 `shouldRequestWriteExternalStoragePermission`；在完成必要的存储写入与相机权限处理后，再调用
-`createImageUri` 与 `captureExtra` 启动系统相机。相机返回成功后调用 `loadCapturedMedia`
+`createImageUri` 启动系统相机。相机返回成功后调用 `loadCapturedMedia`
 ；相机取消、拍照失败、`loadCapturedMedia` 返回 null，或再次启动拍照前清理仍挂起的 Uri 时，会调用
-`onCaptureCancelled` 清理已创建的资源。若 `createImageUri` 返回 null，则不会调用 `onCaptureCancelled`
+`deleteImageUri` 清理已创建的资源。若 `createImageUri` 返回 null，则不会调用 `deleteImageUri`
 （尚无 Uri 可清理）。实现会随 Intent 传递，必须满足 `Parcelable`；Matisse 从主线程发起策略调用，实现不得阻塞调用线程，文件与
 ContentResolver 操作应自行切换到后台调度器。
 
@@ -449,29 +451,14 @@ ContentResolver 操作应自行切换到后台调度器。
 - `shouldRequestWriteExternalStoragePermission`：返回 true 时，宿主必须同时在 Manifest 中声明该权限。Android
   10 及以上通常应返回 false
 - `createImageUri`：返回供外部相机写入的 Uri；返回 null 会取消本次拍照，且不会调用
-  `onCaptureCancelled`。Matisse 会通过 `MediaStore.EXTRA_OUTPUT` 传递该 Uri，并授予外部相机临时读写权限
-- `loadCapturedMedia`：校验并读取拍照结果；返回 null 表示结果无效，随后会调用 `onCaptureCancelled`
-- `onCaptureCancelled`：清理未产生有效结果的资源。相机取消、拍照失败、`loadCapturedMedia` 返回 null，以及再次启动拍照前清理仍挂起的 Uri 时会调用；`createImageUri` 返回 null 时不会调用
+  `deleteImageUri`。Matisse 会通过 `MediaStore.EXTRA_OUTPUT` 传递该 Uri，并授予外部相机临时读写权限
+- `loadCapturedMedia`：校验并读取拍照结果；返回 null 表示结果无效，随后会调用 `deleteImageUri`
+- `deleteImageUri`：清理未产生有效结果的资源。相机取消、拍照失败、`loadCapturedMedia` 返回
+  null，以及再次启动拍照前清理仍挂起的 Uri 时会调用；`createImageUri` 返回 null 时不会调用
 
 可选覆盖：
 
 - `createImageName`：默认生成 `IMG_yyyyMMdd_HHmmssSSS.jpg`
-- `captureExtra`：合并到启动系统相机的 Intent。不要覆盖 `MediaStore.EXTRA_OUTPUT` 和 Uri 授权标记
-
-内置 `FileProviderCaptureStrategy` / `MediaStoreCaptureStrategy` 通过构造参数 `extra` 传入相机附加参数，
-其 `captureExtra` 属性会返回该 Bundle。例如请求前置摄像头：
-
-```kotlin
-val captureExtra = Bundle().apply {
-    putBoolean("android.intent.extra.USE_FRONT_CAMERA", true)
-    putInt("android.intent.extras.CAMERA_FACING", 1)
-}
-FileProviderCaptureStrategy(
-    authority = "${context.packageName}.FileProvider",
-    extra = captureExtra
-)
-MediaStoreCaptureStrategy(extra = captureExtra)
-```
 
 如果宿主声明了 `CAMERA`，Matisse 会按需申请；未声明则直接调用系统相机。
 
@@ -593,7 +580,8 @@ Matisse 不会在库 Manifest 中声明媒体读取权限，开发者需要按 `
 
 ### 设备为 Android 13 及以上，且 targetSdkVersion 大于等于 33
 
-Matisse 按 `includesImage` / `includesVideo` 请求对应的 `READ_MEDIA_IMAGES` 和/或 `READ_MEDIA_VIDEO`：
+Matisse 按 `includesImage` / `includesVideo` 请求对应的 `READ_MEDIA_IMAGES` 和/或
+`READ_MEDIA_VIDEO`：
 
 - 包含图片（`ImageOnly`、`ImageAndVideo`，或 `MultipleMimeType` 含 `image/`）：`READ_MEDIA_IMAGES`
 - 包含视频（`VideoOnly`、`ImageAndVideo`，或 `MultipleMimeType` 含 `video/`）：`READ_MEDIA_VIDEO`

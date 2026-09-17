@@ -5,27 +5,16 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContract
 
-internal class MatisseCaptureIntentContract :
-    ActivityResultContract<MatisseCaptureIntentContract.Params, Boolean>() {
+internal class MatisseCaptureIntentContract : ActivityResultContract<Uri, Boolean>() {
 
-    data class Params(
-        val uri: Uri,
-        val extra: Bundle
-    )
-
-    override fun createIntent(context: Context, input: Params): Intent {
+    override fun createIntent(context: Context, input: Uri): Intent {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        val extra = input.extra
-        if (!extra.isEmpty) {
-            intent.putExtras(extra)
-        }
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-        intent.clipData = ClipData.newUri(context.contentResolver, "Photo", input.uri)
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, input.uri)
+        intent.clipData = ClipData.newUri(context.contentResolver, "Photo", input)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, input)
         return intent
     }
 

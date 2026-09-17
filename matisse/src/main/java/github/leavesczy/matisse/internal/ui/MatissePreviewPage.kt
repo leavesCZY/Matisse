@@ -41,8 +41,8 @@ import androidx.compose.ui.util.lerp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
 import github.leavesczy.matisse.internal.logic.MatisseOpenVideoClickHandler
+import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
 import kotlin.math.absoluteValue
 
 @Composable
