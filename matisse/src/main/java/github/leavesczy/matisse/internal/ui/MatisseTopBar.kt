@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,10 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatisseBucketClickHandler
-import github.leavesczy.matisse.internal.logic.MatisseBucketInfoClickHandler
 import github.leavesczy.matisse.internal.logic.MatisseMediaBucketInfo
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun MatisseTopBar(
@@ -57,13 +53,12 @@ internal fun MatisseTopBar(
     mediaBuckets: List<MatisseMediaBucketInfo>,
     isMediaBucketsLoading: Boolean,
     onBucketMenuOpen: () -> Unit,
-    onBucketClick: MatisseBucketClickHandler,
+    onBucketClick: (bucketId: String) -> Unit,
     imageEngine: ImageEngine
 ) {
     var menuExpanded by remember {
         mutableStateOf(value = false)
     }
-    val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = modifier
             .fillMaxWidth(),
@@ -87,9 +82,7 @@ internal fun MatisseTopBar(
             imageEngine = imageEngine,
             onBucketClick = {
                 menuExpanded = false
-                coroutineScope.launch {
-                    onBucketClick(bucketId = it.bucketId)
-                }
+                onBucketClick(it.bucketId)
             },
             onDismissRequest = {
                 menuExpanded = false
@@ -167,7 +160,7 @@ private fun BucketDropdownMenu(
     mediaBuckets: List<MatisseMediaBucketInfo>,
     isMediaBucketsLoading: Boolean,
     imageEngine: ImageEngine,
-    onBucketClick: MatisseBucketInfoClickHandler,
+    onBucketClick: (bucket: MatisseMediaBucketInfo) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     DropdownMenu(
@@ -238,7 +231,7 @@ private fun BucketDropdownMenu(
                         }
                     },
                     onClick = {
-                        onBucketClick(bucket = bucket)
+                        onBucketClick(bucket)
                     }
                 )
             }

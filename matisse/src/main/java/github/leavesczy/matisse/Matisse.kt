@@ -17,36 +17,28 @@ import kotlinx.parcelize.Parcelize
  * 部分授权），会重新打开系统授权界面，以便调整可访问的媒体范围；已是完整访问时不会重复弹窗。
  * 未启用部分访问，或未获得部分访问权限时，已请求的图片和/或视频权限必须全部授予后才能进入选择界面。
  *
- * 选择器 Activity 使用 `Theme.Matisse`，界面固定竖屏。可通过覆盖库内 `matisse_*` color / bool
- * 资源定制外观。
- *
  * @param maxSelectable 最多可选择的媒体数量，必须大于 0
- * @param imageEngine 图片加载引擎。Matisse 不传递 Coil 或 Glide 依赖，宿主需要根据所选实现添加依赖，
- * 具体要求参见 [CoilImageEngine] 与 [GlideImageEngine]
- * @param gridColumns 媒体网格的列数，必须大于 0，默认为 4
- * @param fastSelect 是否启用快速选择。启用后点击缩略图会立即返回单个 [MediaResource]，
- * 不进入预览或多选确认流程，并且 [maxSelectable] 必须为 1，默认为 false
+ * @param imageEngine 图片加载引擎。Matisse 不传递 Coil 或 Glide 依赖，宿主需要根据所选实现添加依赖，具体要求参见 [CoilImageEngine] 与 [GlideImageEngine]
+ * @param gridColumns 媒体网格的列数，必须大于 0，默认为 3
+ * @param returnOnTap 是否在点击缩略图时立即返回。启用后点击缩略图会立即返回单个 [MediaResource]，不进入预览或多选确认流程，并且 [maxSelectable] 必须为 1，默认为 false
  * @param mediaType 需要展示的媒体类型，默认为 [MediaType.ImageOnly]
- * @param singleMediaType 是否禁止同时选择图片和视频。为 false 时允许在同一结果中混合图片和视频，
- * 默认为 true
- * @param captureStrategy 拍照策略。传入非空值，且已获得媒体读取权限（完整访问或部分访问均可）时，
- * 在“全部”相册中显示拍照入口。拍照成功后不结束选择器：新照片固定插入“全部”相册列表首位（拍照入口之后），
- * 且不会自动选中，由用户继续选择或确认。[mediaType] 必须包含图片（[MediaType.includesImage] 为 true），
- * 否则只能为 null。默认为 null
+ * @param allowMixedMedia 是否允许在同一结果中同时选择图片和视频。为 false 时禁止混合选择，默认为 false
+ * @param captureStrategy 拍照策略。[mediaType] 必须包含图片（[MediaType.includesImage] 为 true），否则只能为 null。默认为 null
  *
- * @throws IllegalArgumentException 当 [maxSelectable] 或 [gridColumns] 小于 1，或者
- * [maxSelectable] 大于 1 且 [fastSelect] 为 true，或者 [mediaType] 不包含图片且 [captureStrategy]
- * 非空时抛出
+ * @throws IllegalArgumentException
+ * 当 [maxSelectable] 或 [gridColumns] 小于 1，
+ * 或者 [maxSelectable] 大于 1 且 [returnOnTap] 为 true，
+ * 或者 [mediaType] 不包含图片且 [captureStrategy] 非空时抛出
  */
 @Stable
 @Parcelize
 data class Matisse(
     val maxSelectable: Int,
     val imageEngine: ImageEngine,
-    val gridColumns: Int = 4,
-    val fastSelect: Boolean = false,
+    val gridColumns: Int = 3,
+    val returnOnTap: Boolean = false,
     val mediaType: MediaType = MediaType.ImageOnly,
-    val singleMediaType: Boolean = true,
+    val allowMixedMedia: Boolean = false,
     val captureStrategy: CaptureStrategy? = null
 ) : Parcelable {
 
@@ -54,8 +46,8 @@ data class Matisse(
         if (maxSelectable < 1) {
             throw IllegalArgumentException("maxSelectable should be larger than zero")
         }
-        if (maxSelectable > 1 && fastSelect) {
-            throw IllegalArgumentException("when maxSelectable is greater than 1, fastSelect must be false")
+        if (maxSelectable > 1 && returnOnTap) {
+            throw IllegalArgumentException("when maxSelectable is greater than 1, returnOnTap must be false")
         }
         if (gridColumns < 1) {
             throw IllegalArgumentException("gridColumns should be larger than zero")
@@ -69,11 +61,6 @@ data class Matisse(
 
 /**
  * 独立拍照功能的启动配置。通过 [MatisseCaptureContract] 启动后进入拍照流程
- * （可能先按需申请存储写入或相机权限），然后打开系统相机，不显示媒体选择界面。
- *
- * 如果宿主在 Manifest 中声明了 `CAMERA`，Matisse 会按需申请相机权限；存储权限、输出位置和
- * FileProvider 配置要求由具体 [CaptureStrategy] 决定。Activity 使用 `Theme.Matisse.Capture`
- * （透明窗、无媒体选择 UI），不强制竖屏。
  *
  * @param captureStrategy 用于创建输出 Uri、读取拍照结果及清理无效结果的拍照策略，
  * 可参见 [FileProviderCaptureStrategy]、[MediaStoreCaptureStrategy] 与 [SmartCaptureStrategy]
@@ -82,6 +69,10 @@ data class Matisse(
 data class MatisseCapture(
     val captureStrategy: CaptureStrategy
 ) : Parcelable
+
+private const val IMAGE_MIME_TYPE_PREFIX = "image/"
+
+private const val VIDEO_MIME_TYPE_PREFIX = "video/"
 
 /**
  * 选择器需要查询和展示的媒体类型。
@@ -110,7 +101,7 @@ sealed interface MediaType : Parcelable {
      * @throws IllegalArgumentException 当 [mimeTypes] 为空或包含不支持的类型时抛出
      */
     @Parcelize
-    data class MultipleMimeType(val mimeTypes: Set<String>) : MediaType {
+    data class MimeTypes(val mimeTypes: Set<String>) : MediaType {
 
         init {
             if (mimeTypes.isEmpty()) {
@@ -131,7 +122,7 @@ sealed interface MediaType : Parcelable {
      * 当前类型是否包含图片。
      *
      * [ImageOnly] / [ImageAndVideo] 为 true；[VideoOnly] 为 false；
-     * [MultipleMimeType] 中存在以 `image/` 开头的类型时为 true。
+     * [MimeTypes] 中存在以 `image/` 开头的类型时为 true。
      */
     val includesImage: Boolean
         get() = when (this) {
@@ -143,7 +134,7 @@ sealed interface MediaType : Parcelable {
                 false
             }
 
-            is MultipleMimeType -> {
+            is MimeTypes -> {
                 mimeTypes.any {
                     it.startsWith(prefix = IMAGE_MIME_TYPE_PREFIX)
                 }
@@ -154,7 +145,7 @@ sealed interface MediaType : Parcelable {
      * 当前类型是否包含视频。
      *
      * [VideoOnly] / [ImageAndVideo] 为 true；[ImageOnly] 为 false；
-     * [MultipleMimeType] 中存在以 `video/` 开头的类型时为 true。
+     * [MimeTypes] 中存在以 `video/` 开头的类型时为 true。
      */
     val includesVideo: Boolean
         get() = when (this) {
@@ -166,7 +157,7 @@ sealed interface MediaType : Parcelable {
                 true
             }
 
-            is MultipleMimeType -> {
+            is MimeTypes -> {
                 mimeTypes.any {
                     it.startsWith(prefix = VIDEO_MIME_TYPE_PREFIX)
                 }
@@ -174,10 +165,6 @@ sealed interface MediaType : Parcelable {
         }
 
 }
-
-internal const val IMAGE_MIME_TYPE_PREFIX = "image/"
-
-internal const val VIDEO_MIME_TYPE_PREFIX = "video/"
 
 /**
  * 选择器返回的媒体资源。

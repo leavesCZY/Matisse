@@ -28,7 +28,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,9 +45,7 @@ import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
-import github.leavesczy.matisse.internal.logic.MatisseMediaCheckChangedHandler
 import github.leavesczy.matisse.internal.logic.MatisseMediaItem
-import github.leavesczy.matisse.internal.logic.MatisseMediaResourceClickHandler
 import github.leavesczy.matisse.internal.logic.MatisseMediaSelectState
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
 import github.leavesczy.matisse.internal.logic.MatissePlaceholderState
@@ -60,7 +57,7 @@ internal fun MatissePage(
     isSelectionLimitReached: Boolean,
     onCaptureClick: () -> Unit,
     onConfirmClick: () -> Unit,
-    onFastSelectMediaClick: MatisseMediaResourceClickHandler
+    onReturnOnTapMediaClick: (mediaResource: MediaResource) -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -78,7 +75,7 @@ internal fun MatissePage(
             )
         },
         bottomBar = {
-            if (!pageViewState.matisse.fastSelect) {
+            if (!pageViewState.matisse.returnOnTap) {
                 MatisseBottomBar(
                     modifier = Modifier,
                     bottomBarViewState = bottomBarViewState,
@@ -101,7 +98,7 @@ internal fun MatissePage(
                             pageViewState = pageViewState,
                             isSelectionLimitReached = isSelectionLimitReached,
                             onCaptureClick = onCaptureClick,
-                            onFastSelectMediaClick = onFastSelectMediaClick
+                            onReturnOnTapMediaClick = onReturnOnTapMediaClick
                         )
                     }
                 }
@@ -123,7 +120,7 @@ private fun MediaList(
     pageViewState: MatissePageViewState,
     isSelectionLimitReached: Boolean,
     onCaptureClick: () -> Unit,
-    onFastSelectMediaClick: MatisseMediaResourceClickHandler
+    onReturnOnTapMediaClick: (mediaResource: MediaResource) -> Unit
 ) {
     val lazyPagingItems = pageViewState.mediaPagingDataFlow.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
@@ -180,7 +177,7 @@ private fun MediaList(
                     isSelectionLimitReached = isSelectionLimitReached,
                     capturedMediaItems = capturedMediaItems,
                     lazyPagingItems = lazyPagingItems,
-                    onFastSelectMediaClick = onFastSelectMediaClick
+                    onReturnOnTapMediaClick = onReturnOnTapMediaClick
                 )
             }
             items(
@@ -205,7 +202,7 @@ private fun MediaList(
                     isSelectionLimitReached = isSelectionLimitReached,
                     capturedMediaItems = capturedMediaItems,
                     lazyPagingItems = lazyPagingItems,
-                    onFastSelectMediaClick = onFastSelectMediaClick
+                    onReturnOnTapMediaClick = onReturnOnTapMediaClick
                 )
             }
         }
@@ -244,15 +241,15 @@ private fun MediaListItem(
     isSelectionLimitReached: Boolean,
     capturedMediaItems: List<MatisseMediaItem>,
     lazyPagingItems: LazyPagingItems<MatisseMediaItem>,
-    onFastSelectMediaClick: MatisseMediaResourceClickHandler
+    onReturnOnTapMediaClick: (mediaResource: MediaResource) -> Unit
 ) {
-    if (pageViewState.matisse.fastSelect) {
-        MediaItemFastSelect(
+    if (pageViewState.matisse.returnOnTap) {
+        MediaItemReturnOnTap(
             modifier = Modifier
                 .matisseAnimateItem(lazyGridItemScope = lazyGridItemScope),
             mediaResource = mediaItem.mediaResource,
             imageEngine = pageViewState.matisse.imageEngine,
-            onMediaClick = onFastSelectMediaClick
+            onMediaClick = onReturnOnTapMediaClick
         )
     } else {
         MediaItem(
@@ -260,6 +257,7 @@ private fun MediaListItem(
                 .matisseAnimateItem(lazyGridItemScope = lazyGridItemScope),
             mediaItem = mediaItem,
             imageEngine = pageViewState.matisse.imageEngine,
+            selectionState = pageViewState.selectionStateOf(mediaItem.mediaId),
             isSelectionLimitReached = isSelectionLimitReached,
             maxSelectable = pageViewState.matisse.maxSelectable,
             onMediaClick = {
@@ -267,10 +265,7 @@ private fun MediaListItem(
                     addAll(elements = capturedMediaItems)
                     addAll(elements = lazyPagingItems.itemSnapshotList.items)
                 }
-                pageViewState.onMediaClick(
-                    mediaItem = mediaItem,
-                    previewMediaItems = previewMediaItems
-                )
+                pageViewState.onMediaClick(mediaItem, previewMediaItems)
             },
             onMediaCheckChanged = pageViewState.onMediaCheckChanged
         )
@@ -305,14 +300,15 @@ private fun MediaItem(
     modifier: Modifier,
     mediaItem: MatisseMediaItem,
     imageEngine: ImageEngine,
+    selectionState: MatisseMediaSelectState,
     isSelectionLimitReached: Boolean,
     maxSelectable: Int,
     onMediaClick: () -> Unit,
-    onMediaCheckChanged: MatisseMediaCheckChangedHandler
+    onMediaCheckChanged: (mediaItem: MatisseMediaItem) -> Unit
 ) {
     val onCheckedChange = remember(key1 = mediaItem.mediaId, key2 = onMediaCheckChanged) {
         {
-            onMediaCheckChanged(mediaItem = mediaItem)
+            onMediaCheckChanged(mediaItem)
         }
     }
     Box(
@@ -329,7 +325,7 @@ private fun MediaItem(
             )
         }
         MediaItemSelectionOverlay(
-            selectionState = mediaItem.selectionState,
+            selectionState = selectionState,
             isSelectionLimitReached = isSelectionLimitReached,
             maxSelectable = maxSelectable,
             onCheckedChange = onCheckedChange
@@ -339,19 +335,19 @@ private fun MediaItem(
 
 @Composable
 private fun BoxScope.MediaItemSelectionOverlay(
-    selectionState: State<MatisseMediaSelectState>,
+    selectionState: MatisseMediaSelectState,
     isSelectionLimitReached: Boolean,
     maxSelectable: Int,
     onCheckedChange: () -> Unit
 ) {
     MediaItemScrim(
         modifier = Modifier,
-        isSelected = selectionState.value.isSelected
+        isSelected = selectionState.isSelected
     )
     Box(
         modifier = Modifier
             .align(alignment = Alignment.TopEnd)
-            .fillMaxSize(fraction = 0.29f),
+            .fillMaxSize(fraction = 0.27f),
         contentAlignment = Alignment.Center
     ) {
         MatisseCheckbox(
@@ -386,17 +382,17 @@ private fun MediaItemScrim(
 }
 
 @Composable
-private fun MediaItemFastSelect(
+private fun MediaItemReturnOnTap(
     modifier: Modifier,
     mediaResource: MediaResource,
     imageEngine: ImageEngine,
-    onMediaClick: MatisseMediaResourceClickHandler
+    onMediaClick: (mediaResource: MediaResource) -> Unit
 ) {
     Box(
         modifier = modifier
             .aspectRatio(ratio = 1f)
             .clickable {
-                onMediaClick(mediaResource = mediaResource)
+                onMediaClick(mediaResource)
             },
         contentAlignment = Alignment.Center
     ) {

@@ -6,7 +6,6 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -30,23 +29,22 @@ import github.leavesczy.matisse.internal.logic.MatisseMediaSelectState
 @Composable
 internal fun MatisseCheckbox(
     modifier: Modifier,
-    selectionState: State<MatisseMediaSelectState>,
+    selectionState: MatisseMediaSelectState,
     isSelectionLimitReached: Boolean,
     maxSelectable: Int,
     onCheckedChange: () -> Unit
 ) {
-    val state = selectionState.value
     Box(modifier = modifier) {
         CheckboxCircle(
             modifier = Modifier
                 .fillMaxSize(),
-            isSelected = state.isSelected,
-            isEnabled = state.isSelected || !isSelectionLimitReached,
+            isSelected = selectionState.isSelected,
+            isEnabled = selectionState.isSelected || !isSelectionLimitReached,
             onCheckedChange = onCheckedChange
         )
-        if (state.isSelected) {
+        if (selectionState.isSelected) {
             if (maxSelectable > 1) {
-                val positionFormatted = state.positionFormatted
+                val positionFormatted = selectionState.positionFormatted
                 if (!positionFormatted.isNullOrBlank()) {
                     CheckboxPositionText(
                         modifier = Modifier
@@ -93,27 +91,24 @@ private fun CheckboxCircle(
                 role = Role.Checkbox
             }
             .drawBehind {
+                val strokeWidthPx = strokeWidth.toPx()
                 val radius = size.minDimension / 2f
                 val center = Offset(x = size.width / 2f, y = size.height / 2f)
-                if (isSelected) {
-                    drawCircle(
-                        color = selectedFillColor,
-                        radius = radius,
-                        center = center
-                    )
-                } else {
-                    drawCircle(
-                        color = unselectedFillColor,
-                        radius = radius,
-                        center = center
-                    )
-                    drawCircle(
-                        color = strokeColor,
-                        radius = radius - strokeWidth.toPx() / 2f,
-                        center = center,
-                        style = Stroke(width = strokeWidth.toPx())
-                    )
-                }
+                drawCircle(
+                    color = if (isSelected) {
+                        selectedFillColor
+                    } else {
+                        unselectedFillColor
+                    },
+                    radius = radius,
+                    center = center
+                )
+                drawCircle(
+                    color = strokeColor,
+                    radius = radius - strokeWidthPx / 2f,
+                    center = center,
+                    style = Stroke(width = strokeWidthPx)
+                )
             }
             .clickableNoRipple(onClick = onCheckedChange)
     )
@@ -130,7 +125,7 @@ private fun CheckboxPositionText(
         text = text,
         autoSize = TextAutoSize.StepBased(
             minFontSize = 4.sp,
-            maxFontSize = 36.sp,
+            maxFontSize = 20.sp,
             stepSize = 0.4.sp
         ),
         style = TextStyle(

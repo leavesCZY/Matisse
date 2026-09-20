@@ -98,7 +98,7 @@ fun MainPage(
                         label = gridColumns.toString(),
                         selected = pageViewState.gridColumns == gridColumns,
                         onClick = {
-                            pageViewState.onGridColumnsChanged(gridColumns = gridColumns)
+                            pageViewState.onGridColumnsChanged(gridColumns)
                         }
                     )
                 }
@@ -115,7 +115,7 @@ fun MainPage(
                         label = maxSelectable.toString(),
                         selected = pageViewState.maxSelectable == maxSelectable,
                         onClick = {
-                            pageViewState.onMaxSelectableChanged(maxSelectable = maxSelectable)
+                            pageViewState.onMaxSelectableChanged(maxSelectable)
                         }
                     )
                 }
@@ -126,11 +126,11 @@ fun MainPage(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Title(text = "fastSelect")
+                Title(text = "returnOnTap")
                 Checkbox(
-                    checked = pageViewState.fastSelect,
-                    onCheckedChange = { fastSelect ->
-                        pageViewState.onFastSelectChanged(fastSelect = fastSelect)
+                    checked = pageViewState.returnOnTap,
+                    onCheckedChange = { returnOnTap ->
+                        pageViewState.onReturnOnTapChanged(returnOnTap)
                     }
                 )
             }
@@ -145,7 +145,7 @@ fun MainPage(
                         label = engine.name,
                         selected = pageViewState.imageEngine == engine,
                         onClick = {
-                            pageViewState.onImageEngineChanged(imageEngine = engine)
+                            pageViewState.onImageEngineChanged(engine)
                         }
                     )
                 }
@@ -156,11 +156,11 @@ fun MainPage(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Title(text = "singleMediaType")
+                Title(text = "allowMixedMedia")
                 Checkbox(
-                    checked = pageViewState.singleMediaType,
-                    onCheckedChange = { singleMediaType ->
-                        pageViewState.onSingleMediaTypeChanged(singleMediaType = singleMediaType)
+                    checked = pageViewState.allowMixedMedia,
+                    onCheckedChange = { allowMixedMedia ->
+                        pageViewState.onAllowMixedMediaChanged(allowMixedMedia)
                     }
                 )
             }
@@ -176,7 +176,7 @@ fun MainPage(
                         label = strategy.name,
                         selected = pageViewState.captureStrategy == strategy,
                         onClick = {
-                            pageViewState.onCaptureStrategyChanged(captureStrategy = strategy)
+                            pageViewState.onCaptureStrategyChanged(strategy)
                         }
                     )
                 }

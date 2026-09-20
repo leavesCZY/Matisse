@@ -2,8 +2,8 @@ package github.leavesczy.matisse.internal.logic
 
 import android.app.Application
 import android.content.ContentUris
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import java.util.concurrent.ConcurrentHashMap
 
 internal class MatisseViewModel(application: Application, matisse: Matisse) :
     MatissePreviewViewModel(application = application, matisse = matisse) {
@@ -27,7 +26,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     val mediaType = matisse.mediaType
 
-    val singleMediaType = matisse.singleMediaType
+    val allowMixedMedia = matisse.allowMixedMedia
 
     val captureStrategy = matisse.captureStrategy
 
@@ -45,8 +44,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val selectedMediaById = LinkedHashMap<Long, MatisseMediaItem>()
 
-    private val selectionStateByMediaId =
-        ConcurrentHashMap<Long, MutableState<MatisseMediaSelectState>>()
+    private val selectionUiByMediaId = mutableStateMapOf<Long, MatisseMediaSelectState>()
 
     private val unselectedMediaSelectState = MatisseMediaSelectState(
         isSelected = false,
@@ -112,6 +110,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             capturedMediaItems = emptyList(),
             mediaPagingDataFlow = mediaPagingDataFlow,
             placeholderState = MatissePlaceholderState.Ready(hasReadMediaPermission = false),
+            selectionStateOf = ::selectionStateOf,
             onBucketMenuOpen = ::onBucketMenuOpen,
             onBucketClick = ::onBucketClick,
             onMediaClick = ::onMediaClick,
@@ -125,6 +124,10 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     )
         private set
 
+    override fun selectionStateOf(mediaId: Long): MatisseMediaSelectState {
+        return selectionUiByMediaId[mediaId] ?: unselectedMediaSelectState
+    }
+
     fun onReadMediaPermissionResult(granted: Boolean) {
         if (readMediaPermissionGranted == granted) {
             return
@@ -134,7 +137,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             dismissPreviewPage()
             dismissVideoPlayerPage()
             selectedMediaById.clear()
-            selectionStateByMediaId.clear()
+            selectionUiByMediaId.clear()
             capturedMediaItems = emptyList()
             isSelectionLimitReached = false
             mediaBucketsLoaded = false
@@ -166,15 +169,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     fun onMediaCaptured(mediaResource: MediaResource) {
         val mediaId = resolveCapturedMediaId(mediaResource = mediaResource)
-        val selectionState = selectionStateByMediaId.getOrPut(key = mediaId) {
-            mutableStateOf(value = unselectedMediaSelectState)
-        }
         val capturedMediaItem = MatisseMediaItem(
             mediaId = mediaId,
             bucketId = defaultBucketId,
             bucketName = defaultBucket.bucketName,
-            mediaResource = mediaResource,
-            selectionState = selectionState
+            mediaResource = mediaResource
         )
         capturedMediaItems = buildList {
             add(element = capturedMediaItem)
@@ -184,7 +183,6 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 }
             }
         }
-        pruneUnselectedSelectionStates()
         selectedBucketIdFlow.value = defaultBucketId
         mediaReloadGenerationFlow.value += 1
         mediaBucketsLoaded = false
@@ -266,19 +264,14 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     }
 
     private fun createMediaItem(mediaInfo: MediaProvider.MediaInfo): MatisseMediaItem {
-        val mediaResource = MediaResource(
-            uri = mediaInfo.uri,
-            mimeType = mediaInfo.mimeType
-        )
-        val selectionState = selectionStateByMediaId.getOrPut(key = mediaInfo.mediaId) {
-            mutableStateOf(value = unselectedMediaSelectState)
-        }
         return MatisseMediaItem(
             mediaId = mediaInfo.mediaId,
             bucketId = mediaInfo.bucketId,
             bucketName = mediaInfo.bucketName,
-            mediaResource = mediaResource,
-            selectionState = selectionState
+            mediaResource = MediaResource(
+                uri = mediaInfo.uri,
+                mimeType = mediaInfo.mimeType
+            )
         )
     }
 
@@ -308,11 +301,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             return
         }
         val isDefaultBucket = bucketId == defaultBucketId
-        val bucketName = currentPageViewState.mediaBuckets.first {
-            it.bucketId == bucketId
-        }.bucketName
+        val bucketName = currentPageViewState.mediaBuckets
+            .firstOrNull { it.bucketId == bucketId }
+            ?.bucketName
+            ?: return
         val supportsCapture = isDefaultBucket && defaultBucket.supportsCapture
-        pruneUnselectedSelectionStates()
         selectedBucketIdFlow.value = bucketId
         pageViewState = currentPageViewState.copy(
             selectedBucket = MatisseMediaBucket(
@@ -323,28 +316,13 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         )
     }
 
-    private fun pruneUnselectedSelectionStates() {
-        val retainedIds = buildSet {
-            addAll(elements = selectedMediaById.keys)
-            capturedMediaItems.forEach { add(element = it.mediaId) }
-        }
-        val iterator = selectionStateByMediaId.keys.iterator()
-        while (iterator.hasNext()) {
-            if (!retainedIds.contains(element = iterator.next())) {
-                iterator.remove()
-            }
-        }
-    }
-
     override fun onPreviewPageMediaCheckChanged(mediaItem: MatisseMediaItem) {
         onMediaCheckChanged(mediaItem = mediaItem)
     }
 
     private fun onMediaCheckChanged(mediaItem: MatisseMediaItem) {
-        val selectionState = mediaItem.selectionState as MutableState<MatisseMediaSelectState>
-        if (selectionState.value.isSelected) {
+        if (selectedMediaById.containsKey(key = mediaItem.mediaId)) {
             selectedMediaById.remove(key = mediaItem.mediaId)
-            selectionState.value = unselectedMediaSelectState
         } else {
             if (maxSelectable == 1) {
                 clearSelectedMedia()
@@ -352,7 +330,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 if (selectedMediaById.size >= maxSelectable) {
                     showToast(text = maxSelectionExceededMessage())
                     return
-                } else if (singleMediaType) {
+                } else if (!allowMixedMedia) {
                     val wouldMixMediaTypes = selectedMediaById.values.any {
                         it.mediaResource.isImage != mediaItem.mediaResource.isImage
                     }
@@ -363,25 +341,26 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 }
             }
             selectedMediaById[mediaItem.mediaId] = mediaItem
-            selectionState.value = MatisseMediaSelectState(
-                isSelected = true,
-                positionIndex = selectedMediaById.size - 1
-            )
         }
-        updateSelectionOrder()
+        syncSelectionUiState()
         updatePreviewPageIfNeeded()
         bottomBarViewState = buildBottomBarViewState()
     }
 
-    private fun updateSelectionOrder() {
-        selectedMediaById.values.forEachIndexed { index, media ->
-            val selectionState = media.selectionState as MutableState<MatisseMediaSelectState>
+    private fun syncSelectionUiState() {
+        val selectedIds = selectedMediaById.keys.toSet()
+        selectionUiByMediaId.keys
+            .filter { mediaId -> !selectedIds.contains(element = mediaId) }
+            .forEach { mediaId ->
+                selectionUiByMediaId.remove(key = mediaId)
+            }
+        selectedMediaById.keys.forEachIndexed { index, mediaId ->
             val newState = MatisseMediaSelectState(
                 isSelected = true,
                 positionIndex = index
             )
-            if (selectionState.value != newState) {
-                selectionState.value = newState
+            if (selectionUiByMediaId[mediaId] != newState) {
+                selectionUiByMediaId[mediaId] = newState
             }
         }
         isSelectionLimitReached = selectedMediaById.size >= maxSelectable
@@ -447,11 +426,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     }
 
     private fun clearSelectedMedia() {
-        selectedMediaById.values.forEach { media ->
-            val selectionState = media.selectionState as MutableState<MatisseMediaSelectState>
-            selectionState.value = unselectedMediaSelectState
-        }
         selectedMediaById.clear()
+        selectionUiByMediaId.clear()
     }
 
 }

@@ -12,9 +12,16 @@ import android.provider.MediaStore
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaType
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 
 internal object MediaProvider {
+
+    private const val BUCKET_COVER_LOAD_CONCURRENCY = 8
 
     data class MediaInfo(
         val uri: Uri,
@@ -100,20 +107,18 @@ internal object MediaProvider {
         context: Context,
         mediaType: MediaType
     ): List<MediaBucketAggregate> {
-        val summaries = withContext(context = Dispatchers.IO) {
-            queryGroupedBucketSummaries(
+        return withContext(context = Dispatchers.IO) {
+            val summaries = queryGroupedBucketSummaries(
                 context = context,
                 mediaType = mediaType
             )
-        }
-        return if (summaries != null) {
-            loadBucketCovers(
-                context = context,
-                mediaType = mediaType,
-                summaries = summaries
-            )
-        } else {
-            withContext(context = Dispatchers.IO) {
+            if (summaries != null) {
+                loadBucketCovers(
+                    context = context,
+                    mediaType = mediaType,
+                    summaries = summaries
+                )
+            } else {
                 queryBucketsByFullScan(
                     context = context,
                     mediaType = mediaType
@@ -122,6 +127,10 @@ internal object MediaProvider {
         }
     }
 
+    /**
+     * GROUP BY 只取相册数量；封面再按与网格相同的 recency 排序各查 1 条（有限并发），
+     * 避免 MAX(_ID) 与列表不一致，并直接带上 MIME。聚合失败时返回 null，回退全表扫描。
+     */
     private fun queryGroupedBucketSummaries(
         context: Context,
         mediaType: MediaType
@@ -152,7 +161,10 @@ internal object MediaProvider {
             cursor.use { cursor ->
                 val bucketIdIndex = cursor.getColumnIndexOrThrow(bucketIdColumn)
                 val bucketNameIndex = cursor.getColumnIndexOrThrow(bucketDisplayNameColumn)
-                val countIndex = cursor.indexOfCountColumn(countSql = countColumn)
+                val countIndex = cursor.indexOfAggregateColumn(
+                    aggregateSql = countColumn,
+                    keyword = "COUNT"
+                )
                 if (countIndex < 0) {
                     return null
                 }
@@ -187,26 +199,32 @@ internal object MediaProvider {
         mediaType: MediaType,
         summaries: List<BucketSummary>
     ): List<MediaBucketAggregate> {
-        val aggregates = ArrayList<MediaBucketAggregate>(summaries.size)
-        for (summary in summaries) {
-            val cover = loadMediaInfoPage(
-                context = context,
-                mediaType = mediaType,
-                bucketId = summary.bucketId,
-                limit = 1,
-                offset = 0
-            ).firstOrNull() ?: continue
-            aggregates.add(
-                element = MediaBucketAggregate(
-                    bucketId = summary.bucketId,
-                    bucketName = summary.bucketName,
-                    itemCount = summary.itemCount,
-                    coverUri = cover.uri,
-                    coverMimeType = cover.mimeType
-                )
-            )
+        if (summaries.isEmpty()) {
+            return emptyList()
         }
-        return aggregates
+        val semaphore = Semaphore(permits = BUCKET_COVER_LOAD_CONCURRENCY)
+        return coroutineScope {
+            summaries.map { summary ->
+                async {
+                    semaphore.withPermit {
+                        val cover = loadMediaInfoPage(
+                            context = context,
+                            mediaType = mediaType,
+                            bucketId = summary.bucketId,
+                            limit = 1,
+                            offset = 0
+                        ).firstOrNull() ?: return@withPermit null
+                        MediaBucketAggregate(
+                            bucketId = summary.bucketId,
+                            bucketName = summary.bucketName,
+                            itemCount = summary.itemCount,
+                            coverUri = cover.uri,
+                            coverMimeType = cover.mimeType
+                        )
+                    }
+                }
+            }.awaitAll().filterNotNull()
+        }
     }
 
     private fun queryBucketsByFullScan(
@@ -280,13 +298,13 @@ internal object MediaProvider {
         }
     }
 
-    private fun Cursor.indexOfCountColumn(countSql: String): Int {
-        val exactIndex = getColumnIndex(countSql)
+    private fun Cursor.indexOfAggregateColumn(aggregateSql: String, keyword: String): Int {
+        val exactIndex = getColumnIndex(aggregateSql)
         if (exactIndex >= 0) {
             return exactIndex
         }
         for (index in 0 until columnCount) {
-            if (getColumnName(index).contains(other = "COUNT", ignoreCase = true)) {
+            if (getColumnName(index).contains(other = keyword, ignoreCase = true)) {
                 return index
             }
         }
@@ -483,7 +501,7 @@ internal object MediaProvider {
                 )
             }
 
-            is MediaType.MultipleMimeType -> {
+            is MediaType.MimeTypes -> {
                 val mimeTypes = mediaType.mimeTypes.toList()
                 val placeholders = mimeTypes.joinToString(separator = ",") { "?" }
                 MediaSqlSelection(

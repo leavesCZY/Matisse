@@ -60,8 +60,13 @@ internal class MatisseActivity : BaseCaptureActivity() {
             )
         }
 
-    override val captureStrategy: CaptureStrategy
-        get() = requireNotNull(value = matisseViewModel.captureStrategy)
+    override val captureStrategy: CaptureStrategy?
+        get() {
+            if (matisse == null) {
+                return null
+            }
+            return matisseViewModel.captureStrategy
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setSystemBarUi(previewPageVisible = false)
@@ -85,7 +90,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     isSelectionLimitReached = matisseViewModel.isSelectionLimitReached,
                     onCaptureClick = ::requestCapture,
                     onConfirmClick = ::onConfirmClick,
-                    onFastSelectMediaClick = ::onFastSelectMediaClick
+                    onReturnOnTapMediaClick = ::onReturnOnTapMediaClick
                 )
                 MatissePreviewPage(
                     pageViewState = matisseViewModel.previewPageViewState,
@@ -184,7 +189,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
 
     private fun onConfirmClick() {
         val selectedMedia = matisseViewModel.getSelectedMedia()
-        if (matisseViewModel.singleMediaType) {
+        if (!matisseViewModel.allowMixedMedia) {
             val includesImage = selectedMedia.any { it.isImage }
             val includesVideo = selectedMedia.any { it.isVideo }
             if (includesImage && includesVideo) {
@@ -195,7 +200,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         finishWithSelectedMedia(result = selectedMedia)
     }
 
-    private fun onFastSelectMediaClick(mediaResource: MediaResource) {
+    private fun onReturnOnTapMediaClick(mediaResource: MediaResource) {
         finishWithSelectedMedia(result = listOf(element = mediaResource))
     }
 

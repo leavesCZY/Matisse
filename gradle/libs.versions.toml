@@ -6,7 +6,7 @@ android-target-sdk = "37"
 android-compile-sdk = "37"
 android-build-tools = "37.0.0"
 
-android-plugin = "9.4.0"
+android-plugin = "9.4.1"
 kotlin-plugin = "2.4.20"
 maven-publish-plugin = "0.37.0"
 
@@ -20,7 +20,7 @@ androidx-compose-bom = "2026.09.00"
 
 junit = "4.13.2"
 
-coil = "3.6.2"
+coil = "3.6.3"
 glide = "5.0.9"
 glide-compose = "1.0.0-beta10"
 

@@ -41,7 +41,6 @@ import androidx.compose.ui.util.lerp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatisseOpenVideoClickHandler
 import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
 import kotlin.math.absoluteValue
 
@@ -144,7 +143,7 @@ private fun PreviewMediaPage(
     pageIndex: Int,
     imageEngine: ImageEngine,
     mediaResource: MediaResource,
-    onOpenVideoClick: MatisseOpenVideoClickHandler
+    onOpenVideoClick: (mediaResource: MediaResource) -> Unit
 ) {
     val fraction by remember {
         derivedStateOf {
@@ -178,7 +177,7 @@ private fun PreviewMediaPage(
                     modifier = Modifier
                         .clip(shape = CircleShape)
                         .clickable {
-                            onOpenVideoClick(mediaResource = mediaResource)
+                            onOpenVideoClick(mediaResource)
                         }
                         .padding(all = 10.dp)
                         .size(size = 50.dp)
@@ -206,7 +205,7 @@ private fun PreviewBottomBar(
         key2 = pageViewState.onMediaCheckChanged
     ) {
         {
-            pageViewState.onMediaCheckChanged(mediaItem = currentResource)
+            pageViewState.onMediaCheckChanged(currentResource)
         }
     }
     Box(
@@ -232,7 +231,7 @@ private fun PreviewBottomBar(
             modifier = Modifier
                 .align(alignment = Alignment.Center)
                 .size(size = 25.dp),
-            selectionState = currentResource.selectionState,
+            selectionState = pageViewState.selectionStateOf(currentResource.mediaId),
             isSelectionLimitReached = isSelectionLimitReached,
             maxSelectable = pageViewState.maxSelectable,
             onCheckedChange = onCheckedChange

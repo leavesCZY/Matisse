@@ -29,7 +29,11 @@ import kotlinx.parcelize.Parcelize
 
 internal abstract class BaseCaptureActivity : AppCompatActivity() {
 
-    protected abstract val captureStrategy: CaptureStrategy
+    /**
+     * 当前可用的拍照策略。Intent 配置缺失、或选择器未启用拍照时可能为 null。
+     * [onCreate] 恢复会话时不得假定其非空。
+     */
+    protected abstract val captureStrategy: CaptureStrategy?
 
     private val requestWriteExternalStoragePermissionLauncher =
         registerForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
@@ -99,8 +103,13 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
         if (captureSession !is CaptureSession.Idle) {
             return
         }
+        val strategy = captureStrategy
+        if (strategy == null) {
+            completeCaptureCancelled()
+            return
+        }
         captureSession = CaptureSession.RequestingPermission
-        if (captureStrategy.shouldRequestWriteExternalStoragePermission(context = applicationContext)) {
+        if (strategy.shouldRequestWriteExternalStoragePermission(context = applicationContext)) {
             requestWriteExternalStoragePermissionLauncher.launch(input = Manifest.permission.WRITE_EXTERNAL_STORAGE)
         } else {
             requestCameraPermissionIfNeeded()
@@ -133,6 +142,11 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             if (captureSession !is CaptureSession.RequestingPermission) {
                 return@launch
             }
+            val strategy = captureStrategy
+            if (strategy == null) {
+                completeCaptureCancelled()
+                return@launch
+            }
             val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (captureIntent.resolveActivity(packageManager) == null) {
                 showToast(id = R.string.matisse_error_no_camera_app)
@@ -140,7 +154,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 return@launch
             }
             val imageUri = withContext(context = NonCancellable) {
-                captureStrategy.createImageUri(context = applicationContext)
+                strategy.createImageUri(context = applicationContext)
             }
             if (imageUri == null) {
                 completeCaptureCancelled()
@@ -152,8 +166,6 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                     deleteCaptureUri(imageUri = imageUri)
                     return@launch
                 }
-                // 先标记 launcherStarted，再 launch，避免 onSaveInstanceState 落在中间态时
-                // 恢复误删相机仍在写入的 Uri
                 captureSession = CaptureSession.AwaitingCamera(
                     outputUri = imageUri,
                     launcherStarted = true
@@ -176,6 +188,12 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     }
 
     private fun finalizeCapture(outputUri: Uri, isSuccessful: Boolean) {
+        val strategy = captureStrategy
+        if (strategy == null) {
+            captureSession = CaptureSession.Idle
+            onCaptureCancelled()
+            return
+        }
         captureSession = CaptureSession.Finalizing(
             outputUri = outputUri,
             isSuccessful = isSuccessful
@@ -184,12 +202,12 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             val capturedMedia = withContext(context = NonCancellable) {
                 if (isSuccessful) {
                     // RESULT_OK 后若短时间内尚未可读，保留 Uri，避免误删慢写入的照片
-                    captureStrategy.loadCapturedMedia(
+                    strategy.loadCapturedMedia(
                         context = applicationContext,
                         imageUri = outputUri
                     )
                 } else {
-                    captureStrategy.deleteImageUri(
+                    strategy.deleteImageUri(
                         context = applicationContext,
                         imageUri = outputUri
                     )
@@ -208,8 +226,9 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
     }
 
     private suspend fun deleteCaptureUri(imageUri: Uri) {
+        val strategy = captureStrategy ?: return
         withContext(context = NonCancellable) {
-            captureStrategy.deleteImageUri(
+            strategy.deleteImageUri(
                 context = applicationContext,
                 imageUri = imageUri
             )

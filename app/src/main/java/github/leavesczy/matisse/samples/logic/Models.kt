@@ -3,48 +3,24 @@ package github.leavesczy.matisse.samples.logic
 import androidx.compose.runtime.Stable
 import github.leavesczy.matisse.MediaResource
 
-fun interface GridColumnsChangedHandler {
-    operator fun invoke(gridColumns: Int)
-}
-
-fun interface MaxSelectableChangedHandler {
-    operator fun invoke(maxSelectable: Int)
-}
-
-fun interface FastSelectChangedHandler {
-    operator fun invoke(fastSelect: Boolean)
-}
-
-fun interface SingleMediaTypeChangedHandler {
-    operator fun invoke(singleMediaType: Boolean)
-}
-
-fun interface ImageEngineChangedHandler {
-    operator fun invoke(imageEngine: MediaImageEngine)
-}
-
-fun interface CaptureStrategyChangedHandler {
-    operator fun invoke(captureStrategy: MediaCaptureStrategy)
-}
-
 @Stable
 data class MainPageViewState(
     val darkTheme: Boolean,
     val gridColumns: Int,
     val maxSelectable: Int,
-    val fastSelect: Boolean,
-    val singleMediaType: Boolean,
+    val returnOnTap: Boolean,
+    val allowMixedMedia: Boolean,
     val imageEngine: MediaImageEngine,
     val captureStrategy: MediaCaptureStrategy,
     val isInsertingPagingTestImages: Boolean,
     val isInsertingImageEngineTestImages: Boolean,
     val pickedMediaList: List<MediaResource>,
-    val onGridColumnsChanged: GridColumnsChangedHandler,
-    val onMaxSelectableChanged: MaxSelectableChangedHandler,
-    val onFastSelectChanged: FastSelectChangedHandler,
-    val onSingleMediaTypeChanged: SingleMediaTypeChangedHandler,
-    val onImageEngineChanged: ImageEngineChangedHandler,
-    val onCaptureStrategyChanged: CaptureStrategyChangedHandler,
+    val onGridColumnsChanged: (gridColumns: Int) -> Unit,
+    val onMaxSelectableChanged: (maxSelectable: Int) -> Unit,
+    val onReturnOnTapChanged: (returnOnTap: Boolean) -> Unit,
+    val onAllowMixedMediaChanged: (allowMixedMedia: Boolean) -> Unit,
+    val onImageEngineChanged: (imageEngine: MediaImageEngine) -> Unit,
+    val onCaptureStrategyChanged: (captureStrategy: MediaCaptureStrategy) -> Unit,
     val onToggleTheme: () -> Unit
 )
 

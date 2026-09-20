@@ -27,7 +27,7 @@ class AndroidLibraryPublishConventionPlugin : Plugin<Project> {
                 pom {
                     name.set("Matisse")
                     description.set("An Android Image and Video Selection Framework Implemented with Jetpack Compose")
-                    inceptionYear.set("2025")
+                    inceptionYear.set("2022")
                     url.set("https://github.com/leavesCZY/Matisse")
                     licenses {
                         license {

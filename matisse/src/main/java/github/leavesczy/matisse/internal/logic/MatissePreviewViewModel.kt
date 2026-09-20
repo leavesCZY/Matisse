@@ -12,6 +12,11 @@ internal abstract class MatissePreviewViewModel(application: Application, matiss
 
     private val maxSelectable = matisse.maxSelectable
 
+    private val unselectedMediaSelectState = MatisseMediaSelectState(
+        isSelected = false,
+        positionIndex = -1
+    )
+
     var previewPageViewState by mutableStateOf(
         value = MatissePreviewPageViewState(
             isVisible = false,
@@ -19,12 +24,19 @@ internal abstract class MatissePreviewViewModel(application: Application, matiss
             selectedMediaCount = 0,
             maxSelectable = maxSelectable,
             previewMediaItems = emptyList(),
+            selectionStateOf = ::unselectedSelectionStateOf,
             onMediaCheckChanged = {},
             onOpenVideoClick = {},
             onDismissRequest = {}
         )
     )
         private set
+
+    protected abstract fun selectionStateOf(mediaId: Long): MatisseMediaSelectState
+
+    private fun unselectedSelectionStateOf(_mediaId: Long): MatisseMediaSelectState {
+        return unselectedMediaSelectState
+    }
 
     protected fun showPreviewPage(
         initialPage: Int,
@@ -37,6 +49,7 @@ internal abstract class MatissePreviewViewModel(application: Application, matiss
             initialPage = initialPage,
             selectedMediaCount = selectedMediaItems.size,
             previewMediaItems = previewMediaItems,
+            selectionStateOf = ::selectionStateOf,
             onMediaCheckChanged = ::onPreviewPageMediaCheckChanged,
             onOpenVideoClick = ::openVideoPlayerPage,
             onDismissRequest = ::dismissPreviewPage
@@ -48,6 +61,7 @@ internal abstract class MatissePreviewViewModel(application: Application, matiss
         if (currentPreviewPageViewState.isVisible) {
             previewPageViewState = currentPreviewPageViewState.copy(
                 isVisible = false,
+                selectionStateOf = ::unselectedSelectionStateOf,
                 onMediaCheckChanged = {},
                 onOpenVideoClick = {},
                 onDismissRequest = {}

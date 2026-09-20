@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
                     onPickGifAndMp4 = {
                         mediaPickerLauncher.launch(
                             input = mainViewModel.buildMatisse(
-                                mediaType = MediaType.MultipleMimeType(
+                                mediaType = MediaType.MimeTypes(
                                     mimeTypes = setOf("image/gif", "video/mp4")
                                 )
                             )

@@ -17,8 +17,8 @@ internal class MatisseCaptureActivity : BaseCaptureActivity() {
         )
     }
 
-    override val captureStrategy: CaptureStrategy
-        get() = matisseCapture!!.captureStrategy
+    override val captureStrategy: CaptureStrategy?
+        get() = matisseCapture?.captureStrategy
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
