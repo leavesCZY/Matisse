@@ -3,7 +3,7 @@ package github.leavesczy.matisse.internal.logic
 import android.app.Application
 import android.content.Context
 import android.widget.Toast
-import androidx.annotation.CallSuper
+import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -13,12 +13,6 @@ internal abstract class BaseMatisseViewModel(application: Application) :
 
     protected val context: Context
         get() = getApplication()
-
-    @CallSuper
-    protected abstract fun getSelectedMediaItems(): List<MatisseMediaItem>
-
-    @CallSuper
-    protected abstract fun onPreviewPageMediaCheckChanged(mediaItem: MatisseMediaItem)
 
     protected fun showToast(@StringRes id: Int) {
         showToast(text = getString(id = id))
@@ -35,8 +29,17 @@ internal abstract class BaseMatisseViewModel(application: Application) :
         return ContextCompat.getString(context, id)
     }
 
-    protected fun getString(@StringRes id: Int, vararg formatArgs: Any): String {
-        return ContextCompat.getString(context, id).format(*formatArgs)
+    /** 与 [ContextCompat.getString] 一样遵循 AppCompat 设置的应用内语言。 */
+    protected fun getQuantityString(
+        @PluralsRes id: Int,
+        quantity: Int,
+        vararg formatArgs: Any
+    ): String {
+        return ContextCompat.getContextForLanguage(context).resources.getQuantityString(
+            id,
+            quantity,
+            *formatArgs
+        )
     }
 
 }

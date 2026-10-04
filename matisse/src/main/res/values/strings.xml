@@ -1,28 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Actions -->
-    <string name="matisse_action_back">返回</string>
-    <string name="matisse_action_preview">预览</string>
-    <string name="matisse_action_confirm">确定</string>
-    <string name="matisse_action_confirm_with_count">确定(%1$d/%2$d)</string>
+    <string name="matisse_action_back">Back</string>
+    <string name="matisse_action_preview">Preview</string>
+    <string name="matisse_action_confirm">Done</string>
+    <string name="matisse_action_confirm_with_count">Done (%1$d/%2$d)</string>
     <!-- Bucket -->
-    <string name="matisse_bucket_all">全部</string>
+    <string name="matisse_bucket_all">All</string>
+    <string name="matisse_bucket_name_with_count">%1$s (%2$d)</string>
     <!-- Errors -->
-    <string name="matisse_error_read_media_permission">请授予相册访问权限后重试</string>
-    <string name="matisse_error_write_storage_permission">请授予存储写入权限后重试</string>
-    <string name="matisse_error_camera_permission">请授予拍照权限后重试</string>
-    <string name="matisse_error_max_images">最多只能选择 %1$d 张图片</string>
-    <string name="matisse_error_max_videos">最多只能选择 %1$d 个视频</string>
-    <string name="matisse_error_max_media">最多只能选择 %1$d 个图片或视频</string>
-    <string name="matisse_error_mixed_media">不能同时选择图片和视频</string>
-    <string name="matisse_error_no_camera_app">没有可用于拍照的应用</string>
+    <string name="matisse_error_read_media_permission">Please allow access to photos and videos and try again</string>
+    <string name="matisse_error_write_storage_permission">Please allow storage access and try again</string>
+    <string name="matisse_error_camera_permission">Please allow camera access and try again</string>
+    <plurals name="matisse_error_max_images">
+        <item quantity="one">You can select up to %1$d image</item>
+        <item quantity="other">You can select up to %1$d images</item>
+    </plurals>
+    <plurals name="matisse_error_max_videos">
+        <item quantity="one">You can select up to %1$d video</item>
+        <item quantity="other">You can select up to %1$d videos</item>
+    </plurals>
+    <plurals name="matisse_error_max_media">
+        <item quantity="one">You can select up to %1$d image or video</item>
+        <item quantity="other">You can select up to %1$d images or videos</item>
+    </plurals>
+    <string name="matisse_error_mixed_media">Images and videos cannot be selected together</string>
+    <string name="matisse_error_no_camera_app">No camera app available</string>
     <!-- Empty state -->
-    <string name="matisse_empty_no_image_title">暂无图片</string>
-    <string name="matisse_empty_no_image_subtitle">相册中没有可选择的图片</string>
-    <string name="matisse_empty_no_video_title">暂无视频</string>
-    <string name="matisse_empty_no_video_subtitle">相册中没有可选择的视频</string>
-    <string name="matisse_empty_no_media_title">暂无媒体资源</string>
-    <string name="matisse_empty_no_media_subtitle">相册中没有可选择的媒体资源</string>
-    <string name="matisse_empty_no_permission_title">无法访问相册</string>
-    <string name="matisse_empty_no_permission_subtitle">请授予相册访问权限后重试</string>
+    <string name="matisse_empty_no_image_title">No images</string>
+    <string name="matisse_empty_no_image_subtitle">There are no images to select</string>
+    <string name="matisse_empty_no_video_title">No videos</string>
+    <string name="matisse_empty_no_video_subtitle">There are no videos to select</string>
+    <string name="matisse_empty_no_media_title">No media</string>
+    <string name="matisse_empty_no_media_subtitle">There are no images or videos to select</string>
+    <string name="matisse_empty_no_permission_title">Unable to access photos</string>
+    <string name="matisse_empty_no_permission_subtitle">Please allow access to photos and videos and try again</string>
+    <!-- Accessibility -->
+    <string name="matisse_cd_capture">Take photo</string>
+    <string name="matisse_cd_switch_bucket">Switch album</string>
+    <string name="matisse_cd_select_media">Select</string>
+    <string name="matisse_cd_play_video">Play video</string>
 </resources>

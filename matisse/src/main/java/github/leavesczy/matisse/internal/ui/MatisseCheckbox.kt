@@ -14,9 +14,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -30,16 +34,22 @@ import github.leavesczy.matisse.internal.logic.MatisseMediaSelectState
 internal fun MatisseCheckbox(
     modifier: Modifier,
     selectionState: MatisseMediaSelectState,
-    isSelectionLimitReached: Boolean,
+    isSelectionLimitReached: () -> Boolean,
     maxSelectable: Int,
     onCheckedChange: () -> Unit
 ) {
+    // 已选中项始终可点击，不读取上限状态，达到上限时只有未选中项的勾选框重组
+    val isEnabled = if (selectionState.isSelected) {
+        true
+    } else {
+        !isSelectionLimitReached()
+    }
     Box(modifier = modifier) {
         CheckboxCircle(
             modifier = Modifier
                 .fillMaxSize(),
             isSelected = selectionState.isSelected,
-            isEnabled = selectionState.isSelected || !isSelectionLimitReached,
+            isEnabled = isEnabled,
             onCheckedChange = onCheckedChange
         )
         if (selectionState.isSelected) {
@@ -85,10 +95,13 @@ private fun CheckboxCircle(
         }
     )
     val strokeWidth = 1.8.dp
+    val description = stringResource(id = R.string.matisse_cd_select_media)
     Box(
         modifier = modifier
             .semantics {
                 role = Role.Checkbox
+                contentDescription = description
+                toggleableState = ToggleableState(value = isSelected)
             }
             .drawBehind {
                 val strokeWidthPx = strokeWidth.toPx()

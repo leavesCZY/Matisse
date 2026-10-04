@@ -8,11 +8,11 @@ import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContract
 
-internal class MatisseCaptureIntentContract : ActivityResultContract<Uri, Boolean>() {
+internal class SystemCameraContract : ActivityResultContract<Uri, Boolean>() {
 
     override fun createIntent(context: Context, input: Uri): Intent {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        intent.clipData = ClipData.newUri(context.contentResolver, "Photo", input)
+        intent.clipData = ClipData.newRawUri("Photo", input)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, input)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         return intent

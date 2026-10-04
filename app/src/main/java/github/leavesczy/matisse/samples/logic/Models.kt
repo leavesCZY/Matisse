@@ -10,8 +10,8 @@ data class MainPageViewState(
     val maxSelectable: Int,
     val returnOnTap: Boolean,
     val allowMixedMedia: Boolean,
-    val imageEngine: MediaImageEngine,
-    val captureStrategy: MediaCaptureStrategy,
+    val imageEngine: SampleImageEngine,
+    val captureStrategy: SampleCaptureStrategy,
     val isInsertingPagingTestImages: Boolean,
     val isInsertingImageEngineTestImages: Boolean,
     val pickedMediaList: List<MediaResource>,
@@ -19,13 +19,13 @@ data class MainPageViewState(
     val onMaxSelectableChanged: (maxSelectable: Int) -> Unit,
     val onReturnOnTapChanged: (returnOnTap: Boolean) -> Unit,
     val onAllowMixedMediaChanged: (allowMixedMedia: Boolean) -> Unit,
-    val onImageEngineChanged: (imageEngine: MediaImageEngine) -> Unit,
-    val onCaptureStrategyChanged: (captureStrategy: MediaCaptureStrategy) -> Unit,
+    val onImageEngineChanged: (imageEngine: SampleImageEngine) -> Unit,
+    val onCaptureStrategyChanged: (captureStrategy: SampleCaptureStrategy) -> Unit,
     val onToggleTheme: () -> Unit
 )
 
 @Stable
-enum class MediaCaptureStrategy {
+enum class SampleCaptureStrategy {
     Smart,
     FileProvider,
     MediaStore,
@@ -33,7 +33,7 @@ enum class MediaCaptureStrategy {
 }
 
 @Stable
-enum class MediaImageEngine {
+enum class SampleImageEngine {
     Coil,
     Glide;
 }

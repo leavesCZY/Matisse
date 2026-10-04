@@ -1,8 +1,9 @@
 package github.leavesczy.matisse
 
+import android.net.Uri
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,27 +18,47 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import coil3.ImageLoader
+import coil3.asImage
 import coil3.compose.AsyncImage
+import coil3.decode.DataSource
+import coil3.fetch.FetchResult
+import coil3.fetch.Fetcher
+import coil3.fetch.ImageFetchResult
+import coil3.fetch.SourceFetchResult
+import coil3.memory.MemoryCache
+import coil3.request.CachePolicy
 import coil3.request.ImageRequest
+import coil3.request.Options
 import coil3.request.maxBitmapSize
 import coil3.size.Dimension
+import coil3.size.Precision
+import coil3.size.Scale
 import coil3.size.Size
+import coil3.size.pxOrElse
 import coil3.video.VideoFrameDecoder
+import kotlinx.coroutines.CancellationException
 import kotlinx.parcelize.Parcelize
-
-private const val MAX_IMAGE_DECODE_DIMENSION = 4096
 
 /**
  * 基于 Coil 3 的 [ImageEngine] 实现。
  *
- * 该实现直接使用 Coil 的视频解码器，因此宿主应用必须通过 `implementation` 添加
- * `io.coil-kt.coil3:coil-compose` 和 `io.coil-kt.coil3:coil-video`。如需加载 GIF，
- * 还需添加 `io.coil-kt.coil3:coil-gif`，并在宿主的 [coil3.ImageLoader] 中注册对应的
- * GIF Decoder。
+ * 宿主需要做的事：
+ * - 通过 `implementation` 添加 `io.coil-kt.coil3:coil-compose` 和 `io.coil-kt.coil3:coil-video`；
+ * - 如需在预览页播放 GIF 等动图，还需添加 `io.coil-kt.coil3:coil-gif`，并在宿主的
+ *   [coil3.ImageLoader] 中注册对应的 Decoder；
+ * - 除此之外无需额外配置。本引擎使用 [coil3.SingletonImageLoader]，缩略图读取逻辑通过请求级
+ *   Fetcher 接入，不需要在 ImageLoader 中注册组件，也不会影响宿主自身的图片请求。
  *
- * [Thumbnail] 会裁切并填满容器；[Preview] 中视频封面完整显示在预览区域内，非视频大图按容器宽度
- * 等比展示且支持纵向滚动，其解码位图的宽高最大限制为 4096 像素。超过限制的图片
- * 会保持宽高比进行降采样，因此放大后清晰度可能降低。
+ * [Thumbnail]：始终按 [MediaStoreThumbnail.MAX_DIMENSION] 解码，并以媒体 Uri 为内存缓存 key，
+ * 网格、相册封面与预览占位共用同一张 Bitmap，由 Compose 裁切到格子尺寸。
+ * Android 10 及以上的 MediaStore 媒体优先读取系统缩略图；读取失败、低版本或 FileProvider 等
+ * 非 MediaStore Uri 时，按同一目标尺寸解码原图或抽取视频帧。系统缩略图为静态图；回退解码时
+ * 是否展示动图取决于宿主 ImageLoader 注册的 Decoder。
+ *
+ * [Preview]：非视频大图按容器宽度等比展示且支持纵向滚动，加载完成前先展示 [Thumbnail] 的内存缓存。
+ * 解码位图的宽高最大限制为 [ImageEngineDecode.MAX_BITMAP_DIMENSION] 像素，超过限制会保持
+ * 宽高比降采样。
  */
 @Parcelize
 class CoilImageEngine : ImageEngine {
@@ -48,7 +69,7 @@ class CoilImageEngine : ImageEngine {
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = colorResource(id = R.color.matisse_media_item_background_color)),
-            model = rememberCoilModel(mediaResource = mediaResource),
+            model = rememberCoilThumbnailRequest(mediaResource = mediaResource),
             contentScale = ContentScale.Crop
         )
     }
@@ -56,15 +77,20 @@ class CoilImageEngine : ImageEngine {
     @Composable
     override fun Preview(mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
-            Box(
+            BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
+                val (decodeWidth, decodeHeight) = ImageEngineDecode.targetSize(constraints = constraints)
                 CoilComposeImage(
                     modifier = Modifier
                         .fillMaxSize(),
-                    model = rememberCoilModel(mediaResource = mediaResource),
+                    model = rememberCoilVideoPreviewRequest(
+                        mediaResource = mediaResource,
+                        decodeWidth = decodeWidth,
+                        decodeHeight = decodeHeight
+                    ),
                     contentScale = ContentScale.Fit
                 )
             }
@@ -73,22 +99,11 @@ class CoilImageEngine : ImageEngine {
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                val context = LocalContext.current
-                val maxWidth = constraints.maxWidth
-                val request = remember(key1 = mediaResource.uri, key2 = maxWidth) {
-                    ImageRequest.Builder(context = context)
-                        .data(data = mediaResource.uri)
-                        // 高度无约束时显式提供目标宽度，避免按原始尺寸解码
-                        .size(size = Size(width = maxWidth, height = Dimension.Undefined))
-                        // 保持宽高比降采样，将单张位图的最大宽高限制在 4096 像素
-                        .maxBitmapSize(
-                            size = Size(
-                                width = MAX_IMAGE_DECODE_DIMENSION,
-                                height = MAX_IMAGE_DECODE_DIMENSION
-                            )
-                        )
-                        .build()
-                }
+                val decodeWidth = ImageEngineDecode.previewWidth(constraints = constraints)
+                val request = rememberCoilPreviewRequest(
+                    mediaResource = mediaResource,
+                    decodeWidth = decodeWidth
+                )
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -110,19 +125,101 @@ class CoilImageEngine : ImageEngine {
 
 }
 
+/** 固定按系统缩略图尺寸解码，网格与封面请求同一内存缓存条目。 */
 @Composable
-private fun rememberCoilModel(mediaResource: MediaResource): Any {
-    if (!mediaResource.isVideo) {
-        return mediaResource.uri
-    }
+private fun rememberCoilThumbnailRequest(mediaResource: MediaResource): ImageRequest {
     val context = LocalContext.current
-    return remember(key1 = mediaResource.uri) {
+    return remember(key1 = mediaResource) {
+        val thumbnailSize = Size(
+            width = MediaStoreThumbnail.MAX_DIMENSION,
+            height = MediaStoreThumbnail.MAX_DIMENSION
+        )
+        val thumbnailUri = MediaStoreThumbnail.thumbnailUri(mediaResource = mediaResource)
+        ImageRequest.Builder(context = context)
+            .memoryCacheKey(key = MediaStoreThumbnail.memoryCacheKey(mediaResource = mediaResource))
+            .size(size = thumbnailSize)
+            .scale(scale = Scale.FIT)
+            .precision(precision = Precision.INEXACT)
+            .maxBitmapSize(
+                size = Size(
+                    width = ImageEngineDecode.MAX_BITMAP_DIMENSION,
+                    height = ImageEngineDecode.MAX_BITMAP_DIMENSION
+                )
+            )
+            .apply {
+                if (thumbnailUri == null) {
+                    data(data = mediaResource.uri)
+                    if (mediaResource.isVideo) {
+                        decoderFactory { result, options, _ ->
+                            VideoFrameDecoder(source = result.source, options = options)
+                        }
+                    }
+                } else {
+                    data(
+                        data = CoilMediaStoreThumbnail(
+                            mediaResource = mediaResource,
+                            thumbnailUri = thumbnailUri
+                        )
+                    )
+                    fetcherFactory(factory = CoilMediaStoreThumbnailFetcher.Factory)
+                }
+            }
+            .build()
+    }
+}
+
+/** 与 [rememberCoilThumbnailRequest] 相同的内存缓存 key，供预览加载完成前占位。 */
+private fun thumbnailPlaceholderKey(mediaResource: MediaResource): MemoryCache.Key {
+    return MemoryCache.Key(key = MediaStoreThumbnail.memoryCacheKey(mediaResource = mediaResource))
+}
+
+@Composable
+private fun rememberCoilVideoPreviewRequest(
+    mediaResource: MediaResource,
+    decodeWidth: Int,
+    decodeHeight: Int
+): ImageRequest {
+    val context = LocalContext.current
+    return remember(key1 = mediaResource, key2 = decodeWidth, key3 = decodeHeight) {
         ImageRequest.Builder(context = context)
             .data(data = mediaResource.uri)
-            // MediaStore Uri 通常没有文件扩展名，因此需要明确指定视频帧解码器
-            .decoderFactory { result, options, _ ->
-                VideoFrameDecoder(source = result.source, options = options)
+            .size(size = Size(width = decodeWidth, height = decodeHeight))
+            .maxBitmapSize(
+                size = Size(
+                    width = ImageEngineDecode.MAX_BITMAP_DIMENSION,
+                    height = ImageEngineDecode.MAX_BITMAP_DIMENSION
+                )
+            )
+            .placeholderMemoryCacheKey(key = thumbnailPlaceholderKey(mediaResource = mediaResource))
+            .apply {
+                if (mediaResource.isVideo) {
+                    decoderFactory { result, options, _ ->
+                        VideoFrameDecoder(source = result.source, options = options)
+                    }
+                }
             }
+            .build()
+    }
+}
+
+@Composable
+private fun rememberCoilPreviewRequest(
+    mediaResource: MediaResource,
+    decodeWidth: Int
+): ImageRequest {
+    val context = LocalContext.current
+    return remember(key1 = mediaResource, key2 = decodeWidth) {
+        ImageRequest.Builder(context = context)
+            .data(data = mediaResource.uri)
+            // 高度无约束时显式提供目标宽度，避免按原始尺寸解码
+            .size(size = Size(width = decodeWidth, height = Dimension.Undefined))
+            .maxBitmapSize(
+                size = Size(
+                    width = ImageEngineDecode.MAX_BITMAP_DIMENSION,
+                    height = ImageEngineDecode.MAX_BITMAP_DIMENSION
+                )
+            )
+            .placeholderMemoryCacheKey(key = thumbnailPlaceholderKey(mediaResource = mediaResource))
             .build()
     }
 }
@@ -131,14 +228,137 @@ private fun rememberCoilModel(mediaResource: MediaResource): Any {
 private fun CoilComposeImage(
     modifier: Modifier,
     model: Any,
-    contentScale: ContentScale = ContentScale.Crop,
-    alignment: Alignment = Alignment.Center
+    contentScale: ContentScale = ContentScale.Crop
 ) {
     AsyncImage(
         modifier = modifier,
         model = model,
-        alignment = alignment,
+        alignment = Alignment.Center,
         contentScale = contentScale,
         contentDescription = null
     )
+}
+
+/**
+ * 缩略图请求的数据模型，仅通过请求级 [Fetcher.Factory] 处理，不需要宿主在 [ImageLoader] 中注册任何组件。
+ *
+ * @param mediaResource 原始媒体，回退解码时使用其 Uri
+ * @param thumbnailUri 读取系统缩略图使用的 Images / Video 集合 Uri
+ */
+private class CoilMediaStoreThumbnail(
+    val mediaResource: MediaResource,
+    val thumbnailUri: Uri
+)
+
+/**
+ * 目标尺寸不超过 [MediaStoreThumbnail.MAX_DIMENSION] 时读取系统缩略图，否则或读取失败时
+ * 用 [ImageLoader] 的 Fetcher/Decoder 解码原图（视频则抽帧），结果写入请求指定的内存缓存 key。
+ */
+private class CoilMediaStoreThumbnailFetcher(
+    private val data: CoilMediaStoreThumbnail,
+    private val options: Options,
+    private val imageLoader: ImageLoader
+) : Fetcher {
+
+    override suspend fun fetch(): FetchResult {
+        val targetWidth = options.size.width.pxOrElse { 0 }
+        val targetHeight = options.size.height.pxOrElse { 0 }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            MediaStoreThumbnail.isSizeSupported(width = targetWidth, height = targetHeight)
+        ) {
+            try {
+                val bitmap = MediaStoreThumbnail.loadBitmap(
+                    context = options.context,
+                    thumbnailUri = data.thumbnailUri
+                )
+                return ImageFetchResult(
+                    image = bitmap.asImage(),
+                    isSampled = true,
+                    dataSource = DataSource.DISK
+                )
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Throwable) {
+            }
+        }
+        return fetchOriginal()
+    }
+
+    private suspend fun fetchOriginal(): FetchResult {
+        val mediaResource = data.mediaResource
+        val decodeOptions = options.copy(
+            scale = Scale.FILL,
+            memoryCachePolicy = CachePolicy.DISABLED,
+            diskCachePolicy = CachePolicy.DISABLED
+        )
+        val mapped = imageLoader.components.map(data = mediaResource.uri, options = decodeOptions)
+        val fetcher = imageLoader.components.newFetcher(
+            data = mapped,
+            options = decodeOptions,
+            imageLoader = imageLoader
+        )?.first ?: throw IllegalStateException("No fetcher for ${mediaResource.uri}")
+        return when (val fetchResult = fetcher.fetch()) {
+            is ImageFetchResult -> fetchResult
+            is SourceFetchResult -> decodeSource(
+                fetchResult = fetchResult,
+                decodeOptions = decodeOptions,
+                mediaResource = mediaResource
+            )
+
+            null -> throw IllegalStateException("Fetch failed for ${mediaResource.uri}")
+        }
+    }
+
+    private suspend fun decodeSource(
+        fetchResult: SourceFetchResult,
+        decodeOptions: Options,
+        mediaResource: MediaResource
+    ): ImageFetchResult {
+        if (mediaResource.isVideo) {
+            val decodeResult = VideoFrameDecoder(
+                source = fetchResult.source,
+                options = decodeOptions
+            ).decode() ?: throw IllegalStateException("Decode failed for ${mediaResource.uri}")
+            return ImageFetchResult(
+                image = decodeResult.image,
+                isSampled = decodeResult.isSampled,
+                dataSource = fetchResult.dataSource
+            )
+        }
+        var factoryIndex = 0
+        while (true) {
+            val decoderPair = imageLoader.components.newDecoder(
+                result = fetchResult,
+                options = decodeOptions,
+                imageLoader = imageLoader,
+                startIndex = factoryIndex
+            ) ?: throw IllegalStateException("No decoder for ${mediaResource.uri}")
+            val decodeResult = decoderPair.first.decode()
+            if (decodeResult != null) {
+                return ImageFetchResult(
+                    image = decodeResult.image,
+                    isSampled = decodeResult.isSampled,
+                    dataSource = fetchResult.dataSource
+                )
+            }
+            factoryIndex = decoderPair.second + 1
+        }
+    }
+
+    object Factory : Fetcher.Factory<CoilMediaStoreThumbnail> {
+
+        override fun create(
+            data: CoilMediaStoreThumbnail,
+            options: Options,
+            imageLoader: ImageLoader
+        ): Fetcher {
+            return CoilMediaStoreThumbnailFetcher(
+                data = data,
+                options = options,
+                imageLoader = imageLoader
+            )
+        }
+
+    }
+
 }

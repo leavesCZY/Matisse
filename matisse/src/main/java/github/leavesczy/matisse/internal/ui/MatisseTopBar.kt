@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,13 +45,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.R
-import github.leavesczy.matisse.internal.logic.MatisseMediaBucketInfo
+import github.leavesczy.matisse.internal.logic.DEFAULT_BUCKET_ID
+import github.leavesczy.matisse.internal.logic.MatisseBucketListItem
+
+@Composable
+internal fun MatisseBucketDisplayName(bucketId: String, bucketName: String): String {
+    return if (bucketId == DEFAULT_BUCKET_ID) {
+        stringResource(id = R.string.matisse_bucket_all)
+    } else {
+        bucketName
+    }
+}
 
 @Composable
 internal fun MatisseTopBar(
     modifier: Modifier,
     bucketName: String,
-    mediaBuckets: List<MatisseMediaBucketInfo>,
+    mediaBuckets: List<MatisseBucketListItem>,
     isMediaBucketsLoading: Boolean,
     onBucketMenuOpen: () -> Unit,
     onBucketClick: (bucketId: String) -> Unit,
@@ -126,7 +137,7 @@ private fun MatisseTopBarContent(
                 .size(size = 28.dp),
             painter = painterResource(id = R.drawable.ic_matisse_arrow_back),
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-            contentDescription = null
+            contentDescription = stringResource(id = R.string.matisse_action_back)
         )
         Text(
             modifier = Modifier
@@ -148,7 +159,7 @@ private fun MatisseTopBarContent(
                 .size(size = 32.dp),
             painter = painterResource(id = R.drawable.ic_matisse_arrow_drop_down),
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-            contentDescription = null
+            contentDescription = stringResource(id = R.string.matisse_cd_switch_bucket)
         )
     }
 }
@@ -157,15 +168,15 @@ private fun MatisseTopBarContent(
 private fun BucketDropdownMenu(
     modifier: Modifier,
     expanded: Boolean,
-    mediaBuckets: List<MatisseMediaBucketInfo>,
+    mediaBuckets: List<MatisseBucketListItem>,
     isMediaBucketsLoading: Boolean,
     imageEngine: ImageEngine,
-    onBucketClick: (bucket: MatisseMediaBucketInfo) -> Unit,
+    onBucketClick: (bucket: MatisseBucketListItem) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     DropdownMenu(
-        modifier = modifier
-            .background(color = colorResource(id = R.color.matisse_dropdown_menu_background_color)),
+        modifier = modifier,
+        containerColor = colorResource(id = R.color.matisse_dropdown_menu_background_color),
         expanded = expanded,
         offset = DpOffset(x = 20.dp, y = (-10).dp),
         onDismissRequest = onDismissRequest
@@ -220,7 +231,16 @@ private fun BucketDropdownMenu(
                             Text(
                                 modifier = Modifier
                                     .weight(weight = 1f, fill = false),
-                                text = bucket.bucketName + "(${bucket.itemCount})",
+                                text = stringResource(
+                                    id = R.string.matisse_bucket_name_with_count,
+                                    formatArgs = arrayOf<Any>(
+                                        MatisseBucketDisplayName(
+                                            bucketId = bucket.bucketId,
+                                            bucketName = bucket.bucketName
+                                        ),
+                                        bucket.itemCount
+                                    )
+                                ),
                                 fontSize = 15.sp,
                                 maxLines = 1,
                                 overflow = TextOverflow.MiddleEllipsis,

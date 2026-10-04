@@ -2,14 +2,13 @@ package github.leavesczy.matisse.internal
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.core.content.IntentCompat
@@ -18,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.paging.compose.collectAsLazyPagingItems
 import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
@@ -26,7 +26,7 @@ import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.ui.MatisseTheme
-import github.leavesczy.matisse.internal.ui.MatisseVideoPlayerPage
+import github.leavesczy.matisse.internal.ui.rememberMatisseGalleryItems
 import kotlinx.coroutines.flow.collectLatest
 
 internal class MatisseActivity : BaseCaptureActivity() {
@@ -84,26 +84,38 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 }
             }
             MatisseTheme {
+                val pageViewState = matisseViewModel.pageViewState
+                // 列表页与预览页共用同一个 LazyPagingItems，任一侧触发的分页加载两边同时可见
+                val pagingItems = matisseViewModel.mediaPagingDataFlow.collectAsLazyPagingItems()
+                val galleryItems = rememberMatisseGalleryItems(
+                    capturedMediaItems = pageViewState.visibleCapturedMediaItems,
+                    pagingItems = pagingItems
+                )
                 MatissePage(
-                    pageViewState = matisseViewModel.pageViewState,
+                    pageViewState = pageViewState,
+                    galleryItems = galleryItems,
                     bottomBarViewState = matisseViewModel.bottomBarViewState,
-                    isSelectionLimitReached = matisseViewModel.isSelectionLimitReached,
                     onCaptureClick = ::requestCapture,
                     onConfirmClick = ::onConfirmClick,
                     onReturnOnTapMediaClick = ::onReturnOnTapMediaClick
                 )
                 MatissePreviewPage(
                     pageViewState = matisseViewModel.previewPageViewState,
-                    imageEngine = matisseViewModel.pageViewState.matisse.imageEngine,
-                    isSelectionLimitReached = matisseViewModel.isSelectionLimitReached,
+                    galleryItems = galleryItems,
+                    imageEngine = pageViewState.matisse.imageEngine,
                     onConfirmClick = ::onConfirmClick
-                )
-                MatisseVideoPlayerPage(
-                    pageViewState = matisseViewModel.videoPlayerPageViewState
                 )
             }
         }
         requestReadMediaPermission()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // uiMode 由本 Activity 自行处理，深浅色切换后需按新资源重设系统栏图标颜色
+        if (matisse != null) {
+            setSystemBarUi(previewPageVisible = matisseViewModel.previewPageViewState.isVisible)
+        }
     }
 
     private fun requestReadMediaPermission() {
@@ -119,6 +131,15 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     private fun buildReadMediaPermissions(): Array<String> {
+        val fullAccessPermissions = buildFullReadMediaPermissions()
+        return if (supportsPartialMediaPermission()) {
+            fullAccessPermissions + Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+        } else {
+            fullAccessPermissions
+        }
+    }
+
+    private fun buildFullReadMediaPermissions(): Array<String> {
         return if (usesGranularMediaPermissions()) {
             buildList {
                 val mediaType = matisseViewModel.mediaType
@@ -128,9 +149,6 @@ internal class MatisseActivity : BaseCaptureActivity() {
                 if (mediaType.includesVideo) {
                     add(element = Manifest.permission.READ_MEDIA_VIDEO)
                 }
-                if (supportsPartialMediaPermission()) {
-                    add(element = Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
-                }
             }.toTypedArray()
         } else {
             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -138,25 +156,11 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     private fun hasFullReadMediaPermission(): Boolean {
-        val fullAccessPermissions = if (usesGranularMediaPermissions()) {
-            buildList {
-                val mediaType = matisseViewModel.mediaType
-                if (mediaType.includesImage) {
-                    add(element = Manifest.permission.READ_MEDIA_IMAGES)
-                }
-                if (mediaType.includesVideo) {
-                    add(element = Manifest.permission.READ_MEDIA_VIDEO)
-                }
-            }.toTypedArray()
-        } else {
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-        return permissionGranted(context = this, permissions = fullAccessPermissions)
+        return permissionGranted(permissions = buildFullReadMediaPermissions())
     }
 
     private fun hasPartialReadMediaPermission(): Boolean {
         return supportsPartialMediaPermission() && permissionGranted(
-            context = this,
             permissions = arrayOf(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
         )
     }
@@ -169,18 +173,9 @@ internal class MatisseActivity : BaseCaptureActivity() {
     private fun supportsPartialMediaPermission(): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                 applicationInfo.targetSdkVersion >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-                containsPartialMediaPermissionInManifest()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private fun containsPartialMediaPermissionInManifest(): Boolean {
-        val packageInfo = packageManager.getPackageInfo(
-            packageName,
-            PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
-        )
-        return packageInfo.requestedPermissions?.contains(
-            element = Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
-        ) == true
+                containsPermissionInManifest(
+                    permission = Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+                )
     }
 
     override fun onCapturedMedia(mediaResource: MediaResource) {
@@ -188,16 +183,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     private fun onConfirmClick() {
-        val selectedMedia = matisseViewModel.getSelectedMedia()
-        if (!matisseViewModel.allowMixedMedia) {
-            val includesImage = selectedMedia.any { it.isImage }
-            val includesVideo = selectedMedia.any { it.isVideo }
-            if (includesImage && includesVideo) {
-                showToast(id = R.string.matisse_error_mixed_media)
-                return
-            }
-        }
-        finishWithSelectedMedia(result = selectedMedia)
+        finishWithSelectedMedia(result = matisseViewModel.getSelectedMedia())
     }
 
     private fun onReturnOnTapMediaClick(mediaResource: MediaResource) {
@@ -219,9 +205,8 @@ internal class MatisseActivity : BaseCaptureActivity() {
         finish()
     }
 
-    override fun onCaptureCancelled() {
-
-    }
+    // 图库选择器内取消拍照只需结束会话；列表页继续展示，无需额外 UI
+    override fun onCaptureCancelled() = Unit
 
     private fun setSystemBarUi(previewPageVisible: Boolean) {
         WindowCompat.setDecorFitsSystemWindows(window, false)

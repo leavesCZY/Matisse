@@ -11,6 +11,8 @@ import android.os.Bundle
 import android.provider.MediaStore
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaType
+import github.leavesczy.matisse.internal.MatisseLog
+import github.leavesczy.matisse.internal.logic.MediaProvider.mediaRecencySortOrder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -28,15 +30,29 @@ internal object MediaProvider {
         val mimeType: String,
         val mediaId: Long,
         val bucketId: String,
-        val bucketName: String
+        val bucketName: String,
+        val pageKey: MediaPageKey
+    )
+
+    /** 媒体在 [mediaRecencySortOrder] 中的排序位置，作为 keyset 分页的游标。 */
+    data class MediaPageKey(
+        val recency: Long,
+        val mediaId: Long
     )
 
     data class MediaBucketAggregate(
         val bucketId: String,
         val bucketName: String,
         val itemCount: Int,
-        val coverUri: Uri,
-        val coverMimeType: String
+        /** 封面查询失败时为 null，相册仍保留在列表中。 */
+        val coverUri: Uri?,
+        val coverMimeType: String?
+    )
+
+    data class MediaBuckets(
+        /** 与「全部」网格相同的查询范围，包含未归属任何有效相册（相册名为空）的媒体。 */
+        val totalItemCount: Int,
+        val buckets: List<MediaBucketAggregate>
     )
 
     private val isAtLeastQ = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
@@ -58,7 +74,7 @@ internal object MediaProvider {
                 }
                 context.contentResolver.insert(imageCollection, contentValues)
             } catch (throwable: Throwable) {
-                throwable.printStackTrace()
+                MatisseLog.e(throwable = throwable)
                 null
             }
         }
@@ -69,54 +85,93 @@ internal object MediaProvider {
             try {
                 context.contentResolver.delete(uri, null, null)
             } catch (throwable: Throwable) {
-                throwable.printStackTrace()
+                MatisseLog.e(throwable = throwable)
             }
         }
     }
 
+    /**
+     * 按 [mediaRecencySortOrder] 查询排在 [after] 之后的至多 [limit] 条媒体，[after] 为 null 时从头开始。
+     * 分页游标是上一页最后消费一条的排序位置，不使用偏移量。
+     */
     suspend fun loadMediaInfoPage(
         context: Context,
         mediaType: MediaType,
         bucketId: String?,
         limit: Int,
-        offset: Int
+        after: MediaPageKey? = null
     ): List<MediaInfo> {
         return withContext(context = Dispatchers.IO) {
-            val mediaSelection = generateSqlSelection(mediaType = mediaType)
-            val selectionParts = mutableListOf(
-                withMediaStoreStateSelection(selection = mediaSelection.selection)
-            )
-            val selectionArgs = mutableListOf<String>().apply {
-                addAll(elements = mediaSelection.selectionArgs)
-            }
-            if (!bucketId.isNullOrBlank()) {
-                selectionParts.add(element = "${MediaStore.MediaColumns.BUCKET_ID} = ?")
-                selectionArgs.add(element = bucketId)
-            }
-            queryMediaInfoList(
+            queryMediaInfoPage(
                 context = context,
-                selection = selectionParts.joinToString(separator = " AND ") { "($it)" },
-                selectionArgs = selectionArgs.toTypedArray(),
+                mediaType = mediaType,
+                bucketId = bucketId,
                 limit = limit,
-                offset = offset
-            ).orEmpty()
+                after = after
+            )
         }
     }
 
+    /**
+     * 同步分页查询。调用方须已在后台线程（例如 [Dispatchers.IO]），
+     * 避免在已处于 IO 的封面并发加载路径中再次 [withContext]。
+     */
+    private fun queryMediaInfoPage(
+        context: Context,
+        mediaType: MediaType,
+        bucketId: String?,
+        limit: Int,
+        after: MediaPageKey? = null
+    ): List<MediaInfo> {
+        val mediaSelection = generateSqlSelection(mediaType = mediaType)
+        val selectionParts = mutableListOf(
+            withMediaStoreStateSelection(selection = mediaSelection.selection)
+        )
+        val selectionArgs = mutableListOf<String>().apply {
+            addAll(elements = mediaSelection.selectionArgs)
+        }
+        if (!bucketId.isNullOrBlank()) {
+            selectionParts.add(element = "${MediaStore.MediaColumns.BUCKET_ID} = ?")
+            selectionArgs.add(element = bucketId)
+        }
+        if (after != null) {
+            // 排序表达式没有列亲和性，以字符串参数绑定时会按 TEXT 比较，因此直接内联数值
+            val recency = mediaRecencySortExpression()
+            val idColumn = MediaStore.MediaColumns._ID
+            selectionParts.add(
+                element = "$recency < ${after.recency} OR ($recency = ${after.recency} AND $idColumn < ${after.mediaId})"
+            )
+        }
+        return queryMediaInfoList(
+            context = context,
+            selection = selectionParts.joinToString(separator = " AND ") { "($it)" },
+            selectionArgs = selectionArgs.toTypedArray(),
+            limit = limit
+        ).orEmpty()
+    }
+
+    /**
+     * 加载相册列表：先按 `BUCKET_ID` 聚合各相册数量与「全部」总数，再按与网格相同的 recency
+     * 排序为每个相册各取 1 条作为封面（并发上限 [BUCKET_COVER_LOAD_CONCURRENCY]），封面即该相册网格首项。
+     * 聚合失败或拿不到计数列时走全表扫描，封面取扫描顺序中该相册首次出现的媒体。
+     */
     suspend fun loadMediaBuckets(
         context: Context,
         mediaType: MediaType
-    ): List<MediaBucketAggregate> {
+    ): MediaBuckets {
         return withContext(context = Dispatchers.IO) {
-            val summaries = queryGroupedBucketSummaries(
+            val groupedSummaries = queryGroupedBucketSummaries(
                 context = context,
                 mediaType = mediaType
             )
-            if (summaries != null) {
-                loadBucketCovers(
-                    context = context,
-                    mediaType = mediaType,
-                    summaries = summaries
+            if (groupedSummaries != null) {
+                MediaBuckets(
+                    totalItemCount = groupedSummaries.totalItemCount,
+                    buckets = loadBucketCovers(
+                        context = context,
+                        mediaType = mediaType,
+                        summaries = groupedSummaries.summaries
+                    )
                 )
             } else {
                 queryBucketsByFullScan(
@@ -127,14 +182,11 @@ internal object MediaProvider {
         }
     }
 
-    /**
-     * GROUP BY 只取相册数量；封面再按与网格相同的 recency 排序各查 1 条（有限并发），
-     * 避免 MAX(_ID) 与列表不一致，并直接带上 MIME。聚合失败时返回 null，回退全表扫描。
-     */
+    /** 按 `BUCKET_ID` 聚合各相册数量与「全部」总数；失败或拿不到计数列时返回 null。 */
     private fun queryGroupedBucketSummaries(
         context: Context,
         mediaType: MediaType
-    ): List<BucketSummary>? {
+    ): GroupedBucketSummaries? {
         val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
         val bucketDisplayNameColumn = MediaStore.MediaColumns.BUCKET_DISPLAY_NAME
         val countColumn = "COUNT(${MediaStore.MediaColumns._ID})"
@@ -145,6 +197,7 @@ internal object MediaProvider {
         )
         val contentUri = MediaStore.Files.getContentUri("external")
         val summaries = ArrayList<BucketSummary>()
+        var totalItemCount = 0
         try {
             val mediaSelection = generateSqlSelection(mediaType = mediaType)
             val cursor = queryMediaCursor(
@@ -154,7 +207,6 @@ internal object MediaProvider {
                 selection = withMediaStoreStateSelection(selection = mediaSelection.selection),
                 selectionArgs = mediaSelection.selectionArgs.takeIf { it.isNotEmpty() },
                 limit = null,
-                offset = null,
                 groupBy = bucketIdColumn,
                 sortOrder = "$bucketDisplayNameColumn ASC"
             ) ?: return null
@@ -169,13 +221,15 @@ internal object MediaProvider {
                     return null
                 }
                 while (cursor.moveToNext()) {
+                    val itemCount = cursor.getInt(countIndex)
+                    if (itemCount <= 0) {
+                        continue
+                    }
+                    // 「全部」网格不按相册过滤，相册名为空的媒体同样会展示，需要计入总数
+                    totalItemCount += itemCount
                     val bucketId = cursor.getString(bucketIdIndex).orEmpty()
                     val bucketName = cursor.getString(bucketNameIndex).orEmpty()
                     if (bucketId.isBlank() || bucketName.isBlank()) {
-                        continue
-                    }
-                    val itemCount = cursor.getInt(countIndex)
-                    if (itemCount <= 0) {
                         continue
                     }
                     summaries.add(
@@ -188,12 +242,16 @@ internal object MediaProvider {
                 }
             }
         } catch (throwable: Throwable) {
-            throwable.printStackTrace()
+            MatisseLog.e(throwable = throwable)
             return null
         }
-        return summaries
+        return GroupedBucketSummaries(
+            totalItemCount = totalItemCount,
+            summaries = summaries
+        )
     }
 
+    /** 每个相册按 recency 取 1 条封面，与该相册网格第一项一致。 */
     private suspend fun loadBucketCovers(
         context: Context,
         mediaType: MediaType,
@@ -207,30 +265,30 @@ internal object MediaProvider {
             summaries.map { summary ->
                 async {
                     semaphore.withPermit {
-                        val cover = loadMediaInfoPage(
+                        val cover = queryMediaInfoPage(
                             context = context,
                             mediaType = mediaType,
                             bucketId = summary.bucketId,
-                            limit = 1,
-                            offset = 0
-                        ).firstOrNull() ?: return@withPermit null
+                            limit = 1
+                        ).firstOrNull()
                         MediaBucketAggregate(
                             bucketId = summary.bucketId,
                             bucketName = summary.bucketName,
                             itemCount = summary.itemCount,
-                            coverUri = cover.uri,
-                            coverMimeType = cover.mimeType
+                            coverUri = cover?.uri,
+                            coverMimeType = cover?.mimeType
                         )
                     }
                 }
-            }.awaitAll().filterNotNull()
+            }.awaitAll()
         }
     }
 
+    /** 全表按 recency 扫描：首次遇到某相册的行作为其封面。 */
     private fun queryBucketsByFullScan(
         context: Context,
         mediaType: MediaType
-    ): List<MediaBucketAggregate> {
+    ): MediaBuckets {
         val idColumn = MediaStore.MediaColumns._ID
         val mimeTypeColumn = MediaStore.MediaColumns.MIME_TYPE
         val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
@@ -243,6 +301,7 @@ internal object MediaProvider {
         )
         val contentUri = MediaStore.Files.getContentUri("external")
         val aggregates = linkedMapOf<String, MutableBucketAggregate>()
+        var totalItemCount = 0
         try {
             val mediaSelection = generateSqlSelection(mediaType = mediaType)
             val cursor = queryMediaCursor(
@@ -251,15 +310,15 @@ internal object MediaProvider {
                 projection = projection,
                 selection = withMediaStoreStateSelection(selection = mediaSelection.selection),
                 selectionArgs = mediaSelection.selectionArgs.takeIf { it.isNotEmpty() },
-                limit = null,
-                offset = null
-            ) ?: return emptyList()
+                limit = null
+            ) ?: return MediaBuckets(totalItemCount = 0, buckets = emptyList())
             cursor.use { cursor ->
                 val idIndex = cursor.getColumnIndexOrThrow(idColumn)
                 val mimeTypeIndex = cursor.getColumnIndexOrThrow(mimeTypeColumn)
                 val bucketIdIndex = cursor.getColumnIndexOrThrow(bucketIdColumn)
                 val bucketNameIndex = cursor.getColumnIndexOrThrow(bucketDisplayNameColumn)
                 while (cursor.moveToNext()) {
+                    totalItemCount += 1
                     try {
                         val id = cursor.getLong(idIndex)
                         val bucketId = cursor.getString(bucketIdIndex).orEmpty()
@@ -280,22 +339,25 @@ internal object MediaProvider {
                         }
                         aggregate.itemCount += 1
                     } catch (throwable: Throwable) {
-                        throwable.printStackTrace()
+                        MatisseLog.e(throwable = throwable)
                     }
                 }
             }
         } catch (throwable: Throwable) {
-            throwable.printStackTrace()
+            MatisseLog.e(throwable = throwable)
         }
-        return aggregates.values.map { aggregate ->
-            MediaBucketAggregate(
-                bucketId = aggregate.bucketId,
-                bucketName = aggregate.bucketName,
-                itemCount = aggregate.itemCount,
-                coverUri = aggregate.coverUri,
-                coverMimeType = aggregate.coverMimeType
-            )
-        }
+        return MediaBuckets(
+            totalItemCount = totalItemCount,
+            buckets = aggregates.values.map { aggregate ->
+                MediaBucketAggregate(
+                    bucketId = aggregate.bucketId,
+                    bucketName = aggregate.bucketName,
+                    itemCount = aggregate.itemCount,
+                    coverUri = aggregate.coverUri,
+                    coverMimeType = aggregate.coverMimeType
+                )
+            }
+        )
     }
 
     private fun Cursor.indexOfAggregateColumn(aggregateSql: String, keyword: String): Int {
@@ -315,18 +377,21 @@ internal object MediaProvider {
         context: Context,
         selection: String?,
         selectionArgs: Array<String>?,
-        limit: Int?,
-        offset: Int? = null
+        limit: Int?
     ): List<MediaInfo>? {
         val idColumn = MediaStore.MediaColumns._ID
         val mimeTypeColumn = MediaStore.MediaColumns.MIME_TYPE
         val bucketIdColumn = MediaStore.MediaColumns.BUCKET_ID
         val bucketDisplayNameColumn = MediaStore.MediaColumns.BUCKET_DISPLAY_NAME
+        val dateAddedColumn = MediaStore.MediaColumns.DATE_ADDED
+        val dateModifiedColumn = MediaStore.MediaColumns.DATE_MODIFIED
         val projection = arrayOf(
             idColumn,
             mimeTypeColumn,
             bucketIdColumn,
-            bucketDisplayNameColumn
+            bucketDisplayNameColumn,
+            dateAddedColumn,
+            dateModifiedColumn
         )
         val contentUri = MediaStore.Files.getContentUri("external")
         val mediaInfoList = mutableListOf<MediaInfo>()
@@ -337,33 +402,40 @@ internal object MediaProvider {
                 projection = projection,
                 selection = selection,
                 selectionArgs = selectionArgs,
-                limit = limit,
-                offset = offset
+                limit = limit
             ) ?: return null
             cursor.use { cursor ->
                 val idIndex = cursor.getColumnIndexOrThrow(idColumn)
                 val mimeTypeIndex = cursor.getColumnIndexOrThrow(mimeTypeColumn)
                 val bucketIdIndex = cursor.getColumnIndexOrThrow(bucketIdColumn)
                 val bucketNameIndex = cursor.getColumnIndexOrThrow(bucketDisplayNameColumn)
+                val dateAddedIndex = cursor.getColumnIndexOrThrow(dateAddedColumn)
+                val dateModifiedIndex = cursor.getColumnIndexOrThrow(dateModifiedColumn)
                 while (cursor.moveToNext()) {
                     try {
                         val id = cursor.getLong(idIndex)
                         val uri = ContentUris.withAppendedId(contentUri, id)
+                        // 与 mediaRecencySortExpression 一致：NULL 视为 0，取两者中较大者；getLong 对 NULL 返回 0
+                        val recency = maxOf(
+                            a = cursor.getLong(dateAddedIndex),
+                            b = cursor.getLong(dateModifiedIndex)
+                        )
                         val mediaInfo = MediaInfo(
                             uri = uri,
                             mimeType = cursor.getString(mimeTypeIndex).orEmpty(),
                             mediaId = id,
                             bucketId = cursor.getString(bucketIdIndex).orEmpty(),
-                            bucketName = cursor.getString(bucketNameIndex).orEmpty()
+                            bucketName = cursor.getString(bucketNameIndex).orEmpty(),
+                            pageKey = MediaPageKey(recency = recency, mediaId = id)
                         )
                         mediaInfoList.add(element = mediaInfo)
                     } catch (throwable: Throwable) {
-                        throwable.printStackTrace()
+                        MatisseLog.e(throwable = throwable)
                     }
                 }
             }
         } catch (throwable: Throwable) {
-            throwable.printStackTrace()
+            MatisseLog.e(throwable = throwable)
         }
         return mediaInfoList
     }
@@ -375,7 +447,6 @@ internal object MediaProvider {
         selection: String?,
         selectionArgs: Array<String>?,
         limit: Int?,
-        offset: Int?,
         groupBy: String? = null,
         sortOrder: String = mediaRecencySortOrder()
     ): Cursor? {
@@ -390,12 +461,10 @@ internal object MediaProvider {
                 if (limit != null) {
                     putInt(ContentResolver.QUERY_ARG_LIMIT, limit)
                 }
-                if (offset != null) {
-                    putInt(ContentResolver.QUERY_ARG_OFFSET, offset)
-                }
             }
             contentResolver.query(contentUri, projection, queryArgs, null)
         } else {
+            // 低于 API 30 走旧 query API：GROUP BY 拼进 selection，LIMIT 写在 sortOrder
             val groupedSelection = if (groupBy != null) {
                 val baseSelection = selection ?: "1"
                 "$baseSelection) GROUP BY ($groupBy"
@@ -403,8 +472,7 @@ internal object MediaProvider {
                 selection
             }
             val pagedSortOrder = if (limit != null) {
-                val safeOffset = offset ?: 0
-                "$sortOrder LIMIT $limit OFFSET $safeOffset"
+                "$sortOrder LIMIT $limit"
             } else {
                 sortOrder
             }
@@ -419,18 +487,31 @@ internal object MediaProvider {
     }
 
     /**
-     * 取 DATE_ADDED 与 DATE_MODIFIED 中较新者作为排序时间，其次按 `_ID` 降序。
+     * 取 DATE_ADDED 与 DATE_MODIFIED 中较新者作为排序时间（NULL 视为 0），其次按 `_ID` 降序。
+     * 排序值不能为 NULL，否则 keyset 比较条件恒不成立，这些条目不会出现在后续页。
      */
+    private fun mediaRecencySortExpression(): String {
+        val dateAdded = "IFNULL(${MediaStore.MediaColumns.DATE_ADDED}, 0)"
+        val dateModified = "IFNULL(${MediaStore.MediaColumns.DATE_MODIFIED}, 0)"
+        return "(CASE WHEN $dateAdded > $dateModified THEN $dateAdded ELSE $dateModified END)"
+    }
+
     private fun mediaRecencySortOrder(): String {
-        val dateAddedColumn = MediaStore.MediaColumns.DATE_ADDED
-        val dateModifiedColumn = MediaStore.MediaColumns.DATE_MODIFIED
         val idColumn = MediaStore.MediaColumns._ID
-        return "(CASE WHEN $dateAddedColumn > $dateModifiedColumn THEN $dateAddedColumn ELSE $dateModifiedColumn END) DESC, $idColumn DESC"
+        return "${mediaRecencySortExpression()} DESC, $idColumn DESC"
     }
 
     suspend fun loadMediaInfo(context: Context, uri: Uri): MediaInfo? {
         return withContext(context = Dispatchers.IO) {
-            val id = ContentUris.parseId(uri)
+            val id = try {
+                ContentUris.parseId(uri)
+            } catch (throwable: Throwable) {
+                MatisseLog.e(throwable = throwable)
+                return@withContext null
+            }
+            if (id < 0L) {
+                return@withContext null
+            }
             val selection = withMediaStoreStateSelection(
                 selection = MediaStore.MediaColumns._ID + " = " + id
             )
@@ -448,6 +529,22 @@ internal object MediaProvider {
         }
     }
 
+    /**
+     * 通过文件描述符读取真实大小，而不是 MediaStore 的 `SIZE` 列：后者在外部相机写入后可能尚未更新。
+     */
+    suspend fun hasContent(context: Context, uri: Uri): Boolean {
+        return withContext(context = Dispatchers.IO) {
+            try {
+                context.contentResolver.openFileDescriptor(uri, "r")?.use {
+                    it.statSize > 0L
+                } ?: false
+            } catch (throwable: Throwable) {
+                MatisseLog.e(throwable = throwable)
+                false
+            }
+        }
+    }
+
     private fun withMediaStoreStateSelection(selection: String): String {
         val stateSelection = mediaStoreStateSelection()
         return if (stateSelection.isBlank()) {
@@ -457,6 +554,7 @@ internal object MediaProvider {
         }
     }
 
+    /** Android 10+ 排除 pending，Android 11+ 同时排除已进入回收站的条目。 */
     private fun mediaStoreStateSelection(): String {
         return buildString {
             if (isAtLeastQ) {
@@ -483,7 +581,7 @@ internal object MediaProvider {
         val queryVideoSelection =
             "$mediaTypeColumn = $mediaTypeVideoColumn and $mimeTypeColumn like 'video/%'"
         return when (mediaType) {
-            is MediaType.ImageOnly -> {
+            MediaType.ImageOnly -> {
                 MediaSqlSelection(selection = queryImageSelection)
             }
 
@@ -491,7 +589,7 @@ internal object MediaProvider {
                 MediaSqlSelection(selection = queryVideoSelection)
             }
 
-            is MediaType.ImageAndVideo -> {
+            MediaType.ImageAndVideo -> {
                 MediaSqlSelection(
                     selection = buildString {
                         append(queryImageSelection)
@@ -523,6 +621,11 @@ internal object MediaProvider {
         val itemCount: Int
     )
 
+    private class GroupedBucketSummaries(
+        val totalItemCount: Int,
+        val summaries: List<BucketSummary>
+    )
+
     private class MutableBucketAggregate(
         val bucketId: String,
         val bucketName: String,
@@ -533,9 +636,11 @@ internal object MediaProvider {
 
 }
 
-internal fun MediaProvider.MediaBucketAggregate.toCoverMediaResource(): MediaResource {
+internal fun MediaProvider.MediaBucketAggregate.toCoverMediaResource(): MediaResource? {
+    val uri = coverUri ?: return null
+    val mimeType = coverMimeType ?: return null
     return MediaResource(
-        uri = coverUri,
-        mimeType = coverMimeType
+        uri = uri,
+        mimeType = mimeType
     )
 }

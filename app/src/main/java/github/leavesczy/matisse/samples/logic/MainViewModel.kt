@@ -36,8 +36,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application = a
             maxSelectable = 3,
             returnOnTap = false,
             allowMixedMedia = true,
-            imageEngine = MediaImageEngine.Coil,
-            captureStrategy = MediaCaptureStrategy.Smart,
+            imageEngine = SampleImageEngine.Coil,
+            captureStrategy = SampleCaptureStrategy.Smart,
             isInsertingPagingTestImages = false,
             isInsertingImageEngineTestImages = false,
             pickedMediaList = emptyList(),
@@ -86,11 +86,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application = a
         pageViewState = pageViewState.copy(allowMixedMedia = allowMixedMedia)
     }
 
-    private fun onImageEngineChanged(imageEngine: MediaImageEngine) {
+    private fun onImageEngineChanged(imageEngine: SampleImageEngine) {
         pageViewState = pageViewState.copy(imageEngine = imageEngine)
     }
 
-    private fun onCaptureStrategyChanged(captureStrategy: MediaCaptureStrategy) {
+    private fun onCaptureStrategyChanged(captureStrategy: SampleCaptureStrategy) {
         pageViewState = pageViewState.copy(captureStrategy = captureStrategy)
     }
 
@@ -161,11 +161,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application = a
         }
     }
 
-    private fun resolveCaptureStrategy(): CaptureStrategy? {
+    private fun resolveCaptureStrategy(mediaType: MediaType? = null): CaptureStrategy? {
+        if (mediaType != null) {
+            if (!mediaType.includesImage) {
+                return null
+            }
+            // 与 Matisse 构造校验一致：MimeTypes 须包含拍照输出类型 image/jpeg
+            if (mediaType is MediaType.MimeTypes &&
+                !mediaType.mimeTypes.contains(element = "image/jpeg")
+            ) {
+                return null
+            }
+        }
         val currentPageViewState = pageViewState
         val fileProviderAuthority = "github.leavesczy.matisse.samples.FileProvider"
         return when (currentPageViewState.captureStrategy) {
-            MediaCaptureStrategy.Smart -> {
+            SampleCaptureStrategy.Smart -> {
                 SmartCaptureStrategy(
                     fileProviderCaptureStrategy = FileProviderCaptureStrategy(
                         authority = fileProviderAuthority
@@ -173,17 +184,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application = a
                 )
             }
 
-            MediaCaptureStrategy.FileProvider -> {
+            SampleCaptureStrategy.FileProvider -> {
                 FileProviderCaptureStrategy(
                     authority = fileProviderAuthority
                 )
             }
 
-            MediaCaptureStrategy.MediaStore -> {
+            SampleCaptureStrategy.MediaStore -> {
                 MediaStoreCaptureStrategy()
             }
 
-            MediaCaptureStrategy.Disabled -> {
+            SampleCaptureStrategy.Disabled -> {
                 null
             }
         }
@@ -192,11 +203,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application = a
     fun buildMatisse(mediaType: MediaType): Matisse {
         val currentPageViewState = pageViewState
         val imageEngine = when (currentPageViewState.imageEngine) {
-            MediaImageEngine.Coil -> {
+            SampleImageEngine.Coil -> {
                 CoilImageEngine()
             }
 
-            MediaImageEngine.Glide -> {
+            SampleImageEngine.Glide -> {
                 GlideImageEngine()
             }
         }
@@ -207,11 +218,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application = a
             mediaType = mediaType,
             imageEngine = imageEngine,
             allowMixedMedia = currentPageViewState.allowMixedMedia,
-            captureStrategy = if (mediaType.includesImage) {
-                resolveCaptureStrategy()
-            } else {
-                null
-            }
+            captureStrategy = resolveCaptureStrategy(mediaType = mediaType)
         )
     }
 

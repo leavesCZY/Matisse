@@ -36,11 +36,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
@@ -53,8 +52,8 @@ import github.leavesczy.matisse.internal.logic.MatissePlaceholderState
 @Composable
 internal fun MatissePage(
     pageViewState: MatissePageViewState,
+    galleryItems: MatisseGalleryItems,
     bottomBarViewState: MatisseBottomBarViewState,
-    isSelectionLimitReached: Boolean,
     onCaptureClick: () -> Unit,
     onConfirmClick: () -> Unit,
     onReturnOnTapMediaClick: (mediaResource: MediaResource) -> Unit
@@ -66,7 +65,10 @@ internal fun MatissePage(
         topBar = {
             MatisseTopBar(
                 modifier = Modifier,
-                bucketName = pageViewState.selectedBucket.bucketName,
+                bucketName = MatisseBucketDisplayName(
+                    bucketId = pageViewState.selectedBucket.bucketId,
+                    bucketName = pageViewState.selectedBucket.bucketName
+                ),
                 mediaBuckets = pageViewState.mediaBuckets,
                 isMediaBucketsLoading = pageViewState.isMediaBucketsLoading,
                 onBucketMenuOpen = pageViewState.onBucketMenuOpen,
@@ -89,18 +91,19 @@ internal fun MatissePage(
                 .padding(paddingValues = innerPadding)
                 .fillMaxSize()
         ) {
-            when (val placeholderState = pageViewState.placeholderState) {
-                is MatissePlaceholderState.Ready -> {
-                    if (placeholderState.hasReadMediaPermission) {
-                        MediaList(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            pageViewState = pageViewState,
-                            isSelectionLimitReached = isSelectionLimitReached,
-                            onCaptureClick = onCaptureClick,
-                            onReturnOnTapMediaClick = onReturnOnTapMediaClick
-                        )
-                    }
+            when (pageViewState.placeholderState) {
+                is MatissePlaceholderState.Granted -> {
+                    MediaList(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        pageViewState = pageViewState,
+                        galleryItems = galleryItems,
+                        onCaptureClick = onCaptureClick,
+                        onReturnOnTapMediaClick = onReturnOnTapMediaClick
+                    )
+                }
+
+                is MatissePlaceholderState.Pending -> {
                 }
 
                 is MatissePlaceholderState.NoPermission -> {
@@ -118,20 +121,15 @@ internal fun MatissePage(
 private fun MediaList(
     modifier: Modifier,
     pageViewState: MatissePageViewState,
-    isSelectionLimitReached: Boolean,
+    galleryItems: MatisseGalleryItems,
     onCaptureClick: () -> Unit,
     onReturnOnTapMediaClick: (mediaResource: MediaResource) -> Unit
 ) {
-    val lazyPagingItems = pageViewState.mediaPagingDataFlow.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
-    val refreshLoadState = lazyPagingItems.loadState.refresh
-    val capturedMediaItems = if (pageViewState.selectedBucket.supportsCapture) {
-        pageViewState.capturedMediaItems
-    } else {
-        emptyList()
-    }
+    val refreshLoadState = galleryItems.pagingItems.loadState.refresh
+    val capturedMediaItems = galleryItems.capturedMediaItems
     LaunchedEffect(key1 = pageViewState.selectedBucket.bucketId) {
-        lazyGridState.animateScrollToItem(index = 0)
+        lazyGridState.scrollToItem(index = 0)
     }
     LaunchedEffect(key1 = capturedMediaItems.firstOrNull()?.mediaId) {
         if (capturedMediaItems.isNotEmpty()) {
@@ -161,55 +159,24 @@ private fun MediaList(
                 }
             }
             items(
-                count = capturedMediaItems.size,
-                key = { index ->
-                    "captured_${capturedMediaItems[index].mediaId}"
-                },
+                count = galleryItems.itemCount,
+                key = galleryItems::keyAt,
                 contentType = {
                     "MediaItem"
                 }
             ) { index ->
-                val mediaItem = capturedMediaItems[index]
+                val mediaItem = galleryItems[index] ?: return@items
                 MediaListItem(
                     lazyGridItemScope = this,
                     pageViewState = pageViewState,
                     mediaItem = mediaItem,
-                    isSelectionLimitReached = isSelectionLimitReached,
-                    capturedMediaItems = capturedMediaItems,
-                    lazyPagingItems = lazyPagingItems,
-                    onReturnOnTapMediaClick = onReturnOnTapMediaClick
-                )
-            }
-            items(
-                count = lazyPagingItems.itemCount,
-                key = { index ->
-                    val mediaId = lazyPagingItems.peek(index = index)?.mediaId
-                    if (mediaId != null) {
-                        "media_$mediaId"
-                    } else {
-                        "placeholder_$index"
-                    }
-                },
-                contentType = {
-                    "MediaItem"
-                }
-            ) { index ->
-                val mediaItem = lazyPagingItems[index] ?: return@items
-                MediaListItem(
-                    lazyGridItemScope = this,
-                    pageViewState = pageViewState,
-                    mediaItem = mediaItem,
-                    isSelectionLimitReached = isSelectionLimitReached,
-                    capturedMediaItems = capturedMediaItems,
-                    lazyPagingItems = lazyPagingItems,
+                    galleryIndex = index,
                     onReturnOnTapMediaClick = onReturnOnTapMediaClick
                 )
             }
         }
         when {
-            refreshLoadState is LoadState.Loading &&
-                    lazyPagingItems.itemCount == 0 &&
-                    capturedMediaItems.isEmpty() -> {
+            refreshLoadState is LoadState.Loading && galleryItems.itemCount == 0 -> {
                 CircularProgressIndicator(
                     modifier = Modifier
                         .size(size = 42.dp)
@@ -221,7 +188,7 @@ private fun MediaList(
                 )
             }
 
-            lazyPagingItems.itemCount == 0 && capturedMediaItems.isEmpty() -> {
+            galleryItems.itemCount == 0 -> {
                 MatisseEmptyPlaceholder(
                     modifier = Modifier
                         .align(alignment = Alignment.Center),
@@ -238,9 +205,7 @@ private fun MediaListItem(
     lazyGridItemScope: LazyGridItemScope,
     pageViewState: MatissePageViewState,
     mediaItem: MatisseMediaItem,
-    isSelectionLimitReached: Boolean,
-    capturedMediaItems: List<MatisseMediaItem>,
-    lazyPagingItems: LazyPagingItems<MatisseMediaItem>,
+    galleryIndex: Int,
     onReturnOnTapMediaClick: (mediaResource: MediaResource) -> Unit
 ) {
     if (pageViewState.matisse.returnOnTap) {
@@ -257,17 +222,13 @@ private fun MediaListItem(
                 .matisseAnimateItem(lazyGridItemScope = lazyGridItemScope),
             mediaItem = mediaItem,
             imageEngine = pageViewState.matisse.imageEngine,
-            selectionState = pageViewState.selectionStateOf(mediaItem.mediaId),
-            isSelectionLimitReached = isSelectionLimitReached,
+            selectionStateFor = pageViewState.selectionStateFor,
+            isSelectionLimitReached = pageViewState.isSelectionLimitReached,
             maxSelectable = pageViewState.matisse.maxSelectable,
             onMediaClick = {
-                val previewMediaItems = buildList {
-                    addAll(elements = capturedMediaItems)
-                    addAll(elements = lazyPagingItems.itemSnapshotList.items)
-                }
-                pageViewState.onMediaClick(mediaItem, previewMediaItems)
+                pageViewState.onMediaClick(galleryIndex)
             },
-            onMediaCheckChanged = pageViewState.onMediaCheckChanged
+            onToggleMediaSelection = pageViewState.onToggleMediaSelection
         )
     }
 }
@@ -290,7 +251,7 @@ private fun CaptureItem(
                 .fillMaxSize(fraction = 0.5f),
             painter = painterResource(id = R.drawable.ic_matisse_photo_camera),
             tint = colorResource(id = R.color.matisse_capture_icon_color),
-            contentDescription = null
+            contentDescription = stringResource(id = R.string.matisse_cd_capture)
         )
     }
 }
@@ -300,48 +261,57 @@ private fun MediaItem(
     modifier: Modifier,
     mediaItem: MatisseMediaItem,
     imageEngine: ImageEngine,
-    selectionState: MatisseMediaSelectState,
-    isSelectionLimitReached: Boolean,
+    selectionStateFor: (mediaId: Long) -> MatisseMediaSelectState,
+    isSelectionLimitReached: () -> Boolean,
     maxSelectable: Int,
     onMediaClick: () -> Unit,
-    onMediaCheckChanged: (mediaItem: MatisseMediaItem) -> Unit
+    onToggleMediaSelection: (mediaItem: MatisseMediaItem) -> Unit
 ) {
-    val onCheckedChange = remember(key1 = mediaItem.mediaId, key2 = onMediaCheckChanged) {
+    val onCheckedChange = remember(key1 = mediaItem.mediaId, key2 = onToggleMediaSelection) {
         {
-            onMediaCheckChanged(mediaItem)
+            onToggleMediaSelection(mediaItem)
         }
     }
     Box(
         modifier = modifier
-            .aspectRatio(ratio = 1f)
-            .clickable(onClick = onMediaClick),
+            .aspectRatio(ratio = 1f),
         contentAlignment = Alignment.Center
     ) {
         imageEngine.Thumbnail(mediaResource = mediaItem.mediaResource)
         if (mediaItem.mediaResource.isVideo) {
-            VideoIcon(
+            MatisseVideoIcon(
                 modifier = Modifier
                     .fillMaxSize(fraction = 0.24f)
             )
         }
         MediaItemSelectionOverlay(
-            selectionState = selectionState,
+            mediaId = mediaItem.mediaId,
+            selectionStateFor = selectionStateFor,
             isSelectionLimitReached = isSelectionLimitReached,
             maxSelectable = maxSelectable,
+            onMediaClick = onMediaClick,
             onCheckedChange = onCheckedChange
         )
     }
 }
 
+/**
+ * 选中状态只在这一层读取：选中表是同一个 SnapshotStateMap，任何写入都会让所有读取方失效，
+ * 若在 [MediaItem] 中读取会让每个可见格子的缩略图一起重组。
+ */
 @Composable
 private fun BoxScope.MediaItemSelectionOverlay(
-    selectionState: MatisseMediaSelectState,
-    isSelectionLimitReached: Boolean,
+    mediaId: Long,
+    selectionStateFor: (mediaId: Long) -> MatisseMediaSelectState,
+    isSelectionLimitReached: () -> Boolean,
     maxSelectable: Int,
+    onMediaClick: () -> Unit,
     onCheckedChange: () -> Unit
 ) {
+    val selectionState = selectionStateFor(mediaId)
     MediaItemScrim(
-        modifier = Modifier,
+        modifier = Modifier
+            .clickable(onClick = onMediaClick),
         isSelected = selectionState.isSelected
     )
     Box(
@@ -352,7 +322,7 @@ private fun BoxScope.MediaItemSelectionOverlay(
     ) {
         MatisseCheckbox(
             modifier = Modifier
-                .fillMaxSize(fraction = 0.80f),
+                .fillMaxSize(fraction = 0.70f),
             selectionState = selectionState,
             isSelectionLimitReached = isSelectionLimitReached,
             maxSelectable = maxSelectable,
@@ -398,7 +368,7 @@ private fun MediaItemReturnOnTap(
     ) {
         imageEngine.Thumbnail(mediaResource = mediaResource)
         if (mediaResource.isVideo) {
-            VideoIcon(
+            MatisseVideoIcon(
                 modifier = Modifier
                     .fillMaxSize(fraction = 0.24f)
             )
@@ -407,7 +377,7 @@ private fun MediaItemReturnOnTap(
 }
 
 @Composable
-internal fun VideoIcon(modifier: Modifier) {
+internal fun MatisseVideoIcon(modifier: Modifier) {
     Box(
         modifier = modifier
             .shadow(elevation = 1.dp, shape = CircleShape)

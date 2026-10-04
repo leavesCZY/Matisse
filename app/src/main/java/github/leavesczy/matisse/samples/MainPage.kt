@@ -2,6 +2,7 @@ package github.leavesczy.matisse.samples
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,8 +39,8 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.samples.logic.MainPageViewState
-import github.leavesczy.matisse.samples.logic.MediaCaptureStrategy
-import github.leavesczy.matisse.samples.logic.MediaImageEngine
+import github.leavesczy.matisse.samples.logic.SampleCaptureStrategy
+import github.leavesczy.matisse.samples.logic.SampleImageEngine
 
 @Composable
 fun MainPage(
@@ -123,7 +124,10 @@ fun MainPage(
             OptionDivider()
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .clickable {
+                        pageViewState.onReturnOnTapChanged(!pageViewState.returnOnTap)
+                    },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Title(text = "returnOnTap")
@@ -140,7 +144,7 @@ fun MainPage(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                for (engine in MediaImageEngine.entries) {
+                for (engine in SampleImageEngine.entries) {
                     RadioButton(
                         label = engine.name,
                         selected = pageViewState.imageEngine == engine,
@@ -153,7 +157,10 @@ fun MainPage(
             OptionDivider()
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .clickable {
+                        pageViewState.onAllowMixedMediaChanged(!pageViewState.allowMixedMedia)
+                    },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Title(text = "allowMixedMedia")
@@ -171,7 +178,7 @@ fun MainPage(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.Center
             ) {
-                for (strategy in MediaCaptureStrategy.entries) {
+                for (strategy in SampleCaptureStrategy.entries) {
                     RadioButton(
                         label = strategy.name,
                         selected = pageViewState.captureStrategy == strategy,
@@ -208,7 +215,7 @@ fun MainPage(
                 )
                 Button(
                     text = "直接拍照",
-                    enabled = pageViewState.captureStrategy != MediaCaptureStrategy.Disabled,
+                    enabled = pageViewState.captureStrategy != SampleCaptureStrategy.Disabled,
                     onClick = onCaptureClick
                 )
                 Button(
@@ -289,7 +296,8 @@ private fun RadioButton(
     onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier,
+        modifier = Modifier
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

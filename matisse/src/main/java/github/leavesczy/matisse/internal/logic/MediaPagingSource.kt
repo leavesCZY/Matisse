@@ -7,10 +7,9 @@ import github.leavesczy.matisse.MediaType
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
- * 基于 MediaStore OFFSET 的正向分页。
+ * 基于 MediaStore 排序位置（keyset）的正向分页，key 为上一页最后消费的一条媒体的排序位置。
  *
- * 仅支持 append：`prevKey` 恒为 null，避免在排除项导致 query offset 与页大小不一致时
- * 错误计算 prepend 起点。刷新时 [getRefreshKey] 返回 null，从 offset 0 重新加载。
+ * 仅支持 append：`prevKey` 恒为 null。刷新时 [getRefreshKey] 返回 null，从头重新加载。
  */
 internal class MediaPagingSource(
     private val context: Context,
@@ -18,70 +17,68 @@ internal class MediaPagingSource(
     private val bucketId: String?,
     private val excludedMediaIds: Set<Long>,
     private val createMediaItem: (mediaInfo: MediaProvider.MediaInfo) -> MatisseMediaItem
-) : PagingSource<Int, MatisseMediaItem>() {
+) : PagingSource<MediaProvider.MediaPageKey, MatisseMediaItem>() {
+
+    private companion object {
+        const val MAX_FETCH_ROUNDS = 16
+    }
 
     private val loadedMediaIds = HashSet<Long>()
 
-    override fun getRefreshKey(state: PagingState<Int, MatisseMediaItem>): Int? {
+    override fun getRefreshKey(state: PagingState<MediaProvider.MediaPageKey, MatisseMediaItem>): MediaProvider.MediaPageKey? {
         return null
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MatisseMediaItem> {
+    override suspend fun load(params: LoadParams<MediaProvider.MediaPageKey>): LoadResult<MediaProvider.MediaPageKey, MatisseMediaItem> {
         return try {
             if (params is LoadParams.Refresh) {
                 loadedMediaIds.clear()
             }
-            val startOffset = params.key ?: 0
             val pageSize = params.loadSize
             val mediaItems = ArrayList<MatisseMediaItem>(pageSize)
-            var queryOffset = startOffset
+            var pageKey = params.key
             var reachedEnd = false
-            var previousEmptyBatchFirstMediaId: Long? = null
+            var fetchRounds = 0
             while (mediaItems.size < pageSize && !reachedEnd) {
+                fetchRounds += 1
+                if (fetchRounds > MAX_FETCH_ROUNDS) {
+                    throw IllegalStateException("MediaStore page fetch exceeded $MAX_FETCH_ROUNDS rounds")
+                }
+                val batchStartKey = pageKey
                 val mediaInfoList = MediaProvider.loadMediaInfoPage(
                     context = context,
                     mediaType = mediaType,
                     bucketId = bucketId,
                     limit = pageSize,
-                    offset = queryOffset
+                    after = pageKey
                 )
-                if (mediaInfoList.isEmpty()) {
-                    reachedEnd = true
-                    break
-                }
-                val batchFirstMediaId = mediaInfoList[0].mediaId
-                var acceptedInBatch = 0
+                var consumedInBatch = 0
+                var addedInBatch = 0
                 for (mediaInfo in mediaInfoList) {
-                    queryOffset += 1
+                    consumedInBatch += 1
+                    pageKey = mediaInfo.pageKey
                     if (excludedMediaIds.contains(element = mediaInfo.mediaId)) {
                         continue
                     }
                     if (!loadedMediaIds.add(element = mediaInfo.mediaId)) {
                         continue
                     }
+                    addedInBatch += 1
                     mediaItems.add(element = createMediaItem(mediaInfo))
-                    acceptedInBatch += 1
                     if (mediaItems.size >= pageSize) {
                         break
                     }
                 }
-                when {
-                    mediaInfoList.size < pageSize -> {
-                        reachedEnd = true
-                    }
-
-                    acceptedInBatch == 0 && batchFirstMediaId == previousEmptyBatchFirstMediaId -> {
-                        // OFFSET 未推进时会反复返回同一批已跳过的数据，避免死循环
-                        reachedEnd = true
-                    }
-
-                    acceptedInBatch == 0 -> {
-                        previousEmptyBatchFirstMediaId = batchFirstMediaId
-                    }
-
-                    else -> {
-                        previousEmptyBatchFirstMediaId = null
-                    }
+                // 本批不足 pageSize 且已全部消费才视为到达末尾；本页已满时剩余行留给下一页
+                if (mediaInfoList.size < pageSize && consumedInBatch == mediaInfoList.size) {
+                    reachedEnd = true
+                } else if (
+                    addedInBatch == 0 &&
+                    mediaInfoList.size >= pageSize &&
+                    pageKey == batchStartKey
+                ) {
+                    // after 未生效时会反复返回同一批，游标停在原地
+                    throw IllegalStateException("MediaStore page cursor did not advance")
                 }
             }
             LoadResult.Page(
@@ -90,7 +87,7 @@ internal class MediaPagingSource(
                 nextKey = if (reachedEnd) {
                     null
                 } else {
-                    queryOffset
+                    pageKey
                 }
             )
         } catch (throwable: CancellationException) {

@@ -46,7 +46,7 @@ internal fun Project.configureAndroidApplication(applicationExtension: Applicati
                 isShrinkResources = false
                 isDebuggable = true
                 proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    getDefaultProguardFile(name = "proguard-android-optimize.txt"),
                     "proguard-rules.pro"
                 )
             }
@@ -56,13 +56,13 @@ internal fun Project.configureAndroidApplication(applicationExtension: Applicati
                 isShrinkResources = true
                 isDebuggable = false
                 proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    getDefaultProguardFile(name = "proguard-android-optimize.txt"),
                     "proguard-rules.pro"
                 )
                 ndk {
                     abiFilters.apply {
                         clear()
-                        add("arm64-v8a")
+                        add(element = "arm64-v8a")
                     }
                 }
             }

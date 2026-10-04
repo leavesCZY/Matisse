@@ -217,8 +217,8 @@ internal class TestImageInserter(private val contentResolver: ContentResolver) {
         val canvas = Canvas(bitmap)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         val random = Random(seed = System.currentTimeMillis() xor spec.name.hashCode().toLong())
-        val style = TestImageStyle.entries[random.nextInt(TestImageStyle.entries.size)]
-        val palette = TEST_IMAGE_PALETTES[random.nextInt(TEST_IMAGE_PALETTES.size)]
+        val style = TestImageStyle.entries[random.nextInt(until = TestImageStyle.entries.size)]
+        val palette = TEST_IMAGE_PALETTES[random.nextInt(until = TEST_IMAGE_PALETTES.size)]
         drawStyledTestImage(
             canvas = canvas,
             paint = paint,
@@ -244,8 +244,8 @@ internal class TestImageInserter(private val contentResolver: ContentResolver) {
         random: Random,
         index: Int
     ) {
-        val style = TestImageStyle.entries[random.nextInt(TestImageStyle.entries.size)]
-        val palette = TEST_IMAGE_PALETTES[random.nextInt(TEST_IMAGE_PALETTES.size)]
+        val style = TestImageStyle.entries[random.nextInt(until = TestImageStyle.entries.size)]
+        val palette = TEST_IMAGE_PALETTES[random.nextInt(until = TEST_IMAGE_PALETTES.size)]
         drawStyledTestImage(
             canvas = canvas,
             paint = paint,
@@ -456,7 +456,7 @@ internal class TestImageInserter(private val contentResolver: ContentResolver) {
         repeat(times = bandCount) { index ->
             paint.color = palette[index % palette.size]
             val offset = index * step - height
-            canvas.withSkew(-0.35f, 0f) {
+            canvas.withSkew(x = -0.35f, y = 0f) {
                 drawRect(
                     offset,
                     -height.toFloat(),
@@ -623,7 +623,7 @@ internal class TestImageInserter(private val contentResolver: ContentResolver) {
         paint.shader = null
         val minSide = min(a = width, b = height).toFloat()
         repeat(times = random.nextInt(from = 28, until = 48)) {
-            val color = palette[random.nextInt(palette.size)]
+            val color = palette[random.nextInt(until = palette.size)]
             paint.color = Color.argb(
                 random.nextInt(from = 70, until = 160),
                 Color.red(color),

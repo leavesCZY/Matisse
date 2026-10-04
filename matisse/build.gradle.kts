@@ -7,6 +7,9 @@ plugins {
 
 android {
     namespace = "github.leavesczy.matisse"
+    defaultConfig {
+        consumerProguardFiles("consumer-rules.pro")
+    }
 }
 
 dependencies {

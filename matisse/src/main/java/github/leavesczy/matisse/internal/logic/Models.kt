@@ -1,33 +1,42 @@
 package github.leavesczy.matisse.internal.logic
 
-import android.net.Uri
 import androidx.compose.runtime.Stable
-import androidx.paging.PagingData
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
-import kotlinx.coroutines.flow.Flow
 
 @Stable
 internal data class MatissePageViewState(
     val matisse: Matisse,
-    val selectedBucket: MatisseMediaBucket,
-    val mediaBuckets: List<MatisseMediaBucketInfo>,
+    val selectedBucket: MatisseSelectedBucket,
+    val mediaBuckets: List<MatisseBucketListItem>,
     val isMediaBucketsLoading: Boolean,
     val capturedMediaItems: List<MatisseMediaItem>,
-    val mediaPagingDataFlow: Flow<PagingData<MatisseMediaItem>>,
     val placeholderState: MatissePlaceholderState,
-    val selectionStateOf: (mediaId: Long) -> MatisseMediaSelectState,
+    val selectionStateFor: (mediaId: Long) -> MatisseMediaSelectState,
+    val isSelectionLimitReached: () -> Boolean,
     val onBucketMenuOpen: () -> Unit,
     val onBucketClick: (bucketId: String) -> Unit,
-    val onMediaClick: (mediaItem: MatisseMediaItem, previewMediaItems: List<MatisseMediaItem>) -> Unit,
-    val onMediaCheckChanged: (mediaItem: MatisseMediaItem) -> Unit
-)
+    /** [galleryIndex] 为拍照项与分页项拼接后的下标，与预览页共用同一套下标。 */
+    val onMediaClick: (galleryIndex: Int) -> Unit,
+    val onToggleMediaSelection: (mediaItem: MatisseMediaItem) -> Unit
+) {
+
+    /** 当前相册下实际展示在分页项之前的拍照项。 */
+    val visibleCapturedMediaItems: List<MatisseMediaItem>
+        get() = if (selectedBucket.supportsCapture) {
+            capturedMediaItems
+        } else {
+            emptyList()
+        }
+
+}
+
+/** 「全部」相册的 id；其名称由 UI 按当前语言从资源读取，不在状态中缓存。 */
+internal const val DEFAULT_BUCKET_ID = "&__matisseDefaultBucketId__&"
 
 @Stable
 internal data class MatisseMediaItem(
     val mediaId: Long,
-    val bucketId: String,
-    val bucketName: String,
     val mediaResource: MediaResource
 )
 
@@ -45,15 +54,17 @@ internal data class MatisseMediaSelectState(
 
 }
 
+/** [bucketName] 对 [DEFAULT_BUCKET_ID] 为空，展示名由 UI 解析。 */
 @Stable
-internal data class MatisseMediaBucket(
+internal data class MatisseSelectedBucket(
     val bucketId: String,
     val bucketName: String,
     val supportsCapture: Boolean
 )
 
+/** [bucketName] 对 [DEFAULT_BUCKET_ID] 为空，展示名由 UI 解析。 */
 @Stable
-internal data class MatisseMediaBucketInfo(
+internal data class MatisseBucketListItem(
     val bucketId: String,
     val bucketName: String,
     val itemCount: Int,
@@ -69,32 +80,44 @@ internal data class MatisseBottomBarViewState(
 )
 
 @Stable
+internal sealed interface MatissePreviewSource {
+
+    /** 与列表页共用同一份分页数据：预览中触发的分页加载会同时出现在列表页。 */
+    @Stable
+    data object Gallery : MatissePreviewSource
+
+    /** 底栏「预览」：打开时已选项的快照。 */
+    @Stable
+    data class Selected(val mediaItems: List<MatisseMediaItem>) : MatissePreviewSource
+
+}
+
+@Stable
 internal data class MatissePreviewPageViewState(
     val isVisible: Boolean,
     val maxSelectable: Int,
     val initialPage: Int,
     val selectedMediaCount: Int,
-    val previewMediaItems: List<MatisseMediaItem>,
-    val selectionStateOf: (mediaId: Long) -> MatisseMediaSelectState,
-    val onMediaCheckChanged: (mediaItem: MatisseMediaItem) -> Unit,
-    val onOpenVideoClick: (mediaResource: MediaResource) -> Unit,
-    val onDismissRequest: () -> Unit
+    val source: MatissePreviewSource,
+    /** 每次打开预览递增，用于在退出动画未结束时再次打开也能重置 HorizontalPager。 */
+    val previewPagerKey: Long,
+    val selectionStateFor: (mediaId: Long) -> MatisseMediaSelectState,
+    val isSelectionLimitReached: () -> Boolean,
+    val onToggleMediaSelection: (mediaItem: MatisseMediaItem) -> Unit,
+    val onDismissRequest: () -> Unit,
+    val onExitFinished: () -> Unit
 )
 
 @Stable
-internal data class MatisseVideoPlayerPageViewState(
-    val isVisible: Boolean,
-    val videoUri: Uri,
-    val onDismissRequest: () -> Unit
-)
-
-@Stable
-internal sealed class MatissePlaceholderState {
+internal sealed interface MatissePlaceholderState {
 
     @Stable
-    data class Ready(val hasReadMediaPermission: Boolean) : MatissePlaceholderState()
+    data object Pending : MatissePlaceholderState
 
     @Stable
-    data object NoPermission : MatissePlaceholderState()
+    data object Granted : MatissePlaceholderState
+
+    @Stable
+    data object NoPermission : MatissePlaceholderState
 
 }

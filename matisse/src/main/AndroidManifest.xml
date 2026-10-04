@@ -6,21 +6,20 @@
         <intent>
             <action android:name="android.media.action.IMAGE_CAPTURE" />
         </intent>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-        </intent>
     </queries>
 
     <application>
+        <!-- 界面由 Compose 构建，configChanges 中的配置变化通过重组适配而不重建 Activity，避免打断分页加载与拍照收尾 -->
         <activity
             android:name=".internal.MatisseActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|uiMode"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Matisse"
             tools:ignore="DiscouragedApi" />
         <activity
             android:name=".internal.MatisseCaptureActivity"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|uiMode"
             android:exported="false"
             android:launchMode="singleTop"
             android:theme="@style/Theme.Matisse.Capture" />

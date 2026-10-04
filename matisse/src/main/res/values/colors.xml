@@ -44,9 +44,8 @@
     <color name="matisse_checkbox_circle_fill_unselected_color">#26000000</color>
     <color name="matisse_checkbox_text_color">#FFFFFFFF</color>
 
-    <!-- Loading 指示器与视频播放页 -->
+    <!-- Loading 指示器 -->
     <color name="matisse_loading_indicator_color">#FF3B9AFF</color>
-    <color name="matisse_video_player_background_color">#FF0B1220</color>
 
     <!-- 空状态插画与文案 -->
     <color name="matisse_empty_glow_color">#243B9AFF</color>

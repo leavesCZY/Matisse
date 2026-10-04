@@ -23,12 +23,15 @@ import kotlinx.parcelize.Parcelize
  * @param returnOnTap 是否在点击缩略图时立即返回。启用后点击缩略图会立即返回单个 [MediaResource]，不进入预览或多选确认流程，并且 [maxSelectable] 必须为 1，默认为 false
  * @param mediaType 需要展示的媒体类型，默认为 [MediaType.ImageOnly]
  * @param allowMixedMedia 是否允许在同一结果中同时选择图片和视频。为 false 时禁止混合选择，默认为 false
- * @param captureStrategy 拍照策略。[mediaType] 必须包含图片（[MediaType.includesImage] 为 true），否则只能为 null。默认为 null
+ * @param captureStrategy 拍照策略。[mediaType] 必须包含图片（[MediaType.includesImage] 为 true），否则只能为 null。
+ * 当 [mediaType] 为 [MediaType.MimeTypes] 时还须包含 `image/jpeg`（内置拍照输出类型）。
+ * 自定义策略返回的 MIME 类型与 [mediaType] 不匹配时，拍照结果不会加入列表。默认为 null
  *
  * @throws IllegalArgumentException
  * 当 [maxSelectable] 或 [gridColumns] 小于 1，
  * 或者 [maxSelectable] 大于 1 且 [returnOnTap] 为 true，
- * 或者 [mediaType] 不包含图片且 [captureStrategy] 非空时抛出
+ * 或者 [mediaType] 不包含图片且 [captureStrategy] 非空，
+ * 或者 [mediaType] 为 [MediaType.MimeTypes] 且未包含 `image/jpeg` 同时 [captureStrategy] 非空时抛出
  */
 @Stable
 @Parcelize
@@ -52,8 +55,17 @@ data class Matisse(
         if (gridColumns < 1) {
             throw IllegalArgumentException("gridColumns should be larger than zero")
         }
-        if (!mediaType.includesImage && captureStrategy != null) {
-            throw IllegalArgumentException("captureStrategy must be null when mediaType does not include image")
+        if (captureStrategy != null) {
+            if (!mediaType.includesImage) {
+                throw IllegalArgumentException("captureStrategy must be null when mediaType does not include image")
+            }
+            if (mediaType is MediaType.MimeTypes &&
+                !mediaType.mimeTypes.contains(element = CAPTURE_OUTPUT_MIME_TYPE)
+            ) {
+                throw IllegalArgumentException(
+                    "when captureStrategy is non-null, MimeTypes must include $CAPTURE_OUTPUT_MIME_TYPE"
+                )
+            }
         }
     }
 
@@ -74,21 +86,18 @@ private const val IMAGE_MIME_TYPE_PREFIX = "image/"
 
 private const val VIDEO_MIME_TYPE_PREFIX = "video/"
 
-/**
- * 选择器需要查询和展示的媒体类型。
- */
+/** 内置拍照策略写入的 MIME 类型；启用拍照时 [MediaType.MimeTypes] 必须包含此项。 */
+internal const val CAPTURE_OUTPUT_MIME_TYPE = "image/jpeg"
+
 @Parcelize
 sealed interface MediaType : Parcelable {
 
-    /** 仅查询图片。 */
     @Parcelize
     data object ImageOnly : MediaType
 
-    /** 仅查询视频。 */
     @Parcelize
     data object VideoOnly : MediaType
 
-    /** 同时查询图片和视频。 */
     @Parcelize
     data object ImageAndVideo : MediaType
 
@@ -118,12 +127,6 @@ sealed interface MediaType : Parcelable {
 
     }
 
-    /**
-     * 当前类型是否包含图片。
-     *
-     * [ImageOnly] / [ImageAndVideo] 为 true；[VideoOnly] 为 false；
-     * [MimeTypes] 中存在以 `image/` 开头的类型时为 true。
-     */
     val includesImage: Boolean
         get() = when (this) {
             ImageOnly, ImageAndVideo -> {
@@ -141,12 +144,6 @@ sealed interface MediaType : Parcelable {
             }
         }
 
-    /**
-     * 当前类型是否包含视频。
-     *
-     * [VideoOnly] / [ImageAndVideo] 为 true；[ImageOnly] 为 false；
-     * [MimeTypes] 中存在以 `video/` 开头的类型时为 true。
-     */
     val includesVideo: Boolean
         get() = when (this) {
             ImageOnly -> {
@@ -180,11 +177,9 @@ data class MediaResource(
     val mimeType: String
 ) : Parcelable {
 
-    /** [mimeType] 是否以 `image/` 开头。 */
     val isImage: Boolean
         get() = mimeType.startsWith(prefix = IMAGE_MIME_TYPE_PREFIX)
 
-    /** [mimeType] 是否以 `video/` 开头。 */
     val isVideo: Boolean
         get() = mimeType.startsWith(prefix = VIDEO_MIME_TYPE_PREFIX)
 

@@ -9,6 +9,8 @@ import github.leavesczy.matisse.internal.MatisseCaptureActivity
 
 /**
  * 使用 [MatisseCapture] 配置启动独立拍照流程的 [ActivityResultContract]。
+ *
+ * 结果为拍摄得到的媒体；取消拍照、权限被拒或未能读取到有效结果时为 null。
  */
 class MatisseCaptureContract : ActivityResultContract<MatisseCapture, MediaResource?>() {
 

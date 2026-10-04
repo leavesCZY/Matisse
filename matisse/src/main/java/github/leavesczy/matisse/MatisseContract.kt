@@ -9,6 +9,8 @@ import github.leavesczy.matisse.internal.MatisseActivity
 
 /**
  * 使用 [Matisse] 配置启动图片和视频选择器的 [ActivityResultContract]。
+ *
+ * 结果为按选择顺序排列的媒体列表；用户取消或未选择任何媒体时为 null。
  */
 class MatisseContract : ActivityResultContract<Matisse, List<MediaResource>?>() {
 
