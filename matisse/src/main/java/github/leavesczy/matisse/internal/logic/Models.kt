@@ -108,12 +108,16 @@ internal data class MatissePreviewPageViewState(
     val onExitFinished: () -> Unit
 )
 
+/**
+ * 列表页占位与网格是否可展示，由读取权限结果驱动，与相册是否为空无关。
+ */
 @Stable
 internal sealed interface MatissePlaceholderState {
 
     @Stable
     data object Pending : MatissePlaceholderState
 
+    /** 已授权；相册为空时由 UI 另画空态。 */
     @Stable
     data object Granted : MatissePlaceholderState
 

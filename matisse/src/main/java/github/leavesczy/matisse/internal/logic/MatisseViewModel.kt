@@ -29,8 +29,6 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
- * 图库选择器唯一 ViewModel：网格分页、相册、选中、拍照结果与预览。
- *
  * 列表页与预览页共用 [mediaPagingDataFlow]，预览不持有独立数据源。
  */
 internal class MatisseViewModel(

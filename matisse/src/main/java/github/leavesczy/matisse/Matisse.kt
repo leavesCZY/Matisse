@@ -72,7 +72,7 @@ data class Matisse(
 }
 
 /**
- * 独立拍照功能的启动配置。通过 [MatisseCaptureContract] 启动后进入拍照流程
+ * 独立拍照功能的启动配置。通过 [MatisseCaptureContract] 启动后进入拍照流程。
  *
  * @param captureStrategy 用于创建输出 Uri、读取拍照结果及清理无效结果的拍照策略，
  * 可参见 [FileProviderCaptureStrategy]、[MediaStoreCaptureStrategy] 与 [SmartCaptureStrategy]
@@ -164,8 +164,6 @@ sealed interface MediaType : Parcelable {
 }
 
 /**
- * 选择器返回的媒体资源。
- *
  * @param uri 媒体 Uri。内置选择和拍照策略返回 `content://` Uri；实际访问范围取决于 Uri 来源及宿主权限
  * @param mimeType 媒体的 MIME 类型，例如 `image/jpeg` 或 `video/mp4`。MediaStore 未提供类型或
  * 自定义调用方传入非标准值时可能为空或无法识别，此时 [isImage] 与 [isVideo] 均为 false

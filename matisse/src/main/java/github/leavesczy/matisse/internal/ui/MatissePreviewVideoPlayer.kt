@@ -43,8 +43,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * 预览页内嵌的视频播放器。
- *
  * 使用 TextureView 而非 SurfaceView，使画面能跟随 Pager 翻页时的 graphicsLayer 缩放与透明度变化。
  * 点击画面切换暂停 / 继续；播放完成或出错时回调 [onPlaybackEnded]，由调用方恢复为封面状态。
  * 宿主进入 onStop（界面不可见）时暂停正在播放的视频，回到 onStart 后自动继续；
@@ -209,7 +207,7 @@ private class PreviewVideoPlayerState(
             onPlaybackEnded()
             true
         }
-        // IO 上打开 FD；setDataSource(FileDescriptor) 返回后即可 close，播放器会 dup 描述符。
+        // 在 IO 打开 FD；setDataSource(FileDescriptor) 返回后即可 close，播放器会复制该描述符
         prepareJob = playerScope.launch {
             try {
                 withContext(context = Dispatchers.IO) {

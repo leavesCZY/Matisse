@@ -5,7 +5,7 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- 3x3 grid: 10dp cells, 4dp gaps, 38dp total, centered -->
+    <!-- 居中的 3×3 网格：格子 10dp，间距 4dp，整体 38dp -->
     <path
         android:fillColor="#FFFFFFFF"
         android:pathData="M35,35h10v10H35z" />

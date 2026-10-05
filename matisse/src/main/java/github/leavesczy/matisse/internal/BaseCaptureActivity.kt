@@ -84,7 +84,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
             captureSession = savedInstanceState.captureSession
             when (val session = captureSession) {
                 is CaptureSession.Idle, is CaptureSession.AwaitingCamera -> {
-                    // AwaitingCamera：Activity Result 会再次回调 onCameraResult
+                    // 处于 AwaitingCamera 时由 Activity Result 再次回调 onCameraResult
                 }
 
                 is CaptureSession.RequestingPermission -> {

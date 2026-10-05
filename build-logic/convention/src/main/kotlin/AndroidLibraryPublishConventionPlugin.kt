@@ -13,8 +13,8 @@ class AndroidLibraryPublishConventionPlugin : Plugin<Project> {
             apply(plugin = "com.vanniktech.maven.publish")
             extensions.configure<MavenPublishBaseExtension> {
                 publishToMavenCentral()
-                // JitPack runs publishToMavenLocal without GPG keys.
-                // Signing is only needed for Maven Central releases.
+                // JitPack 执行 publishToMavenLocal 时没有 GPG 密钥
+                // 仅向 Maven Central 发布时才需要签名
                 if (System.getenv("JITPACK") != "true") {
                     signAllPublications()
                 }

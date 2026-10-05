@@ -74,8 +74,6 @@ interface CaptureStrategy : Parcelable {
     suspend fun deleteCaptureUri(context: Context, captureUri: Uri)
 
     /**
-     * 生成新图片的文件名。
-     *
      * 默认返回格式为 `IMG_yyyyMMdd_HHmmssSSS.jpg` 的名称。
      */
     suspend fun createImageName(context: Context): String {

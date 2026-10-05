@@ -77,7 +77,7 @@ internal class MediaPagingSource(
                     mediaInfoList.size >= pageSize &&
                     pageKey == batchStartKey
                 ) {
-                    // after 未生效时会反复返回同一批，游标停在原地
+                    // [after] 未生效时会反复返回同一批，游标停在原地
                     throw IllegalStateException("MediaStore page cursor did not advance")
                 }
             }

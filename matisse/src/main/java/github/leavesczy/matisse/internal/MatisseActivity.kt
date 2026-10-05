@@ -215,7 +215,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         finish()
     }
 
-    // 图库选择器内取消拍照只需结束会话；列表页继续展示，无需额外 UI
+    // 选择器内取消拍照只需结束会话；列表页继续展示，无需额外 UI
     override fun onCaptureCancelled() = Unit
 
     private fun setSystemBarUi(previewPageVisible: Boolean) {

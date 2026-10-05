@@ -180,6 +180,7 @@ private fun MediaList(
         val showNoPermission =
             placeholderState is MatissePlaceholderState.NoPermission && galleryEmpty
         val showGrantedOverlay = placeholderState is MatissePlaceholderState.Granted && galleryEmpty
+        // 叠在整页居中，会盖住拍照格，而不是排在其下方
         if (showNoPermission || showGrantedOverlay) {
             Box(
                 modifier = Modifier
