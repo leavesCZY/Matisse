@@ -191,7 +191,7 @@ internal class MatisseViewModel(
         } else {
             setReadMediaPermissionDeniedState()
             bottomBarViewState = buildBottomBarViewState()
-            showToast(id = R.string.matisse_error_read_media_permission)
+            showToast(id = readMediaPermissionDeniedMessage())
         }
     }
 
@@ -448,6 +448,18 @@ internal class MatisseViewModel(
         }
         // 单选时点其它项会直接替换，未选项不按已达上限变灰
         selectionLimitReached = maxSelectable > 1 && selectedMediaById.size >= maxSelectable
+    }
+
+    private fun readMediaPermissionDeniedMessage(): Int {
+        val includesImage = mediaType.includesImage
+        val includesVideo = mediaType.includesVideo
+        return if (includesImage && !includesVideo) {
+            R.string.matisse_error_permission_image
+        } else if (!includesImage && includesVideo) {
+            R.string.matisse_error_permission_video
+        } else {
+            R.string.matisse_error_permission_media
+        }
     }
 
     private fun maxSelectionExceededMessage(): String {

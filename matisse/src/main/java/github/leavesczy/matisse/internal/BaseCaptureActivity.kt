@@ -50,7 +50,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 requestCameraPermissionIfNeeded()
             } else {
                 completeCaptureCancelled()
-                showToast(id = R.string.matisse_error_write_storage_permission)
+                showToast(id = R.string.matisse_error_permission_storage)
             }
         }
 
@@ -60,7 +60,7 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
                 launchCamera()
             } else {
                 completeCaptureCancelled()
-                showToast(id = R.string.matisse_error_camera_permission)
+                showToast(id = R.string.matisse_error_permission_camera)
             }
         }
 

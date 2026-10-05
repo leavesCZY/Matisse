@@ -9,7 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -90,7 +89,7 @@ internal fun MatissePage(
                 .fillMaxSize()
         ) {
             val showMediaList = pageViewState.placeholderState is MatissePlaceholderState.Granted ||
-                pageViewState.selectedBucket.supportsCapture
+                    pageViewState.selectedBucket.supportsCapture
             if (showMediaList) {
                 MediaList(
                     modifier = Modifier
@@ -103,7 +102,9 @@ internal fun MatissePage(
             } else if (pageViewState.placeholderState is MatissePlaceholderState.NoPermission) {
                 MatisseNoPermissionPlaceholder(
                     modifier = Modifier
-                        .align(alignment = Alignment.Center)
+                        .align(alignment = Alignment.Center),
+                    includesImage = pageViewState.matisse.mediaType.includesImage,
+                    includesVideo = pageViewState.matisse.mediaType.includesVideo
                 )
             }
         }
@@ -131,7 +132,7 @@ private fun MediaList(
     }
     val gridSpacing = 1.dp
     val hasCaptureItem = pageViewState.selectedBucket.supportsCapture
-    BoxWithConstraints(modifier = modifier) {
+    Box(modifier = modifier) {
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxSize(),
@@ -176,24 +177,22 @@ private fun MediaList(
         }
         val galleryEmpty = galleryItems.itemCount == 0
         val placeholderState = pageViewState.placeholderState
-        val showNoPermission = placeholderState is MatissePlaceholderState.NoPermission && galleryEmpty
+        val showNoPermission =
+            placeholderState is MatissePlaceholderState.NoPermission && galleryEmpty
         val showGrantedOverlay = placeholderState is MatissePlaceholderState.Granted && galleryEmpty
         if (showNoPermission || showGrantedOverlay) {
-            val overlayTop = if (hasCaptureItem) {
-                val columns = pageViewState.matisse.gridColumns
-                (maxWidth - gridSpacing * (columns + 1)) / columns + gridSpacing
-            } else {
-                0.dp
-            }
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = overlayTop),
+                    .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 when {
                     showNoPermission -> {
-                        MatisseNoPermissionPlaceholder(modifier = Modifier)
+                        MatisseNoPermissionPlaceholder(
+                            modifier = Modifier,
+                            includesImage = pageViewState.matisse.mediaType.includesImage,
+                            includesVideo = pageViewState.matisse.mediaType.includesVideo
+                        )
                     }
 
                     refreshLoadState is LoadState.Error -> {

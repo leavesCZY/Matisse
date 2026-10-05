@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <path
+        android:fillColor="@color/matisse_empty_glow_color"
+        android:pathData="M100,100m-82,0a82,82 0,1 1,164 0a82,82 0,1 1,-164 0" />
+
+    <path
+        android:fillAlpha="0.45"
+        android:fillColor="@color/matisse_empty_landscape_color"
+        android:pathData="M124,58m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0" />
+
+    <path
+        android:fillAlpha="0.28"
+        android:fillColor="@color/matisse_empty_landscape_color"
+        android:pathData="M48,142L88,104L112,124L148,88L168,142Z" />
+
+    <path
+        android:fillAlpha="0.72"
+        android:fillColor="@color/matisse_empty_landscape_color"
+        android:pathData="M32,146L76,88L100,112L136,64L170,128L170,146Z" />
+
+    <path
+        android:fillAlpha="0.55"
+        android:fillColor="@color/matisse_empty_shadow_color"
+        android:pathData="M100,150m-52,0a52,8 0,1 1,104 0a52,8 0,1 1,-104 0" />
+
+</vector>

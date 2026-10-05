@@ -54,8 +54,6 @@
 
     <!-- 空状态 -->
     <color name="matisse_empty_glow_color">#404AA3FF</color>
-    <color name="matisse_empty_frame_fill_color">#FF1A2740</color>
-    <color name="matisse_empty_frame_stroke_color">#FF2A3A52</color>
     <color name="matisse_empty_landscape_color">#FF4A628A</color>
     <color name="matisse_empty_shadow_color">#59000000</color>
     <color name="matisse_empty_title_text_color">#FFF5F7FA</color>

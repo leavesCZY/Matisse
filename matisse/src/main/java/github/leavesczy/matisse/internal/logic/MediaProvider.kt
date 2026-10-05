@@ -12,6 +12,7 @@ import android.provider.MediaStore
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.internal.MatisseLog
+import github.leavesczy.matisse.internal.logic.MediaProvider.BUCKET_COVER_LOAD_CONCURRENCY
 import github.leavesczy.matisse.internal.logic.MediaProvider.mediaRecencySortOrder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

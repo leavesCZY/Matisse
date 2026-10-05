@@ -11,9 +11,11 @@
     <string name="matisse_bucket_name_with_count">%1$s (%2$d)</string>
 
     <!-- 权限错误 -->
-    <string name="matisse_error_read_media_permission">Please allow access to photos and videos and try again</string>
-    <string name="matisse_error_write_storage_permission">Please allow storage access and try again</string>
-    <string name="matisse_error_camera_permission">Please allow camera access and try again</string>
+    <string name="matisse_error_permission_image">Please allow photo access in Settings</string>
+    <string name="matisse_error_permission_video">Please allow video access in Settings</string>
+    <string name="matisse_error_permission_media">Please allow photo and video access in Settings</string>
+    <string name="matisse_error_permission_storage">Please allow storage access and try again</string>
+    <string name="matisse_error_permission_camera">Please allow camera access and try again</string>
 
     <!-- 选择限制 -->
     <plurals name="matisse_error_max_images">
@@ -34,14 +36,12 @@
     <string name="matisse_error_no_camera_app">No camera app available</string>
 
     <!-- 空状态 -->
-    <string name="matisse_empty_no_image_title">No images</string>
-    <string name="matisse_empty_no_image_subtitle">There are no images to select</string>
-    <string name="matisse_empty_no_video_title">No videos</string>
-    <string name="matisse_empty_no_video_subtitle">There are no videos to select</string>
-    <string name="matisse_empty_no_media_title">No media</string>
-    <string name="matisse_empty_no_media_subtitle">There are no images or videos to select</string>
-    <string name="matisse_empty_no_permission_title">Unable to access photos</string>
-    <string name="matisse_empty_no_permission_subtitle">Please allow access to photos and videos and try again</string>
-    <string name="matisse_empty_load_error_title">Unable to load</string>
-    <string name="matisse_empty_load_error_subtitle">Photos could not be loaded. Please try again</string>
+    <string name="matisse_empty_image_title">No photos</string>
+    <string name="matisse_empty_video_title">No videos</string>
+    <string name="matisse_empty_media_title">No photos or videos</string>
+    <string name="matisse_empty_permission_image_title">Can\'t access photos</string>
+    <string name="matisse_empty_permission_video_title">Can\'t access videos</string>
+    <string name="matisse_empty_permission_media_title">Can\'t access photos and videos</string>
+    <string name="matisse_empty_error_title">Couldn\'t load</string>
+    <string name="matisse_empty_error_subtitle">Couldn\'t load this album. Please try again</string>
 </resources>

@@ -5,6 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -23,11 +25,27 @@ import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
 
 @Composable
-internal fun MatisseNoPermissionPlaceholder(modifier: Modifier) {
+internal fun MatisseNoPermissionPlaceholder(
+    modifier: Modifier,
+    includesImage: Boolean,
+    includesVideo: Boolean
+) {
     MatissePlaceholder(
         modifier = modifier,
-        titleRes = R.string.matisse_empty_no_permission_title,
-        subtitleRes = R.string.matisse_empty_no_permission_subtitle
+        titleRes = mediaTypeStringRes(
+            includesImage = includesImage,
+            includesVideo = includesVideo,
+            imageRes = R.string.matisse_empty_permission_image_title,
+            videoRes = R.string.matisse_empty_permission_video_title,
+            mediaRes = R.string.matisse_empty_permission_media_title
+        ),
+        subtitleRes = mediaTypeStringRes(
+            includesImage = includesImage,
+            includesVideo = includesVideo,
+            imageRes = R.string.matisse_error_permission_image,
+            videoRes = R.string.matisse_error_permission_video,
+            mediaRes = R.string.matisse_error_permission_media
+        )
     )
 }
 
@@ -37,22 +55,15 @@ internal fun MatisseEmptyPlaceholder(
     includesImage: Boolean,
     includesVideo: Boolean
 ) {
-    val titleRes: Int
-    val subtitleRes: Int
-    if (includesImage && includesVideo) {
-        titleRes = R.string.matisse_empty_no_media_title
-        subtitleRes = R.string.matisse_empty_no_media_subtitle
-    } else if (includesVideo) {
-        titleRes = R.string.matisse_empty_no_video_title
-        subtitleRes = R.string.matisse_empty_no_video_subtitle
-    } else {
-        titleRes = R.string.matisse_empty_no_image_title
-        subtitleRes = R.string.matisse_empty_no_image_subtitle
-    }
     MatissePlaceholder(
         modifier = modifier,
-        titleRes = titleRes,
-        subtitleRes = subtitleRes
+        titleRes = mediaTypeStringRes(
+            includesImage = includesImage,
+            includesVideo = includesVideo,
+            imageRes = R.string.matisse_empty_image_title,
+            videoRes = R.string.matisse_empty_video_title,
+            mediaRes = R.string.matisse_empty_media_title
+        )
     )
 }
 
@@ -63,8 +74,8 @@ internal fun MatisseLoadErrorPlaceholder(
 ) {
     MatissePlaceholder(
         modifier = modifier,
-        titleRes = R.string.matisse_empty_load_error_title,
-        subtitleRes = R.string.matisse_empty_load_error_subtitle,
+        titleRes = R.string.matisse_empty_error_title,
+        subtitleRes = R.string.matisse_empty_error_subtitle,
         onRetry = onRetry
     )
 }
@@ -73,39 +84,54 @@ internal fun MatisseLoadErrorPlaceholder(
 private fun MatissePlaceholder(
     modifier: Modifier,
     @StringRes titleRes: Int,
-    @StringRes subtitleRes: Int,
+    @StringRes subtitleRes: Int? = null,
     onRetry: (() -> Unit)? = null
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Image(
             modifier = Modifier
-                .size(size = 180.dp),
-            painter = painterResource(id = R.drawable.ic_matisse_empty_gallery),
+                .size(size = 200.dp),
+            painter = painterResource(id = R.drawable.ic_matisse_placeholder),
             contentDescription = null
         )
+        val titleOnly = subtitleRes == null
         Text(
             modifier = Modifier
-                .padding(top = 14.dp, bottom = 6.dp),
+                .fillMaxWidth()
+                .padding(
+                    top = 14.dp,
+                    bottom = if (titleOnly) 0.dp else 6.dp
+                ),
             text = stringResource(id = titleRes),
-            fontSize = 18.sp,
-            lineHeight = 22.sp,
+            fontSize = if (titleOnly) 16.sp else 18.sp,
+            lineHeight = if (titleOnly) 20.sp else 22.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium,
-            color = colorResource(id = R.color.matisse_empty_title_text_color)
+            color = colorResource(
+                id = if (titleOnly) {
+                    R.color.matisse_empty_subtitle_text_color
+                } else {
+                    R.color.matisse_empty_title_text_color
+                }
+            )
         )
-        Text(
-            modifier = Modifier,
-            text = stringResource(id = subtitleRes),
-            fontSize = 14.sp,
-            lineHeight = 20.sp,
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Normal,
-            color = colorResource(id = R.color.matisse_empty_subtitle_text_color)
-        )
+        if (subtitleRes != null) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                text = stringResource(id = subtitleRes),
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Normal,
+                color = colorResource(id = R.color.matisse_empty_subtitle_text_color)
+            )
+        }
         if (onRetry != null) {
             Text(
                 modifier = Modifier
@@ -121,5 +147,21 @@ private fun MatissePlaceholder(
                 color = colorResource(id = R.color.matisse_empty_retry_text_color)
             )
         }
+    }
+}
+
+private fun mediaTypeStringRes(
+    includesImage: Boolean,
+    includesVideo: Boolean,
+    imageRes: Int,
+    videoRes: Int,
+    mediaRes: Int
+): Int {
+    return if (includesImage && !includesVideo) {
+        imageRes
+    } else if (!includesImage && includesVideo) {
+        videoRes
+    } else {
+        mediaRes
     }
 }
