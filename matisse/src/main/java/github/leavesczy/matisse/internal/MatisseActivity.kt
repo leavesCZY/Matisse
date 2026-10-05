@@ -22,6 +22,7 @@ import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
+import github.leavesczy.matisse.internal.logic.MatisseMediaItem
 import github.leavesczy.matisse.internal.logic.MatisseViewModel
 import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
@@ -61,12 +62,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
         }
 
     override val captureStrategy: CaptureStrategy?
-        get() {
-            if (matisse == null) {
-                return null
-            }
-            return matisseViewModel.captureStrategy
-        }
+        get() = matisse?.captureStrategy
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setSystemBarUi(previewPageVisible = false)
@@ -103,7 +99,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
                     pageViewState = matisseViewModel.previewPageViewState,
                     galleryItems = galleryItems,
                     imageEngine = pageViewState.matisse.imageEngine,
-                    onConfirmClick = ::onConfirmClick
+                    onConfirmClick = ::onPreviewConfirmClick
                 )
             }
         }
@@ -142,7 +138,7 @@ internal class MatisseActivity : BaseCaptureActivity() {
     private fun buildFullReadMediaPermissions(): Array<String> {
         return if (usesGranularMediaPermissions()) {
             buildList {
-                val mediaType = matisseViewModel.mediaType
+                val mediaType = matisse!!.mediaType
                 if (mediaType.includesImage) {
                     add(element = Manifest.permission.READ_MEDIA_IMAGES)
                 }
@@ -179,11 +175,25 @@ internal class MatisseActivity : BaseCaptureActivity() {
     }
 
     override fun onCapturedMedia(mediaResource: MediaResource) {
-        matisseViewModel.onMediaCaptured(mediaResource = mediaResource)
+        if (!matisseViewModel.onMediaCaptured(mediaResource = mediaResource)) {
+            return
+        }
+        if (matisse!!.returnOnTap) {
+            finishWithSelectedMedia(result = listOf(element = mediaResource))
+        }
     }
 
     private fun onConfirmClick() {
         finishWithSelectedMedia(result = matisseViewModel.getSelectedMedia())
+    }
+
+    private fun onPreviewConfirmClick(currentItem: MatisseMediaItem?) {
+        if (matisse!!.maxSelectable == 1) {
+            val mediaResource = currentItem?.mediaResource ?: return
+            finishWithSelectedMedia(result = listOf(element = mediaResource))
+            return
+        }
+        onConfirmClick()
     }
 
     private fun onReturnOnTapMediaClick(mediaResource: MediaResource) {

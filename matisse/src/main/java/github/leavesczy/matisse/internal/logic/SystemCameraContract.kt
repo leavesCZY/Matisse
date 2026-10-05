@@ -12,6 +12,7 @@ internal class SystemCameraContract : ActivityResultContract<Uri, Boolean>() {
 
     override fun createIntent(context: Context, input: Uri): Intent {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        // 仅靠 FLAG_GRANT_* 时，部分相机拿不到 EXTRA_OUTPUT 的写入权限
         intent.clipData = ClipData.newRawUri("Photo", input)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, input)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)

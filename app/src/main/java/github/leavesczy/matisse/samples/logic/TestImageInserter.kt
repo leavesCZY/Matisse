@@ -29,7 +29,18 @@ internal class TestImageInserter(private val contentResolver: ContentResolver) {
         val IMAGE_ENGINE_TEST_SPEC_COUNT: Int
             get() = IMAGE_ENGINE_TEST_SPECS.size
 
-        private const val TEST_ALBUM = "Matisse"
+        private const val INSERT_ALBUM_COUNT = 3
+
+        private val TEST_ALBUM_POOL = listOf(
+            "Matisse Amber",
+            "Matisse Coral",
+            "Matisse Indigo",
+            "Matisse Sage",
+            "Matisse Slate",
+            "Matisse Sand",
+            "Matisse Plum",
+            "Matisse Teal"
+        )
 
         private const val PAGING_TEST_IMAGE_SIZE = 512
 
@@ -90,6 +101,7 @@ internal class TestImageInserter(private val contentResolver: ContentResolver) {
         val canvas = Canvas(bitmap)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         val random = Random(seed = System.currentTimeMillis())
+        val albums = pickInsertAlbums(random = random)
         var insertedCount = 0
         try {
             for (index in 0 until PAGING_TEST_IMAGE_COUNT) {
@@ -109,7 +121,7 @@ internal class TestImageInserter(private val contentResolver: ContentResolver) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         put(
                             MediaStore.Images.Media.RELATIVE_PATH,
-                            Environment.DIRECTORY_PICTURES + "/" + TEST_ALBUM
+                            picturesRelativePath(album = albums.random(random = random))
                         )
                         put(MediaStore.Images.Media.IS_PENDING, 1)
                     }
@@ -152,6 +164,8 @@ internal class TestImageInserter(private val contentResolver: ContentResolver) {
     suspend fun insertImageEngineTestImages(): Int {
         val imageCollection = imageCollectionUri()
         val timestamp = System.currentTimeMillis()
+        val random = Random(seed = timestamp)
+        val albums = pickInsertAlbums(random = random)
         var insertedCount = 0
         IMAGE_ENGINE_TEST_SPECS.forEachIndexed { index, spec ->
             currentCoroutineContext().ensureActive()
@@ -170,7 +184,7 @@ internal class TestImageInserter(private val contentResolver: ContentResolver) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         put(
                             MediaStore.Images.Media.RELATIVE_PATH,
-                            Environment.DIRECTORY_PICTURES + "/" + TEST_ALBUM
+                            picturesRelativePath(album = albums.random(random = random))
                         )
                         put(MediaStore.Images.Media.IS_PENDING, 1)
                     }
@@ -211,6 +225,14 @@ internal class TestImageInserter(private val contentResolver: ContentResolver) {
         MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
     } else {
         MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    }
+
+    private fun pickInsertAlbums(random: Random): List<String> {
+        return TEST_ALBUM_POOL.shuffled(random = random).take(n = INSERT_ALBUM_COUNT)
+    }
+
+    private fun picturesRelativePath(album: String): String {
+        return Environment.DIRECTORY_PICTURES + "/" + album
     }
 
     private fun drawImageEngineTestImage(bitmap: Bitmap, spec: ImageTestSpec) {

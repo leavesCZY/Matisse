@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -36,7 +37,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -65,10 +65,8 @@ internal fun MatissePage(
         topBar = {
             MatisseTopBar(
                 modifier = Modifier,
-                bucketName = MatisseBucketDisplayName(
-                    bucketId = pageViewState.selectedBucket.bucketId,
-                    bucketName = pageViewState.selectedBucket.bucketName
-                ),
+                selectedBucketId = pageViewState.selectedBucket.bucketId,
+                selectedBucketName = pageViewState.selectedBucket.bucketName,
                 mediaBuckets = pageViewState.mediaBuckets,
                 isMediaBucketsLoading = pageViewState.isMediaBucketsLoading,
                 onBucketMenuOpen = pageViewState.onBucketMenuOpen,
@@ -91,27 +89,22 @@ internal fun MatissePage(
                 .padding(paddingValues = innerPadding)
                 .fillMaxSize()
         ) {
-            when (pageViewState.placeholderState) {
-                is MatissePlaceholderState.Granted -> {
-                    MediaList(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        pageViewState = pageViewState,
-                        galleryItems = galleryItems,
-                        onCaptureClick = onCaptureClick,
-                        onReturnOnTapMediaClick = onReturnOnTapMediaClick
-                    )
-                }
-
-                is MatissePlaceholderState.Pending -> {
-                }
-
-                is MatissePlaceholderState.NoPermission -> {
-                    MatisseNoPermissionPlaceholder(
-                        modifier = Modifier
-                            .align(alignment = Alignment.Center)
-                    )
-                }
+            val showMediaList = pageViewState.placeholderState is MatissePlaceholderState.Granted ||
+                pageViewState.selectedBucket.supportsCapture
+            if (showMediaList) {
+                MediaList(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    pageViewState = pageViewState,
+                    galleryItems = galleryItems,
+                    onCaptureClick = onCaptureClick,
+                    onReturnOnTapMediaClick = onReturnOnTapMediaClick
+                )
+            } else if (pageViewState.placeholderState is MatissePlaceholderState.NoPermission) {
+                MatisseNoPermissionPlaceholder(
+                    modifier = Modifier
+                        .align(alignment = Alignment.Center)
+                )
             }
         }
     }
@@ -136,17 +129,23 @@ private fun MediaList(
             lazyGridState.animateScrollToItem(index = 0)
         }
     }
-    Box(modifier = modifier) {
+    val gridSpacing = 1.dp
+    val hasCaptureItem = pageViewState.selectedBucket.supportsCapture
+    BoxWithConstraints(modifier = modifier) {
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxSize(),
             state = lazyGridState,
             columns = GridCells.Fixed(count = pageViewState.matisse.gridColumns),
-            horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 1.dp),
-            contentPadding = PaddingValues(bottom = 20.dp)
+            horizontalArrangement = Arrangement.spacedBy(space = gridSpacing),
+            verticalArrangement = Arrangement.spacedBy(space = gridSpacing),
+            contentPadding = PaddingValues(
+                start = gridSpacing,
+                end = gridSpacing,
+                bottom = 20.dp
+            )
         ) {
-            if (pageViewState.selectedBucket.supportsCapture) {
+            if (hasCaptureItem) {
                 item(
                     key = "CaptureItem",
                     contentType = "CaptureItem"
@@ -175,26 +174,54 @@ private fun MediaList(
                 )
             }
         }
-        when {
-            refreshLoadState is LoadState.Loading && galleryItems.itemCount == 0 -> {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(size = 42.dp)
-                        .align(alignment = Alignment.Center),
-                    strokeWidth = 3.dp,
-                    color = colorResource(id = R.color.matisse_loading_indicator_color),
-                    trackColor = Color.Transparent,
-                    strokeCap = ProgressIndicatorDefaults.CircularIndeterminateStrokeCap
-                )
+        val galleryEmpty = galleryItems.itemCount == 0
+        val placeholderState = pageViewState.placeholderState
+        val showNoPermission = placeholderState is MatissePlaceholderState.NoPermission && galleryEmpty
+        val showGrantedOverlay = placeholderState is MatissePlaceholderState.Granted && galleryEmpty
+        if (showNoPermission || showGrantedOverlay) {
+            val overlayTop = if (hasCaptureItem) {
+                val columns = pageViewState.matisse.gridColumns
+                (maxWidth - gridSpacing * (columns + 1)) / columns + gridSpacing
+            } else {
+                0.dp
             }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = overlayTop),
+                contentAlignment = Alignment.Center
+            ) {
+                when {
+                    showNoPermission -> {
+                        MatisseNoPermissionPlaceholder(modifier = Modifier)
+                    }
 
-            galleryItems.itemCount == 0 -> {
-                MatisseEmptyPlaceholder(
-                    modifier = Modifier
-                        .align(alignment = Alignment.Center),
-                    includesImage = pageViewState.matisse.mediaType.includesImage,
-                    includesVideo = pageViewState.matisse.mediaType.includesVideo
-                )
+                    refreshLoadState is LoadState.Error -> {
+                        MatisseLoadErrorPlaceholder(
+                            modifier = Modifier,
+                            onRetry = galleryItems.pagingItems::retry
+                        )
+                    }
+
+                    refreshLoadState is LoadState.Loading -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(size = 42.dp),
+                            strokeWidth = 3.dp,
+                            color = colorResource(id = R.color.matisse_loading_indicator_color),
+                            trackColor = Color.Transparent,
+                            strokeCap = ProgressIndicatorDefaults.CircularIndeterminateStrokeCap
+                        )
+                    }
+
+                    else -> {
+                        MatisseEmptyPlaceholder(
+                            modifier = Modifier,
+                            includesImage = pageViewState.matisse.mediaType.includesImage,
+                            includesVideo = pageViewState.matisse.mediaType.includesVideo
+                        )
+                    }
+                }
             }
         }
     }
@@ -251,7 +278,7 @@ private fun CaptureItem(
                 .fillMaxSize(fraction = 0.5f),
             painter = painterResource(id = R.drawable.ic_matisse_photo_camera),
             tint = colorResource(id = R.color.matisse_capture_icon_color),
-            contentDescription = stringResource(id = R.string.matisse_cd_capture)
+            contentDescription = null
         )
     }
 }

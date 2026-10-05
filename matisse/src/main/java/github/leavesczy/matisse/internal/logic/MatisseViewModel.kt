@@ -16,6 +16,7 @@ import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.R
+import github.leavesczy.matisse.internal.MatisseLog
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 图库选择器唯一 ViewModel：网格分页、相册、选中、拍照结果与预览。
@@ -36,13 +38,13 @@ internal class MatisseViewModel(
     private val matisse: Matisse
 ) : BaseMatisseViewModel(application = application) {
 
-    val maxSelectable = matisse.maxSelectable
+    private val maxSelectable = matisse.maxSelectable
 
-    val mediaType = matisse.mediaType
+    private val mediaType = matisse.mediaType
 
     private val allowMixedMedia = matisse.allowMixedMedia
 
-    val captureStrategy = matisse.captureStrategy
+    private val captureStrategy = matisse.captureStrategy
 
     private val defaultBucketId = DEFAULT_BUCKET_ID
 
@@ -106,7 +108,7 @@ internal class MatisseViewModel(
             config = PagingConfig(
                 pageSize = 40,
                 initialLoadSize = 40,
-                prefetchDistance = 30,
+                prefetchDistance = 20,
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
@@ -193,9 +195,12 @@ internal class MatisseViewModel(
         }
     }
 
-    fun onMediaCaptured(mediaResource: MediaResource) {
+    fun onMediaCaptured(mediaResource: MediaResource): Boolean {
         if (!isCapturedMediaAccepted(mediaResource = mediaResource)) {
-            return
+            return false
+        }
+        if (matisse.returnOnTap) {
+            return true
         }
         cancelMediaBucketsLoad()
         val mediaId = resolveCapturedMediaId(mediaResource = mediaResource)
@@ -219,6 +224,7 @@ internal class MatisseViewModel(
             capturedMediaItems = capturedMediaItems,
             isMediaBucketsLoading = false
         )
+        return true
     }
 
     /**
@@ -271,56 +277,71 @@ internal class MatisseViewModel(
         cancelMediaBucketsLoad()
         pageViewState = pageViewState.copy(isMediaBucketsLoading = true)
         mediaBucketsLoadJob = viewModelScope.launch {
-            val mediaBucketsResult = MediaProvider.loadMediaBuckets(
-                context = context,
-                mediaType = mediaType
-            )
-            ensureActive()
-            val bucketAggregates = mediaBucketsResult.buckets
-            // 「全部」封面取全库 recency 第一项，与「全部」网格中 MediaStore 首项一致
-            val newestMedia = MediaProvider.loadMediaInfoPage(
-                context = context,
-                mediaType = mediaType,
-                bucketId = null,
-                limit = 1
-            ).firstOrNull()
-            ensureActive()
-            // MediaStore 拍照项已包含在总数中（分页里被排除、以前缀展示）；
-            // FileProvider 拍照项不在 MediaStore 中，使用合成的负数 id，需要另外计入
-            val nonMediaStoreCapturedCount = capturedMediaItems.count { it.mediaId < 0L }
-            val totalItemCount = mediaBucketsResult.totalItemCount + nonMediaStoreCapturedCount
-            val mediaBuckets = buildList {
-                add(
-                    element = MatisseBucketListItem(
-                        bucketId = defaultBucket.bucketId,
-                        bucketName = defaultBucket.bucketName,
-                        itemCount = totalItemCount,
-                        coverMedia = newestMedia?.let { mediaInfo ->
-                            MediaResource(
-                                uri = mediaInfo.uri,
-                                mimeType = mediaInfo.mimeType
+            try {
+                val mediaBucketsResult = MediaProvider.loadMediaBuckets(
+                    context = context,
+                    mediaType = mediaType
+                )
+                ensureActive()
+                val bucketAggregates = mediaBucketsResult.buckets
+                // 「全部」封面取全库 recency 第一项，与「全部」网格中 MediaStore 首项一致；
+                // 查询失败时列表仍展示，封面为空
+                val newestMedia = try {
+                    MediaProvider.loadMediaInfoPage(
+                        context = context,
+                        mediaType = mediaType,
+                        bucketId = null,
+                        limit = 1
+                    ).firstOrNull()
+                } catch (throwable: CancellationException) {
+                    throw throwable
+                } catch (throwable: Throwable) {
+                    MatisseLog.e(throwable = throwable)
+                    null
+                }
+                ensureActive()
+                // MediaStore 拍照项已包含在总数中（分页里被排除、以前缀展示）；
+                // FileProvider 拍照项不在 MediaStore 中，使用合成的负数 id，需要另外计入
+                val nonMediaStoreCapturedCount = capturedMediaItems.count { it.mediaId < 0L }
+                val totalItemCount = mediaBucketsResult.totalItemCount + nonMediaStoreCapturedCount
+                val mediaBuckets = buildList {
+                    add(
+                        element = MatisseBucketListItem(
+                            bucketId = defaultBucket.bucketId,
+                            bucketName = defaultBucket.bucketName,
+                            itemCount = totalItemCount,
+                            coverMedia = newestMedia?.let { mediaInfo ->
+                                MediaResource(
+                                    uri = mediaInfo.uri,
+                                    mimeType = mediaInfo.mimeType
+                                )
+                            }
+                        )
+                    )
+                    addAll(
+                        elements = bucketAggregates.map { aggregate ->
+                            MatisseBucketListItem(
+                                bucketId = aggregate.bucketId,
+                                bucketName = aggregate.bucketName,
+                                itemCount = aggregate.itemCount,
+                                coverMedia = aggregate.toCoverMediaResource()
                             )
                         }
                     )
-                )
-                addAll(
-                    elements = bucketAggregates.map { aggregate ->
-                        MatisseBucketListItem(
-                            bucketId = aggregate.bucketId,
-                            bucketName = aggregate.bucketName,
-                            itemCount = aggregate.itemCount,
-                            coverMedia = aggregate.toCoverMediaResource()
-                        )
-                    }
-                )
-            }
-            if (pageViewState.placeholderState is MatissePlaceholderState.Granted) {
-                mediaBucketsLoaded = true
-                pageViewState = pageViewState.copy(
-                    mediaBuckets = mediaBuckets,
-                    isMediaBucketsLoading = false
-                )
-            } else {
+                }
+                if (pageViewState.placeholderState is MatissePlaceholderState.Granted) {
+                    mediaBucketsLoaded = true
+                    pageViewState = pageViewState.copy(
+                        mediaBuckets = mediaBuckets,
+                        isMediaBucketsLoading = false
+                    )
+                } else {
+                    pageViewState = pageViewState.copy(isMediaBucketsLoading = false)
+                }
+            } catch (throwable: CancellationException) {
+                throw throwable
+            } catch (throwable: Throwable) {
+                MatisseLog.e(throwable = throwable)
                 pageViewState = pageViewState.copy(isMediaBucketsLoading = false)
             }
         }
@@ -425,7 +446,7 @@ internal class MatisseViewModel(
                 selectionUiByMediaId[mediaId] = newState
             }
         }
-        // 单选时点击其它项会直接替换，不应把未选项展示为禁用态
+        // 单选时点其它项会直接替换，未选项不按已达上限变灰
         selectionLimitReached = maxSelectable > 1 && selectedMediaById.size >= maxSelectable
     }
 

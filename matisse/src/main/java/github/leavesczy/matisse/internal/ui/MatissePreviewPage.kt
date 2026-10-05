@@ -40,8 +40,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -63,7 +61,7 @@ internal fun MatissePreviewPage(
     pageViewState: MatissePreviewPageViewState,
     galleryItems: MatisseGalleryItems,
     imageEngine: ImageEngine,
-    onConfirmClick: () -> Unit
+    onConfirmClick: (currentItem: MatisseMediaItem?) -> Unit
 ) {
     AnimatedVisibility(
         modifier = Modifier
@@ -104,7 +102,7 @@ private fun MatissePreviewPageContent(
     pageViewState: MatissePreviewPageViewState,
     galleryItems: MatisseGalleryItems,
     imageEngine: ImageEngine,
-    onConfirmClick: () -> Unit
+    onConfirmClick: (currentItem: MatisseMediaItem?) -> Unit
 ) {
     // 退出动画期间继续拦截返回键（dismiss 对已隐藏状态是空操作），避免连按返回直接关闭选择器
     BackHandler(onBack = pageViewState.onDismissRequest)
@@ -239,12 +237,8 @@ private fun PreviewMediaPage(
                         }
                     )
                 } else {
-                    val playVideoDescription = stringResource(id = R.string.matisse_cd_play_video)
                     MatisseVideoIcon(
                         modifier = Modifier
-                            .semantics {
-                                contentDescription = playVideoDescription
-                            }
                             .clip(shape = CircleShape)
                             .clickable {
                                 isVideoPlaying = true
@@ -264,7 +258,7 @@ private fun PreviewBottomBar(
     pageViewState: MatissePreviewPageViewState,
     galleryItems: MatisseGalleryItems,
     pagerState: PagerState,
-    onConfirmClick: () -> Unit
+    onConfirmClick: (currentItem: MatisseMediaItem?) -> Unit
 ) {
     val source = pageViewState.source
     val currentResource by remember(key1 = source, key2 = galleryItems) {
@@ -280,18 +274,6 @@ private fun PreviewBottomBar(
             .fillMaxWidth()
             .height(height = 56.dp)
     ) {
-        Text(
-            modifier = Modifier
-                .align(alignment = Alignment.CenterStart)
-                .clip(shape = CircleShape)
-                .clickable(onClick = pageViewState.onDismissRequest)
-                .padding(horizontal = 22.dp, vertical = 6.dp),
-            text = stringResource(id = R.string.matisse_action_back),
-            fontSize = 16.sp,
-            fontStyle = FontStyle.Normal,
-            fontWeight = FontWeight.Normal,
-            color = colorResource(id = R.color.matisse_preview_page_back_text_color)
-        )
         if (mediaItem != null) {
             val onCheckedChange = remember(
                 key1 = mediaItem.mediaId,
@@ -313,7 +295,12 @@ private fun PreviewBottomBar(
         }
         val selectedMediaCount = pageViewState.selectedMediaCount
         val maxSelectable = pageViewState.maxSelectable
-        val isConfirmEnabled = selectedMediaCount in 1..maxSelectable
+        // 单选确定即可带上当前页，不必先勾选
+        val isConfirmEnabled = if (maxSelectable == 1) {
+            mediaItem != null
+        } else {
+            selectedMediaCount in 1..maxSelectable
+        }
         Text(
             modifier = Modifier
                 .align(alignment = Alignment.CenterEnd)
@@ -321,7 +308,9 @@ private fun PreviewBottomBar(
                     other = if (isConfirmEnabled) {
                         Modifier
                             .clip(shape = CircleShape)
-                            .clickable(onClick = onConfirmClick)
+                            .clickable {
+                                onConfirmClick(mediaItem)
+                            }
                     } else {
                         Modifier
                     }

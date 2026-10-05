@@ -2,52 +2,57 @@
 <resources>
     <!-- 日间主题：中性浅底 + 亮蓝强调色 -->
 
-    <!-- 系统栏背景 -->
+    <!-- 系统栏 -->
     <color name="matisse_status_bar_background_color">#FFFFFFFF</color>
     <color name="matisse_navigation_bar_background_color">#FFFFFFFF</color>
 
-    <!-- 相册页：页面背景、缩略图占位、选中遮罩、拍照入口、视频角标 -->
+    <!-- 相册页 -->
     <color name="matisse_main_page_background_color">#FFF7F8FA</color>
+
+    <!-- 网格项 -->
     <color name="matisse_media_item_background_color">#FFE6E8ED</color>
     <color name="matisse_media_item_scrim_unselected_color">#08000000</color>
     <color name="matisse_media_item_scrim_selected_color">#66000000</color>
-    <color name="matisse_capture_background_color">#FFE6E8ED</color>
-    <color name="matisse_capture_icon_color">#665B6B82</color>
     <color name="matisse_media_video_icon_background_color">#F7FFFFFF</color>
     <color name="matisse_media_video_icon_color">#FF0B1F3A</color>
 
-    <!-- 顶栏与相册下拉菜单 -->
+    <!-- 拍照格 -->
+    <color name="matisse_capture_background_color">#FFE6E8ED</color>
+    <color name="matisse_capture_icon_color">#665B6B82</color>
+
+    <!-- 顶栏 -->
     <color name="matisse_top_bar_background_color">#FFFFFFFF</color>
     <color name="matisse_top_bar_icon_color">#FF0B1F3A</color>
     <color name="matisse_top_bar_text_color">#FF0B1F3A</color>
+
+    <!-- 相册下拉 -->
     <color name="matisse_dropdown_menu_background_color">#FFFFFFFF</color>
     <color name="matisse_dropdown_menu_text_color">#FF0B1F3A</color>
 
-    <!-- 底栏：预览为正文色，确认为强调蓝 -->
+    <!-- 底栏 -->
     <color name="matisse_bottom_bar_background_color">#FFFFFFFF</color>
     <color name="matisse_bottom_bar_preview_text_color">#FF0B1F3A</color>
     <color name="matisse_bottom_bar_preview_text_disabled_color">#FFA0AEC0</color>
     <color name="matisse_bottom_bar_confirm_text_color">#FF3B9AFF</color>
     <color name="matisse_bottom_bar_confirm_text_disabled_color">#FFA0AEC0</color>
 
-    <!-- 预览页（深色沉浸） -->
+    <!-- 预览页 -->
     <color name="matisse_preview_page_background_color">#FF0B1220</color>
     <color name="matisse_preview_page_bottom_bar_background_color">#E6162033</color>
-    <color name="matisse_preview_page_back_text_color">#FFF5F7FA</color>
     <color name="matisse_preview_page_confirm_text_color">#FF5BA3F7</color>
     <color name="matisse_preview_page_confirm_text_disabled_color">#665BA3F7</color>
 
-    <!-- 勾选框：描边、选中填充、序号/对勾文字 -->
+    <!-- 勾选框 -->
     <color name="matisse_checkbox_circle_stroke_color">#F7FFFFFF</color>
     <color name="matisse_checkbox_circle_stroke_disabled_color">#66FFFFFF</color>
-    <color name="matisse_checkbox_circle_fill_selected_color">#FF3B9AFF</color>
     <color name="matisse_checkbox_circle_fill_unselected_color">#26000000</color>
+    <color name="matisse_checkbox_circle_fill_selected_color">#FF3B9AFF</color>
     <color name="matisse_checkbox_text_color">#FFFFFFFF</color>
 
-    <!-- Loading 指示器 -->
+    <!-- 加载 -->
     <color name="matisse_loading_indicator_color">#FF3B9AFF</color>
 
-    <!-- 空状态插画与文案 -->
+    <!-- 空状态 -->
     <color name="matisse_empty_glow_color">#243B9AFF</color>
     <color name="matisse_empty_frame_fill_color">#FFFFFFFF</color>
     <color name="matisse_empty_frame_stroke_color">#FFD5DEEA</color>
@@ -55,4 +60,5 @@
     <color name="matisse_empty_shadow_color">#12000000</color>
     <color name="matisse_empty_title_text_color">#FF0B1F3A</color>
     <color name="matisse_empty_subtitle_text_color">#FF5A7394</color>
+    <color name="matisse_empty_retry_text_color">#FF3B9AFF</color>
 </resources>

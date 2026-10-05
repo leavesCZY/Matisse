@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Actions -->
-    <string name="matisse_action_back">Back</string>
+    <!-- 操作 -->
     <string name="matisse_action_preview">Preview</string>
     <string name="matisse_action_confirm">Done</string>
     <string name="matisse_action_confirm_with_count">Done (%1$d/%2$d)</string>
-    <!-- Bucket -->
+    <string name="matisse_action_retry">Retry</string>
+
+    <!-- 相册 -->
     <string name="matisse_bucket_all">All</string>
     <string name="matisse_bucket_name_with_count">%1$s (%2$d)</string>
-    <!-- Errors -->
+
+    <!-- 权限错误 -->
     <string name="matisse_error_read_media_permission">Please allow access to photos and videos and try again</string>
     <string name="matisse_error_write_storage_permission">Please allow storage access and try again</string>
     <string name="matisse_error_camera_permission">Please allow camera access and try again</string>
+
+    <!-- 选择限制 -->
     <plurals name="matisse_error_max_images">
         <item quantity="one">You can select up to %1$d image</item>
         <item quantity="other">You can select up to %1$d images</item>
@@ -25,8 +29,11 @@
         <item quantity="other">You can select up to %1$d images or videos</item>
     </plurals>
     <string name="matisse_error_mixed_media">Images and videos cannot be selected together</string>
+
+    <!-- 拍照 -->
     <string name="matisse_error_no_camera_app">No camera app available</string>
-    <!-- Empty state -->
+
+    <!-- 空状态 -->
     <string name="matisse_empty_no_image_title">No images</string>
     <string name="matisse_empty_no_image_subtitle">There are no images to select</string>
     <string name="matisse_empty_no_video_title">No videos</string>
@@ -35,9 +42,6 @@
     <string name="matisse_empty_no_media_subtitle">There are no images or videos to select</string>
     <string name="matisse_empty_no_permission_title">Unable to access photos</string>
     <string name="matisse_empty_no_permission_subtitle">Please allow access to photos and videos and try again</string>
-    <!-- Accessibility -->
-    <string name="matisse_cd_capture">Take photo</string>
-    <string name="matisse_cd_switch_bucket">Switch album</string>
-    <string name="matisse_cd_select_media">Select</string>
-    <string name="matisse_cd_play_video">Play video</string>
+    <string name="matisse_empty_load_error_title">Unable to load</string>
+    <string name="matisse_empty_load_error_subtitle">Photos could not be loaded. Please try again</string>
 </resources>

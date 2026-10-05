@@ -1,10 +1,7 @@
-package github.leavesczy.matisse
+package github.leavesczy.matisse.internal.logic
 
 import androidx.compose.ui.unit.Constraints
 
-/**
- * [CoilImageEngine] 与 [GlideImageEngine] 共用的解码尺寸约定。
- */
 internal object ImageEngineDecode {
 
     /** 单张位图宽/高上限，用于预览大图与异常超大约束。 */

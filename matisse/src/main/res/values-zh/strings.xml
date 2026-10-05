@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Actions -->
-    <string name="matisse_action_back">返回</string>
+    <!-- 操作 -->
     <string name="matisse_action_preview">预览</string>
     <string name="matisse_action_confirm">确定</string>
     <string name="matisse_action_confirm_with_count">确定(%1$d/%2$d)</string>
-    <!-- Bucket -->
+    <string name="matisse_action_retry">重试</string>
+
+    <!-- 相册 -->
     <string name="matisse_bucket_all">全部</string>
     <string name="matisse_bucket_name_with_count">%1$s(%2$d)</string>
-    <!-- Errors -->
+
+    <!-- 权限错误 -->
     <string name="matisse_error_read_media_permission">请授予相册访问权限后重试</string>
     <string name="matisse_error_write_storage_permission">请授予存储写入权限后重试</string>
     <string name="matisse_error_camera_permission">请授予拍照权限后重试</string>
+
+    <!-- 选择限制 -->
     <plurals name="matisse_error_max_images">
         <item quantity="other">最多只能选择 %1$d 张图片</item>
     </plurals>
@@ -22,8 +26,11 @@
         <item quantity="other">最多只能选择 %1$d 个图片或视频</item>
     </plurals>
     <string name="matisse_error_mixed_media">不能同时选择图片和视频</string>
+
+    <!-- 拍照 -->
     <string name="matisse_error_no_camera_app">没有可用于拍照的应用</string>
-    <!-- Empty state -->
+
+    <!-- 空状态 -->
     <string name="matisse_empty_no_image_title">暂无图片</string>
     <string name="matisse_empty_no_image_subtitle">相册中没有可选择的图片</string>
     <string name="matisse_empty_no_video_title">暂无视频</string>
@@ -32,9 +39,6 @@
     <string name="matisse_empty_no_media_subtitle">相册中没有可选择的媒体资源</string>
     <string name="matisse_empty_no_permission_title">无法访问相册</string>
     <string name="matisse_empty_no_permission_subtitle">请授予相册访问权限后重试</string>
-    <!-- Accessibility -->
-    <string name="matisse_cd_capture">拍照</string>
-    <string name="matisse_cd_switch_bucket">切换相册</string>
-    <string name="matisse_cd_select_media">选择</string>
-    <string name="matisse_cd_play_video">播放视频</string>
+    <string name="matisse_empty_load_error_title">无法加载</string>
+    <string name="matisse_empty_load_error_subtitle">相册内容加载失败，请重试</string>
 </resources>

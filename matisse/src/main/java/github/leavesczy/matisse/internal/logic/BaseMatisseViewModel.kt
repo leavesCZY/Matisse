@@ -25,7 +25,7 @@ internal abstract class BaseMatisseViewModel(application: Application) :
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
     }
 
-    protected fun getString(@StringRes id: Int): String {
+    private fun getString(@StringRes id: Int): String {
         return ContextCompat.getString(context, id)
     }
 

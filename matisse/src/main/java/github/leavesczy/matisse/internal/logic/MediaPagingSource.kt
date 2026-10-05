@@ -20,7 +20,7 @@ internal class MediaPagingSource(
 ) : PagingSource<MediaProvider.MediaPageKey, MatisseMediaItem>() {
 
     private companion object {
-        const val MAX_FETCH_ROUNDS = 16
+        private const val MAX_FETCH_ROUNDS = 16
     }
 
     private val loadedMediaIds = HashSet<Long>()

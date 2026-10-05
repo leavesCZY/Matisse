@@ -20,7 +20,7 @@ import kotlinx.parcelize.Parcelize
  * @param maxSelectable 最多可选择的媒体数量，必须大于 0
  * @param imageEngine 图片加载引擎。Matisse 不传递 Coil 或 Glide 依赖，宿主需要根据所选实现添加依赖，具体要求参见 [CoilImageEngine] 与 [GlideImageEngine]
  * @param gridColumns 媒体网格的列数，必须大于 0，默认为 3
- * @param returnOnTap 是否在点击缩略图时立即返回。启用后点击缩略图会立即返回单个 [MediaResource]，不进入预览或多选确认流程，并且 [maxSelectable] 必须为 1，默认为 false
+ * @param returnOnTap 是否在点击缩略图时立即返回。启用后点击缩略图会立即返回单个 [MediaResource]，不进入预览或多选确认流程，选择器内拍照成功后同样立即返回该照片，并且 [maxSelectable] 必须为 1，默认为 false
  * @param mediaType 需要展示的媒体类型，默认为 [MediaType.ImageOnly]
  * @param allowMixedMedia 是否允许在同一结果中同时选择图片和视频。为 false 时禁止混合选择，默认为 false
  * @param captureStrategy 拍照策略。[mediaType] 必须包含图片（[MediaType.includesImage] 为 true），否则只能为 null。

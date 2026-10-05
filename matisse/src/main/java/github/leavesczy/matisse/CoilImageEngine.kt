@@ -1,5 +1,7 @@
 package github.leavesczy.matisse
 
+import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
 import androidx.compose.foundation.background
@@ -21,7 +23,9 @@ import androidx.compose.ui.res.colorResource
 import coil3.ImageLoader
 import coil3.asImage
 import coil3.compose.AsyncImage
+import coil3.decode.ContentMetadata
 import coil3.decode.DataSource
+import coil3.decode.ImageSource
 import coil3.fetch.FetchResult
 import coil3.fetch.Fetcher
 import coil3.fetch.ImageFetchResult
@@ -36,25 +40,33 @@ import coil3.size.Precision
 import coil3.size.Scale
 import coil3.size.Size
 import coil3.size.pxOrElse
+import coil3.toBitmap
+import coil3.toCoilUri
 import coil3.video.VideoFrameDecoder
+import github.leavesczy.matisse.internal.logic.ImageEngineDecode
+import github.leavesczy.matisse.internal.logic.MediaStoreThumbnail
 import kotlinx.coroutines.CancellationException
 import kotlinx.parcelize.Parcelize
+import okio.buffer
+import okio.source
 
 /**
  * 基于 Coil 3 的 [ImageEngine] 实现。
  *
  * 宿主需要做的事：
  * - 通过 `implementation` 添加 `io.coil-kt.coil3:coil-compose` 和 `io.coil-kt.coil3:coil-video`；
- * - 如需在预览页播放 GIF 等动图，还需添加 `io.coil-kt.coil3:coil-gif`，并在宿主的
- *   [coil3.ImageLoader] 中注册对应的 Decoder；
- * - 除此之外无需额外配置。本引擎使用 [coil3.SingletonImageLoader]，缩略图读取逻辑通过请求级
- *   Fetcher 接入，不需要在 ImageLoader 中注册组件，也不会影响宿主自身的图片请求。
+ * - 如需在预览页播放 GIF 等动图，还需添加 `io.coil-kt.coil3:coil-gif`，并在 Application 中通过
+ *   [coil3.SingletonImageLoader.setSafe] 向宿主 [coil3.ImageLoader] 注册对应 Decoder。
+ *   Matisse 使用独立 Activity，不会读到宿主 Composable 树上的 `LocalImageLoader`；
+ * - 除此之外无需额外配置。缩略图读取逻辑通过请求级 Fetcher 接入，不需要在 ImageLoader 中
+ *   注册组件，也不会影响宿主自身的图片请求。
  *
  * [Thumbnail]：始终按 [MediaStoreThumbnail.MAX_DIMENSION] 解码，并以媒体 Uri 为内存缓存 key，
  * 网格、相册封面与预览占位共用同一张 Bitmap，由 Compose 裁切到格子尺寸。
- * Android 10 及以上的 MediaStore 媒体优先读取系统缩略图；读取失败、低版本或 FileProvider 等
- * 非 MediaStore Uri 时，按同一目标尺寸解码原图或抽取视频帧。系统缩略图为静态图；回退解码时
- * 是否展示动图取决于宿主 ImageLoader 注册的 Decoder。
+ * Android 10 及以上的 MediaStore 媒体优先打开系统缩略图编码流，交给宿主 ImageLoader 的
+ * Decoder 解码，并按 extras 中的方向旋转；读取失败、低版本或 FileProvider 等非 MediaStore
+ * Uri 时，按同一目标尺寸解码原图或抽取视频帧。系统缩略图为静态图；回退解码时是否展示动图
+ * 取决于宿主 ImageLoader 注册的 Decoder。
  *
  * [Preview]：非视频大图按容器宽度等比展示且支持纵向滚动，加载完成前先展示 [Thumbnail] 的内存缓存。
  * 解码位图的宽高最大限制为 [ImageEngineDecode.MAX_BITMAP_DIMENSION] 像素，超过限制会保持
@@ -125,7 +137,6 @@ class CoilImageEngine : ImageEngine {
 
 }
 
-/** 固定按系统缩略图尺寸解码，网格与封面请求同一内存缓存条目。 */
 @Composable
 private fun rememberCoilThumbnailRequest(mediaResource: MediaResource): ImageRequest {
     val context = LocalContext.current
@@ -251,8 +262,9 @@ private class CoilMediaStoreThumbnail(
 )
 
 /**
- * 目标尺寸不超过 [MediaStoreThumbnail.MAX_DIMENSION] 时读取系统缩略图，否则或读取失败时
- * 用 [ImageLoader] 的 Fetcher/Decoder 解码原图（视频则抽帧），结果写入请求指定的内存缓存 key。
+ * 目标尺寸不超过 [MediaStoreThumbnail.MAX_DIMENSION] 时打开系统缩略图编码流，交给
+ * [ImageLoader] 的 Decoder 解码并按 extras 旋转；否则或读取失败时解码原图（视频则抽帧）。
+ * 结果写入请求指定的内存缓存 key。
  */
 private class CoilMediaStoreThumbnailFetcher(
     private val data: CoilMediaStoreThumbnail,
@@ -267,21 +279,49 @@ private class CoilMediaStoreThumbnailFetcher(
             MediaStoreThumbnail.isSizeSupported(width = targetWidth, height = targetHeight)
         ) {
             try {
-                val bitmap = MediaStoreThumbnail.loadBitmap(
-                    context = options.context,
-                    thumbnailUri = data.thumbnailUri
-                )
-                return ImageFetchResult(
-                    image = bitmap.asImage(),
-                    isSampled = true,
-                    dataSource = DataSource.DISK
-                )
+                return fetchSystemThumbnail()
             } catch (cancellation: CancellationException) {
                 throw cancellation
             } catch (_: Throwable) {
             }
         }
         return fetchOriginal()
+    }
+
+    private suspend fun fetchSystemThumbnail(): ImageFetchResult {
+        val thumbnail = MediaStoreThumbnail.openStream(
+            context = options.context,
+            thumbnailUri = data.thumbnailUri
+        )
+        val fileDescriptor = thumbnail.fileDescriptor
+        val imageSource = ImageSource(
+            source = fileDescriptor.createInputStream().source().buffer(),
+            fileSystem = options.fileSystem,
+            metadata = ContentMetadata(
+                uri = data.thumbnailUri.toCoilUri(),
+                assetFileDescriptor = fileDescriptor
+            )
+        )
+        try {
+            val decoded = decodeImage(
+                fetchResult = SourceFetchResult(
+                    source = imageSource,
+                    mimeType = "image/jpeg",
+                    dataSource = DataSource.DISK
+                ),
+                decodeOptions = options
+            )
+            return rotateImageFetchResult(
+                result = decoded,
+                rotationDegrees = thumbnail.rotationDegrees
+            )
+        } finally {
+            imageSource.close()
+            try {
+                fileDescriptor.close()
+            } catch (_: Throwable) {
+            }
+        }
     }
 
     private suspend fun fetchOriginal(): FetchResult {
@@ -318,13 +358,20 @@ private class CoilMediaStoreThumbnailFetcher(
             val decodeResult = VideoFrameDecoder(
                 source = fetchResult.source,
                 options = decodeOptions
-            ).decode() ?: throw IllegalStateException("Decode failed for ${mediaResource.uri}")
+            ).decode()
             return ImageFetchResult(
                 image = decodeResult.image,
                 isSampled = decodeResult.isSampled,
                 dataSource = fetchResult.dataSource
             )
         }
+        return decodeImage(fetchResult = fetchResult, decodeOptions = decodeOptions)
+    }
+
+    private suspend fun decodeImage(
+        fetchResult: SourceFetchResult,
+        decodeOptions: Options
+    ): ImageFetchResult {
         var factoryIndex = 0
         while (true) {
             val decoderPair = imageLoader.components.newDecoder(
@@ -332,7 +379,7 @@ private class CoilMediaStoreThumbnailFetcher(
                 options = decodeOptions,
                 imageLoader = imageLoader,
                 startIndex = factoryIndex
-            ) ?: throw IllegalStateException("No decoder for ${mediaResource.uri}")
+            ) ?: throw IllegalStateException("No decoder for ${data.mediaResource.uri}")
             val decodeResult = decoderPair.first.decode()
             if (decodeResult != null) {
                 return ImageFetchResult(
@@ -343,6 +390,38 @@ private class CoilMediaStoreThumbnailFetcher(
             }
             factoryIndex = decoderPair.second + 1
         }
+    }
+
+    private fun rotateImageFetchResult(
+        result: ImageFetchResult,
+        rotationDegrees: Int
+    ): ImageFetchResult {
+        val degrees = Math.floorMod(rotationDegrees, 360)
+        if (degrees == 0) {
+            return result
+        }
+        var bitmap = result.image.toBitmap()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            bitmap.config == Bitmap.Config.HARDWARE
+        ) {
+            bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, false) ?: return result
+        }
+        val matrix = Matrix()
+        matrix.postRotate(degrees.toFloat())
+        val rotated = Bitmap.createBitmap(
+            bitmap,
+            0,
+            0,
+            bitmap.width,
+            bitmap.height,
+            matrix,
+            true
+        )
+        return ImageFetchResult(
+            image = rotated.asImage(),
+            isSampled = result.isSampled,
+            dataSource = result.dataSource
+        )
     }
 
     object Factory : Fetcher.Factory<CoilMediaStoreThumbnail> {

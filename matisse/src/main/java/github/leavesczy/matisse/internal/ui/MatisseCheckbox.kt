@@ -14,9 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
@@ -95,12 +93,10 @@ private fun CheckboxCircle(
         }
     )
     val strokeWidth = 1.8.dp
-    val description = stringResource(id = R.string.matisse_cd_select_media)
     Box(
         modifier = modifier
             .semantics {
                 role = Role.Checkbox
-                contentDescription = description
                 toggleableState = ToggleableState(value = isSelected)
             }
             .drawBehind {

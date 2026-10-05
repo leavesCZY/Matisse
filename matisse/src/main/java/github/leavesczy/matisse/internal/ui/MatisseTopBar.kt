@@ -49,18 +49,10 @@ import github.leavesczy.matisse.internal.logic.DEFAULT_BUCKET_ID
 import github.leavesczy.matisse.internal.logic.MatisseBucketListItem
 
 @Composable
-internal fun MatisseBucketDisplayName(bucketId: String, bucketName: String): String {
-    return if (bucketId == DEFAULT_BUCKET_ID) {
-        stringResource(id = R.string.matisse_bucket_all)
-    } else {
-        bucketName
-    }
-}
-
-@Composable
 internal fun MatisseTopBar(
     modifier: Modifier,
-    bucketName: String,
+    selectedBucketId: String,
+    selectedBucketName: String,
     mediaBuckets: List<MatisseBucketListItem>,
     isMediaBucketsLoading: Boolean,
     onBucketMenuOpen: () -> Unit,
@@ -79,7 +71,10 @@ internal fun MatisseTopBar(
         StatusBar(modifier = Modifier)
         MatisseTopBarContent(
             modifier = Modifier,
-            title = bucketName,
+            title = matisseBucketDisplayName(
+                bucketId = selectedBucketId,
+                bucketName = selectedBucketName
+            ),
             onOpenBucketMenu = {
                 onBucketMenuOpen()
                 menuExpanded = true
@@ -137,7 +132,7 @@ private fun MatisseTopBarContent(
                 .size(size = 28.dp),
             painter = painterResource(id = R.drawable.ic_matisse_arrow_back),
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-            contentDescription = stringResource(id = R.string.matisse_action_back)
+            contentDescription = null
         )
         Text(
             modifier = Modifier
@@ -159,7 +154,7 @@ private fun MatisseTopBarContent(
                 .size(size = 32.dp),
             painter = painterResource(id = R.drawable.ic_matisse_arrow_drop_down),
             tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-            contentDescription = stringResource(id = R.string.matisse_cd_switch_bucket)
+            contentDescription = null
         )
     }
 }
@@ -234,7 +229,7 @@ private fun BucketDropdownMenu(
                                 text = stringResource(
                                     id = R.string.matisse_bucket_name_with_count,
                                     formatArgs = arrayOf<Any>(
-                                        MatisseBucketDisplayName(
+                                        matisseBucketDisplayName(
                                             bucketId = bucket.bucketId,
                                             bucketName = bucket.bucketName
                                         ),
@@ -256,5 +251,14 @@ private fun BucketDropdownMenu(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun matisseBucketDisplayName(bucketId: String, bucketName: String): String {
+    return if (bucketId == DEFAULT_BUCKET_ID) {
+        stringResource(id = R.string.matisse_bucket_all)
+    } else {
+        bucketName
     }
 }

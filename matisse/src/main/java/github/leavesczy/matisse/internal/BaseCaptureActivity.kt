@@ -379,11 +379,11 @@ internal abstract class BaseCaptureActivity : AppCompatActivity() {
         }
     }
 
-    protected fun showToast(@StringRes id: Int) {
+    private fun showToast(@StringRes id: Int) {
         showToast(text = getString(id))
     }
 
-    protected fun showToast(text: String) {
+    private fun showToast(text: String) {
         if (text.isBlank()) {
             return
         }

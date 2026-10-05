@@ -73,7 +73,7 @@
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
 
-    <!-- Empty placeholder lines (nothing to show) -->
+    <!-- Empty placeholder lines -->
     <path
         android:fillColor="@android:color/transparent"
         android:pathData="M72,74 L128,74"

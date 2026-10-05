@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.AssetFileDescriptor
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.CancellationSignal
@@ -46,6 +45,8 @@ import com.bumptech.glide.load.resource.bitmap.Downsampler
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.signature.ObjectKey
+import github.leavesczy.matisse.internal.logic.ImageEngineDecode
+import github.leavesczy.matisse.internal.logic.MediaStoreThumbnail
 import kotlinx.parcelize.Parcelize
 import java.io.InputStream
 import java.lang.ref.WeakReference
@@ -143,8 +144,7 @@ class GlideImageEngine : ImageEngine {
 }
 
 /**
- * 缩略图统一按 [MediaStoreThumbnail.MAX_DIMENSION] 解码，使网格、封面与预览占位命中同一内存缓存。
- * 系统已缓存该缩略图，不写入 Glide 磁盘缓存。
+ * 缩略图按 [MediaStoreThumbnail.MAX_DIMENSION] 解码以命中同一内存缓存；系统缩略图不写入磁盘缓存。
  */
 private fun RequestBuilder<Drawable>.applyThumbnailOptions(model: Any): RequestBuilder<Drawable> {
     val builder = if (model is GlideMediaStoreThumbnail) {
@@ -228,10 +228,8 @@ private class GlideMediaStoreThumbnail(
         private var registeredGlide: WeakReference<Glide>? = null
 
         /**
-         * 返回缩略图请求的模型：可以使用系统缩略图时返回 [GlideMediaStoreThumbnail]，否则返回原始 Uri。
-         *
-         * 首次返回 [GlideMediaStoreThumbnail] 前会向当前 Glide 实例的 Registry 追加 Matisse 的加载组件，
-         * 宿主无需在 AppGlideModule 中注册；宿主重新初始化 Glide 后会在下次使用时自动重新注册。
+         * 系统缩略图可用时返回 [GlideMediaStoreThumbnail]，否则返回原始 Uri。
+         * 首次使用前会向当前 Glide 实例注册 Matisse 的加载组件。
          */
         fun from(context: Context, mediaResource: MediaResource): Any {
             val thumbnailUri = MediaStoreThumbnail.thumbnailUri(mediaResource = mediaResource)
@@ -398,7 +396,7 @@ private class ThumbnailFetcher(
 
 /**
  * 通过 Glide 的 [Downsampler] 解码系统缩略图，从而复用 [BitmapPool] 中的位图内存，并遵循请求的
- * DownsampleStrategy；随后按系统缩略图 extras 中的方向旋转，旋转时同样从位图池取内存。
+ * DownsampleStrategy；随后按 extras 中的角度旋转。
  */
 private class ThumbnailDecoder(
     private val downsampler: Downsampler,
@@ -418,14 +416,11 @@ private class ThumbnailDecoder(
         val resource = source.fileDescriptor.createInputStream().use { inputStream ->
             downsampler.decode(inputStream, width, height, options)
         } ?: return null
-        val exifOrientation = when (Math.floorMod(source.rotationDegrees, 360)) {
-            90 -> ExifInterface.ORIENTATION_ROTATE_90
-            180 -> ExifInterface.ORIENTATION_ROTATE_180
-            270 -> ExifInterface.ORIENTATION_ROTATE_270
-            else -> ExifInterface.ORIENTATION_NORMAL
-        }
         val decoded = resource.get()
-        val rotated = TransformationUtils.rotateImageExif(bitmapPool, decoded, exifOrientation)
+        val rotated = TransformationUtils.rotateImage(
+            decoded,
+            Math.floorMod(source.rotationDegrees, 360)
+        )
         if (rotated === decoded) {
             return resource
         }

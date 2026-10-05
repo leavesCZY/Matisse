@@ -9,7 +9,7 @@
     </queries>
 
     <application>
-        <!-- 界面由 Compose 构建，configChanges 中的配置变化通过重组适配而不重建 Activity，避免打断分页加载与拍照收尾 -->
+        <!-- configChanges 列出的变化由 Compose 重组适配，不重建 Activity，以免中断分页与拍照收尾 -->
         <activity
             android:name=".internal.MatisseActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|uiMode"

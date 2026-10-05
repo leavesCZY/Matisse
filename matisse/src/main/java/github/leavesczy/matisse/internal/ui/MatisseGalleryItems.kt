@@ -38,8 +38,7 @@ internal class MatisseGalleryItems(
     }
 
     /**
-     * 列表页与预览页共用的 key 规则：拍照项与分页项分段加前缀，避免拍照后旧分页数据短暂残留时
-     * 同一 mediaId 同时出现在两段而产生重复 key。
+     * 拍照项与分页项分段加前缀，避免同一 mediaId 同时出现在两段时 key 冲突。
      */
     fun keyAt(index: Int): Any {
         return if (index < capturedCount) {
@@ -54,7 +53,7 @@ internal class MatisseGalleryItems(
         }
     }
 
-    /** 不触发分页加载，用于 key 计算与非渲染场景读取。 */
+    /** 不触发分页加载。预览组合与 key 计算走这里，避免在组合中调用 [get] 打断该页。 */
     fun peek(index: Int): MatisseMediaItem? {
         return if (index < capturedCount) {
             capturedMediaItems.getOrNull(index = index)
