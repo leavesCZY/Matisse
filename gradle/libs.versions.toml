@@ -24,7 +24,7 @@ coil = "3.6.3"
 glide = "5.0.9"
 glide-compose = "1.0.0-beta10"
 
-leavesczy-matisse = "2.3.2"
+leavesczy-matisse = "3.0.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
